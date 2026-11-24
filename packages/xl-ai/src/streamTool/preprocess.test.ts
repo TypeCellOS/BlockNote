@@ -1,8 +1,7 @@
-import { BlockNoteEditor } from "@blocknote/core";
-import { beforeEach, describe, expect, it } from "vite-plus/test";
+import { describe, expect } from "vite-plus/test";
+import type { SetupEditor } from "../../../../tests/src/commands/node/setupEditor.js";
 import { tools } from "../api/formats/json/tools/index.js";
 import { preprocessOperationsStreaming } from "./preprocess.js";
-import { StreamTool } from "./streamTool.js";
 
 const addOperationValid = {
   type: "add" as const,
@@ -48,28 +47,27 @@ async function collectStreamToArray<T>(stream: AsyncIterable<T>): Promise<T[]> {
   return results;
 }
 
-describe("preprocess", () => {
-  let editor: BlockNoteEditor;
-  let streamTools: StreamTool<any>[];
-  beforeEach(() => {
-    editor = BlockNoteEditor.create({
-      initialContent: [
-        {
-          type: "paragraph",
-          content: "test",
-          id: "existing-id",
-        },
-      ],
-    });
-    streamTools = [
-      tools.add(editor, { idsSuffixed: true, withDelays: false }),
-      tools.update(editor, { idsSuffixed: true, withDelays: false }),
-      tools.delete(editor, { idsSuffixed: true, withDelays: false }),
-    ];
+async function setupStreamTools(setupEditor: SetupEditor) {
+  const { editor } = await setupEditor({
+    initialContent: [
+      {
+        type: "paragraph",
+        content: "test",
+        id: "existing-id",
+      },
+    ],
   });
+  return [
+    tools.add(editor, { idsSuffixed: true, withDelays: false }),
+    tools.update(editor, { idsSuffixed: true, withDelays: false }),
+    tools.delete(editor, { idsSuffixed: true, withDelays: false }),
+  ];
+}
 
+describe("preprocess", () => {
   describe("preprocessOperationsStreaming", () => {
-    it("should process pass valid operations", async () => {
+    it("should process pass valid operations", async ({ setupEditor }) => {
+      const streamTools = await setupStreamTools(setupEditor);
       async function* mockStream() {
         yield {
           partialOperation: addOperationValid,
@@ -86,7 +84,8 @@ describe("preprocess", () => {
       expect(results.length).toBe(1);
     });
 
-    it("should drop invalid partial operations", async () => {
+    it("should drop invalid partial operations", async ({ setupEditor }) => {
+      const streamTools = await setupStreamTools(setupEditor);
       async function* mockStream() {
         yield {
           partialOperation: addOperationInvalidId,
@@ -109,7 +108,8 @@ describe("preprocess", () => {
       expect(results.length).toBe(0);
     });
 
-    it("should throw invalid full operations", async () => {
+    it("should throw invalid full operations", async ({ setupEditor }) => {
+      const streamTools = await setupStreamTools(setupEditor);
       async function* mockStream() {
         yield {
           partialOperation: addOperationInvalidId,
@@ -132,7 +132,8 @@ describe("preprocess", () => {
       ).rejects.toThrow();
     });
 
-    it("should handle empty operation streams", async () => {
+    it("should handle empty operation streams", async ({ setupEditor }) => {
+      const streamTools = await setupStreamTools(setupEditor);
       async function* mockStream() {
         // Empty stream
       }
@@ -145,7 +146,10 @@ describe("preprocess", () => {
     });
   });
 
-  it("should throw an error on invalid operations (invalid id)", async () => {
+  it("should throw an error on invalid operations (invalid id)", async ({
+    setupEditor,
+  }) => {
+    const streamTools = await setupStreamTools(setupEditor);
     async function* mockStream() {
       yield {
         partialOperation: addOperationInvalidId,
@@ -162,7 +166,10 @@ describe("preprocess", () => {
     ).rejects.toThrow();
   });
 
-  it("should throw an error on invalid operations (invalid type)", async () => {
+  it("should throw an error on invalid operations (invalid type)", async ({
+    setupEditor,
+  }) => {
+    const streamTools = await setupStreamTools(setupEditor);
     async function* mockStream() {
       yield {
         partialOperation: invalidOperationType,

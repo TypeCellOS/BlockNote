@@ -85,10 +85,9 @@ describe("Exporter mapping typing", () => {
           { content: "none", type: "extraBlock", propSchema: {} },
           {
             render: () => {
-              const dom = document.createElement("div");
-              return { dom, contentDOM: dom };
+              throw new Error("Exporter mapping does not use block rendering");
             },
-          } as any,
+          },
         )(),
       },
     });
@@ -201,8 +200,7 @@ const box = createBlockSpec(
   },
   {
     renderFrame: () => {
-      const dom = document.createElement("div");
-      return { dom, slot: dom };
+      throw new Error("Exporter mapping does not use frame rendering");
     },
   },
 )();

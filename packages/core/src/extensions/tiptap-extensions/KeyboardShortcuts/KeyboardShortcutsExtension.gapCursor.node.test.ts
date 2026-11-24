@@ -1,34 +1,11 @@
-// @vitest-environment node
 import { GapCursor } from "@tiptap/pm/gapcursor";
 import { NodeSelection, TextSelection } from "prosemirror-state";
-import { afterEach, describe, expect, it } from "vite-plus/test";
+import { describe, expect } from "vite-plus/test";
 
 import { getNodeById } from "../../../api/nodeUtil.js";
 import { type PartialBlock } from "../../../blocks/defaultBlocks.js";
-import { BlockNoteEditor } from "../../../editor/BlockNoteEditor.js";
-
-const editors: BlockNoteEditor[] = [];
-
-afterEach(() => {
-  for (const editor of editors.splice(0)) {
-    editor._tiptapEditor.destroy();
-  }
-});
-
-function createEditor(initialContent: PartialBlock[]) {
-  const editor = BlockNoteEditor.create({
-    initialContent,
-    trailingBlock: false,
-  });
-  editors.push(editor);
-  const view = editor.prosemirrorView;
-  view.updateState(
-    view.state.reconfigure({
-      plugins: editor._tiptapEditor.extensionManager.plugins,
-    }),
-  );
-  return editor;
-}
+import type { BlockNoteEditor } from "../../../editor/BlockNoteEditor.js";
+import { installHeadlessPlugins } from "../../testHeadlessEditor.js";
 
 function pressEnter(editor: BlockNoteEditor) {
   // The real keymaps only read these fields; no DOM or layout is needed.
@@ -45,13 +22,28 @@ function pressEnter(editor: BlockNoteEditor) {
 }
 
 describe("Enter at a gap cursor", () => {
+  const it = globalThis.it.extend<{
+    createEditor: (initialContent: PartialBlock[]) => Promise<BlockNoteEditor>;
+  }>({
+    createEditor: async ({ setupEditor }, use) => {
+      await use(async (initialContent) => {
+        const { editor } = await setupEditor({
+          initialContent,
+          trailingBlock: false,
+        });
+        installHeadlessPlugins(editor);
+        return editor;
+      });
+    },
+  });
+
   // Manual ArrowUp navigation produces the inner gap at position 2, before the
   // image content inside its blockContainer, not before the wrapper itself.
   // These node tests pin Enter's response, not browser arrow-key geometry.
-  it.each(["image", "file", "video", "audio"] as const)(
+  it.for(["image", "file", "video", "audio"] as const)(
     "inserts above the first %s without moving its children",
-    (type) => {
-      const editor = createEditor([
+    async (type, { createEditor }) => {
+      const editor = await createEditor([
         { id: "media", type, children: [{ id: "child", content: "Child" }] },
         { id: "following", content: "Following" },
       ]);
@@ -74,34 +66,39 @@ describe("Enter at a gap cursor", () => {
     },
   );
 
-  it.each([
+  it.for([
     [1, 0], // Before the first wrapper.
     [2, 0], // Before the first image, inside its wrapper (the reported case).
     [3, 1], // After the image, inside its wrapper.
     [4, 1], // Between the wrappers.
     [5, 1], // Before the file, inside its wrapper.
     [6, 2], // After the final file, inside its wrapper.
-  ])("inserts at gap %s as block %s", (pos, insertionIndex) => {
-    const editor = createEditor([
-      { id: "image", type: "image" },
-      { id: "file", type: "file" },
-    ]);
-    editor.transact((tr) => {
-      tr.setSelection(new GapCursor(tr.doc.resolve(pos)));
-    });
+  ] as const)(
+    "inserts at gap %s as block %s",
+    async ([pos, insertionIndex], { createEditor }) => {
+      const editor = await createEditor([
+        { id: "image", type: "image" },
+        { id: "file", type: "file" },
+      ]);
+      editor.transact((tr) => {
+        tr.setSelection(new GapCursor(tr.doc.resolve(pos)));
+      });
 
-    pressEnter(editor);
+      pressEnter(editor);
 
-    const expected = ["image", "file"];
-    expected.splice(insertionIndex, 0, "paragraph");
-    expect(editor.document.map((block) => block.type)).toEqual(expected);
-    expect(editor.getTextCursorPosition().block.id).toBe(
-      editor.document[insertionIndex].id,
-    );
-  });
+      const expected = ["image", "file"];
+      expected.splice(insertionIndex, 0, "paragraph");
+      expect(editor.document.map((block) => block.type)).toEqual(expected);
+      expect(editor.getTextCursorPosition().block.id).toBe(
+        editor.document[insertionIndex].id,
+      );
+    },
+  );
 
-  it("inserts before a nested image without outdenting it", () => {
-    const editor = createEditor([
+  it("inserts before a nested image without outdenting it", async ({
+    createEditor,
+  }) => {
+    const editor = await createEditor([
       {
         id: "parent",
         content: "Parent",
@@ -125,8 +122,8 @@ describe("Enter at a gap cursor", () => {
     );
   });
 
-  it("still inserts below a node-selected image", () => {
-    const editor = createEditor([{ id: "image", type: "image" }]);
+  it("still inserts below a node-selected image", async ({ createEditor }) => {
+    const editor = await createEditor([{ id: "image", type: "image" }]);
     editor.transact((tr) => {
       tr.setSelection(NodeSelection.create(tr.doc, 2));
     });
@@ -137,5 +134,9 @@ describe("Enter at a gap cursor", () => {
       "image",
       "paragraph",
     ]);
+    expect(editor.getTextCursorPosition().block.id).toBe(editor.document[1].id);
+    expect(editor.prosemirrorView.state.selection).toBeInstanceOf(
+      TextSelection,
+    );
   });
 });

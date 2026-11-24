@@ -1,26 +1,30 @@
 import App from "@examples/01-basic/testing/src/App";
-import { beforeEach, describe, test } from "vite-plus/test";
+import { describe, expect, test } from "vite-plus/test";
 import { render } from "vitest-browser-react";
-import { EDITOR_SELECTOR } from "../../utils/const.js";
-import { expectElement, sleep, waitForSelector } from "../../utils/editor.js";
+import {
+  DRAG_HANDLE_SELECTOR,
+  EDITOR_SELECTOR,
+  PARAGRAPH_SELECTOR,
+} from "../../utils/const.js";
+import { expectElement, waitForSelector } from "../../utils/editor.js";
 import { moveMouseOverElement } from "../../utils/mouse.js";
-
-beforeEach(async () => {
-  await render(<App />);
-  await waitForSelector(EDITOR_SELECTOR);
-});
 
 describe("Basic placeholder functionality", () => {
   test("should show placeholder on load", async () => {
-    await moveMouseOverElement(
-      document.querySelectorAll(`${EDITOR_SELECTOR} div`)[3] as HTMLElement,
+    await render(<App />);
+    const paragraph = await waitForSelector(
+      `${EDITOR_SELECTOR} ${PARAGRAPH_SELECTOR}`,
     );
 
-    // TODO: doesn't work. No way to access text of ::before element?
-    // expect(editor.textContent).toBe(
-    //   "Enter text or type '/' for commands"
-    // );
-    await sleep(1000);
+    await expect
+      .poll(() => getComputedStyle(paragraph, "::after").content)
+      .toContain("Enter text or type '/' for commands");
+    // The baseline includes the side menu revealed by hovering the block.
+    await moveMouseOverElement(paragraph);
+    await expectElement(
+      await waitForSelector(DRAG_HANDLE_SELECTOR),
+    ).toBeVisible();
+    await document.fonts.ready;
     await expectElement(document.body).toMatchScreenshot("initial-placeholder");
   });
 });

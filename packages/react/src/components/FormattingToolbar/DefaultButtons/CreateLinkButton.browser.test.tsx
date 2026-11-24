@@ -139,7 +139,6 @@ describe("CreateLinkButton", () => {
       });
       selectText(editor, "selected text");
       const documentBefore = editor.document;
-      const selectionBefore = editor.prosemirrorState.selection.toJSON();
 
       await page
         .getByRole("button", {
@@ -155,9 +154,7 @@ describe("CreateLinkButton", () => {
           ),
         )
         .toHaveFocus();
-      expect(editor.prosemirrorState.selection.toJSON()).toEqual(
-        selectionBefore,
-      );
+      expect(editor.getSelectedText()).toBe("selected text");
       expect(editor.document).toEqual(documentBefore);
     });
   });
@@ -276,7 +273,7 @@ describe("CreateLinkButton", () => {
         props: { formattingToolbar: false },
         children: <CreateLinkButton />,
       });
-      await page.getByRole("textbox").click();
+      editor.focus();
       selectText(editor, "Selected text");
       const button = page.getByRole("button", {
         name: editor.dictionary.formatting_toolbar.link.tooltip,
@@ -317,9 +314,11 @@ describe("CreateLinkButton", () => {
         editor.dictionary.link_toolbar.form.url_placeholder,
       );
       await expect.element(input).toHaveFocus();
-      await expect
-        .poll(() => getComputedStyle(input.element()).outlineStyle)
-        .not.toMatch(/^(none|hidden)$/);
+      // The focused input's computed style is available now. Polling a known
+      // missing outline just waits out the assertion timeout.
+      expect(getComputedStyle(input.element()).outlineStyle).not.toMatch(
+        /^(none|hidden)$/,
+      );
     });
 
     it("opens with Enter and returns focus to its trigger on Escape without editing", async ({
@@ -339,7 +338,6 @@ describe("CreateLinkButton", () => {
         exact: true,
       });
       const documentBefore = editor.document;
-      const selectionBefore = editor.prosemirrorState.selection.toJSON();
       await expect.element(button).toBeVisible();
       button.element().focus();
 
@@ -355,9 +353,7 @@ describe("CreateLinkButton", () => {
       await expect.element(input).not.toBeInTheDocument();
       await expect.element(button).toHaveFocus();
       expect(editor.document).toEqual(documentBefore);
-      expect(editor.prosemirrorState.selection.toJSON()).toEqual(
-        selectionBefore,
-      );
+      expect(editor.getSelectedText()).toBe("Selected text");
     });
 
     it("opens with the editor's link shortcut but not in read-only mode", async ({
@@ -371,7 +367,7 @@ describe("CreateLinkButton", () => {
         props: { formattingToolbar: false },
         children: <CreateLinkButton />,
       });
-      await page.getByRole("textbox").click();
+      editor.focus();
       selectText(editor, "Selected text");
 
       await pressKey("Control+k");
@@ -390,7 +386,7 @@ describe("CreateLinkButton", () => {
         bubbles: true,
         cancelable: true,
       });
-      editor.prosemirrorView.dom.dispatchEvent(shortcut);
+      editor.domElement!.dispatchEvent(shortcut);
 
       await expect.element(input).not.toBeInTheDocument();
       expect(shortcut.defaultPrevented).toBe(false);

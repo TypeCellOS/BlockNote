@@ -74,7 +74,7 @@
   "dependencies": {
     "@blocknote/core": "workspace:^",
     "@blocknote/react": "workspace:^",
-    "@tiptap/pm": "^3.31.3",
+    "@tiptap/pm": "^3.31.4",
     "jsdom": "^29.0.2",
     "yjs": "^13.6.33"
   },

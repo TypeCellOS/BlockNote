@@ -1,5 +1,5 @@
 import * as path from "path";
-import { defineConfig, type UserConfig } from "vite-plus";
+import { configDefaults, defineConfig, type UserConfig } from "vite-plus";
 import { buildCacheInputs } from "../scripts/build-cache-inputs.js";
 
 // https://vitejs.dev/config/
@@ -20,6 +20,9 @@ export default defineConfig(
           test: {
             command: "vp test --run",
             cache: {
+              // CI requires built-package coverage; NEXTJS_TEST_MODE enables
+              // the Next.js integration suite and selects dev or build mode.
+              env: ["CI", "NEXTJS_TEST_MODE"],
               input: [
                 { auto: true },
                 { pattern: "!**/.next/**", base: "workspace" },
@@ -33,15 +36,13 @@ export default defineConfig(
         },
       },
       test: {
+        exclude: [...configDefaults.exclude, "**/*.browser.test.*"],
         // Preserve Vitest 4 mock history during the toolchain upgrade.
         clearMocks: false,
-        environment: "jsdom",
+        // Reuse the editor module graph within each worker.
+        isolate: false,
         setupFiles: ["./vitestSetup.ts", "./vitestSetup.node-fixtures.ts"],
-        include: [
-          "./src/unit/**/*.test.ts",
-          "./src/unit/**/*.test.tsx",
-          "../examples/07-collaboration/12-multi-doc-versioning/src/*.test.ts",
-        ],
+        include: ["./src/integration/**/*.test.?(c|m)[jt]s?(x)"],
       },
       resolve: {
         alias:

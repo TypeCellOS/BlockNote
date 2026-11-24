@@ -1,5 +1,5 @@
 /* eslint-disable react/globals -- The test component exposes a rerender callback to its parent test. */
-import { BlockNoteEditor } from "@blocknote/core";
+import type { BlockNoteEditor } from "@blocknote/core";
 import { filterSuggestionItems } from "@blocknote/core/extensions";
 import {
   getDefaultReactSlashMenuItems,
@@ -8,16 +8,23 @@ import {
 } from "@blocknote/react";
 import { act, Profiler, StrictMode, useState } from "react";
 import { createRoot, type Root } from "react-dom/client";
-import { afterEach, beforeEach, describe, expect, test } from "vite-plus/test";
+import {
+  afterEach,
+  aroundEach,
+  beforeEach,
+  describe,
+  expect,
+  vi,
+} from "vite-plus/test";
+import type { SetupEditor } from "../../../tests/src/commands/browser/setupEditor.js";
+import { withTiptapStyleCleanup } from "../../../tests/src/commands/browser/tiptapFixtureStyles.js";
 
 import { BlockNoteView } from "./BlockNoteView.js";
 import "./style.css";
 
-declare global {
-  // eslint-disable-next-line no-var
-  var IS_REACT_ACT_ENVIRONMENT: boolean;
-}
-globalThis.IS_REACT_ACT_ENVIRONMENT = true;
+// Preserve the real async React mount; forcing a synchronous commit would change
+// the profiling contract. Check style ownership after the root has unmounted.
+aroundEach(withTiptapStyleCleanup);
 
 /**
  * Guards the render profile of `BlockNoteView` around portalling: routing the
@@ -97,16 +104,17 @@ function Harness(props: { setup: Setup }) {
 }
 
 /**
- * Waits until no commit has landed for a while. Mounting schedules an update
- * from an effect that can commit after `act` has returned, and on Linux WebKit
- * whether it does varies from mount to mount; measuring only once things have
- * settled makes every mount count the same set of commits.
+ * An effect can schedule a commit after `act` returns, notably on Linux
+ * WebKit. Let the browser finish a frame (and run tasks queued before it)
+ * before checking whether the profiler has stopped seeing commits.
  */
 async function settle() {
   let last = commits;
   for (let i = 0; i < 20; i++) {
     await act(async () => {
-      await new Promise((resolve) => setTimeout(resolve, 50));
+      await new Promise<void>((resolve) => {
+        requestAnimationFrame(() => setTimeout(resolve, 0));
+      });
     });
     if (commits === last) {
       return;
@@ -116,8 +124,8 @@ async function settle() {
   throw new Error("commits did not settle");
 }
 
-async function mount(setup: Setup, strict: boolean) {
-  editor = BlockNoteEditor.create();
+async function mount(setupEditor: SetupEditor, setup: Setup, strict: boolean) {
+  ({ editor } = await setupEditor({ mountType: false }));
   commits = 0;
   childRenders = 0;
   root = createRoot(container);
@@ -133,44 +141,51 @@ async function mount(setup: Setup, strict: boolean) {
 }
 
 async function unmount() {
-  await act(async () => {
-    root?.unmount();
-  });
+  const view = root;
   root = undefined;
-  editor._tiptapEditor.destroy();
+  await act(async () => {
+    view?.unmount();
+  });
 }
 
 beforeEach(() => {
+  vi.stubGlobal("IS_REACT_ACT_ENVIRONMENT", true);
   container = document.createElement("div");
   target = document.createElement("div");
   document.body.append(container, target);
 });
 
 afterEach(async () => {
-  if (root) {
+  try {
     await unmount();
+  } finally {
+    container.remove();
+    target.remove();
+    vi.unstubAllGlobals();
   }
-  container.remove();
-  target.remove();
 });
 
 describe.each([{ strict: false }, { strict: true }])(
   "BlockNoteView render profile with portals (StrictMode: $strict)",
   ({ strict }) => {
-    test("portal setups add no commits or child renders at mount", async () => {
-      const baseline = await mount("default", strict);
+    it("portal setups add no commits or child renders at mount", async ({
+      setupEditor,
+    }) => {
+      const baseline = await mount(setupEditor, "default", strict);
       await unmount();
 
       for (const setup of PORTAL_SETUPS) {
-        const measured = await mount(setup, strict);
+        const measured = await mount(setupEditor, setup, strict);
         await unmount();
         expect({ setup, ...measured }).toEqual({ setup, ...baseline });
       }
     });
 
-    test("an unrelated parent re-render costs the same with portals as without", async () => {
+    it("an unrelated parent re-render costs the same with portals as without", async ({
+      setupEditor,
+    }) => {
       async function rerenderCost(setup: Setup) {
-        await mount(setup, strict);
+        await mount(setupEditor, setup, strict);
         const before = { commits, childRenders };
         await act(async () => {
           rerenderParent();

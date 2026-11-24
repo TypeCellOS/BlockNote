@@ -1,10 +1,6 @@
 import { describe, expect, it } from "vite-plus/test";
 
-import {
-  applyDataAttributes,
-  propsToDataAttributes,
-  setDataAttributes,
-} from "./dataAttributes.js";
+import { propsToDataAttributes } from "./dataAttributes.js";
 
 // The one rule props and their `data-*` attributes share: a prop becomes a
 // kebab-case attribute, except at its default, which has none.
@@ -41,32 +37,5 @@ describe("propsToDataAttributes", () => {
         ),
       ),
     ).toEqual(["data-checked", "data-text-alignment"]);
-  });
-});
-
-describe("setDataAttributes", () => {
-  it("sets the attributes and removes nothing", () => {
-    const element = document.createElement("div");
-    element.setAttribute("data-checked", "author");
-    setDataAttributes(
-      element,
-      propsToDataAttributes({ textAlignment: "center" }, propSchema),
-    );
-    expect(element.getAttribute("data-text-alignment")).toBe("center");
-    expect(element.getAttribute("data-checked")).toBe("author");
-  });
-});
-
-describe("applyDataAttributes", () => {
-  it("sets non-default props and removes the attributes of the others", () => {
-    const element = document.createElement("div");
-    element.setAttribute("data-text-alignment", "center");
-    element.setAttribute("data-checked", "author");
-    element.setAttribute("data-other", "kept");
-    applyDataAttributes(element, { previewWidth: 100 }, propSchema);
-    expect(element.getAttribute("data-preview-width")).toBe("100");
-    expect(element.hasAttribute("data-text-alignment")).toBe(false);
-    expect(element.hasAttribute("data-checked")).toBe(false);
-    expect(element.getAttribute("data-other")).toBe("kept");
   });
 });

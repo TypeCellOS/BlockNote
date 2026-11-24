@@ -56,6 +56,7 @@ export default defineConfig({
       `${path}-snapshots/screen-reader/${reader}${extension}`,
     browser: {
       enabled: true,
+      viewport: { width: 1280, height: 720 },
       headless: false,
       screenshotFailures: false,
       locators: { testIdAttribute: "data-id" },

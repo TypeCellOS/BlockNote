@@ -1,12 +1,11 @@
-// @vitest-environment node
 import * as Y from "yjs";
 import {
   prosemirrorToYXmlFragment,
   ySyncPluginKey,
   yXmlFragmentToProseMirrorRootNode,
 } from "y-prosemirror";
-import { expect, it } from "vite-plus/test";
-import { BlockNoteEditor } from "../../editor/BlockNoteEditor.js";
+import { expect } from "vite-plus/test";
+import type { BlockNoteEditor } from "../../editor/BlockNoteEditor.js";
 import { withCollaboration } from "./index.js";
 import { blocksToYXmlFragment } from "../utils.js";
 import {
@@ -16,13 +15,16 @@ import {
 import { createYjsVersionView, YjsVersioningExtension } from "./Versioning.js";
 import { BlockNoteSchema } from "../../blocks/BlockNoteSchema.js";
 import { DiffVersioningExtension } from "../../y/index.js";
+import { YSyncExtension } from "./YSync.js";
 
-it("discards diff marks and resumes live updates after a nested-fragment preview", async () => {
+it("discards diff marks and resumes live updates after a nested-fragment preview", async ({
+  setupEditor,
+}) => {
   const doc = new Y.Doc();
   const fragment = new Y.XmlFragment();
   doc.getMap("documents").set("body", fragment);
   const snapshots = new Map<string, Uint8Array>();
-  const editor = BlockNoteEditor.create(
+  const { editor } = await setupEditor(
     withCollaboration({
       extensions: [
         DiffVersioningExtension(),
@@ -61,11 +63,13 @@ it("discards diff marks and resumes live updates after a nested-fragment preview
     );
   }
   function expectNoDiffMarks() {
-    editor.prosemirrorState.doc.descendants((node) => {
-      expect(
-        node.marks.some((mark) => mark.type.name.startsWith("y-attributed-")),
-      ).toBe(false);
-    });
+    editor.transact(({ doc }) =>
+      doc.descendants((node) => {
+        expect(
+          node.marks.some((mark) => mark.type.name.startsWith("y-attributed-")),
+        ).toBe(false);
+      }),
+    );
   }
   try {
     for (const [id, content] of [
@@ -78,11 +82,7 @@ it("discards diff marks and resumes live updates after a nested-fragment preview
       blocksToYXmlFragment(editor, editor.document, fragment);
       snapshots.set(id, Y.encodeStateAsUpdate(doc));
     }
-    editor.prosemirrorView.updateState(
-      editor.prosemirrorState.reconfigure({
-        plugins: editor._tiptapEditor.extensionManager.plugins,
-      }),
-    );
+    editor.replaceExtension("ySync", YSyncExtension({ fragment }));
     const live = Y.encodeStateAsUpdate(doc);
     mode.open();
     expect(await mode.list()).toEqual({ status: "done" });
@@ -91,34 +91,46 @@ it("discards diff marks and resumes live updates after a nested-fragment preview
     ).toEqual({ status: "done" });
     const inserted: string[] = [];
     const deleted: string[] = [];
-    editor.prosemirrorState.doc.descendants((node) => {
-      if (!node.isText) {
-        return;
-      }
-      if (node.marks.some((mark) => mark.type.name === "y-attributed-insert")) {
-        inserted.push(node.text!);
-      }
-      if (node.marks.some((mark) => mark.type.name === "y-attributed-delete")) {
-        deleted.push(node.text!);
-      }
-    });
+    editor.transact(({ doc }) =>
+      doc.descendants((node) => {
+        if (!node.isText) {
+          return;
+        }
+        if (
+          node.marks.some((mark) => mark.type.name === "y-attributed-insert")
+        ) {
+          inserted.push(node.text!);
+        }
+        if (
+          node.marks.some((mark) => mark.type.name === "y-attributed-delete")
+        ) {
+          deleted.push(node.text!);
+        }
+      }),
+    );
     expect(inserted.join("")).toBe("b");
     expect(deleted.join("")).toBe("x");
     const previewFragment = ySyncPluginKey.getState(
       editor.prosemirrorState,
     ).type;
     expect(previewFragment).not.toBe(fragment);
-    prosemirrorToYXmlFragment(editor.prosemirrorState.doc, previewFragment);
+    editor.transact(({ doc }) =>
+      prosemirrorToYXmlFragment(doc, previewFragment),
+    );
     hydrateBinding();
-    expect(editor.prosemirrorState.doc.textContent).toContain("x");
+    expect(editor.transact(({ doc }) => doc.textContent)).toContain("x");
     expect(Y.encodeStateAsUpdate(doc)).toEqual(live);
     await mode.select({ type: "snapshot", id: "first" });
     hydrateBinding();
-    expect(editor.prosemirrorState.doc.textContent).toBe("axc");
+    expect(editor.document[0].content).toEqual([
+      { type: "text", text: "axc", styles: {} },
+    ]);
     expectNoDiffMarks();
     await mode.select({ type: "current" });
     hydrateBinding();
-    expect(editor.prosemirrorState.doc.textContent).toBe("abc");
+    expect(editor.document[0].content).toEqual([
+      { type: "text", text: "abc", styles: {} },
+    ]);
     expectNoDiffMarks();
     mode.close();
     expect(ySyncPluginKey.getState(editor.prosemirrorState).type).toBe(
@@ -127,9 +139,13 @@ it("discards diff marks and resumes live updates after a nested-fragment preview
     expect(Y.encodeStateAsUpdate(doc)).toEqual(live);
     hydrateBinding();
     editor.updateBlock("paragraph", { content: "after preview" });
-    prosemirrorToYXmlFragment(
-      editor.prosemirrorState.doc,
-      ySyncPluginKey.getState(editor.prosemirrorState).type,
+    // In headless mode, simulate the plugin view's write through its active binding.
+    const activeFragment = ySyncPluginKey.getState(
+      editor.prosemirrorState,
+    ).type;
+    expect(activeFragment).toBe(fragment);
+    editor.transact(({ doc }) =>
+      prosemirrorToYXmlFragment(doc, activeFragment),
     );
     expect(
       yXmlFragmentToProseMirrorRootNode(fragment, editor.pmSchema).textContent,
@@ -137,18 +153,17 @@ it("discards diff marks and resumes live updates after a nested-fragment preview
     expectNoDiffMarks();
   } finally {
     mode.dispose();
-    editor._tiptapEditor.destroy();
     doc.destroy();
   }
 });
 
-it.each(["current", "snapshot"] as const)(
+it.for(["current", "snapshot"] as const)(
   "renders an opt-in %s diff without changing the live Yjs 13 document",
-  async (target) => {
+  async (target, { setupEditor }) => {
     const doc = new Y.Doc();
     const fragment = doc.getXmlFragment("custom-document");
     const snapshots = new Map<string, Uint8Array>();
-    const editor = BlockNoteEditor.create(
+    const { editor } = await setupEditor(
       withCollaboration({
         extensions: [
           DiffVersioningExtension(),
@@ -189,11 +204,7 @@ it.each(["current", "snapshot"] as const)(
         blocksToYXmlFragment(editor, editor.document, fragment);
         snapshots.set(id, Y.encodeStateAsUpdate(doc));
       }
-      editor.prosemirrorView.updateState(
-        editor.prosemirrorState.reconfigure({
-          plugins: editor._tiptapEditor.extensionManager.plugins,
-        }),
-      );
+      editor.replaceExtension("ySync", YSyncExtension({ fragment }));
       const live = Y.encodeStateAsUpdate(doc);
       expect(mode.canCompare).toBe(true);
       expect(createYjsVersionView(editor, fragment).supportsComparison).toBe(
@@ -210,14 +221,16 @@ it.each(["current", "snapshot"] as const)(
         ),
       ).toEqual({ status: "done" });
       const inserted: string[] = [];
-      editor.prosemirrorState.doc.descendants((node) => {
-        if (
-          node.isText &&
-          node.marks.some((mark) => mark.type.name === "y-attributed-insert")
-        ) {
-          inserted.push(node.text!);
-        }
-      });
+      editor.transact(({ doc }) =>
+        doc.descendants((node) => {
+          if (
+            node.isText &&
+            node.marks.some((mark) => mark.type.name === "y-attributed-insert")
+          ) {
+            inserted.push(node.text!);
+          }
+        }),
+      );
       // Compared to "first" ("a"), only what came after it is inserted.
       expect(inserted.join("")).toBe("bc");
       expect(Y.encodeStateAsUpdate(doc)).toEqual(live);
@@ -231,12 +244,18 @@ it.each(["current", "snapshot"] as const)(
       editor.transact((tr) =>
         tr.replaceWith(0, tr.doc.content.size, preview.content),
       );
-      expect(editor.prosemirrorState.doc.textContent).toBe("abc");
-      editor.prosemirrorState.doc.descendants((node) => {
-        expect(
-          node.marks.some((mark) => mark.type.name.startsWith("y-attributed-")),
-        ).toBe(false);
-      });
+      expect(editor.document[0].content).toEqual([
+        { type: "text", text: "abc", styles: {} },
+      ]);
+      editor.transact(({ doc }) =>
+        doc.descendants((node) => {
+          expect(
+            node.marks.some((mark) =>
+              mark.type.name.startsWith("y-attributed-"),
+            ),
+          ).toBe(false);
+        }),
+      );
       mode.close();
       expect(ySyncPluginKey.getState(editor.prosemirrorState)?.type).toBe(
         fragment,
@@ -244,19 +263,18 @@ it.each(["current", "snapshot"] as const)(
       expect(Y.encodeStateAsUpdate(doc)).toEqual(live);
     } finally {
       mode.dispose();
-      editor._tiptapEditor.destroy();
       doc.destroy();
     }
   },
 );
 
-it.each([undefined, false])(
+it.for([undefined, false])(
   "keeps the live fragment separate while replacing snapshots in its fork, Current capture=%s",
-  async (showCurrentVersion) => {
+  async (showCurrentVersion, { setupEditor }) => {
     const doc = new Y.Doc();
     const fragment = doc.getXmlFragment("doc");
     let saved: Uint8Array = new Uint8Array();
-    const editor = BlockNoteEditor.create(
+    const { editor } = await setupEditor(
       withCollaboration({
         extensions: [
           YjsVersioningExtension({
@@ -278,11 +296,7 @@ it.each([undefined, false])(
     ]);
     blocksToYXmlFragment(editor, editor.document, fragment);
     saved = Y.encodeStateAsUpdate(doc);
-    editor.prosemirrorView.updateState(
-      editor.prosemirrorState.reconfigure({
-        plugins: editor._tiptapEditor.extensionManager.plugins,
-      }),
-    );
+    editor.replaceExtension("ySync", YSyncExtension({ fragment }));
     const mode = editor.getExtension<VersioningController>("versioning")!;
     try {
       mode.open();
@@ -298,19 +312,17 @@ it.each([undefined, false])(
       expect(ySyncPluginKey.getState(editor.prosemirrorState)?.type).not.toBe(
         fragment,
       );
-      const latest = BlockNoteEditor.create();
-      try {
-        latest.replaceBlocks(latest.document, [
-          { type: "paragraph", content: "Remote latest" },
-        ]);
-        blocksToYXmlFragment(latest, latest.document, fragment);
-      } finally {
-        latest._tiptapEditor.destroy();
-      }
+      const { editor: latest } = await setupEditor();
+      latest.replaceBlocks(latest.document, [
+        { type: "paragraph", content: "Remote latest" },
+      ]);
+      blocksToYXmlFragment(latest, latest.document, fragment);
       const remoteContent = Y.encodeStateAsUpdate(doc);
       await mode.select({ type: "snapshot", id: "saved" });
       await mode.select({ type: "current" });
-      expect(editor.prosemirrorState.doc.textContent).toBe("Captured");
+      expect(editor.document[0].content).toEqual([
+        { type: "text", text: "Captured", styles: {} },
+      ]);
       mode.close();
       expect(editor.isEditable).toBe(true);
       expect(ySyncPluginKey.getState(editor.prosemirrorState)?.type).toBe(
@@ -320,13 +332,14 @@ it.each([undefined, false])(
       expect(Y.encodeStateAsUpdate(doc)).toEqual(remoteContent);
     } finally {
       mode.dispose();
-      editor._tiptapEditor.destroy();
       doc.destroy();
     }
   },
 );
 
-it("accepts a non-default schema in the public view and extension factory", () => {
+it("accepts a non-default schema in the public view and extension factory", async ({
+  setupEditor,
+}) => {
   const schema = BlockNoteSchema.create();
   const paragraphOnly = BlockNoteSchema.create({
     blockSpecs: { paragraph: schema.blockSpecs.paragraph },
@@ -352,7 +365,7 @@ it("accepts a non-default schema in the public view and extension factory", () =
       },
     }),
   );
-  const editor = BlockNoteEditor.create(
+  const { editor } = await setupEditor(
     withCollaboration({
       schema: paragraphOnly,
       extensions: [Versions()],
@@ -360,17 +373,12 @@ it("accepts a non-default schema in the public view and extension factory", () =
     }),
   );
   try {
-    editor.prosemirrorView.updateState(
-      editor.prosemirrorState.reconfigure({
-        plugins: editor._tiptapEditor.extensionManager.plugins,
-      }),
-    );
+    editor.replaceExtension("ySync", YSyncExtension({ fragment }));
     const mode = editor.getExtension(Versions)!;
     mode.open();
     expect(mode.store.state.mode).toBe("versions");
     mode.close();
   } finally {
-    editor._tiptapEditor.destroy();
     doc.destroy();
   }
 });

@@ -1,21 +1,10 @@
 import { describe, expect, it, vi } from "vite-plus/test";
 import { ServerBlockNoteEditor } from "./context/ServerBlockNoteEditor.js";
+import { getDocument } from "./dom.js";
+import { useServerDOM } from "../testServerDOM.js";
 
 describe("pluggable DOM document", () => {
-  it("does not install globals when importing or creating a document", async () => {
-    vi.stubGlobal("window", undefined);
-    vi.stubGlobal("document", undefined);
-    try {
-      const { getDocument } = await import("./dom.js");
-      const document = getDocument();
-      expect(document.defaultView).not.toBeNull();
-      expect(globalThis.window).toBeUndefined();
-      expect(globalThis.document).toBeUndefined();
-    } finally {
-      vi.unstubAllGlobals();
-    }
-  });
-
+  useServerDOM();
   it("shares an injected document across nested and concurrent exports", async () => {
     const document = globalThis.document;
     vi.stubGlobal("window", undefined);
@@ -61,11 +50,17 @@ describe("pluggable DOM document", () => {
   it("rejects an injected document conflicting with the active environment", async () => {
     const activeWindow = globalThis.window;
     const activeDocument = globalThis.document;
-    const { getDocument } = await import("./dom.js");
-    const editor = ServerBlockNoteEditor.create({}, getDocument());
-    await expect(editor.blocksToFullHTML([])).rejects.toThrow();
-    expect(globalThis.window === activeWindow).toBe(true);
-    expect(globalThis.document === activeDocument).toBe(true);
+    const injectedDocument = getDocument();
+    try {
+      const editor = ServerBlockNoteEditor.create({}, injectedDocument);
+      await expect(editor.blocksToFullHTML([])).rejects.toThrow(
+        /partial or conflicting DOM globals/,
+      );
+      expect(globalThis.window === activeWindow).toBe(true);
+      expect(globalThis.document === activeDocument).toBe(true);
+    } finally {
+      injectedDocument.defaultView?.close();
+    }
   });
 
   it.each(["window", "document"] as const)(

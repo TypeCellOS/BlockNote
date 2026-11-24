@@ -1,5 +1,5 @@
-import { afterEach, describe, expect, test } from "vite-plus/test";
-import { userEvent } from "../../utils/context.js";
+import { describe, expect, onTestFinished, test } from "vite-plus/test";
+import { userEvent } from "../../commands/transport.js";
 
 /**
  * The platform rules that `Form.Root` is built on.
@@ -17,14 +17,6 @@ import { userEvent } from "../../utils/context.js";
  * regardless of how many fields a caller puts in it.
  */
 
-const forms: HTMLFormElement[] = [];
-
-afterEach(() => {
-  while (forms.length) {
-    forms.pop()!.remove();
-  }
-});
-
 type SubmitButton = "none" | "hidden" | "visually-hidden";
 
 function buildForm(
@@ -34,9 +26,14 @@ function buildForm(
 ) {
   const form = document.createElement("form");
   const submits: string[] = [];
-  form.addEventListener("submit", (event) => {
+  function onSubmit(event: SubmitEvent) {
     event.preventDefault();
     submits.push("submit");
+  }
+  form.addEventListener("submit", onSubmit);
+  onTestFinished(() => {
+    form.removeEventListener("submit", onSubmit);
+    form.remove();
   });
 
   const inputs: HTMLInputElement[] = [];
@@ -64,7 +61,6 @@ function buildForm(
   }
 
   document.body.append(form);
-  forms.push(form);
   return { inputs, submits };
 }
 

@@ -25,6 +25,7 @@
     "src/utils/**/*.ts",
     "src/utils/**/*.tsx",
     "src/fixtures/**/*.tsx",
+    "src/integration/**/*.browser.test.*",
     "vitestSetup.browser.ts",
     "vitestSetup.browser-fixtures.ts",
     "../packages/*/src/**/*.browser.test.*"

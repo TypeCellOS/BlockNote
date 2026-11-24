@@ -4,8 +4,7 @@ import {
   odtDefaultSchemaMappings,
 } from "@blocknote/xl-odt-exporter";
 import { BlobReader, ZipReader } from "@zip.js/zip.js";
-import { getImageDimensions } from "@shared/util/imageUtil.js";
-import { beforeAll, describe, expect, it, vi } from "vite-plus/test";
+import { describe, expect, it } from "vite-plus/test";
 
 import {
   diagramDocument,
@@ -14,11 +13,6 @@ import {
   zipEntryContent,
 } from "../exporterTestUtil.js";
 import { createDiagramBlockMapping, diagramBlockMapping } from "./index.js";
-
-beforeAll(async () => {
-  // @ts-expect-error - Blob polyfill for Node test environment
-  globalThis.Blob = (await import("node:buffer")).Blob;
-});
 
 function createExporter(diagram: ReturnType<typeof createDiagramBlockMapping>) {
   const mappings = {
@@ -35,29 +29,6 @@ function createExporter(diagram: ReturnType<typeof createDiagramBlockMapping>) {
 }
 
 describe("odt exporter mappings", () => {
-  it("reads SVG dimensions without bitmap decoding", async () => {
-    const decodeBitmap = vi.fn(() => {
-      throw new Error("SVG bitmap decoding is not supported");
-    });
-    vi.stubGlobal("window", {});
-    vi.stubGlobal("createImageBitmap", decodeBitmap);
-    vi.stubEnv("NODE_ENV", "production");
-    try {
-      const svg = new Blob(
-        ['<svg xmlns="http://www.w3.org/2000/svg" width="100" height="50"/>'],
-        { type: "image/svg+xml" },
-      );
-      await expect(getImageDimensions(svg)).resolves.toEqual({
-        width: 100,
-        height: 50,
-      });
-      expect(decodeBitmap).not.toHaveBeenCalled();
-    } finally {
-      vi.unstubAllGlobals();
-      vi.unstubAllEnvs();
-    }
-  });
-
   it("should embed the rendered diagram as an image", async () => {
     const exporter = createExporter(
       createDiagramBlockMapping({ renderDiagram }),

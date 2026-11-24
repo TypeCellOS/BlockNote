@@ -1,45 +1,85 @@
-import App from "@examples/01-basic/testing/src/App";
-import { beforeEach, describe, test } from "vite-plus/test";
-import { render } from "vitest-browser-react";
+import type { PartialBlock } from "@blocknote/core";
+import "@blocknote/core/fonts/inter.css";
+import { describe, expect } from "vite-plus/test";
 import { MOD, userEvent } from "../../utils/context.js";
-import {
-  EDITOR_SELECTOR,
-  H_ONE_BLOCK_SELECTOR,
-  ITALIC_BUTTON_SELECTOR,
-} from "../../utils/const.js";
+import type { SetupEditor } from "../../commands/browser/setupEditor.js";
 import { insertHeading, insertParagraph } from "../../utils/copypaste.js";
-import {
-  compareDocToSnapshot,
-  focusOnEditor,
-  sleep,
-  waitForSelector,
-} from "../../utils/editor.js";
-import { clickAt, getRect } from "../../utils/mouse.js";
-import { executeSlashCommand } from "../../utils/slashmenu.js";
-
-beforeEach(async () => {
-  await render(<App />);
-  await waitForSelector(EDITOR_SELECTOR);
-});
+import { focusOnEditor } from "../../utils/editor.js";
 
 // The android browser instance runs this suite too (see
 // vite.config.browser.ts); a couple of tests use idioms that don't transfer:
 const onAndroid = /android/i.test(navigator.userAgent);
+
+function text(text: string, styles: { italic?: true } = {}) {
+  return { type: "text", text, styles };
+}
+
+function paragraph(
+  content: string | ReturnType<typeof text>[] = "",
+  children: unknown[] = [],
+) {
+  return {
+    type: "paragraph",
+    content:
+      typeof content === "string" ? (content ? [text(content)] : []) : content,
+    children,
+  };
+}
+
+function heading(level: number, content: string, styles?: { italic?: true }) {
+  return {
+    type: "heading",
+    props: { level },
+    content: content ? [text(content, styles)] : [],
+    children: [],
+  };
+}
+
+function listItem(
+  type: "numberedListItem" | "bulletListItem" | "checkListItem",
+  content: string,
+) {
+  return { type, content: [text(content)], children: [] };
+}
+
+async function setupAt(
+  setupEditor: SetupEditor,
+  initialContent: PartialBlock[],
+  id: string,
+  placement: "start" | "end" = "end",
+) {
+  const { editor } = await setupEditor({ initialContent });
+  editor.setTextCursorPosition(id, placement);
+  editor.focus();
+  return editor;
+}
+
+function paragraphBlock(id: string, children?: PartialBlock[]): PartialBlock {
+  return { id, type: "paragraph", content: "Paragraph", children };
+}
+
+function headingBlock(
+  id: string,
+  level: 1 | 2 | 3,
+  content = "Heading",
+  children?: PartialBlock[],
+): PartialBlock {
+  return { id, type: "heading", props: { level }, content, children };
+}
 
 describe("Check Keyboard Handlers' Behaviour", () => {
   // Enter on a selection across blocks is a no-op on Android: prosemirror-view
   // ignores the keydown there and its keypress handler cancels the browser
   // default for cross-parent selections without doing anything. A rare
   // pattern, deliberately not worked around; see mobile/androidEnter.test.tsx.
-  test.skipIf(onAndroid)(
+  it.skipIf(onAndroid)(
     "Check Enter when selection is not empty",
-    async () => {
+    async ({ setupEditor }) => {
+      const { editor } = await setupEditor();
       await focusOnEditor();
       await insertHeading(1);
       await userEvent.keyboard("{Enter}");
       await insertHeading(2);
-
-      await sleep(500);
 
       await userEvent.keyboard("{ArrowUp}");
       await userEvent.keyboard(`{${MOD}>}{ArrowLeft}{/${MOD}}`);
@@ -50,364 +90,306 @@ describe("Check Keyboard Handlers' Behaviour", () => {
 
       await userEvent.keyboard("{Enter}");
 
-      await compareDocToSnapshot("enterSelectionNotEmpty");
+      expect(editor.document).toMatchObject([heading(1, "H"), paragraph("g")]);
     },
   );
-  // Skipped on the android instance: drives selection with coordinate
-  // double-clicks, a mouse idiom that doesn't translate to touch emulation at
-  // phone width.
-  test.skipIf(onAndroid)("Check Enter preserves marks", async () => {
-    await focusOnEditor();
-    await insertHeading(1);
+  it("Check Enter preserves marks", async ({ setupEditor, selectText }) => {
+    const { editor } = await setupEditor({
+      initialContent: [
+        {
+          type: "heading",
+          props: { level: 1 },
+          content: [
+            { type: "text", text: "Heading", styles: { italic: true } },
+          ],
+        },
+      ],
+    });
+    selectText(editor, "eading").collapseToStart();
+    editor.focus();
 
-    await sleep(500);
-    const { x, y, height } = getRect(H_ONE_BLOCK_SELECTOR);
-
-    await clickAt(x + 35, y + height / 2, 2);
-    await userEvent.click(await waitForSelector(ITALIC_BUTTON_SELECTOR));
-    await userEvent.keyboard("{Escape}");
-    await sleep(500);
-    await userEvent.keyboard("{Control>}{ArrowLeft}{/Control}");
-    await userEvent.keyboard("{ArrowRight}");
     await userEvent.keyboard("{Enter}");
 
-    await compareDocToSnapshot("enterPreservesMarks");
+    expect(editor.document).toMatchObject([
+      heading(1, "H", { italic: true }),
+      paragraph([text("eading", { italic: true })]),
+    ]);
   });
-  test("Check Enter preserves nested blocks", async () => {
-    await focusOnEditor();
-    await insertHeading(1);
-    await userEvent.keyboard("{Enter}");
-    await userEvent.keyboard("{Tab}");
-    await insertHeading(2);
-    await userEvent.keyboard("{Enter}");
-    await insertHeading(3);
+  it("Check Enter preserves nested blocks", async ({
+    setupEditor,
+    selectText,
+  }) => {
+    const { editor } = await setupEditor({
+      initialContent: [
+        headingBlock("parent", 1, "Heading", [
+          headingBlock("first", 2),
+          headingBlock("second", 3),
+        ]),
+      ],
+    });
+    selectText(editor, "eading", { startBlockId: "parent" }).collapseToStart();
+    editor.focus();
 
-    await sleep(500);
-    await userEvent.keyboard("{ArrowUp}");
-    await userEvent.keyboard("{ArrowUp}");
-    await userEvent.keyboard("{Control>}{ArrowLeft}{/Control}");
-    await userEvent.keyboard("{ArrowRight}");
     await userEvent.keyboard("{Enter}");
 
-    await compareDocToSnapshot("enterPreservesNestedBlocks");
+    expect(editor.document).toMatchObject([
+      heading(1, "H"),
+      paragraph("eading", [heading(2, "Heading"), heading(3, "Heading")]),
+    ]);
   });
-  test("Check Enter preserves nested blocks for empty block", async () => {
-    await focusOnEditor();
-    await userEvent.keyboard("#");
-    await userEvent.keyboard(" ");
-    await userEvent.keyboard("{Enter}");
-    await userEvent.keyboard("{Tab}");
-    await insertHeading(2);
-    await userEvent.keyboard("{Enter}");
-    await insertHeading(3);
+  it("Check Enter preserves nested blocks for empty block", async ({
+    setupEditor,
+  }) => {
+    const editor = await setupAt(
+      setupEditor,
+      [
+        headingBlock("parent", 1, "", [
+          headingBlock("first", 2),
+          headingBlock("second", 3),
+        ]),
+      ],
+      "parent",
+      "start",
+    );
 
-    await sleep(500);
-    await userEvent.keyboard("{ArrowUp}");
-    await userEvent.keyboard("{ArrowUp}");
     await userEvent.keyboard("{Enter}");
 
-    await compareDocToSnapshot("enterPreservesNestedBlocksEmpty");
+    expect(editor.document).toMatchObject([
+      heading(1, ""),
+      paragraph("", [heading(2, "Heading"), heading(3, "Heading")]),
+    ]);
   });
-  test("Check Backspace at the start of a block", async () => {
-    await focusOnEditor();
-    await insertHeading(1);
-
-    await userEvent.keyboard("{Control>}{ArrowLeft}{/Control}");
-    await userEvent.keyboard("{Backspace}");
-
-    await compareDocToSnapshot("backspaceStartOfBlock");
-  });
-  test("Check Backspace preserves marks", async () => {
-    await focusOnEditor();
-    await insertParagraph();
-    await userEvent.keyboard("{Enter}");
-    await insertParagraph();
-
-    await userEvent.keyboard("{Control>}{ArrowLeft}{/Control}");
-
-    for (let i = 0; i < 2; i++) {
-      await userEvent.keyboard("{ArrowRight}");
-    }
-
-    for (let i = 0; i < 5; i++) {
-      await userEvent.keyboard("{Shift>}{ArrowRight}{/Shift}");
-    }
-
-    await userEvent.click(await waitForSelector(ITALIC_BUTTON_SELECTOR));
-    await userEvent.keyboard("{Escape}");
-    await sleep(500);
-
-    await userEvent.keyboard("{ArrowLeft}");
-    await userEvent.keyboard("{Control>}{ArrowLeft}{/Control}");
-    await userEvent.keyboard("{Backspace}");
-
-    await compareDocToSnapshot("backspacePreservesMarks");
-  });
-  test("Check Backspace preserves nested blocks", async () => {
-    await focusOnEditor();
-    await insertParagraph();
-    await userEvent.keyboard("{Enter}");
-    await insertParagraph();
-    await userEvent.keyboard("{Enter}");
-    await userEvent.keyboard("{Tab}");
-    await insertParagraph();
-    await userEvent.keyboard("{Enter}");
-    await userEvent.keyboard("{Tab}");
-    await insertParagraph();
-
-    for (let i = 0; i < 2; i++) {
-      await userEvent.keyboard("{ArrowUp}");
-    }
-
-    await userEvent.keyboard("{Control>}{ArrowLeft}{/Control}");
-    await userEvent.keyboard("{Backspace}");
-
-    await compareDocToSnapshot("backspacePreservesNestedBlocks");
-  });
-  test("Check Backspace preserves nested blocks for empty block", async () => {
-    await focusOnEditor();
-    await insertParagraph();
-    await userEvent.keyboard("{Enter}");
-    await userEvent.keyboard("{Enter}");
-    await userEvent.keyboard("{Tab}");
-    await insertParagraph();
-    await userEvent.keyboard("{Enter}");
-    await userEvent.keyboard("{Tab}");
-    await insertParagraph();
-
-    for (let i = 0; i < 2; i++) {
-      await userEvent.keyboard("{ArrowUp}");
-    }
+  it("Check Backspace at the start of a block", async ({ setupEditor }) => {
+    const editor = await setupAt(
+      setupEditor,
+      [headingBlock("heading", 1)],
+      "heading",
+      "start",
+    );
 
     await userEvent.keyboard("{Backspace}");
 
-    await compareDocToSnapshot("backspacePreservesNestedBlocksEmpty");
+    expect(editor.document).toMatchObject([paragraph("Heading")]);
   });
-  test("Check Delete at the end of a block", async () => {
-    await focusOnEditor();
-    await insertParagraph();
+  it("Check Backspace preserves nested blocks", async ({ setupEditor }) => {
+    const editor = await setupAt(
+      setupEditor,
+      [
+        paragraphBlock("previous"),
+        paragraphBlock("parent", [
+          paragraphBlock("child", [paragraphBlock("grandchild")]),
+        ]),
+      ],
+      "parent",
+      "start",
+    );
+
+    await userEvent.keyboard("{Backspace}");
+
+    expect(editor.document).toMatchObject([
+      paragraph("ParagraphParagraph"),
+      paragraph("Paragraph", [paragraph("Paragraph")]),
+    ]);
+  });
+  it("Check Delete at the end of a block", async ({ setupEditor }) => {
+    const editor = await setupAt(setupEditor, [paragraphBlock("only")], "only");
+    const before = editor.document;
 
     await userEvent.keyboard("{Delete}");
 
-    await compareDocToSnapshot("deleteEndOfBlock");
+    expect(editor.document).toEqual(before);
   });
-  test("Check Delete while selection not empty", async () => {
-    await focusOnEditor();
-    await insertParagraph();
+  it("Check Delete while selection not empty", async ({
+    setupEditor,
+    selectText,
+  }) => {
+    const { editor } = await setupEditor({
+      initialContent: [paragraphBlock("text")],
+    });
+    selectText(editor, "ph");
+    editor.focus();
 
-    // Hold Shift across BOTH ArrowLefts in a single keyboard call so the
-    // selection actually extends to 2 characters. Splitting into two calls
-    // releases Shift between them, leaving a 1-char selection and producing
-    // the wrong doc.
-    await userEvent.keyboard("{Shift>}{ArrowLeft}{ArrowLeft}{/Shift}");
     await userEvent.keyboard("{Delete}");
 
-    await compareDocToSnapshot("deleteSelection");
+    expect(editor.document).toMatchObject([paragraph("Paragra")]);
   });
-  test("Check Delete before inline content block", async () => {
-    await focusOnEditor();
-    await insertParagraph();
-    await userEvent.keyboard("{Enter}");
-    await insertParagraph();
+  it("Check Delete before inline content block", async ({ setupEditor }) => {
+    const editor = await setupAt(
+      setupEditor,
+      [paragraphBlock("first"), paragraphBlock("second")],
+      "first",
+    );
 
-    await userEvent.keyboard("{ArrowUp}");
     await userEvent.keyboard("{Delete}");
 
-    await compareDocToSnapshot("deleteInlineContent");
+    expect(editor.document).toMatchObject([paragraph("ParagraphParagraph")]);
   });
-  test("Check Delete before image block", async () => {
-    await focusOnEditor();
-    await insertParagraph();
-    await userEvent.keyboard("{Enter}");
-    await executeSlashCommand("image");
-    await userEvent.keyboard("{Escape}"); // Close file panel
+  it("Check Delete selected image block", async ({ setupEditor }) => {
+    const editor = await setupAt(
+      setupEditor,
+      [
+        { id: "image", type: "image" },
+        { id: "remaining", type: "paragraph" },
+      ],
+      "image",
+    );
+    const remaining = editor.document[1];
 
-    await userEvent.keyboard("{ArrowUp}");
     await userEvent.keyboard("{Delete}");
 
-    await compareDocToSnapshot("deleteImage");
+    expect(editor.document).toEqual([remaining]);
   });
-  test("Check Delete before table", async () => {
-    await focusOnEditor();
-    await insertParagraph();
-    await userEvent.keyboard("{Enter}");
-    await executeSlashCommand("table");
+  it("Check Delete end of block with inline content child", async ({
+    setupEditor,
+  }) => {
+    const editor = await setupAt(
+      setupEditor,
+      [paragraphBlock("parent", [paragraphBlock("child")])],
+      "parent",
+    );
 
-    await userEvent.keyboard("{ArrowUp}");
     await userEvent.keyboard("{Delete}");
 
-    await compareDocToSnapshot("deleteTable");
+    expect(editor.document).toMatchObject([paragraph("ParagraphParagraph")]);
   });
-  test("Check Delete selected image block", async () => {
-    await focusOnEditor();
-    await executeSlashCommand("image");
-    await userEvent.keyboard("{Escape}"); // Close file panel
+  it("Check Delete end of block with multiple children", async ({
+    setupEditor,
+  }) => {
+    const editor = await setupAt(
+      setupEditor,
+      [
+        paragraphBlock("parent", [
+          paragraphBlock("first"),
+          paragraphBlock("second"),
+        ]),
+      ],
+      "parent",
+    );
 
-    await userEvent.keyboard("{ArrowUp}");
     await userEvent.keyboard("{Delete}");
 
-    await compareDocToSnapshot("deleteSelectedImage");
+    expect(editor.document).toMatchObject([
+      paragraph("ParagraphParagraph", [paragraph("Paragraph")]),
+    ]);
   });
-  test("Check Delete end of block with inline content child", async () => {
-    await focusOnEditor();
-    await insertParagraph();
-    await userEvent.keyboard("{Enter}");
-    await userEvent.keyboard("{Tab}");
-    await insertParagraph();
+  it("Check Delete end of block with nested children", async ({
+    setupEditor,
+  }) => {
+    const editor = await setupAt(
+      setupEditor,
+      [
+        paragraphBlock("parent", [
+          paragraphBlock("child", [paragraphBlock("grandchild")]),
+        ]),
+      ],
+      "parent",
+    );
 
-    await userEvent.keyboard("{ArrowUp}");
     await userEvent.keyboard("{Delete}");
 
-    await compareDocToSnapshot("deleteInlineContentChild");
+    expect(editor.document).toMatchObject([
+      paragraph("ParagraphParagraph", [paragraph("Paragraph")]),
+    ]);
   });
-  test("Check Delete end of block with image child", async () => {
-    await focusOnEditor();
-    await insertParagraph();
-    await userEvent.keyboard("{Enter}");
-    await userEvent.keyboard("{Tab}");
-    await executeSlashCommand("image");
-    await userEvent.keyboard("{Escape}"); // Close file panel
+  it("Check Delete before shallower block", async ({ setupEditor }) => {
+    const editor = await setupAt(
+      setupEditor,
+      [
+        paragraphBlock("parent", [paragraphBlock("child")]),
+        paragraphBlock("following"),
+      ],
+      "child",
+    );
 
-    await userEvent.keyboard("{ArrowUp}");
     await userEvent.keyboard("{Delete}");
 
-    await compareDocToSnapshot("deleteImageChild");
+    expect(editor.document).toMatchObject([
+      paragraph("Paragraph", [paragraph("ParagraphParagraph")]),
+    ]);
   });
-  test("Check Delete end of block with table child", async () => {
-    await focusOnEditor();
-    await insertParagraph();
-    await userEvent.keyboard("{Enter}");
-    await userEvent.keyboard("{Tab}");
-    await executeSlashCommand("table");
+  it("Check Delete before shallower block with children", async ({
+    setupEditor,
+  }) => {
+    const editor = await setupAt(
+      setupEditor,
+      [
+        paragraphBlock("parent", [paragraphBlock("child")]),
+        paragraphBlock("following", [paragraphBlock("following-child")]),
+      ],
+      "child",
+    );
 
-    await userEvent.keyboard("{ArrowUp}");
     await userEvent.keyboard("{Delete}");
 
-    await compareDocToSnapshot("deleteTableChild");
+    expect(editor.document).toMatchObject([
+      paragraph("Paragraph", [paragraph("ParagraphParagraph")]),
+      paragraph("Paragraph"),
+    ]);
   });
-  test("Check Delete end of block with multiple children", async () => {
-    await focusOnEditor();
-    await insertParagraph();
-    await userEvent.keyboard("{Enter}");
-    await userEvent.keyboard("{Tab}");
-    await insertParagraph();
-    await userEvent.keyboard("{Enter}");
-    await insertParagraph();
-
-    await userEvent.keyboard("{ArrowUp}");
-    await userEvent.keyboard("{ArrowUp}");
-    await userEvent.keyboard("{Delete}");
-
-    await compareDocToSnapshot("deleteMultipleChildren");
-  });
-  test("Check Delete end of block with nested children", async () => {
-    await focusOnEditor();
-    await insertParagraph();
-    await userEvent.keyboard("{Enter}");
-    await userEvent.keyboard("{Tab}");
-    await insertParagraph();
-    await userEvent.keyboard("{Enter}");
-    await userEvent.keyboard("{Tab}");
-    await insertParagraph();
-
-    await userEvent.keyboard("{ArrowUp}");
-    await userEvent.keyboard("{ArrowUp}");
-    await userEvent.keyboard("{Delete}");
-
-    await compareDocToSnapshot("deleteNestedChildren");
-  });
-  test("Check Delete before shallower block", async () => {
-    await focusOnEditor();
-    await insertParagraph();
-    await userEvent.keyboard("{Enter}");
-    await userEvent.keyboard("{Tab}");
-    await insertParagraph();
-    await userEvent.keyboard("{Enter}");
-    await userEvent.keyboard("{Shift>}{Tab}{/Shift}");
-    await insertParagraph();
-
-    await userEvent.keyboard("{ArrowUp}");
-    // ArrowUp crosses from an unnested line into an indented one, so its
-    // goal-x lands near the last character's boundary — which side it falls
-    // on varies with subpixel text metrics (flaky on the mobile-emulated
-    // instances). The test is about Delete at the *end* of the block; make
-    // that position explicit.
-    await userEvent.keyboard("{End}");
-    await userEvent.keyboard("{Delete}");
-
-    await compareDocToSnapshot("deleteShallowerBlock");
-  });
-  test("Check Delete before shallower block with children", async () => {
-    await focusOnEditor();
-    await insertParagraph();
-    await userEvent.keyboard("{Enter}");
-    await userEvent.keyboard("{Tab}");
-    await insertParagraph();
-    await userEvent.keyboard("{Enter}");
-    await userEvent.keyboard("{Shift>}{Tab}{/Shift}");
-    await insertParagraph();
-    await userEvent.keyboard("{Enter}");
-    await userEvent.keyboard("{Tab}");
-    await insertParagraph();
-
-    await userEvent.keyboard("{ArrowUp}");
-    await userEvent.keyboard("{ArrowUp}");
-    await userEvent.keyboard(`{${MOD}>}{ArrowLeft}{/${MOD}}`);
-    await userEvent.keyboard(`{${MOD}>}{ArrowRight}{/${MOD}}`);
-    await userEvent.keyboard("{Delete}");
-
-    await compareDocToSnapshot("deleteShallowerBlockWithChildren");
-  });
-  test("Check heading 1 shortcut", async () => {
+  it("Check heading 1 shortcut", async ({ setupEditor }) => {
+    const { editor } = await setupEditor();
     await focusOnEditor();
     await userEvent.keyboard("Paragraph");
     await userEvent.keyboard(`{${MOD}>}{Alt>}1{/Alt}{/${MOD}}`);
 
-    await compareDocToSnapshot("heading1Shortcut");
+    expect(editor.document).toMatchObject([heading(1, "Paragraph")]);
   });
-  test("Check heading 2 shortcut", async () => {
+  it("Check heading 2 shortcut", async ({ setupEditor }) => {
+    const { editor } = await setupEditor();
     await focusOnEditor();
     await userEvent.keyboard("Paragraph");
     await userEvent.keyboard(`{${MOD}>}{Alt>}2{/Alt}{/${MOD}}`);
 
-    await compareDocToSnapshot("heading2Shortcut");
+    expect(editor.document).toMatchObject([heading(2, "Paragraph")]);
   });
-  test("Check heading 3 shortcut", async () => {
+  it("Check heading 3 shortcut", async ({ setupEditor }) => {
+    const { editor } = await setupEditor();
     await focusOnEditor();
     await userEvent.keyboard("Paragraph");
     await userEvent.keyboard(`{${MOD}>}{Alt>}3{/Alt}{/${MOD}}`);
 
-    await compareDocToSnapshot("heading3Shortcut");
+    expect(editor.document).toMatchObject([heading(3, "Paragraph")]);
   });
-  test("Check numbered list item shortcut", async () => {
+  it("Check numbered list item shortcut", async ({ setupEditor }) => {
+    const { editor } = await setupEditor();
     await focusOnEditor();
     await userEvent.keyboard("Paragraph");
     await userEvent.keyboard(`{${MOD}>}{Shift>}7{/Shift}{/${MOD}}`);
 
-    await compareDocToSnapshot("numberedListItemShortcut");
+    expect(editor.document).toMatchObject([
+      listItem("numberedListItem", "Paragraph"),
+    ]);
   });
-  test("Check bullet list item shortcut", async () => {
+  it("Check bullet list item shortcut", async ({ setupEditor }) => {
+    const { editor } = await setupEditor();
     await focusOnEditor();
     await userEvent.keyboard("Paragraph");
     await userEvent.keyboard(`{${MOD}>}{Shift>}8{/Shift}{/${MOD}}`);
 
-    await compareDocToSnapshot("bulletListItemShortcut");
+    expect(editor.document).toMatchObject([
+      listItem("bulletListItem", "Paragraph"),
+    ]);
   });
-  test("Check checked list item shortcut", async () => {
+  it("Check checked list item shortcut", async ({ setupEditor }) => {
+    const { editor } = await setupEditor();
     await focusOnEditor();
     await userEvent.keyboard("Paragraph");
     await userEvent.keyboard(`{${MOD}>}{Shift>}9{/Shift}{/${MOD}}`);
 
-    await compareDocToSnapshot("checkedListItemShortcut");
+    expect(editor.document).toMatchObject([
+      { ...listItem("checkListItem", "Paragraph"), props: { checked: false } },
+    ]);
   });
-  test("Check arrow up on checklist item moves to element above", async () => {
+  it("Check arrow up on checklist item moves to element above", async ({
+    setupEditor,
+  }) => {
+    const { editor } = await setupEditor();
     await focusOnEditor();
     await insertParagraph();
     await userEvent.keyboard("{Enter}");
     await userEvent.keyboard(`{${MOD}>}{Shift>}9{/Shift}{/${MOD}}`);
     await userEvent.keyboard("Checklist item");
 
-    await sleep(150);
     // Move cursor to the start of the checklist item
     await userEvent.keyboard("{Control>}{ArrowLeft}{/Control}");
     // Press arrow up - should move to the paragraph above
@@ -415,43 +397,195 @@ describe("Check Keyboard Handlers' Behaviour", () => {
     // Type to verify cursor is in the paragraph above
     await userEvent.keyboard("Above");
 
-    await compareDocToSnapshot("arrowUpChecklistItem");
+    expect(editor.document).toMatchObject([
+      paragraph("ParagraphAbove"),
+      {
+        ...listItem("checkListItem", "Checklist item"),
+        props: { checked: false },
+      },
+    ]);
   });
 
-  test("Check checkListItem inputRule preserves content", async () => {
+  it("Check checkListItem inputRule preserves content", async ({
+    setupEditor,
+  }) => {
+    const { editor } = await setupEditor();
     await focusOnEditor();
     // Type [ ] followed by space at the start to trigger inputRule, then add content
     // The inputRule should convert the paragraph to a checkListItem and preserve the content we type after
     await userEvent.keyboard("[[ ] My task");
-    await sleep(500);
 
-    await compareDocToSnapshot("checkListItemInputRulePreservesContent");
+    expect(editor.document).toMatchObject([
+      { ...listItem("checkListItem", "My task"), props: { checked: false } },
+    ]);
   });
-  test("Check checkListItem inputRule with checked preserves content", async () => {
+  it("Check checkListItem inputRule with checked preserves content", async ({
+    setupEditor,
+  }) => {
+    const { editor } = await setupEditor();
     await focusOnEditor();
     // Type [x] followed by space at the start to trigger inputRule with checked=true, then add content
     // This should convert the paragraph to a checkListItem with checked=true and preserve the content
     await userEvent.keyboard("[[x] Completed task");
-    await sleep(150);
 
-    await compareDocToSnapshot("checkListItemInputRuleCheckedPreservesContent");
+    expect(editor.document).toMatchObject([
+      {
+        ...listItem("checkListItem", "Completed task"),
+        props: { checked: true },
+      },
+    ]);
   });
-  test("Check bulletListItem inputRule preserves content", async () => {
+  it("Check bulletListItem inputRule preserves content", async ({
+    setupEditor,
+  }) => {
+    const { editor } = await setupEditor();
     await focusOnEditor();
     // Type - followed by space at the start to trigger inputRule, then add content
     // The inputRule should convert the paragraph to a bulletListItem and preserve the content
     await userEvent.keyboard("- My task");
-    await sleep(500);
 
-    await compareDocToSnapshot("bulletListItemInputRulePreservesContent");
+    expect(editor.document).toMatchObject([
+      listItem("bulletListItem", "My task"),
+    ]);
   });
-  test("Check numberedListItem inputRule preserves content", async () => {
+  it("Check numberedListItem inputRule preserves content", async ({
+    setupEditor,
+  }) => {
+    const { editor } = await setupEditor();
     await focusOnEditor();
     // Type 1. followed by space at the start to trigger inputRule, then add content
     // The inputRule should convert the paragraph to a numberedListItem and preserve the content
     await userEvent.keyboard("1. My task");
-    await sleep(500);
 
-    await compareDocToSnapshot("numberedListItemInputRulePreservesContent");
+    expect(editor.document).toMatchObject([
+      listItem("numberedListItem", "My task"),
+    ]);
   });
+});
+
+describe("Backspace at the start of a paragraph", () => {
+  it("Check Backspace preserves marks", async ({ setupEditor, pressKey }) => {
+    const { editor } = await setupEditor({
+      initialContent: [
+        { id: "0", type: "paragraph", content: "Paragraph" },
+        {
+          id: "1",
+          type: "paragraph",
+          content: [
+            "Pa",
+            { type: "text", text: "ragra", styles: { italic: true } },
+            "ph",
+          ],
+        },
+      ],
+    });
+    editor.setTextCursorPosition("1", "start");
+    editor.focus();
+
+    await pressKey("Backspace");
+
+    expect(editor.document).toMatchObject([
+      {
+        ...paragraph([
+          text("ParagraphPa"),
+          text("ragra", { italic: true }),
+          text("ph"),
+        ]),
+        id: "0",
+      },
+    ]);
+  });
+
+  it("Check Backspace preserves nested blocks for empty block", async ({
+    setupEditor,
+    pressKey,
+  }) => {
+    const { editor } = await setupEditor({
+      initialContent: [
+        { id: "0", type: "paragraph", content: "Paragraph" },
+        {
+          id: "1",
+          type: "paragraph",
+          children: [
+            {
+              id: "2",
+              type: "paragraph",
+              content: "Paragraph",
+              children: [{ id: "3", type: "paragraph", content: "Paragraph" }],
+            },
+          ],
+        },
+      ],
+    });
+    const [first, empty] = editor.document;
+    editor.setTextCursorPosition("1", "start");
+    editor.focus();
+
+    await pressKey("Backspace");
+
+    expect(editor.document).toEqual([first, ...empty.children]);
+  });
+});
+
+describe("Delete around image and table blocks", () => {
+  const image: PartialBlock = { id: "1", type: "image" };
+  const table: PartialBlock = {
+    id: "1",
+    type: "table",
+    content: {
+      type: "tableContent",
+      rows: [{ cells: ["", "", ""] }, { cells: ["", "", ""] }],
+    },
+  };
+
+  for (const { name, target, nested } of [
+    {
+      name: "Check Delete before image block",
+      target: image,
+      nested: false,
+    },
+    {
+      name: "Check Delete before table",
+      target: table,
+      nested: false,
+    },
+    {
+      name: "Check Delete end of block with image child",
+      target: image,
+      nested: true,
+    },
+    {
+      name: "Check Delete end of block with table child",
+      target: table,
+      nested: true,
+    },
+  ]) {
+    it(name, async ({ setupEditor, pressKey }) => {
+      const paragraph: PartialBlock = {
+        id: "0",
+        type: "paragraph",
+        content: "Paragraph",
+      };
+      const initialContent = nested
+        ? [{ ...paragraph, children: [target] }]
+        : [paragraph, target];
+      if (target.type === "image") {
+        initialContent.push({ id: "2", type: "paragraph" });
+      }
+      const { editor } = await setupEditor({ initialContent });
+      const [parent] = editor.document;
+      const trailing = editor.getBlock("2");
+      // The original ArrowUp selected the image node, but put the caret at the
+      // end of the paragraph when coming from the table.
+      editor.setTextCursorPosition(target.type === "image" ? "1" : "0", "end");
+      editor.focus();
+
+      await pressKey("Delete");
+
+      expect(editor.document).toEqual([
+        { ...parent, children: [] },
+        ...(trailing ? [trailing] : []),
+      ]);
+    });
+  }
 });

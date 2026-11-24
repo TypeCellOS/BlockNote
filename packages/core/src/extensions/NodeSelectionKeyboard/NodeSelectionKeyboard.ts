@@ -1,10 +1,4 @@
-import {
-  NodeSelection,
-  Plugin,
-  PluginKey,
-  Selection,
-  TextSelection,
-} from "prosemirror-state";
+import { NodeSelection, Plugin, PluginKey, Selection } from "prosemirror-state";
 import {
   createExtension,
   type ExtensionOptions,
@@ -83,21 +77,14 @@ export const NodeSelectionKeyboardExtension = createExtension(
                   !event.ctrlKey &&
                   !event.metaKey
                 ) {
-                  const tr = view.state.tr;
-                  view.dispatch(
-                    tr
-                      .insert(
-                        view.state.tr.selection.$to.after(),
-                        view.state.schema.nodes["paragraph"].createChecked(),
-                      )
-                      .setSelection(
-                        new TextSelection(
-                          tr.doc.resolve(
-                            view.state.tr.selection.$to.after() + 1,
-                          ),
-                        ),
-                      ),
+                  const insertAt = selection.$to.after();
+                  const tr = view.state.tr.insert(
+                    insertAt,
+                    view.state.schema.nodes["paragraph"].createChecked(),
                   );
+                  // Insertion can wrap the paragraph in a block container.
+                  tr.setSelection(Selection.near(tr.doc.resolve(insertAt), 1));
+                  view.dispatch(tr);
 
                   return true;
                 }

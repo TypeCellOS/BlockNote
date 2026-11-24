@@ -1,8 +1,6 @@
-import { afterEach, describe, expect, it } from "vite-plus/test";
+import type { BlockNoteEditor, PartialBlock } from "@blocknote/core";
+import { describe, expect } from "vite-plus/test";
 import { userEvent } from "vite-plus/test/browser";
-
-import { BlockNoteEditor } from "../../../editor/BlockNoteEditor.js";
-import type { PartialBlock } from "../../../blocks/defaultBlocks.js";
 
 // Editing at the start of a block keeps the block's identity (#550): Enter
 // keeps its id and props, such as a checklist item's checked state. Backspace
@@ -10,22 +8,22 @@ import type { PartialBlock } from "../../../blocks/defaultBlocks.js";
 // its id and children. Below an empty block of another type, the text moves
 // into that block, which keeps its id, type and props, as in Notion (#3124).
 
-let editor: BlockNoteEditor;
-let root: HTMLElement;
-
-function mount(content: PartialBlock[]) {
-  root = document.createElement("div");
-  document.body.appendChild(root);
-  editor = BlockNoteEditor.create({ initialContent: content });
-  editor.mount(root);
-}
-
-afterEach(() => {
-  editor._tiptapEditor.destroy();
-  root.remove();
+const it = globalThis.it.extend<{
+  mount: (content: PartialBlock[]) => Promise<BlockNoteEditor>;
+}>({
+  mount: async ({ setupEditor }, use) => {
+    await use(async (initialContent) => {
+      const { editor } = await setupEditor({
+        mountType: "dom",
+        initialContent,
+      });
+      return editor;
+    });
+  },
 });
 
 async function press(
+  editor: BlockNoteEditor,
   key: string,
   at: { block: string; placement?: "start" | "end" },
 ) {
@@ -35,10 +33,14 @@ async function press(
 }
 
 describe("Enter at the start of a non-empty block", () => {
-  it("inserts an empty paragraph above a paragraph, which keeps its id", async () => {
-    mount([{ id: "p", type: "paragraph", content: "Text" }]);
+  it("inserts an empty paragraph above a paragraph, which keeps its id", async ({
+    mount,
+  }) => {
+    const editor = await mount([
+      { id: "p", type: "paragraph", content: "Text" },
+    ]);
 
-    await press("Enter", { block: "p" });
+    await press(editor, "Enter", { block: "p" });
 
     const [inserted, block] = editor.document;
     expect(inserted.type).toBe("paragraph");
@@ -47,8 +49,10 @@ describe("Enter at the start of a non-empty block", () => {
     expect(editor.getTextCursorPosition().block.id).toBe("p");
   });
 
-  it("keeps a checklist item's checked state with its text", async () => {
-    mount([
+  it("keeps a checklist item's checked state with its text", async ({
+    mount,
+  }) => {
+    const editor = await mount([
       {
         id: "c",
         type: "checkListItem",
@@ -57,7 +61,7 @@ describe("Enter at the start of a non-empty block", () => {
       },
     ]);
 
-    await press("Enter", { block: "c" });
+    await press(editor, "Enter", { block: "c" });
 
     const [inserted, block] = editor.document;
     expect(inserted.type).toBe("checkListItem");
@@ -66,12 +70,14 @@ describe("Enter at the start of a non-empty block", () => {
     expect(block.props).toMatchObject({ checked: true });
   });
 
-  it("inserts an empty paragraph above a heading, which keeps its id and level", async () => {
-    mount([
+  it("inserts an empty paragraph above a heading, which keeps its id and level", async ({
+    mount,
+  }) => {
+    const editor = await mount([
       { id: "h", type: "heading", props: { level: 3 }, content: "Heading" },
     ]);
 
-    await press("Enter", { block: "h" });
+    await press(editor, "Enter", { block: "h" });
 
     const [inserted, block] = editor.document;
     expect(inserted.type).toBe("paragraph");
@@ -79,8 +85,8 @@ describe("Enter at the start of a non-empty block", () => {
     expect(block.props).toMatchObject({ level: 3 });
   });
 
-  it("keeps the block's children with it", async () => {
-    mount([
+  it("keeps the block's children with it", async ({ mount }) => {
+    const editor = await mount([
       {
         id: "p",
         type: "paragraph",
@@ -89,7 +95,7 @@ describe("Enter at the start of a non-empty block", () => {
       },
     ]);
 
-    await press("Enter", { block: "p" });
+    await press(editor, "Enter", { block: "p" });
 
     const [inserted, block] = editor.document;
     expect(inserted.children).toHaveLength(0);
@@ -99,8 +105,10 @@ describe("Enter at the start of a non-empty block", () => {
 });
 
 describe("Backspace at the start of a block after an empty block", () => {
-  it("moves the block up when the empty block has the same type and props, keeping its id and children", async () => {
-    mount([
+  it("moves the block up when the empty block has the same type and props, keeping its id and children", async ({
+    mount,
+  }) => {
+    const editor = await mount([
       { id: "empty", type: "paragraph" },
       {
         id: "p",
@@ -110,7 +118,7 @@ describe("Backspace at the start of a block after an empty block", () => {
       },
     ]);
 
-    await press("Backspace", { block: "p" });
+    await press(editor, "Backspace", { block: "p" });
 
     expect(editor.document.map((block) => block.id)).toEqual(["p"]);
     expect(editor.getBlock("p")!.children.map((child) => child.id)).toEqual([
@@ -119,13 +127,15 @@ describe("Backspace at the start of a block after an empty block", () => {
     expect(editor.getTextCursorPosition().block.id).toBe("p");
   });
 
-  it("moves the text into an empty block of another type, which keeps its id, type and props", async () => {
-    mount([
+  it("moves the text into an empty block of another type, which keeps its id, type and props", async ({
+    mount,
+  }) => {
+    const editor = await mount([
       { id: "empty", type: "heading", props: { level: 2 } },
       { id: "p", type: "paragraph", content: "Text" },
     ]);
 
-    await press("Backspace", { block: "p" });
+    await press(editor, "Backspace", { block: "p" });
 
     const [block] = editor.document;
     expect(editor.document).toHaveLength(1);
@@ -138,13 +148,15 @@ describe("Backspace at the start of a block after an empty block", () => {
 });
 
 describe("Delete in an empty block before a block", () => {
-  it("moves the next block up when it has the same type and props, keeping its id", async () => {
-    mount([
+  it("moves the next block up when it has the same type and props, keeping its id", async ({
+    mount,
+  }) => {
+    const editor = await mount([
       { id: "empty", type: "paragraph" },
       { id: "p", type: "paragraph", content: "Text" },
     ]);
 
-    await press("Delete", { block: "empty", placement: "end" });
+    await press(editor, "Delete", { block: "empty", placement: "end" });
 
     expect(editor.document.map((block) => block.id)).toEqual(["p"]);
     expect(editor.getTextCursorPosition().block.id).toBe("p");

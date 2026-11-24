@@ -20,10 +20,18 @@ declare module "vite-plus/test/node" {
 }
 
 export type MouseAction =
-  | { type: "move"; x: number; y: number; steps?: number }
-  | { type: "down" }
-  | { type: "up" }
+  | { type: "move"; x: number; y: number; steps?: number; owner?: string }
+  | { type: "down"; owner?: string }
+  | { type: "up"; owner?: string }
+  | { type: "cancel"; owner: string }
   | { type: "click"; x: number; y: number; clickCount?: number };
+
+type HeldButton = { owner?: string; moved: boolean };
+
+// Playwright's mouse belongs to the outer page, not the tester iframe. Only
+// the command that acquired the button can cancel it during test teardown.
+const heldButtons = new WeakMap<Page, HeldButton>();
+const pendingBatches = new WeakMap<Page, Promise<void>>();
 
 /**
  * Performs real mouse actions at coordinates relative to the test iframe's
@@ -34,6 +42,8 @@ export type MouseAction =
  *
  * Actions are positional arguments, not an array. `down` and `up` use the current
  * mouse position; `move` supports intermediate steps and `click` a click count.
+ * A matching `cancel` aborts an owned drag and releases its button. A plain
+ * `up` explicitly releases the button and disarms any pending cancellation.
  * Coordinates from `element().getBoundingClientRect()` are in the expected space.
  * This is mouse input, not touch emulation. Requires the shared Node registration.
  *
@@ -53,30 +63,94 @@ export const positionalMouse: BrowserCommand<MouseAction[]> = async (
   { page, frame },
   ...actions
 ) => {
-  const testFrame = await frame();
-  const frameElement = await testFrame.frameElement();
-  const frameBox = await frameElement.boundingBox();
-  const offsetX = frameBox?.x ?? 0;
-  const offsetY = frameBox?.y ?? 0;
+  // A timeout can trigger teardown while the start batch is still in flight.
+  // Order cancellation after it so cleanup cannot miss a late mouse down.
+  const batch = (pendingBatches.get(page) ?? Promise.resolve()).then(() =>
+    runBatch(page, frame, actions),
+  );
+  pendingBatches.set(
+    page,
+    batch.then(
+      () => {},
+      () => {},
+    ),
+  );
+  await batch;
+};
+
+async function runBatch(
+  page: Page,
+  frame: () => Promise<Frame>,
+  actions: MouseAction[],
+) {
+  let offsetX = 0;
+  let offsetY = 0;
+  // Button-only batches act at the current pointer position, even if the
+  // iframe is no longer visible. Preflight any coordinate batch before input.
+  if (actions.some(({ type }) => type === "move" || type === "click")) {
+    const testFrame = await frame();
+    const frameElement = await testFrame.frameElement();
+    const frameBox = await frameElement.boundingBox();
+    if (!frameBox) {
+      throw new Error("Cannot position the mouse: tester iframe has no box.");
+    }
+    offsetX = frameBox.x;
+    offsetY = frameBox.y;
+  }
 
   for (const action of actions) {
+    const held = heldButtons.get(page);
     switch (action.type) {
       case "move":
+        if (action.owner !== undefined && action.owner !== held?.owner) {
+          throw new Error("The drag no longer owns the positional mouse.");
+        }
+        if (held?.owner !== undefined) {
+          held.moved = true;
+        }
         await page.mouse.move(offsetX + action.x, offsetY + action.y, {
           steps: action.steps ?? 1,
         });
         break;
       case "down":
+        if (held && (held.owner !== undefined || action.owner !== undefined)) {
+          throw new Error("The positional mouse button is already held.");
+        }
+        // Record ownership before dispatch: a rejected driver call may already
+        // have marked the button pressed.
+        heldButtons.set(page, { owner: action.owner, moved: false });
         await page.mouse.down();
         break;
       case "up":
+        if (action.owner !== undefined && action.owner !== held?.owner) {
+          throw new Error("The drag no longer owns the positional mouse.");
+        }
         await page.mouse.up();
+        heldButtons.delete(page);
+        break;
+      case "cancel":
+        if (held?.owner !== action.owner) {
+          break;
+        }
+        try {
+          if (held.moved) {
+            // Mouse-up alone would drop at the last position.
+            await page.keyboard.press("Escape");
+          }
+        } finally {
+          await page.mouse.up();
+          heldButtons.delete(page);
+        }
         break;
       case "click":
+        if (held?.owner !== undefined) {
+          throw new Error("Release the active drag before clicking.");
+        }
         await page.mouse.click(offsetX + action.x, offsetY + action.y, {
           clickCount: action.clickCount ?? 1,
         });
+        heldButtons.delete(page);
         break;
     }
   }
-};
+}

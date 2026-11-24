@@ -1,0 +1,1079 @@
+import type { CoreExportCase } from "../export/exportTestInstances.js";
+
+export const htmlRoundTripCases: CoreExportCase[] = [
+  {
+    name: "schema/blocks",
+    content: [
+      {
+        type: "paragraph",
+        content: "Paragraph",
+      },
+      {
+        type: "heading",
+        content: "Heading",
+      },
+      {
+        type: "quote",
+        content: "Quote",
+      },
+      {
+        type: "bulletListItem",
+        content: "Bullet List Item",
+      },
+      {
+        type: "numberedListItem",
+        content: "Numbered List Item",
+      },
+      {
+        type: "checkListItem",
+        content: "Check List Item",
+      },
+      {
+        type: "divider",
+      },
+      {
+        type: "codeBlock",
+        content: "Code",
+      },
+      {
+        type: "table",
+        content: {
+          type: "tableContent",
+          rows: [
+            {
+              cells: ["Table Cell", "Table Cell"],
+            },
+            {
+              cells: ["Table Cell", "Table Cell"],
+            },
+          ],
+        },
+      },
+    ],
+  },
+  {
+    name: "schema/blockProps",
+    content: [
+      {
+        type: "paragraph",
+        content: "Paragraph",
+        props: {
+          textColor: "red",
+          backgroundColor: "blue",
+          textAlignment: "center",
+        },
+      },
+      {
+        type: "heading",
+        content: "Heading",
+        props: {
+          level: 2,
+        },
+      },
+      {
+        type: "checkListItem",
+        content: "Check List Item",
+        props: {
+          checked: true,
+          textColor: "red",
+          backgroundColor: "blue",
+          textAlignment: "center",
+        },
+      },
+      {
+        type: "codeBlock",
+        content: "Code",
+        props: { language: "javascript" },
+      },
+    ],
+  },
+  {
+    name: "schema/inlineContent",
+    content: [
+      {
+        type: "paragraph",
+        content: [
+          {
+            type: "text",
+            text: "Text ",
+            styles: {},
+          },
+          {
+            type: "link",
+            content: "Link",
+            href: "https://example.com",
+          },
+        ],
+      },
+    ],
+  },
+  {
+    name: "schema/styles",
+    content: [
+      {
+        type: "paragraph",
+        content: [
+          {
+            type: "text",
+            text: "T",
+            styles: {
+              bold: true,
+              italic: true,
+              underline: true,
+              strike: true,
+              // Code cannot be applied on top of other styles.
+              // code: true,
+              textColor: "red",
+              backgroundColor: "blue",
+            },
+          },
+        ],
+      },
+    ],
+  },
+  {
+    name: "lists/nested",
+    content: [
+      {
+        type: "bulletListItem",
+        content: "List Item 1",
+        children: [
+          {
+            type: "bulletListItem",
+            content: "Nested List Item 1",
+          },
+          {
+            type: "bulletListItem",
+            content: "Nested List Item 2",
+          },
+        ],
+      },
+      {
+        type: "bulletListItem",
+        content: "List Item 2",
+      },
+    ],
+  },
+  {
+    name: "lists/toggleListItem",
+    content: [
+      {
+        type: "toggleListItem",
+        content: "Toggle List Item",
+      },
+    ],
+  },
+  {
+    name: "lists/toggleListItemWithChildren",
+    content: [
+      {
+        type: "toggleListItem",
+        content: "Toggle List Item",
+        children: [
+          {
+            type: "paragraph",
+            content: "Child 1",
+          },
+          {
+            type: "paragraph",
+            content: "Child 2",
+          },
+        ],
+      },
+    ],
+  },
+  {
+    name: "lists/toggleHeading",
+    content: [
+      {
+        type: "heading",
+        props: {
+          level: 2,
+          isToggleable: true,
+        },
+        content: "Toggle Heading",
+        children: [
+          {
+            type: "paragraph",
+            content: "Heading Child 1",
+          },
+        ],
+      },
+    ],
+  },
+  {
+    name: "tables/advanced",
+    content: [
+      {
+        type: "table",
+        content: {
+          type: "tableContent",
+          columnWidths: [199, 148, 201],
+          headerRows: 1,
+          rows: [
+            {
+              cells: [
+                {
+                  type: "tableCell",
+                  content: "This row has headers",
+                  props: {
+                    textAlignment: "center",
+                  },
+                },
+                {
+                  type: "tableCell",
+                  content: [
+                    {
+                      type: "text",
+                      text: "This is ",
+                      styles: {},
+                    },
+                    {
+                      type: "text",
+                      text: "RED",
+                      styles: {
+                        bold: true,
+                      },
+                    },
+                  ],
+                  props: {
+                    backgroundColor: "red",
+                    textAlignment: "center",
+                  },
+                },
+                {
+                  type: "tableCell",
+                  content: "Text is Blue",
+                  props: {
+                    textColor: "blue",
+                    textAlignment: "center",
+                  },
+                },
+              ],
+            },
+            {
+              cells: [
+                {
+                  type: "tableCell",
+                  content: "This spans 2 columns\nand 2 rows",
+                  props: {
+                    colspan: 2,
+                    rowspan: 2,
+                    backgroundColor: "yellow",
+                  },
+                },
+                {
+                  type: "tableCell",
+                  content: "Sooo many features",
+                  props: {
+                    backgroundColor: "gray",
+                    textColor: "default",
+                    textAlignment: "left",
+                  },
+                },
+              ],
+            },
+            {
+              cells: [
+                {
+                  type: "tableCell",
+                  content: [],
+                  props: {
+                    backgroundColor: "gray",
+                    textColor: "purple",
+                  },
+                },
+              ],
+            },
+            {
+              cells: [
+                {
+                  type: "tableCell",
+                  content: "A cell",
+                },
+                {
+                  type: "tableCell",
+                  content: "Another Cell",
+                },
+                {
+                  type: "tableCell",
+                  content: "Aligned center",
+                  props: {
+                    textAlignment: "center",
+                  },
+                },
+              ],
+            },
+          ],
+        },
+      },
+    ],
+  },
+];
+
+// Markdown round-trip tests: blocks → markdown → blocks
+// Markdown is a lossy format (no colors, underline, alignment), so these tests
+// use snapshot matching to capture the expected round-trip result rather than
+// strict equality with the input. This is critical for verifying that the
+// custom markdown parser/serializer produces the same round-trip results.
+export const markdownRoundTripCases: CoreExportCase[] = [
+  {
+    name: "markdown/paragraph",
+    content: [
+      {
+        type: "paragraph",
+        content: "Simple paragraph",
+      },
+    ],
+  },
+  {
+    name: "markdown/multipleParagraphs",
+    content: [
+      {
+        type: "paragraph",
+        content: "First paragraph",
+      },
+      {
+        type: "paragraph",
+        content: "Second paragraph",
+      },
+    ],
+  },
+  {
+    name: "markdown/headingLevels",
+    content: [
+      {
+        type: "heading",
+        props: { level: 1 },
+        content: "Heading 1",
+      },
+      {
+        type: "heading",
+        props: { level: 2 },
+        content: "Heading 2",
+      },
+      {
+        type: "heading",
+        props: { level: 3 },
+        content: "Heading 3",
+      },
+    ],
+  },
+  {
+    name: "markdown/bulletList",
+    content: [
+      {
+        type: "bulletListItem",
+        content: "Item 1",
+      },
+      {
+        type: "bulletListItem",
+        content: "Item 2",
+      },
+    ],
+  },
+  {
+    name: "markdown/numberedList",
+    content: [
+      {
+        type: "numberedListItem",
+        content: "Item 1",
+      },
+      {
+        type: "numberedListItem",
+        content: "Item 2",
+      },
+    ],
+  },
+  {
+    name: "markdown/checkList",
+    content: [
+      {
+        type: "checkListItem",
+        content: "Unchecked",
+      },
+      {
+        type: "checkListItem",
+        props: { checked: true },
+        content: "Checked",
+      },
+    ],
+  },
+  {
+    name: "markdown/numberedListItemWithDetailsText",
+    content: [
+      {
+        type: "numberedListItem",
+        content: "<details>",
+      },
+    ],
+  },
+  {
+    name: "markdown/paragraphWithHtmlLikeText",
+    content: [
+      {
+        type: "paragraph",
+        content: "Tags like <b>, </b> and <!-- note --> stay text, and 1 < 2.",
+      },
+    ],
+  },
+  {
+    name: "markdown/paragraphWithBackslashBeforeHtmlLikeText",
+    content: [
+      {
+        type: "paragraph",
+        content:
+          "Escaped \\<details> and \\\\<b> stay text, as does C:\\Users.",
+      },
+    ],
+  },
+  {
+    name: "markdown/nestedLists",
+    content: [
+      {
+        type: "bulletListItem",
+        content: "Parent",
+        children: [
+          {
+            type: "numberedListItem",
+            content: "Child 1",
+          },
+          {
+            type: "numberedListItem",
+            content: "Child 2",
+          },
+        ],
+      },
+    ],
+  },
+  {
+    name: "markdown/codeBlock",
+    content: [
+      {
+        type: "codeBlock",
+        props: { language: "javascript" },
+        content: "const x = 42;",
+      },
+    ],
+  },
+  {
+    name: "markdown/divider",
+    content: [
+      {
+        type: "paragraph",
+        content: "Before",
+      },
+      {
+        type: "divider",
+      },
+      {
+        type: "paragraph",
+        content: "After",
+      },
+    ],
+  },
+  {
+    name: "markdown/bold",
+    content: [
+      {
+        type: "paragraph",
+        content: [
+          {
+            type: "text",
+            text: "Bold text",
+            styles: { bold: true },
+          },
+        ],
+      },
+    ],
+  },
+  {
+    name: "markdown/italic",
+    content: [
+      {
+        type: "paragraph",
+        content: [
+          {
+            type: "text",
+            text: "Italic text",
+            styles: { italic: true },
+          },
+        ],
+      },
+    ],
+  },
+  {
+    name: "markdown/strike",
+    content: [
+      {
+        type: "paragraph",
+        content: [
+          {
+            type: "text",
+            text: "Strikethrough text",
+            styles: { strike: true },
+          },
+        ],
+      },
+    ],
+  },
+  {
+    name: "markdown/inlineCode",
+    content: [
+      {
+        type: "paragraph",
+        content: [
+          {
+            type: "text",
+            text: "Code text",
+            styles: { code: true },
+          },
+        ],
+      },
+    ],
+  },
+  {
+    name: "markdown/boldItalic",
+    content: [
+      {
+        type: "paragraph",
+        content: [
+          {
+            type: "text",
+            text: "Bold and italic",
+            styles: { bold: true, italic: true },
+          },
+        ],
+      },
+    ],
+  },
+  {
+    name: "markdown/link",
+    content: [
+      {
+        type: "paragraph",
+        content: [
+          {
+            type: "text",
+            text: "Text ",
+            styles: {},
+          },
+          {
+            type: "link",
+            content: "Link",
+            href: "https://example.com",
+          },
+          {
+            type: "text",
+            text: " more text",
+            styles: {},
+          },
+        ],
+      },
+    ],
+  },
+  {
+    name: "markdown/plainUrlLink",
+    content: [
+      {
+        type: "paragraph",
+        content: [
+          {
+            type: "link",
+            content: "https://example.com",
+            href: "https://example.com",
+          },
+        ],
+      },
+    ],
+  },
+  {
+    name: "markdown/editorDetectedUrlLink",
+    content: [
+      {
+        type: "paragraph",
+        content: [
+          {
+            type: "link",
+            content: "https://invalid",
+            href: "https://invalid",
+          },
+        ],
+      },
+    ],
+  },
+  {
+    name: "markdown/plainUrlLinkWithTerminalPunctuation",
+    content: [
+      {
+        type: "paragraph",
+        content: [
+          {
+            type: "link",
+            content: "https://example.com/path.",
+            href: "https://example.com/path.",
+          },
+        ],
+      },
+    ],
+  },
+  {
+    name: "markdown/plainWwwLink",
+    content: [
+      {
+        type: "paragraph",
+        content: [
+          {
+            type: "link",
+            content: "www.example.com",
+            href: "www.example.com",
+          },
+        ],
+      },
+    ],
+  },
+  {
+    name: "markdown/image",
+    content: [
+      {
+        type: "image",
+        props: {
+          url: "https://example.com/image.png",
+          name: "Example",
+        },
+      },
+    ],
+  },
+  {
+    name: "markdown/video",
+    content: [
+      {
+        type: "video",
+        props: {
+          url: "https://example.com/video.mp4",
+          name: "Example",
+        },
+      },
+    ],
+  },
+  {
+    name: "markdown/table",
+    content: [
+      {
+        type: "table",
+        content: {
+          type: "tableContent",
+          rows: [
+            {
+              cells: ["Header 1", "Header 2"],
+            },
+            {
+              cells: ["Cell 1", "Cell 2"],
+            },
+          ],
+        },
+      },
+    ],
+  },
+  // Complementary check for https://github.com/TypeCellOS/BlockNote/issues/739:
+  // a table WITH a real header row must round-trip with the header preserved
+  // (i.e. non-empty headers must not be treated as the empty-header case).
+  {
+    name: "markdown/tableWithHeaderRow",
+    content: [
+      {
+        type: "table",
+        content: {
+          type: "tableContent",
+          headerRows: 1,
+          rows: [
+            {
+              cells: ["Header 1", "Header 2"],
+            },
+            {
+              cells: ["Cell 1", "Cell 2"],
+            },
+          ],
+        },
+      },
+    ],
+  },
+  {
+    name: "markdown/quote",
+    content: [
+      {
+        type: "quote",
+        content: "A quote",
+      },
+    ],
+  },
+  {
+    name: "markdown/hardBreak",
+    content: [
+      {
+        type: "paragraph",
+        content: [
+          {
+            type: "text",
+            text: "Line 1\nLine 2",
+            styles: {},
+          },
+        ],
+      },
+    ],
+  },
+  {
+    name: "markdown/mixedStyles",
+    content: [
+      {
+        type: "paragraph",
+        content: [
+          {
+            type: "text",
+            text: "Normal ",
+            styles: {},
+          },
+          {
+            type: "text",
+            text: "bold ",
+            styles: { bold: true },
+          },
+          {
+            type: "text",
+            text: "italic ",
+            styles: { italic: true },
+          },
+          {
+            type: "text",
+            text: "strike",
+            styles: { strike: true },
+          },
+        ],
+      },
+    ],
+  },
+  {
+    name: "markdown/complexDocument",
+    content: [
+      {
+        type: "heading",
+        props: { level: 1 },
+        content: "Title",
+      },
+      {
+        type: "paragraph",
+        content: [
+          {
+            type: "text",
+            text: "Paragraph with ",
+            styles: {},
+          },
+          {
+            type: "text",
+            text: "bold",
+            styles: { bold: true },
+          },
+          {
+            type: "text",
+            text: " text.",
+            styles: {},
+          },
+        ],
+      },
+      {
+        type: "bulletListItem",
+        content: "Bullet 1",
+      },
+      {
+        type: "bulletListItem",
+        content: "Bullet 2",
+      },
+      {
+        type: "divider",
+      },
+      {
+        type: "codeBlock",
+        props: { language: "python" },
+        content: "print('hello')",
+      },
+    ],
+  },
+  {
+    name: "markdown/deeplyNestedLists",
+    content: [
+      {
+        type: "bulletListItem",
+        content: "Level 1 bullet",
+        children: [
+          {
+            type: "numberedListItem",
+            content: "Level 2 numbered",
+            children: [
+              {
+                type: "bulletListItem",
+                content: "Level 3 bullet",
+                children: [
+                  {
+                    type: "numberedListItem",
+                    content: "Level 4 numbered",
+                  },
+                ],
+              },
+            ],
+          },
+          {
+            type: "numberedListItem",
+            content: "Level 2 sibling",
+          },
+        ],
+      },
+      {
+        type: "bulletListItem",
+        content: "Another top-level bullet",
+        children: [
+          {
+            type: "bulletListItem",
+            content: "Child of second bullet",
+            children: [
+              {
+                type: "checkListItem",
+                content: "Deep checklist item",
+              },
+            ],
+          },
+        ],
+      },
+    ],
+  },
+  {
+    name: "markdown/styledSurroundingWhitespace",
+    content: [
+      {
+        type: "paragraph",
+        content: [
+          {
+            type: "text",
+            text: "Normal",
+            styles: {},
+          },
+          {
+            type: "text",
+            text: " bold",
+            styles: { bold: true },
+          },
+          {
+            type: "text",
+            text: " and",
+            styles: {},
+          },
+          {
+            type: "text",
+            text: " italic ",
+            styles: { italic: true },
+          },
+          {
+            type: "text",
+            text: "and",
+            styles: {},
+          },
+          {
+            type: "text",
+            text: " strike ",
+            styles: { strike: true },
+          },
+          {
+            type: "text",
+            text: "end",
+            styles: {},
+          },
+        ],
+      },
+    ],
+  },
+  {
+    name: "markdown/specialCharEscaping",
+    content: [
+      {
+        type: "paragraph",
+        content: [
+          {
+            type: "text",
+            text: "Literal *asterisks* and **double asterisks**",
+            styles: {},
+          },
+        ],
+      },
+      {
+        type: "paragraph",
+        content: [
+          {
+            type: "text",
+            text: "Backticks ` in plain text and `` double ``",
+            styles: {},
+          },
+        ],
+      },
+      {
+        type: "paragraph",
+        content: [
+          {
+            type: "text",
+            text: "Underscores _here_ and ~tildes~ and [brackets]",
+            styles: {},
+          },
+        ],
+      },
+      {
+        type: "paragraph",
+        content: [
+          {
+            type: "text",
+            text: "Pipes | and backslash \\ and #hash at start",
+            styles: {},
+          },
+        ],
+      },
+      {
+        type: "codeBlock",
+        props: { language: "" },
+        // eslint-disable-next-line no-template-curly-in-string
+        content:
+          "const x = `template ${literal}`;\nconst y = '```triple backticks```';",
+      },
+    ],
+  },
+  // Mirrors the default-blocks demo (examples/01-basic/04-default-blocks)
+  // so we get a single round-trip snapshot covering every default block
+  // type. Markdown is lossy (colors/alignment/file blocks/toggle
+  // affordances are dropped), so the snapshot documents what survives.
+  // Image/video/audio captions are preserved via raw `<figure>` HTML.
+  {
+    name: "markdown/defaultBlocks",
+    content: [
+      {
+        type: "paragraph",
+        content: "Welcome to this demo!",
+      },
+      {
+        type: "paragraph",
+        content: [
+          {
+            type: "text",
+            text: "Blocks:",
+            styles: { bold: true },
+          },
+        ],
+      },
+      {
+        type: "paragraph",
+        content: "Paragraph",
+      },
+      {
+        type: "heading",
+        content: "Heading",
+      },
+      {
+        type: "heading",
+        props: { isToggleable: true },
+        content: "Toggle Heading",
+      },
+      {
+        type: "quote",
+        content: "Quote",
+      },
+      {
+        type: "bulletListItem",
+        content: "Bullet List Item",
+      },
+      {
+        type: "numberedListItem",
+        content: "Numbered List Item",
+      },
+      {
+        type: "checkListItem",
+        content: "Check List Item",
+      },
+      {
+        type: "toggleListItem",
+        content: "Toggle List Item",
+      },
+      {
+        type: "codeBlock",
+        props: { language: "javascript" },
+        content: "console.log('Hello, world!');",
+      },
+      {
+        type: "table",
+        content: {
+          type: "tableContent",
+          rows: [
+            { cells: ["Table Cell", "Table Cell", "Table Cell"] },
+            { cells: ["Table Cell", "Table Cell", "Table Cell"] },
+            { cells: ["Table Cell", "Table Cell", "Table Cell"] },
+          ],
+        },
+      },
+      {
+        type: "file",
+      },
+      {
+        type: "image",
+        props: {
+          url: "https://placehold.co/332x322.jpg",
+          caption: "From https://placehold.co/332x322.jpg",
+        },
+      },
+      {
+        type: "video",
+        props: {
+          url: "https://interactive-examples.mdn.mozilla.net/media/cc0-videos/flower.webm",
+          caption:
+            "From https://interactive-examples.mdn.mozilla.net/media/cc0-videos/flower.webm",
+        },
+      },
+      {
+        type: "audio",
+        props: {
+          url: "https://interactive-examples.mdn.mozilla.net/media/cc0-audio/t-rex-roar.mp3",
+          caption:
+            "From https://interactive-examples.mdn.mozilla.net/media/cc0-audio/t-rex-roar.mp3",
+        },
+      },
+      {
+        type: "paragraph",
+        content: [
+          {
+            type: "text",
+            text: "Inline Content:",
+            styles: { bold: true },
+          },
+        ],
+      },
+      {
+        type: "paragraph",
+        content: [
+          {
+            type: "text",
+            text: "Styled Text",
+            styles: {
+              bold: true,
+              italic: true,
+              textColor: "red",
+              backgroundColor: "blue",
+            },
+          },
+          {
+            type: "text",
+            text: " ",
+            styles: {},
+          },
+          {
+            type: "link",
+            content: "Link",
+            href: "https://www.blocknotejs.org",
+          },
+        ],
+      },
+    ],
+  },
+];

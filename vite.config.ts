@@ -60,6 +60,30 @@ export default defineConfig({
     // its tsc step reads `core`'s `.d.ts` files.
     cache: { scripts: true },
     tasks: {
+      // Docker owns image reuse. Always ask the daemon and execute browser runs:
+      // image state, installed browsers, and reports aren't task-cache inputs.
+      "e2e:image": {
+        command: "bash tests/docker-build.sh",
+        cache: false,
+      },
+      e2e: {
+        command:
+          "BLOCKNOTE_E2E_FULL=1 bash tests/docker-run.sh -e CI=1 -- --run",
+        cache: false,
+      },
+      "e2e:local": {
+        command: "vp test -c vite.config.browser.ts --mode browser-local --run",
+        cwd: "tests",
+        cache: false,
+      },
+      "e2e:updateSnaps": {
+        command: "bash tests/docker-run.sh -e CI=1 -- --run --update=true",
+        cache: false,
+      },
+      "e2e:report": {
+        command: "serve -l 4173 tests/playwright-report",
+        cache: false,
+      },
       "test:screen-reader": {
         command: "node tests/src/screen-reader/run-screen-reader.mjs",
         cache: false,
@@ -95,7 +119,9 @@ export default defineConfig({
       "./packages/ariakit/vite.config.ts",
       "./packages/code-block/vite.config.ts",
       "./packages/core/vite.config.ts",
+      "./packages/diagram-block/vite.config.ts",
       "./packages/mantine/vite.config.ts",
+      "./packages/math-block/vite.config.ts",
       "./packages/react/vite.config.ts",
       "./packages/server-util/vite.config.ts",
       "./packages/shadcn/vite.config.ts",
@@ -106,6 +132,8 @@ export default defineConfig({
       "./packages/xl-multi-column/vite.config.ts",
       "./packages/xl-odt-exporter/vite.config.ts",
       "./packages/xl-pdf-exporter/vite.config.ts",
+      "./packages/xl-typst-compiler/vite.config.ts",
+      "./packages/xl-typst-exporter/vite.config.ts",
       "./tests/vite.config.ts",
       "./tests/vite.config.browser.ts",
     ],

@@ -1,5 +1,5 @@
 import { BlockNoteEditor, expandPMRangeToWords } from "@blocknote/core";
-import { describe, expect, it } from "vite-plus/test";
+import { describe, expect } from "vite-plus/test";
 import { getEditorWithFormattingAndMentions } from "../testUtil/cases/editors/formattingAndMentions.js";
 import {
   DocumentOperationTestCase,
@@ -17,12 +17,13 @@ function executeTestCase(
       throw new Error("Only update operations are supported");
     }
     const blockId = update.id;
+    const doc = editor.transact(({ doc }) => doc);
 
     let selection = test.getTestSelection?.(editor);
     if (selection) {
-      selection = expandPMRangeToWords(editor.prosemirrorState.doc, {
-        $from: editor.prosemirrorState.doc.resolve(selection.from),
-        $to: editor.prosemirrorState.doc.resolve(selection.to),
+      selection = expandPMRangeToWords(doc, {
+        $from: doc.resolve(selection.from),
+        $to: doc.resolve(selection.to),
       });
     }
     const steps = updateToReplaceSteps(
@@ -30,14 +31,14 @@ function executeTestCase(
         id: blockId,
         block: update.block,
       },
-      editor.prosemirrorState.doc,
+      doc,
       undefined,
       selection?.from,
       selection?.to,
     );
 
     const formatted = steps.map((step) => ({
-      replaced: editor.prosemirrorState.doc.slice(step.from, step.to).toJSON(),
+      replaced: doc.slice(step.from, step.to).toJSON(),
       step: step,
     }));
 
@@ -56,16 +57,18 @@ function executeTestCase(
 }
 
 for (const test of updateOperationTestCases) {
-  it(`${test.description}`, async () => {
-    const editor = test.editor();
+  it(`${test.description}`, async ({ setupEditor }) => {
+    const editor = await test.editor(setupEditor);
     executeTestCase(editor, test);
-    expect(editor.document).toEqual(getExpectedEditor(test).document);
+    expect(editor.document).toEqual(
+      (await getExpectedEditor(setupEditor, test)).document,
+    );
   });
 }
 
 describe("dontReplaceContentAtEnd=true", () => {
-  it("keeps content at end of block", async () => {
-    const editor = getEditorWithFormattingAndMentions();
+  it("keeps content at end of block", async ({ setupEditor }) => {
+    const editor = await getEditorWithFormattingAndMentions(setupEditor);
     const steps = updateToReplaceSteps(
       {
         id: "ref1",
@@ -73,15 +76,15 @@ describe("dontReplaceContentAtEnd=true", () => {
           content: [{ type: "text", text: "Hello" }],
         },
       },
-      editor.prosemirrorState.doc,
+      editor.transact(({ doc }) => doc),
       true,
     );
 
     expect(steps).toEqual([]);
   });
 
-  it("keeps content at end of block (mark update)", async () => {
-    const editor = getEditorWithFormattingAndMentions();
+  it("keeps content at end of block (mark update)", async ({ setupEditor }) => {
+    const editor = await getEditorWithFormattingAndMentions(setupEditor);
     const steps = updateToReplaceSteps(
       {
         id: "ref1",
@@ -92,7 +95,7 @@ describe("dontReplaceContentAtEnd=true", () => {
           ],
         },
       },
-      editor.prosemirrorState.doc,
+      editor.transact(({ doc }) => doc),
       true,
     );
 

@@ -1,30 +1,44 @@
 import App from "@examples/01-basic/15-shadowdom/src/App";
-import { afterEach, expect, test, vi } from "vite-plus/test";
+import { expect, test, vi } from "vite-plus/test";
 import { render } from "vitest-browser-react";
+import { FormattingToolbarInputContext } from "../../../../packages/react/src/components/FormattingToolbar/FormattingToolbarInputContext.js";
 import reactCss from "../../../../packages/react/src/editor/styles.css?inline";
+import { installBrowserNoMotion } from "../../commands/browser/installBrowserTestStyles.js";
 import { page } from "../../utils/context.js";
 import { expectElement } from "../../utils/editor.js";
 
-// Force the mobile path without depending on a real on-screen keyboard. Keep
-// the example, Mantine toolbar, portal placement and shadow-scoped CSS real.
-vi.mock(
-  "../../../../packages/react/src/components/FormattingToolbar/useVirtualKeyboard.js",
-  () => ({ useVirtualKeyboard: () => true }),
-);
-vi.mock("@blocknote/core", async (importOriginal) => ({
-  ...(await importOriginal<typeof import("@blocknote/core")>()),
-  isTouchDevice: () => true,
-}));
-
-afterEach(() => {
-  document.documentElement.style.removeProperty("--bn-vv-height");
-});
-
 // Regression for #3304: mounting the toolbar in body loses the example's CSS.
-test("mobile toolbar retains the Shadow DOM example's scoped styles", async () => {
+test("mobile toolbar retains the Shadow DOM example's scoped styles", async ({
+  onTestFinished,
+}) => {
+  const { innerWidth, innerHeight } = window;
+  onTestFinished(() => page.viewport(innerWidth, innerHeight));
   await page.viewport(393, 400);
-  document.documentElement.style.setProperty("--bn-vv-height", "400px");
-  const screen = await render(<App />);
+  const documentStyle = document.documentElement.style;
+  const viewportHeight = "--bn-vv-height";
+  const previousHeight = documentStyle.getPropertyValue(viewportHeight);
+  const previousPriority = documentStyle.getPropertyPriority(viewportHeight);
+  documentStyle.setProperty(viewportHeight, "400px");
+  onTestFinished(() => {
+    if (previousHeight === "") {
+      documentStyle.removeProperty(viewportHeight);
+    } else {
+      documentStyle.setProperty(
+        viewportHeight,
+        previousHeight,
+        previousPriority,
+      );
+    }
+  });
+  // Only the example tree sees the open touch keyboard; its default Mantine
+  // toolbar and shadow-scoped styles still render through the normal path.
+  const screen = await render(
+    <FormattingToolbarInputContext.Provider
+      value={{ isTouchDevice: true, keyboardOpen: true }}
+    >
+      <App />
+    </FormattingToolbarInputContext.Provider>,
+  );
   screen.container.style.minHeight = "calc(100vh - 16px)";
   const host = screen.container.firstElementChild;
   await vi.waitFor(() => expect(host?.shadowRoot).not.toBeNull());
@@ -34,6 +48,8 @@ test("mobile toolbar retains the Shadow DOM example's scoped styles", async () =
   const style = document.createElement("style");
   style.textContent = reactCss;
   root.prepend(style);
+  onTestFinished(() => style.remove());
+  onTestFinished(installBrowserNoMotion(root));
   await vi.waitFor(() => {
     const editor = root.querySelector<HTMLElement>(".bn-editor");
     expect(editor).not.toBeNull();

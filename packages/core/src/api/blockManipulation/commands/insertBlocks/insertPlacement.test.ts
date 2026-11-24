@@ -1,16 +1,8 @@
-// @vitest-environment node
-import {
-  afterAll,
-  beforeAll,
-  beforeEach,
-  describe,
-  expect,
-  it,
-} from "vite-plus/test";
+import { describe, expect } from "vite-plus/test";
 
 import { BlockNoteSchema } from "../../../../blocks/BlockNoteSchema.js";
 import { defaultBlockSpecs } from "../../../../blocks/defaultBlocks.js";
-import { BlockNoteEditor } from "../../../../editor/BlockNoteEditor.js";
+import type { BlockNoteEditor } from "../../../../editor/BlockNoteEditor.js";
 import { createBlockSpec } from "../../../../schema/blocks/createSpec.js";
 
 // The editor stays headless, so these blocks are never rendered.
@@ -46,25 +38,26 @@ const schema = BlockNoteSchema.create().extend({
   } as const,
 });
 
-let editor: BlockNoteEditor<any, any, any>;
-
-beforeAll(() => {
-  editor = BlockNoteEditor.create({ schema }) as any;
-});
-
-afterAll(() => {
-  editor._tiptapEditor.destroy();
-  editor = undefined as any;
-});
-
-beforeEach(() => {
-  editor.replaceBlocks(editor.document, [
-    { id: "p-0", type: "paragraph", content: "Paragraph 0" },
-  ]);
+const it = globalThis.it.extend<{
+  editor: BlockNoteEditor<
+    typeof schema.blockSchema,
+    typeof schema.inlineContentSchema,
+    typeof schema.styleSchema
+  >;
+}>({
+  editor: async ({ setupEditor }, use) => {
+    const { editor } = await setupEditor({
+      schema,
+      initialContent: [
+        { id: "p-0", type: "paragraph", content: "Paragraph 0" },
+      ],
+    });
+    await use(editor);
+  },
 });
 
 describe('insertBlocks "first-child" / "last-child"', () => {
-  it("prepends and appends around existing children", () => {
+  it("prepends and appends around existing children", ({ editor }) => {
     editor.replaceBlocks(editor.document, [
       {
         id: "b-0",
@@ -92,7 +85,9 @@ describe('insertBlocks "first-child" / "last-child"', () => {
     ]);
   });
 
-  it("descends into a nested layout block that accepts the block", () => {
+  it("descends into a nested layout block that accepts the block", ({
+    editor,
+  }) => {
     editor.replaceBlocks(editor.document, [
       {
         id: "g-0",
@@ -127,7 +122,9 @@ describe('insertBlocks "first-child" / "last-child"', () => {
     );
   });
 
-  it("nests under a regular block, with or without existing children", () => {
+  it("nests under a regular block, with or without existing children", ({
+    editor,
+  }) => {
     editor.replaceBlocks(editor.document, [
       { id: "p-0", type: "paragraph", content: "Paragraph 0" },
     ]);
@@ -149,7 +146,7 @@ describe('insertBlocks "first-child" / "last-child"', () => {
     ]);
   });
 
-  it("throws when a sibling placement isn't allowed either", () => {
+  it("throws when a sibling placement isn't allowed either", ({ editor }) => {
     editor.replaceBlocks(editor.document, [
       {
         id: "g-0",
@@ -169,7 +166,7 @@ describe('insertBlocks "first-child" / "last-child"', () => {
     ).toThrow(/at "after" of block "c-0": no valid position/);
   });
 
-  it("throws when only the first of several blocks would fit", () => {
+  it("throws when only the first of several blocks would fit", ({ editor }) => {
     editor.replaceBlocks(editor.document, [
       { id: "p-0", type: "paragraph", content: "Paragraph 0" },
     ]);
@@ -189,7 +186,7 @@ describe('insertBlocks "first-child" / "last-child"', () => {
     expect(editor.getBlock("p-0")!.children).toEqual([]);
   });
 
-  it("still inserts a batch that fits in full", () => {
+  it("still inserts a batch that fits in full", ({ editor }) => {
     editor.replaceBlocks(editor.document, [
       {
         id: "b-0",

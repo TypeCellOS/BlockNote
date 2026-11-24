@@ -23,8 +23,10 @@ const DESKTOP_EXCLUDE = [
 ];
 
 // 1280x720 matches the old Playwright defaults so visual baselines have room.
-// Used as the playwright context viewport for every browser instance.
+// Set both the Playwright context and the Vitest test iframe to the same size
+// so the harness doesn't scale the editor to fit a different viewport.
 const VIEWPORT = { width: 1280, height: 720 };
+const PHONE_VIEWPORT = { width: 393, height: 727 };
 
 // Resolve every `@blocknote/*` workspace package to its `src/` (like the unit
 // `vite.config.ts` does for core/react). The e2e Docker image installs deps but
@@ -65,22 +67,67 @@ const blockNoteSrcAliases = Object.fromEntries(
     .filter(([name]) => name !== "@blocknote/xl-typst-compiler"),
 );
 
-// The e2e suite is designed to run in a fixed Linux environment (the Playwright
-// Docker image) so behaviour is identical locally and on CI — see the migration
-// notes. Locally you run it via the `test:e2e:ui` Docker script and view the
-// Vitest UI from the host browser at http://localhost:63315/__vitest__/.
+// Native Chromium is a quick feedback loop, not a replacement for the Docker
+// matrix. Only admit files that don't read or write platform-specific artifacts
+// and don't need mobile, native clipboard, or Docker's OS-level dependencies.
+const LOCAL_BROWSER_FILES = [
+  "src/end-to-end/linktoolbar/linkToolbar.test.tsx",
+  "../packages/core/src/editor/managers/EventManager.browser.test.ts",
+  "../packages/core/src/extensions/FormattingToolbar/FormattingToolbar.browser.test.ts",
+  "../packages/react/src/components/FormattingToolbar/DefaultButtons/BasicTextStyleButton.browser.test.tsx",
+  "../packages/react/src/components/FormattingToolbar/DefaultButtons/ColorStyleButton.browser.test.tsx",
+  "../packages/react/src/components/FormattingToolbar/DefaultButtons/CreateLinkButton.browser.test.tsx",
+  "../packages/react/src/components/FormattingToolbar/DefaultButtons/TextAlignButton.browser.test.tsx",
+  "../packages/react/src/schema/ReactBlockSpec.browser.test.tsx",
+];
+
+function localBrowserTestOptions() {
+  // Vitest treats --no-update as false, which overrides "none" and lets
+  // missing snapshots be written outside CI.
+  if (
+    process.argv.some((arg) =>
+      /^(?:-u|--(?:no-)?(?:update|u))(?:=|$)/.test(arg),
+    )
+  ) {
+    throw new Error("Update browser snapshots in Docker, not browser-local.");
+  }
+  return {
+    name: "browser-local",
+    include: LOCAL_BROWSER_FILES,
+    retry: 0,
+    update: "none",
+    reporters: ["default"],
+  };
+}
 
 // `defineConfig` with the inline object form trips TS2321 (excessive stack depth)
 // once the browser config is this large; the function form + `as UserConfig`
 // avoids the deep inference.
 export default defineConfig(
-  () =>
+  ({ mode }) =>
     ({
       // tailwindcss() is required for the ShadCN tests: the shadcn example's
       // `tailwind.css` (and `@apply` directives in package sources) only work
       // when Tailwind v4 processes the CSS. Without it, ShadCN UI components
       // render unstyled because their utility classes don't exist.
       plugins: [tailwindcss()],
+      // ODT exporters use namespaced JSX to emit XML.
+      oxc: { jsx: { throwIfNamespace: false } },
+      optimizeDeps: {
+        // Vitest already scans the browser test and setup entry points, even
+        // for filtered runs. Keep discovery enabled for transitive imports.
+        // Prebundle React's entry points and the late TipTap import explicitly:
+        // a reload after the editor mounts can split React across optimizer
+        // generations in the same iframe.
+        include: [
+          "react",
+          "react-dom",
+          "react-dom/client",
+          "react/jsx-runtime",
+          "react/jsx-dev-runtime",
+          "@tiptap/pm/transform",
+        ],
+      },
       resolve: {
         dedupe: ["react", "react-dom", "vitest-browser-react"],
         // Mount example apps via `@examples/<group>/<name>/src/App`. The examples
@@ -104,14 +151,15 @@ export default defineConfig(
         // Preserve Vitest 4 mock history during the toolchain upgrade.
         clearMocks: false,
         name: "e2e",
-        // Besides the end-to-end tests, this suite also runs the packages'
-        // `.browser.test` files: unit tests for browser-only implementations
-        // (canvas rasterization, diagram rendering), colocated with the code
-        // they test but needing a real browser. Native screen-reader tests use
-        // their own runner. The packages' node configs exclude browser tests.
+        // Besides end-to-end tests, this suite runs browser integration tests
+        // and browser tests colocated with the code they cover. Native
+        // screen-reader tests use their own runner. Node configs exclude
+        // browser tests.
         include: [
           "./src/end-to-end/**/*.test.tsx",
-          "../packages/*/src/**/*.browser.test.{ts,tsx}",
+          "./src/integration/**/*.browser.test.?(c|m)[jt]s?(x)",
+          "../examples/*/*/src/**/*.browser.test.?(c|m)[jt]s?(x)",
+          "../packages/*/src/**/*.browser.test.?(c|m)[jt]s?(x)",
         ],
         exclude: [
           ...configDefaults.exclude,
@@ -123,10 +171,8 @@ export default defineConfig(
           "./vitestSetup.browser.ts",
           "./vitestSetup.browser-fixtures.ts",
         ],
-        // Running three browsers concurrently inside one Docker container already
-        // saturates CPU; layering per-browser file parallelism on top causes
-        // 15s test timeouts and even Firefox WS-connect failures. One worker per
-        // browser (browsers still run in parallel as separate vitest projects).
+        // Keep direct/filtered invocations serial. The full local Docker
+        // runner enables desktop parallelism in controlled batches.
         fileParallelism: false,
         // 15s default is tight under contention — bumped so legitimately slow
         // screenshot tests don't fail on contention alone.
@@ -141,6 +187,7 @@ export default defineConfig(
         // uploads keep working). The `html` reporter is provided by
         // `@vitest/ui`, whose version must match Vite Plus's bundled Vitest.
         reporters: ["default", ["html", { outputDir: "./playwright-report" }]],
+        ...(mode === "browser-local" && localBrowserTestOptions()),
         browser: {
           enabled: true,
           // Keep Vitest 4's partial, case-insensitive locator matching.
@@ -164,6 +211,7 @@ export default defineConfig(
           provider: playwright({
             contextOptions: { viewport: VIEWPORT },
           }),
+          viewport: VIEWPORT,
           headless: true,
           // On failure Vitest otherwise captures a page screenshot into
           // __screenshots__/<testfile>/<test name>-<n>.png — same dir as the
@@ -203,6 +251,7 @@ export default defineConfig(
               // platform stubs. See tests/src/end-to-end/mobile/.
               browser: "chromium",
               name: "android",
+              viewport: PHONE_VIEWPORT,
               launchOptions: {
                 args: [
                   "--no-sandbox",
@@ -212,7 +261,7 @@ export default defineConfig(
               },
               provider: playwright({
                 contextOptions: {
-                  viewport: { width: 393, height: 727 },
+                  viewport: PHONE_VIEWPORT,
                   userAgent:
                     "Mozilla/5.0 (Linux; Android 12; SM-S901B) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/151.0.0.0 Mobile Safari/537.36",
                   isMobile: true,
@@ -257,9 +306,10 @@ export default defineConfig(
               // stubs it to 5, the one stub of this instance.
               browser: "webkit",
               name: "ios",
+              viewport: PHONE_VIEWPORT,
               provider: playwright({
                 contextOptions: {
-                  viewport: { width: 393, height: 727 },
+                  viewport: PHONE_VIEWPORT,
                   userAgent:
                     "Mozilla/5.0 (iPhone; CPU iPhone OS 18_0 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/18.0 Mobile/15E148 Safari/604.1",
                   isMobile: true,
@@ -269,6 +319,9 @@ export default defineConfig(
               include: ["./src/end-to-end/mobile/**/*.test.tsx"],
             },
           ],
+          ...(mode === "browser-local" && {
+            instances: [{ browser: "chromium" }],
+          }),
         },
       },
     }) as unknown as UserConfig,

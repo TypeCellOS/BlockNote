@@ -11,17 +11,18 @@ import { testODTDocumentAgainstSnapshot } from "@shared/util/odtTestUtil.js";
 import { testDocumentWithSourceBlocks } from "@shared/testDocument.js";
 import { testResolveFileUrl } from "@shared/util/testFileResolver.js";
 import { BlobReader, FileEntry, TextWriter, ZipReader } from "@zip.js/zip.js";
-import { beforeAll, describe, expect, it } from "vite-plus/test";
+import { describe, expect, vi } from "vite-plus/test";
 
 import { inlineMathMapping, mathBlockMapping } from "./index.js";
 
-beforeAll(async () => {
-  // @ts-expect-error - Blob polyfill for Node test environment
-  globalThis.Blob = (await import("node:buffer")).Blob;
-});
-
 describe("odt exporter mappings", () => {
-  it("should render error placeholders for invalid LaTeX", async () => {
+  it("should render error placeholders for invalid LaTeX", async ({
+    onTestFinished,
+  }) => {
+    const error = vi.spyOn(console, "error");
+    onTestFinished(() => {
+      error.mockRestore();
+    });
     // Assembled outside the constructor call as the schema doesn't include
     // the math specs - like the default mappings, the math entries just map
     // the block JSON.
@@ -77,6 +78,11 @@ describe("odt exporter mappings", () => {
     // source on readers - once for the block, once for the inline math.
     expect(content.match(/Invalid formula/g)).toHaveLength(2);
     expect(content).not.toContain("draw:object");
+    expect(error.mock.calls.map(([message]) => message)).not.toContainEqual(
+      expect.stringContaining(
+        'Each child in a list should have a unique "key"',
+      ),
+    );
   });
 
   it("should export math as native formulas", { timeout: 10000 }, async () => {

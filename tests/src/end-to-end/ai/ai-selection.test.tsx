@@ -1,54 +1,64 @@
 import App from "@examples/09-ai/01-minimal/src/App";
-import { beforeEach, describe, expect, test } from "vite-plus/test";
+import { expect, vi } from "vite-plus/test";
 import { render } from "vitest-browser-react";
-import { userEvent } from "../../utils/context.js";
-import { EDITOR_SELECTOR } from "../../utils/const.js";
-import { focusOnEditor, sleep, waitForSelector } from "../../utils/editor.js";
+import { EDITOR_SELECTOR, PARAGRAPH_SELECTOR } from "../../utils/const.js";
+import { waitForSelector } from "../../utils/editor.js";
 import { clickAt, getRect } from "../../utils/mouse.js";
 
-const AI_BUTTON_SELECTOR = `[data-test="editwithAI"]`;
-
-beforeEach(async () => {
+it("preserves the editor selection when the AI toolbar button opens the prompt (#2525)", async () => {
   await render(<App />);
-  await waitForSelector(EDITOR_SELECTOR);
-});
+  const editor = await waitForSelector(EDITOR_SELECTOR);
+  const paragraph = await waitForSelector(
+    `${EDITOR_SELECTOR} ${PARAGRAPH_SELECTOR} .bn-inline-content`,
+  );
+  const text = paragraph.firstChild;
+  const selection = document.getSelection();
+  if (!(text instanceof Text) || !selection) {
+    throw new Error("Could not select text in the first editor paragraph");
+  }
 
-describe("AI toolbar button should preserve selection (issue #2525)", () => {
-  test("Editor selection must be preserved after clicking the AI toolbar button", async () => {
-    await focusOnEditor();
+  const selectedText = "Open source software";
+  await document.fonts.ready;
+  editor.focus();
+  // ProseMirror reconciles its selection on a timer after editor focus.
+  // Drain that work before setting the native range for this test; otherwise
+  // the queued focus work can race the later transfer to the prompt.
+  await window.__blockNoteWaitForEditorFocus();
+  expect(document.activeElement).toBe(editor);
+  selection.setBaseAndExtent(text, 0, text, selectedText.length);
 
-    // Select text in the first paragraph
-    await userEvent.keyboard("{Home}");
-    await userEvent.keyboard("{Shift>}{End}{/Shift}");
-    await sleep(500);
-
-    // Record the PM selection before clicking
-    const pm = (window as any).ProseMirror;
-    const selBefore = {
-      from: pm.state.selection.from,
-      to: pm.state.selection.to,
-    };
-    expect(selBefore.to - selBefore.from).toBeGreaterThan(0);
-
-    // Click the AI button using the real browser mouse to trigger real
-    // focus-shift behavior (a synthetic locator click bypasses it)
-    const aiButton = await waitForSelector(AI_BUTTON_SELECTOR);
-    const box = getRect(aiButton);
-    await clickAt(box.x + box.width / 2, box.y + box.height / 2);
-
-    // Wait for AI menu to appear
-    await waitForSelector(".bn-combobox-input input, .bn-combobox input");
-
-    // The PM selection must match what we had before clicking.
-    // Without skipping refs.setReference for in-editor references while
-    // FloatingFocusManager is active, floating-ui inserts a focus-return
-    // element into the PM contenteditable, triggering its MutationObserver
-    // and resetting the selection.
-    const selAfter = {
-      from: pm.state.selection.from,
-      to: pm.state.selection.to,
-    };
-    expect(selAfter.from).toBe(selBefore.from);
-    expect(selAfter.to).toBe(selBefore.to);
+  const { x, y } = await vi.waitFor(() => {
+    const button = document.querySelector('[data-test="editwithAI"]');
+    if (!button) {
+      throw new Error("AI toolbar button not found");
+    }
+    const box = getRect(button);
+    const x = box.x + box.width / 2;
+    const y = box.y + box.height / 2;
+    if (!button.contains(document.elementFromPoint(x, y))) {
+      throw new Error("AI toolbar button is not hit-testable at its center");
+    }
+    return { x, y };
   });
+  expect(selection.toString()).toBe(selectedText);
+  expect(selection.anchorNode).toBe(text);
+  expect(selection.focusNode).toBe(text);
+
+  // A real browser mouse click is needed to exercise the focus handoff.
+  await clickAt(x, y);
+  const prompt = await waitForSelector('input[name="ai-prompt"]:focus');
+
+  // The AI menu shows the editor's current selection while the input has
+  // focus. A collapsed or shifted range changes this visible highlight.
+  await expect
+    .poll(() =>
+      Array.from(editor.querySelectorAll('[data-show-selection="true"]')).map(
+        (highlight) => ({
+          text: highlight.textContent,
+          inSourceParagraph: paragraph.contains(highlight),
+        }),
+      ),
+    )
+    .toEqual([{ text: selectedText, inSourceParagraph: true }]);
+  expect(document.activeElement).toBe(prompt);
 });

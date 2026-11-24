@@ -1,29 +1,35 @@
-import { describe, expect, it, beforeEach } from "vite-plus/test";
+import { Node as ProseMirrorNode } from "prosemirror-model";
+import { describe, expect, vi } from "vite-plus/test";
 
-import { setupTestEnv } from "./blockManipulation/setupTestEnv.js";
+import { testDocument } from "./blockManipulation/setupTestEnv.js";
 import { getBlocksChangedByTransaction } from "./getBlocksChangedByTransaction.js";
 import { getBlockInfoFromNode } from "./getBlockInfoFromPos.js";
 import { getNodeById } from "./nodeUtil.js";
-import { BlockNoteEditor } from "../editor/BlockNoteEditor.js";
+import type { BlockNoteEditor } from "../editor/BlockNoteEditor.js";
 import { PartialBlock } from "../blocks/defaultBlocks.js";
 
-const getEditor = setupTestEnv();
+function editorTests(initialContent: PartialBlock[]) {
+  return it.extend<{ editor: BlockNoteEditor }>({
+    editor: async ({ setupEditor }, use) => {
+      const { editor } = await setupEditor({ initialContent });
+      await use(editor);
+    },
+  });
+}
 
 describe("getBlocksChangedByTransaction", () => {
-  let editor: BlockNoteEditor;
+  const it = editorTests(testDocument);
 
-  beforeEach(() => {
-    editor = getEditor();
-  });
-
-  it("should return the correct blocks changed by a transaction", () => {
+  it("should return the correct blocks changed by a transaction", ({
+    editor,
+  }) => {
     const blocksChanged = editor.transact((tr) => {
       return getBlocksChangedByTransaction(tr);
     });
     expect(blocksChanged).toEqual([]);
   });
 
-  it("should return blocks inserted by a transaction", async () => {
+  it("should return blocks inserted by a transaction", async ({ editor }) => {
     const blocksChanged = editor.transact((tr) => {
       editor.insertBlocks([{ type: "paragraph" }], "paragraph-0", "after");
       return getBlocksChangedByTransaction(tr);
@@ -34,7 +40,9 @@ describe("getBlocksChangedByTransaction", () => {
     );
   });
 
-  it("should return nested blocks inserted by a transaction", async () => {
+  it("should return nested blocks inserted by a transaction", async ({
+    editor,
+  }) => {
     const blocksChanged = editor.transact((tr) => {
       editor.insertBlocks(
         [
@@ -55,7 +63,7 @@ describe("getBlocksChangedByTransaction", () => {
     );
   });
 
-  it("should return blocks deleted by a transaction", async () => {
+  it("should return blocks deleted by a transaction", async ({ editor }) => {
     const blocksChanged = editor.transact((tr) => {
       editor.removeBlocks(["paragraph-0"]);
       return getBlocksChangedByTransaction(tr);
@@ -66,7 +74,9 @@ describe("getBlocksChangedByTransaction", () => {
     );
   });
 
-  it("should return deeply nested blocks deleted by a transaction", async () => {
+  it("should return deeply nested blocks deleted by a transaction", async ({
+    editor,
+  }) => {
     const blocksChanged = editor.transact((tr) => {
       editor.removeBlocks(["double-nested-paragraph-0"]);
       return getBlocksChangedByTransaction(tr);
@@ -77,7 +87,9 @@ describe("getBlocksChangedByTransaction", () => {
     );
   });
 
-  it("should return nested blocks deleted by a transaction", async () => {
+  it("should return nested blocks deleted by a transaction", async ({
+    editor,
+  }) => {
     const blocksChanged = editor.transact((tr) => {
       editor.removeBlocks(["nested-paragraph-0"]);
       return getBlocksChangedByTransaction(tr);
@@ -88,7 +100,7 @@ describe("getBlocksChangedByTransaction", () => {
     );
   });
 
-  it("should return blocks updated by a transaction", async () => {
+  it("should return blocks updated by a transaction", async ({ editor }) => {
     const blocksChanged = editor.transact((tr) => {
       editor.updateBlock("paragraph-0", {
         props: {
@@ -104,7 +116,9 @@ describe("getBlocksChangedByTransaction", () => {
     );
   });
 
-  it("should return nested blocks updated by a transaction", async () => {
+  it("should return nested blocks updated by a transaction", async ({
+    editor,
+  }) => {
     const blocksChanged = editor.transact((tr) => {
       editor.updateBlock("nested-paragraph-0", {
         props: {
@@ -120,7 +134,9 @@ describe("getBlocksChangedByTransaction", () => {
     );
   });
 
-  it("should return deeply nested blocks updated by a transaction", async () => {
+  it("should return deeply nested blocks updated by a transaction", async ({
+    editor,
+  }) => {
     const blocksChanged = editor.transact((tr) => {
       editor.updateBlock("double-nested-paragraph-0", {
         content: "Example Text",
@@ -134,7 +150,9 @@ describe("getBlocksChangedByTransaction", () => {
     );
   });
 
-  it("should return multiple nested blocks updated by a transaction", async () => {
+  it("should return multiple nested blocks updated by a transaction", async ({
+    editor,
+  }) => {
     const blocksChanged = editor.transact((tr) => {
       editor.updateBlock("nested-paragraph-0", {
         props: {
@@ -153,7 +171,9 @@ describe("getBlocksChangedByTransaction", () => {
     );
   });
 
-  it("should only return a single block, if multiple updates change a single block in a transaction", async () => {
+  it("should only return a single block, if multiple updates change a single block in a transaction", async ({
+    editor,
+  }) => {
     const blocksChanged = editor.transact((tr) => {
       editor.updateBlock("paragraph-0", {
         props: {
@@ -174,7 +194,9 @@ describe("getBlocksChangedByTransaction", () => {
     );
   });
 
-  it("should return multiple blocks, if multiple updates change multiple blocks in a transaction", async () => {
+  it("should return multiple blocks, if multiple updates change multiple blocks in a transaction", async ({
+    editor,
+  }) => {
     const blocksChanged = editor.transact((tr) => {
       editor.updateBlock("paragraph-0", {
         props: {
@@ -195,7 +217,9 @@ describe("getBlocksChangedByTransaction", () => {
     );
   });
 
-  it("should return multiple blocks, if multiple inserts add new blocks in a transaction", async () => {
+  it("should return multiple blocks, if multiple inserts add new blocks in a transaction", async ({
+    editor,
+  }) => {
     const blocksChanged = editor.transact((tr) => {
       editor.insertBlocks(
         [{ type: "paragraph", content: "ABC" }],
@@ -216,7 +240,9 @@ describe("getBlocksChangedByTransaction", () => {
     );
   });
 
-  it("should return blocks which have had content inserted into them", async () => {
+  it("should return blocks which have had content inserted into them", async ({
+    editor,
+  }) => {
     const blocksChanged = editor.transact((tr) => {
       editor.setTextCursorPosition("paragraph-2", "start");
       editor.insertInlineContent("Hello");
@@ -229,7 +255,7 @@ describe("getBlocksChangedByTransaction", () => {
     );
   });
 
-  it("should return blocks which have been indented", async () => {
+  it("should return blocks which have been indented", async ({ editor }) => {
     editor.replaceBlocks(editor.document, [
       {
         id: "paragraph-with-children",
@@ -262,7 +288,7 @@ describe("getBlocksChangedByTransaction", () => {
     );
   });
 
-  it("should return blocks which have been outdented", async () => {
+  it("should return blocks which have been outdented", async ({ editor }) => {
     editor.replaceBlocks(editor.document, [
       {
         id: "paragraph-with-children",
@@ -307,7 +333,9 @@ describe("getBlocksChangedByTransaction", () => {
     );
   });
 
-  it("should return blocks which have been moved to a different parent", async () => {
+  it("should return blocks which have been moved to a different parent", async ({
+    editor,
+  }) => {
     editor.replaceBlocks(editor.document, [
       {
         id: "parent-1",
@@ -342,7 +370,9 @@ describe("getBlocksChangedByTransaction", () => {
     );
   });
 
-  it("should return blocks which have been moved to root level", async () => {
+  it("should return blocks which have been moved to root level", async ({
+    editor,
+  }) => {
     editor.replaceBlocks(editor.document, [
       {
         id: "parent",
@@ -371,7 +401,9 @@ describe("getBlocksChangedByTransaction", () => {
     );
   });
 
-  it("should return blocks which have been moved deeper into nesting", async () => {
+  it("should return blocks which have been moved deeper into nesting", async ({
+    editor,
+  }) => {
     editor.replaceBlocks(editor.document, [
       {
         id: "root",
@@ -412,7 +444,9 @@ describe("getBlocksChangedByTransaction", () => {
     );
   });
 
-  it("should return multiple blocks when multiple blocks are moved in the same transaction", async () => {
+  it("should return multiple blocks when multiple blocks are moved in the same transaction", async ({
+    editor,
+  }) => {
     editor.replaceBlocks(editor.document, [
       {
         id: "parent-1",
@@ -457,7 +491,9 @@ describe("getBlocksChangedByTransaction", () => {
     );
   });
 
-  it("should return blocks which have been moved up or down in the same transaction", async () => {
+  it("should return blocks which have been moved up or down in the same transaction", async ({
+    editor,
+  }) => {
     editor.replaceBlocks(editor.document, [
       {
         id: "top",
@@ -489,7 +525,9 @@ describe("getBlocksChangedByTransaction", () => {
     );
   });
 
-  it("should detect moving the bottom block up within the same parent", async () => {
+  it("should detect moving the bottom block up within the same parent", async ({
+    editor,
+  }) => {
     editor.replaceBlocks(editor.document, [
       { id: "top", type: "paragraph", content: "Top" },
       { id: "middle", type: "paragraph", content: "Middle" },
@@ -507,7 +545,9 @@ describe("getBlocksChangedByTransaction", () => {
     );
   });
 
-  it("should detect moving a block down twice within the same parent as a single move", async () => {
+  it("should detect moving a block down twice within the same parent as a single move", async ({
+    editor,
+  }) => {
     editor.replaceBlocks(editor.document, [
       { id: "a", type: "paragraph", content: "A" },
       { id: "b", type: "paragraph", content: "B" },
@@ -526,7 +566,9 @@ describe("getBlocksChangedByTransaction", () => {
     );
   });
 
-  it("should detect nested sibling reorder within the same parent", async () => {
+  it("should detect nested sibling reorder within the same parent", async ({
+    editor,
+  }) => {
     editor.replaceBlocks(editor.document, [
       {
         id: "parent",
@@ -552,7 +594,9 @@ describe("getBlocksChangedByTransaction", () => {
     );
   });
 
-  it("should not report moves when an insert changes sibling order", async () => {
+  it("should not report moves when an insert changes sibling order", async ({
+    editor,
+  }) => {
     editor.replaceBlocks(editor.document, [
       { id: "a", type: "paragraph", content: "A" },
       { id: "b", type: "paragraph", content: "B" },
@@ -582,17 +626,11 @@ describe("getBlocksChangedByTransaction", () => {
  * the exact set of reported changes.
  */
 describe("getBlocksChangedByTransaction - ranged optimization", () => {
-  let editor: BlockNoteEditor;
-
-  const LARGE = 200;
-
-  function makeParagraphs(count: number): PartialBlock[] {
-    return Array.from({ length: count }, (_, i) => ({
-      id: `p-${i}`,
-      type: "paragraph",
-      content: `Paragraph ${i}`,
-    }));
-  }
+  const paragraphs: PartialBlock[] = Array.from({ length: 200 }, (_, i) => ({
+    id: `p-${i}`,
+    type: "paragraph",
+    content: `Paragraph ${i}`,
+  }));
 
   function summarize(changes: Array<{ type: string; block: { id: string } }>) {
     return changes.map((change) => ({
@@ -601,13 +639,11 @@ describe("getBlocksChangedByTransaction - ranged optimization", () => {
     }));
   }
 
-  beforeEach(() => {
-    editor = getEditor();
-  });
+  const it = editorTests(paragraphs);
 
-  it("reports only the changed block for a prop update deep in a large doc", () => {
-    editor.replaceBlocks(editor.document, makeParagraphs(LARGE));
-
+  it("reports only the changed block for a prop update deep in a large doc", ({
+    editor,
+  }) => {
     const changes = editor.transact((tr) => {
       editor.updateBlock("p-120", { props: { backgroundColor: "red" } });
       return getBlocksChangedByTransaction(tr);
@@ -616,9 +652,9 @@ describe("getBlocksChangedByTransaction - ranged optimization", () => {
     expect(summarize(changes)).toEqual([{ type: "update", id: "p-120" }]);
   });
 
-  it("reports only the edited block for a content insertion in a large doc", () => {
-    editor.replaceBlocks(editor.document, makeParagraphs(LARGE));
-
+  it("reports only the edited block for a content insertion in a large doc", ({
+    editor,
+  }) => {
     const changes = editor.transact((tr) => {
       editor.setTextCursorPosition("p-77", "start");
       editor.insertInlineContent("Hello ");
@@ -628,9 +664,53 @@ describe("getBlocksChangedByTransaction - ranged optimization", () => {
     expect(summarize(changes)).toEqual([{ type: "update", id: "p-77" }]);
   });
 
-  it("reports two distant prop updates without reporting the blocks between them", () => {
-    editor.replaceBlocks(editor.document, makeParagraphs(LARGE));
+  it("does not traverse unrelated blocks for a single text edit", ({
+    editor,
+  }) => {
+    const visitedBlocks: string[] = [];
+    // eslint-disable-next-line @typescript-eslint/unbound-method -- Called with the original receiver from the spy.
+    const nodesBetween = ProseMirrorNode.prototype.nodesBetween;
+    const changes = editor.transact((tr) => {
+      editor.setTextCursorPosition("p-77", "start");
+      editor.insertInlineContent("Hello ");
 
+      const traversal = vi
+        .spyOn(ProseMirrorNode.prototype, "nodesBetween")
+        .mockImplementation(function (
+          this: ProseMirrorNode,
+          from,
+          to,
+          visit,
+          startPos,
+        ) {
+          nodesBetween.call(
+            this,
+            from,
+            to,
+            (node, pos, parent, index) => {
+              if (node.type.name === "blockContainer") {
+                visitedBlocks.push(node.attrs.id);
+              }
+              return visit(node, pos, parent, index);
+            },
+            startPos,
+          );
+        });
+      try {
+        return getBlocksChangedByTransaction(tr);
+      } finally {
+        traversal.mockRestore();
+      }
+    });
+
+    expect(summarize(changes)).toEqual([{ type: "update", id: "p-77" }]);
+    expect(visitedBlocks).toContain("p-77");
+    expect(new Set(visitedBlocks)).toEqual(new Set(["p-77"]));
+  });
+
+  it("reports two distant prop updates without reporting the blocks between them", ({
+    editor,
+  }) => {
     const changes = editor.transact((tr) => {
       editor.updateBlock("p-10", { props: { backgroundColor: "red" } });
       editor.updateBlock("p-190", { props: { backgroundColor: "blue" } });
@@ -643,9 +723,9 @@ describe("getBlocksChangedByTransaction - ranged optimization", () => {
     expect(summary).toHaveLength(2);
   });
 
-  it("reports a mark-only change as an update (empty-map AddMarkStep)", () => {
-    editor.replaceBlocks(editor.document, makeParagraphs(LARGE));
-
+  it("reports a mark-only change as an update (empty-map AddMarkStep)", ({
+    editor,
+  }) => {
     const changes = editor.transact((tr) => {
       const posInfo = getNodeById("p-140", tr.doc);
       if (!posInfo) {
@@ -668,9 +748,9 @@ describe("getBlocksChangedByTransaction - ranged optimization", () => {
     expect(summarize(changes)).toEqual([{ type: "update", id: "p-140" }]);
   });
 
-  it("reports mixed insert/update/delete across a large doc in one transaction", () => {
-    editor.replaceBlocks(editor.document, makeParagraphs(LARGE));
-
+  it("reports mixed insert/update/delete across a large doc in one transaction", ({
+    editor,
+  }) => {
     const changes = editor.transact((tr) => {
       editor.updateBlock("p-20", { props: { backgroundColor: "red" } });
       editor.removeBlocks(["p-100"]);
@@ -689,9 +769,7 @@ describe("getBlocksChangedByTransaction - ranged optimization", () => {
     expect(summary).toHaveLength(3);
   });
 
-  it("reports an insert at the very start of a large doc", () => {
-    editor.replaceBlocks(editor.document, makeParagraphs(LARGE));
-
+  it("reports an insert at the very start of a large doc", ({ editor }) => {
     const changes = editor.transact((tr) => {
       editor.insertBlocks(
         [{ id: "new-first", type: "paragraph", content: "X" }],
@@ -704,13 +782,11 @@ describe("getBlocksChangedByTransaction - ranged optimization", () => {
     expect(summarize(changes)).toEqual([{ type: "insert", id: "new-first" }]);
   });
 
-  it("reports an insert at the very end of a large doc", () => {
-    editor.replaceBlocks(editor.document, makeParagraphs(LARGE));
-
+  it("reports an insert at the very end of a large doc", ({ editor }) => {
     const changes = editor.transact((tr) => {
       editor.insertBlocks(
         [{ id: "new-last", type: "paragraph", content: "X" }],
-        `p-${LARGE - 1}`,
+        `p-${paragraphs.length - 1}`,
         "after",
       );
       return getBlocksChangedByTransaction(tr);
@@ -719,9 +795,9 @@ describe("getBlocksChangedByTransaction - ranged optimization", () => {
     expect(summarize(changes)).toEqual([{ type: "insert", id: "new-last" }]);
   });
 
-  it("reports a delete in the middle without touching the blocks it shifts", () => {
-    editor.replaceBlocks(editor.document, makeParagraphs(LARGE));
-
+  it("reports a delete in the middle without touching the blocks it shifts", ({
+    editor,
+  }) => {
     const changes = editor.transact((tr) => {
       editor.removeBlocks(["p-100"]);
       return getBlocksChangedByTransaction(tr);
@@ -730,9 +806,9 @@ describe("getBlocksChangedByTransaction - ranged optimization", () => {
     expect(summarize(changes)).toEqual([{ type: "delete", id: "p-100" }]);
   });
 
-  it("reports a single move for a block moved across a large span", () => {
-    editor.replaceBlocks(editor.document, makeParagraphs(LARGE));
-
+  it("reports a single move for a block moved across a large span", ({
+    editor,
+  }) => {
     const changes = editor.transact((tr) => {
       const block = editor.getBlock("p-5");
       editor.removeBlocks(["p-5"]);
@@ -743,8 +819,10 @@ describe("getBlocksChangedByTransaction - ranged optimization", () => {
     expect(summarize(changes)).toEqual([{ type: "move", id: "p-5" }]);
   });
 
-  it("does not report ancestor blocks when a deeply nested block changes", () => {
-    const blocks = makeParagraphs(100);
+  it("does not report ancestor blocks when a deeply nested block changes", ({
+    editor,
+  }) => {
+    const blocks = paragraphs.slice(0, 100);
     blocks[50] = {
       id: "parent",
       type: "paragraph",
@@ -770,9 +848,9 @@ describe("getBlocksChangedByTransaction - ranged optimization", () => {
     expect(summarize(changes)).toEqual([{ type: "update", id: "grandchild" }]);
   });
 
-  it("returns no changes for a selection-only transaction in a large doc", () => {
-    editor.replaceBlocks(editor.document, makeParagraphs(LARGE));
-
+  it("returns no changes for a selection-only transaction in a large doc", ({
+    editor,
+  }) => {
     const changes = editor.transact((tr) => {
       editor.setTextCursorPosition("p-100", "end");
       return getBlocksChangedByTransaction(tr);

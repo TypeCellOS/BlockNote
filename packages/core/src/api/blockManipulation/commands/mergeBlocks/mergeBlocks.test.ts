@@ -1,31 +1,43 @@
-import { describe, expect, it } from "vite-plus/test";
+import { createChainableState } from "@tiptap/core";
+import type { Command } from "prosemirror-state";
+import { describe, expect } from "vite-plus/test";
 
-import { getBlockInfoFromSelection } from "../../../getBlockInfoFromPos.js";
-import { setupTestEnv } from "../../setupTestEnv.js";
-import { getParentBlockInfo } from "../../../getBlockInfoFromPos.js";
+import {
+  getBlockInfoFromSelection,
+  getParentBlockInfo,
+} from "../../../getBlockInfoFromPos.js";
+import type { BlockNoteEditor } from "../../../../editor/BlockNoteEditor.js";
 import { getNodeById } from "../../../nodeUtil.js";
 import { layoutSchema } from "../../layoutBlocks/layoutBlocks.fixture.js";
+import { testDocument } from "../../setupTestEnv.js";
 import { mergeBlocksCommand } from "./mergeBlocks.js";
 
-const getEditor = setupTestEnv();
-
-function mergeBlocks(posBetweenBlocks: number) {
-  return getEditor()._tiptapEditor.commands.command(
-    mergeBlocksCommand(posBetweenBlocks),
-  );
+function mergeAt(posBetweenBlocks: number): Command {
+  return (state, dispatch) =>
+    mergeBlocksCommand(posBetweenBlocks)({
+      // Mirror Tiptap's command runner: all steps share one transaction.
+      state: createChainableState({ state, transaction: state.tr }),
+      dispatch,
+    });
 }
 
-function getPosBeforeSelectedBlock() {
-  return getEditor().transact(
-    (tr) => getBlockInfoFromSelection(tr).block.beforePos,
-  );
-}
+const mergeSelectedBlock: Command = (state, dispatch) =>
+  mergeAt(getBlockInfoFromSelection(state).block.beforePos)(state, dispatch);
 
 describe("Test mergeBlocks", () => {
+  let editor: BlockNoteEditor;
+  it.beforeEach(async ({ setupEditor }) => {
+    ({ editor } = await setupEditor({ initialContent: testDocument }));
+  });
+
+  function getEditor() {
+    return editor;
+  }
+
   it("Basic", () => {
     getEditor().setTextCursorPosition("paragraph-1");
 
-    mergeBlocks(getPosBeforeSelectedBlock());
+    getEditor().exec(mergeSelectedBlock);
 
     expect(getEditor().document).toMatchSnapshot();
   });
@@ -33,7 +45,7 @@ describe("Test mergeBlocks", () => {
   it("First block has children", () => {
     getEditor().setTextCursorPosition("paragraph-2");
 
-    mergeBlocks(getPosBeforeSelectedBlock());
+    getEditor().exec(mergeSelectedBlock);
 
     expect(getEditor().document).toMatchSnapshot();
   });
@@ -41,7 +53,7 @@ describe("Test mergeBlocks", () => {
   it("Second block has children", () => {
     getEditor().setTextCursorPosition("paragraph-with-children");
 
-    mergeBlocks(getPosBeforeSelectedBlock());
+    getEditor().exec(mergeSelectedBlock);
 
     // The merged block's children are lifted into its place, not dropped
     // with it. The lift and the delete go through the one transaction tiptap
@@ -66,7 +78,7 @@ describe("Test mergeBlocks", () => {
   it("Second block is empty", () => {
     getEditor().setTextCursorPosition("empty-paragraph");
 
-    mergeBlocks(getPosBeforeSelectedBlock());
+    getEditor().exec(mergeSelectedBlock);
 
     expect(getEditor().document).toMatchSnapshot();
   });
@@ -74,7 +86,7 @@ describe("Test mergeBlocks", () => {
   it("Blocks have different types", () => {
     getEditor().setTextCursorPosition("paragraph-5");
 
-    mergeBlocks(getPosBeforeSelectedBlock());
+    getEditor().exec(mergeSelectedBlock);
 
     expect(getEditor().document).toMatchSnapshot();
   });
@@ -88,7 +100,7 @@ describe("Test mergeBlocks", () => {
 
     getEditor().setTextCursorPosition("paragraph-1");
 
-    mergeBlocks(getPosBeforeSelectedBlock());
+    getEditor().exec(mergeSelectedBlock);
 
     const anchorIsAtOldFirstBlockEndPos =
       getEditor().transact((tr) => tr.selection.$anchor.parentOffset) ===
@@ -100,8 +112,10 @@ describe("Test mergeBlocks", () => {
   it("getParentBlockInfo returns undefined for top-level block", () => {
     getEditor().setTextCursorPosition("paragraph-0");
 
-    const beforePos = getPosBeforeSelectedBlock();
-    const doc = getEditor()._tiptapEditor.state.doc;
+    const { beforePos, doc } = getEditor().transact((tr) => ({
+      beforePos: getBlockInfoFromSelection(tr).block.beforePos,
+      doc: tr.doc,
+    }));
     const $pos = doc.resolve(beforePos);
 
     expect($pos.depth - 1).toBeLessThan(1);
@@ -115,7 +129,7 @@ describe("Test mergeBlocks", () => {
     getEditor().setTextCursorPosition("paragraph-8");
 
     const originalDocument = getEditor().document;
-    const ret = mergeBlocks(getPosBeforeSelectedBlock());
+    const ret = getEditor().exec(mergeSelectedBlock);
 
     // The empty paragraph above has the same type and props, so the block
     // moves up into its place, keeping its id (#550).
@@ -129,7 +143,7 @@ describe("Test mergeBlocks", () => {
     getEditor().setTextCursorPosition("image-0");
 
     const originalDocument = getEditor().document;
-    const ret = mergeBlocks(getPosBeforeSelectedBlock());
+    const ret = getEditor().exec(mergeSelectedBlock);
 
     expect(getEditor().document).toEqual(originalDocument);
     expect(ret).toBeFalsy();
@@ -139,7 +153,7 @@ describe("Test mergeBlocks", () => {
     getEditor().setTextCursorPosition("table-0");
 
     const originalDocument = getEditor().document;
-    const ret = mergeBlocks(getPosBeforeSelectedBlock());
+    const ret = getEditor().exec(mergeSelectedBlock);
 
     expect(getEditor().document).toEqual(originalDocument);
     expect(ret).toBeFalsy();
@@ -149,7 +163,7 @@ describe("Test mergeBlocks", () => {
     getEditor().setTextCursorPosition("paragraph-6");
 
     const originalDocument = getEditor().document;
-    const ret = mergeBlocks(getPosBeforeSelectedBlock());
+    const ret = getEditor().exec(mergeSelectedBlock);
 
     expect(getEditor().document).toEqual(originalDocument);
     expect(ret).toBe(false);
@@ -159,7 +173,7 @@ describe("Test mergeBlocks", () => {
     getEditor().setTextCursorPosition("paragraph-7");
 
     const originalDocument = getEditor().document;
-    const ret = mergeBlocks(getPosBeforeSelectedBlock());
+    const ret = getEditor().exec(mergeSelectedBlock);
 
     expect(getEditor().document).toEqual(originalDocument);
     expect(ret).toBeFalsy();
@@ -167,10 +181,17 @@ describe("Test mergeBlocks", () => {
 });
 
 describe("Test mergeBlocks at layout block boundaries", () => {
-  const getLayoutEditor = setupTestEnv({
+  const editorOptions: {
+    schema: typeof layoutSchema;
+    initialContent: (typeof layoutSchema.PartialBlock)[];
+  } = {
     schema: layoutSchema,
-    document: [
-      { id: "before-callout", type: "paragraph", content: "Before callout" },
+    initialContent: [
+      {
+        id: "before-callout",
+        type: "paragraph",
+        content: "Before callout",
+      },
       {
         id: "callout-0",
         type: "callout",
@@ -189,29 +210,32 @@ describe("Test mergeBlocks at layout block boundaries", () => {
       },
       { id: "after-callout", type: "paragraph", content: "After callout" },
     ],
+  };
+
+  let layoutEditor: typeof layoutSchema.BlockNoteEditor;
+  it.beforeEach(async ({ setupEditor }) => {
+    ({ editor: layoutEditor } = await setupEditor(editorOptions));
   });
 
-  function mergeLayoutBlocks(posBetweenBlocks: number) {
-    return getLayoutEditor()._tiptapEditor.commands.command(
-      mergeBlocksCommand(posBetweenBlocks),
-    );
+  function getLayoutEditor() {
+    return layoutEditor;
   }
 
-  function getPosBefore(id: string) {
-    return getLayoutEditor().transact((tr) => {
-      const node = getNodeById(id, tr.doc);
+  function mergeBlock(id: string): Command {
+    return (state, dispatch) => {
+      const node = getNodeById(id, state.doc);
       if (!node) {
         throw new Error(`No block with id "${id}" in the test document`);
       }
-      return node.posBeforeNode;
-    });
+      return mergeAt(node.posBeforeNode)(state, dispatch);
+    };
   }
 
   // A layout block's first child has no previous sibling, so there is nothing to
   // merge it into. The block above it on screen sits outside the layout block.
   it("Does not merge a layout block's first child out of the layout block", () => {
     const originalDocument = getLayoutEditor().document;
-    const ret = mergeLayoutBlocks(getPosBefore("callout-child-0"));
+    const ret = getLayoutEditor().exec(mergeBlock("callout-child-0"));
 
     expect(ret).toBeFalsy();
     expect(getLayoutEditor().document).toEqual(originalDocument);
@@ -220,7 +244,7 @@ describe("Test mergeBlocks at layout block boundaries", () => {
   // A layout block has no content of its own, so there is nothing to merge.
   it("Does not merge a layout block into the block above it", () => {
     const originalDocument = getLayoutEditor().document;
-    const ret = mergeLayoutBlocks(getPosBefore("callout-0"));
+    const ret = getLayoutEditor().exec(mergeBlock("callout-0"));
 
     expect(ret).toBeFalsy();
     expect(getLayoutEditor().document).toEqual(originalDocument);
@@ -234,7 +258,7 @@ describe("Test mergeBlocks at layout block boundaries", () => {
   // the command's behaviour on its own, not the editor's; it is pinned here
   // because `mergeBlocks.ts` documents the opposite.
   it("Merges a block into the last descendant of the layout block above it", () => {
-    const ret = mergeLayoutBlocks(getPosBefore("after-callout"));
+    const ret = getLayoutEditor().exec(mergeBlock("after-callout"));
 
     expect(ret).toBeTruthy();
 

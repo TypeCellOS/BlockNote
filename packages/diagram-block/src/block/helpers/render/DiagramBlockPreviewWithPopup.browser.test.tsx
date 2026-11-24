@@ -1,14 +1,9 @@
-import { Component, ReactNode } from "react";
-import { BlockNoteEditor } from "@blocknote/core";
-import { createRoot, Root } from "react-dom/client";
-import { afterEach, beforeEach, expect, test, vi } from "vite-plus/test";
+import { type BlockNoteEditor, createExtension } from "@blocknote/core";
+import { Component, type ReactNode } from "react";
+import { createRoot } from "react-dom/client";
+import { expect, type TestContext, vi } from "vite-plus/test";
 
-import { renderDiagram } from "../../../helpers/renderDiagram.js";
 import { useDiagramSVG } from "./DiagramBlockPreviewWithPopup.js";
-
-vi.mock("../../../helpers/renderDiagram.js", () => ({
-  renderDiagram: vi.fn(),
-}));
 
 type BoundaryState = { status: "healthy" } | { status: "failed" };
 
@@ -35,62 +30,83 @@ class Boundary extends Component<
   }
 }
 
-function Preview({ source }: { source: string }) {
+function Preview({
+  source,
+  editor,
+}: {
+  source: string;
+  editor: BlockNoteEditor;
+}) {
   const { svg, error } = useDiagramSVG(source, editor);
   return <span>{error ?? svg}</span>;
 }
 
-let host: HTMLDivElement;
-let root: Root;
-let editor: BlockNoteEditor;
-
-beforeEach(() => {
-  editor = BlockNoteEditor.create();
-  host = document.createElement("div");
-  document.body.append(host);
+function mountPreview(
+  children: ReactNode,
+  onTestFinished: TestContext["onTestFinished"],
+) {
+  const host = document.createElement("div");
   // These tests deliberately exercise the boundary, not console reporting.
-  root = createRoot(host, { onCaughtError() {} });
-});
+  const root = createRoot(host, { onCaughtError() {} });
+  onTestFinished(() => {
+    try {
+      root.unmount();
+    } finally {
+      host.remove();
+    }
+  });
+  document.body.append(host);
+  root.render(children);
+  return host;
+}
 
-afterEach(() => {
-  root.unmount();
-  editor.unmount();
-  host.remove();
-  vi.resetAllMocks();
-});
-
-test("unexpected renderer rejections reach the boundary without leaking messages", async () => {
+it("unexpected renderer rejections reach the boundary without leaking messages", async ({
+  setupEditor,
+  onTestFinished,
+}) => {
   const failure = new Error("private infrastructure details");
-  vi.mocked(renderDiagram).mockRejectedValue(failure);
+  const { editor } = await setupEditor({
+    mountType: false,
+    extensions: [
+      // Fail in the real Pele render, at the existing math typesetting callback.
+      createExtension({
+        key: "math-render",
+        render() {
+          throw failure;
+        },
+      }),
+    ],
+  });
   const onError = vi.fn();
 
-  root.render(
+  const host = mountPreview(
     <Boundary onError={onError}>
-      <Preview source="graph TD; A --> B" />
+      <Preview editor={editor} source={'graph LR\n A["$$x^2$$"]'} />
     </Boundary>,
+    onTestFinished,
   );
 
-  await vi.waitFor(() => {
-    expect(onError).toHaveBeenCalledWith(failure);
-    expect(host.textContent).toBe("Unexpected rendering failure");
-  });
+  await expect
+    .poll(() => host.textContent)
+    .toBe("Unexpected rendering failure");
+  expect(onError).toHaveBeenCalledWith(failure);
   expect(host.textContent).not.toContain(failure.message);
 });
 
-test("expected source errors remain inline instead of reaching the boundary", async () => {
-  vi.mocked(renderDiagram).mockResolvedValue({
-    error: "Invalid diagram source",
-  });
+it("expected source errors remain inline instead of reaching the boundary", async ({
+  setupEditor,
+  onTestFinished,
+}) => {
+  const { editor } = await setupEditor({ mountType: false });
   const onError = vi.fn();
 
-  root.render(
+  const host = mountPreview(
     <Boundary onError={onError}>
-      <Preview source="invalid source" />
+      <Preview editor={editor} source="not a diagram" />
     </Boundary>,
+    onTestFinished,
   );
 
-  await vi.waitFor(() => {
-    expect(host.textContent).toBe("Invalid diagram source");
-  });
+  await expect.poll(() => host.textContent).toMatch(/No diagram type detected/);
   expect(onError).not.toHaveBeenCalled();
 });

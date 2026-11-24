@@ -1,5 +1,6 @@
 import {
   BlockNoteEditor,
+  type BlockNoteEditorOptions,
   expandPMRangeToWords,
   getNodeById,
   PartialBlock,
@@ -9,12 +10,35 @@ import { AddBlocksToolCall } from "../../api/formats/base-tools/createAddBlocksT
 import { UpdateBlockToolCall } from "../../api/formats/base-tools/createUpdateBlockTool.js";
 import { DeleteBlockToolCall } from "../../api/formats/base-tools/delete.js";
 import { isEmptyParagraph } from "../../util/emptyBlock.js";
+import { getTestOptionsHost } from "../testOptions.js";
+import type { schemaWithMention } from "./schemas/mention.js";
+
+// Both test environments support creating these headless editors. The
+// browser fixture needs `mountType: false` to avoid mounting a React view.
+type MentionEditor = typeof schemaWithMention.BlockNoteEditor;
+type HeadlessOptions<E> =
+  E extends BlockNoteEditor<infer B, infer I, infer S>
+    ? Partial<BlockNoteEditorOptions<B, I, S>> & { mountType: false }
+    : never;
+
+export type SetupTestEditor = {
+  (
+    options: HeadlessOptions<MentionEditor> & {
+      schema: typeof schemaWithMention;
+    },
+  ): Promise<{ editor: MentionEditor }>;
+  (options: Omit<HeadlessOptions<BlockNoteEditor>, "schema">): Promise<{
+    editor: BlockNoteEditor;
+  }>;
+};
 
 export type DocumentOperationTestCase = {
   /**
    * The editor to apply the update to
    */
-  editor: () => BlockNoteEditor<any, any, any>;
+  editor: (
+    setupEditor: SetupTestEditor,
+  ) => Promise<BlockNoteEditor<any, any, any>>;
   /**
    * The toolcalls to apply to the editor
    */
@@ -42,18 +66,10 @@ export type DocumentOperationTestCase = {
    * the quality of the prompt understanding, etc. (should be in different tests)
    */
   userPrompt: string;
-  /**
-   * The capabilities that are required to perform the update.
-   * If the LLM does not have these capabilities, the test will be skipped.
-   */
-  requiredCapabilities?: {
-    mentions?: boolean;
-    textAlignment?: boolean;
-    blockColor?: boolean;
-  };
 };
 
-export function getExpectedEditor(
+export async function getExpectedEditor(
+  setupEditor: SetupTestEditor,
   testCase: DocumentOperationTestCase,
   opts: {
     deleteEmptyCursorBlock: boolean;
@@ -61,9 +77,12 @@ export function getExpectedEditor(
     deleteEmptyCursorBlock: false,
   },
 ) {
-  (window as any).__TEST_OPTIONS.mockID = undefined;
+  const testOptions = getTestOptionsHost().__TEST_OPTIONS;
+  if (testOptions) {
+    delete testOptions.mockID;
+  }
 
-  const editor = testCase.editor();
+  const editor = await testCase.editor(setupEditor);
 
   const cursorBlock = testCase.getTestSelection
     ? undefined
@@ -83,13 +102,14 @@ export function getExpectedEditor(
 
   for (const toolCall of testCase.baseToolCalls) {
     if (toolCall.type === "update") {
-      let selection = testCase.getTestSelection?.(editor);
+      const selection = testCase.getTestSelection?.(editor);
       if (selection) {
-        selection = expandPMRangeToWords(editor.prosemirrorState.doc, {
-          $from: editor.prosemirrorState.doc.resolve(selection.from),
-          $to: editor.prosemirrorState.doc.resolve(selection.to),
-        });
+        const { from, to } = selection;
         editor.transact((tr) => {
+          const range = expandPMRangeToWords(tr.doc, {
+            $from: tr.doc.resolve(from),
+            $to: tr.doc.resolve(to),
+          });
           const pos = getNodeById(toolCall.id, tr.doc)!;
           // this is a bit of an ugly internal API, do we want to expose this (updating a selection)
           // to the user-facing API?
@@ -97,8 +117,8 @@ export function getExpectedEditor(
             tr,
             pos.posBeforeNode,
             toolCall.block,
-            selection?.from,
-            selection?.to,
+            range.from,
+            range.to,
           );
         });
       } else {

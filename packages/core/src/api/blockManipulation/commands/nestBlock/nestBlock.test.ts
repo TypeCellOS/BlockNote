@@ -1,8 +1,6 @@
-import { describe, expect, it } from "vite-plus/test";
-
-import { afterAll, beforeAll } from "vite-plus/test";
+import { describe, expect } from "vite-plus/test";
 import { PartialBlock } from "../../../../blocks/defaultBlocks.js";
-import { BlockNoteEditor } from "../../../../editor/BlockNoteEditor.js";
+import type { BlockNoteEditor } from "../../../../editor/BlockNoteEditor.js";
 import { layoutSchema } from "../../layoutBlocks/layoutBlocks.fixture.js";
 
 /**
@@ -16,27 +14,40 @@ import { layoutSchema } from "../../layoutBlocks/layoutBlocks.fixture.js";
  *   RangeError.
  */
 
-function setupNestTestEnv() {
-  let editor: BlockNoteEditor;
-  const div = document.createElement("div");
+type LayoutBlock = PartialBlock<
+  typeof layoutSchema.blockSchema,
+  typeof layoutSchema.inlineContentSchema,
+  typeof layoutSchema.styleSchema
+>;
 
-  beforeAll(() => {
-    editor = BlockNoteEditor.create();
-    editor.mount(div);
-  });
-
-  afterAll(() => {
-    editor._tiptapEditor.destroy();
-    editor = undefined as any;
-  });
-
-  return (doc: PartialBlock[]) => {
-    editor.replaceBlocks(editor.document, doc);
-    return editor;
-  };
-}
-
-const withEditor = setupNestTestEnv();
+const it = globalThis.it.extend<{
+  withEditor: (initialContent: PartialBlock[]) => Promise<BlockNoteEditor>;
+  withLayoutEditor: (
+    initialContent: LayoutBlock[],
+  ) => Promise<
+    BlockNoteEditor<
+      typeof layoutSchema.blockSchema,
+      typeof layoutSchema.inlineContentSchema,
+      typeof layoutSchema.styleSchema
+    >
+  >;
+}>({
+  withEditor: async ({ setupEditor }, use) => {
+    await use(async (initialContent: PartialBlock[]) => {
+      const { editor } = await setupEditor({ initialContent });
+      return editor;
+    });
+  },
+  withLayoutEditor: async ({ setupEditor }, use) => {
+    await use(async (initialContent: LayoutBlock[]) => {
+      const { editor } = await setupEditor({
+        schema: layoutSchema,
+        initialContent,
+      });
+      return editor;
+    });
+  },
+});
 
 describe("unnestBlock / liftListItem", () => {
   // BLO-835: liftListItem error with siblings after nested children
@@ -49,8 +60,10 @@ describe("unnestBlock / liftListItem", () => {
   //
   // Expected: block2 lifts out, block5 becomes child of block2
   describe("BLO-835: unnest block with siblings after and nested children", () => {
-    it("should not throw when unnesting a block that has siblings after it", () => {
-      const editor = withEditor([
+    it("should not throw when unnesting a block that has siblings after it", async ({
+      withEditor,
+    }) => {
+      const editor = await withEditor([
         {
           id: "block1",
           type: "paragraph",
@@ -91,8 +104,10 @@ describe("unnestBlock / liftListItem", () => {
       expect(editor.document).toMatchSnapshot();
     });
 
-    it("should move siblings after into lifted block's children", () => {
-      const editor = withEditor([
+    it("should move siblings after into lifted block's children", async ({
+      withEditor,
+    }) => {
+      const editor = await withEditor([
         {
           id: "block1",
           type: "paragraph",
@@ -123,8 +138,10 @@ describe("unnestBlock / liftListItem", () => {
       expect(editor.document).toMatchSnapshot();
     });
 
-    it("should handle unnesting the first of many siblings", () => {
-      const editor = withEditor([
+    it("should handle unnesting the first of many siblings", async ({
+      withEditor,
+    }) => {
+      const editor = await withEditor([
         {
           id: "block1",
           type: "paragraph",
@@ -171,8 +188,10 @@ describe("unnestBlock / liftListItem", () => {
   //       grandchild4
   //
   describe("BLO-899: Shift-Tab on second-level nested block", () => {
-    it("should not throw when unnesting a deeply nested block with siblings", () => {
-      const editor = withEditor([
+    it("should not throw when unnesting a deeply nested block with siblings", async ({
+      withEditor,
+    }) => {
+      const editor = await withEditor([
         {
           id: "parent",
           type: "paragraph",
@@ -227,8 +246,10 @@ describe("unnestBlock / liftListItem", () => {
       expect(editor.document).toMatchSnapshot();
     });
 
-    it("should not throw when unnesting the last deeply nested block", () => {
-      const editor = withEditor([
+    it("should not throw when unnesting the last deeply nested block", async ({
+      withEditor,
+    }) => {
+      const editor = await withEditor([
         {
           id: "parent",
           type: "paragraph",
@@ -276,8 +297,10 @@ describe("unnestBlock / liftListItem", () => {
   //
   // Expected: blockA moves to root, all children preserved
   describe("BLO-953: unnest block with multi-level nested children", () => {
-    it("should preserve all deeply nested content when unnesting", () => {
-      const editor = withEditor([
+    it("should preserve all deeply nested content when unnesting", async ({
+      withEditor,
+    }) => {
+      const editor = await withEditor([
         {
           id: "block1",
           type: "paragraph",
@@ -330,8 +353,10 @@ describe("unnestBlock / liftListItem", () => {
       expect(doc).toMatchSnapshot();
     });
 
-    it("should preserve content when unnesting only child", () => {
-      const editor = withEditor([
+    it("should preserve content when unnesting only child", async ({
+      withEditor,
+    }) => {
+      const editor = await withEditor([
         {
           id: "block1",
           type: "paragraph",
@@ -384,8 +409,10 @@ describe("unnestBlock / liftListItem", () => {
   // The core issue is liftListItem failing when the children need to be
   // reorganized. Testing the unnest operation directly.
   describe("BLO-844/847: unnest with complex nesting after parent operations", () => {
-    it("should handle unnesting when block is only child", () => {
-      const editor = withEditor([
+    it("should handle unnesting when block is only child", async ({
+      withEditor,
+    }) => {
+      const editor = await withEditor([
         {
           id: "parent",
           type: "paragraph",
@@ -409,8 +436,8 @@ describe("unnestBlock / liftListItem", () => {
       expect(editor.document).toMatchSnapshot();
     });
 
-    it("should handle sequential unnest operations", () => {
-      const editor = withEditor([
+    it("should handle sequential unnest operations", async ({ withEditor }) => {
+      const editor = await withEditor([
         {
           id: "block1",
           type: "paragraph",
@@ -455,8 +482,8 @@ describe("unnestBlock / liftListItem", () => {
 
   // Additional edge cases
   describe("Edge cases", () => {
-    it("should not unnest a root-level block", () => {
-      const editor = withEditor([
+    it("should not unnest a root-level block", async ({ withEditor }) => {
+      const editor = await withEditor([
         {
           id: "root-block",
           type: "paragraph",
@@ -471,8 +498,10 @@ describe("unnestBlock / liftListItem", () => {
       expect(canUnnest).toBe(false);
     });
 
-    it("should handle unnesting block with both existing children and siblings after", () => {
-      const editor = withEditor([
+    it("should handle unnesting block with both existing children and siblings after", async ({
+      withEditor,
+    }) => {
+      const editor = await withEditor([
         {
           id: "parent",
           type: "paragraph",
@@ -524,8 +553,10 @@ describe("unnestBlock / liftListItem", () => {
       expect(doc).toMatchSnapshot();
     });
 
-    it("should handle unnesting with different block types", () => {
-      const editor = withEditor([
+    it("should handle unnesting with different block types", async ({
+      withEditor,
+    }) => {
+      const editor = await withEditor([
         {
           id: "parent",
           type: "paragraph",
@@ -557,8 +588,10 @@ describe("unnestBlock / liftListItem", () => {
 
   // nestBlock tests (sinkListItem) - ensuring nesting works correctly
   describe("nestBlock", () => {
-    it("should nest a block under its previous sibling", () => {
-      const editor = withEditor([
+    it("should nest a block under its previous sibling", async ({
+      withEditor,
+    }) => {
+      const editor = await withEditor([
         {
           id: "block1",
           type: "paragraph",
@@ -577,8 +610,10 @@ describe("unnestBlock / liftListItem", () => {
       expect(editor.document).toMatchSnapshot();
     });
 
-    it("should not nest the first block (no previous sibling)", () => {
-      const editor = withEditor([
+    it("should not nest the first block (no previous sibling)", async ({
+      withEditor,
+    }) => {
+      const editor = await withEditor([
         {
           id: "block1",
           type: "paragraph",
@@ -592,8 +627,10 @@ describe("unnestBlock / liftListItem", () => {
       expect(canNest).toBe(false);
     });
 
-    it("should nest into a sibling that already has children (nestedBefore)", () => {
-      const editor = withEditor([
+    it("should nest into a sibling that already has children (nestedBefore)", async ({
+      withEditor,
+    }) => {
+      const editor = await withEditor([
         {
           id: "block1",
           type: "paragraph",
@@ -619,8 +656,8 @@ describe("unnestBlock / liftListItem", () => {
       expect(editor.document).toMatchSnapshot();
     });
 
-    it("nest then unnest should be a round trip", () => {
-      const editor = withEditor([
+    it("nest then unnest should be a round trip", async ({ withEditor }) => {
+      const editor = await withEditor([
         {
           id: "block1",
           type: "paragraph",
@@ -647,38 +684,16 @@ describe("unnestBlock / liftListItem", () => {
   });
 });
 
-// A second editor, on a schema that has layout blocks. `setupNestTestEnv`
-// builds a default-schema editor, which can't express any of the cases below.
-function setupLayoutNestTestEnv() {
-  let editor: BlockNoteEditor<any, any, any>;
-  const div = document.createElement("div");
-
-  beforeAll(() => {
-    editor = BlockNoteEditor.create({ schema: layoutSchema });
-    editor.mount(div);
-  });
-
-  afterAll(() => {
-    editor._tiptapEditor.destroy();
-    editor = undefined as any;
-  });
-
-  return (doc: PartialBlock<any, any, any>[]) => {
-    editor.replaceBlocks(editor.document, doc);
-    return editor;
-  };
-}
-
 // `canNestBlock` and `canUnnestBlock` run the real command on a transaction
 // that is thrown away, rather than restating its preconditions. The cases here
 // are the ones where the old, restated preconditions gave the wrong answer:
 // they looked at a previous sibling's mere existence and at the block's depth,
 // neither of which knows anything about layout blocks.
 describe("canNestBlock / canUnnestBlock around layout blocks", () => {
-  const withLayoutEditor = setupLayoutNestTestEnv();
-
-  it("Reports that a block cannot be nested under a layout block sibling", () => {
-    const editor = withLayoutEditor([
+  it("Reports that a block cannot be nested under a layout block sibling", async ({
+    withLayoutEditor,
+  }) => {
+    const editor = await withLayoutEditor([
       {
         id: "callout-0",
         type: "callout",
@@ -699,8 +714,10 @@ describe("canNestBlock / canUnnestBlock around layout blocks", () => {
     expect(editor.document).toEqual(before);
   });
 
-  it("Reports that a layout block's child cannot be unnested out of it", () => {
-    const editor = withLayoutEditor([
+  it("Reports that a layout block's child cannot be unnested out of it", async ({
+    withLayoutEditor,
+  }) => {
+    const editor = await withLayoutEditor([
       {
         id: "callout-0",
         type: "callout",
@@ -719,8 +736,10 @@ describe("canNestBlock / canUnnestBlock around layout blocks", () => {
     expect(editor.document).toEqual(before);
   });
 
-  it("Reports that a block with a plain previous sibling can be nested", () => {
-    const editor = withLayoutEditor([
+  it("Reports that a block with a plain previous sibling can be nested", async ({
+    withLayoutEditor,
+  }) => {
+    const editor = await withLayoutEditor([
       { id: "paragraph-0", type: "paragraph", content: "Paragraph 0" },
       { id: "paragraph-1", type: "paragraph", content: "Paragraph 1" },
     ]);
@@ -740,8 +759,10 @@ describe("canNestBlock / canUnnestBlock around layout blocks", () => {
     expect(editor.canUnnestBlock()).toBe(true);
   });
 
-  it("Nests and unnests a block inside a layout block's children", () => {
-    const editor = withLayoutEditor([
+  it("Nests and unnests a block inside a layout block's children", async ({
+    withLayoutEditor,
+  }) => {
+    const editor = await withLayoutEditor([
       {
         id: "callout-0",
         type: "callout",
@@ -781,8 +802,10 @@ describe("canNestBlock / canUnnestBlock around layout blocks", () => {
   // Here the previous sibling's children end in a layout block. The step opens
   // into that last child to join the block onto it, which only works for a
   // `blockContainer`: "Cannot join blockContainer onto callout".
-  it("Nests after a layout block at the end of the previous sibling's children", () => {
-    const editor = withLayoutEditor([
+  it("Nests after a layout block at the end of the previous sibling's children", async ({
+    withLayoutEditor,
+  }) => {
+    const editor = await withLayoutEditor([
       {
         id: "paragraph-0",
         type: "paragraph",
@@ -817,9 +840,7 @@ describe("canNestBlock / canUnnestBlock around layout blocks", () => {
 // doing nothing. `columnList`/`column` in `@blocknote/xl-multi-column` are the
 // same shape, and the user-facing case this guards.
 describe("Nesting a selection that spans two of a layout block's children", () => {
-  const withLayoutEditor = setupLayoutNestTestEnv();
-
-  function gridWith(id: string) {
+  function gridWith(id: string): LayoutBlock {
     return {
       id,
       type: "grid" as const,
@@ -842,8 +863,10 @@ describe("Nesting a selection that spans two of a layout block's children", () =
     };
   }
 
-  it("Nests the whole grid under its previous sibling", () => {
-    const editor = withLayoutEditor([
+  it("Nests the whole grid under its previous sibling", async ({
+    withLayoutEditor,
+  }) => {
+    const editor = await withLayoutEditor([
       { id: "paragraph-0", type: "paragraph", content: "Paragraph 0" },
       gridWith("grid-0"),
     ]);
@@ -864,8 +887,10 @@ describe("Nesting a selection that spans two of a layout block's children", () =
     ]);
   });
 
-  it("Unnests the whole grid out of its parent", () => {
-    const editor = withLayoutEditor([
+  it("Unnests the whole grid out of its parent", async ({
+    withLayoutEditor,
+  }) => {
+    const editor = await withLayoutEditor([
       {
         id: "paragraph-0",
         type: "paragraph",
@@ -890,8 +915,10 @@ describe("Nesting a selection that spans two of a layout block's children", () =
     ]);
   });
 
-  it("Reports no nesting when the grid has no previous sibling", () => {
-    const editor = withLayoutEditor([gridWith("grid-0")]);
+  it("Reports no nesting when the grid has no previous sibling", async ({
+    withLayoutEditor,
+  }) => {
+    const editor = await withLayoutEditor([gridWith("grid-0")]);
 
     editor.setSelection("grid-0-a", "grid-0-b");
 

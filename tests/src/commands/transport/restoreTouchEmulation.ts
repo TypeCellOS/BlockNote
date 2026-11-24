@@ -9,8 +9,8 @@ import type { BrowserCommand } from "vite-plus/test/node";
  * viewport, so `fullPage` and tall elements everywhere, and on an `isMobile`
  * context every element screenshot; it sets touch emulation once per session
  * and never re-arms it, so `maxTouchPoints` stays 0 for every later test
- * (microsoft/playwright#42607). `vitestSetup.browser.ts` calls this before
- * each test on the android instance.
+ * (microsoft/playwright#42607). `vitestSetup.browser.ts` checks for this
+ * before each test on the android instance.
  *
  * The CDP session is deliberately cached and never detached:
  * Emulation-domain overrides revert when the session that set them
@@ -22,8 +22,8 @@ const sessions = new WeakMap<object, Promise<unknown>>();
 /**
  * Restores Chromium touch capability after a screenshot disables it. Use only in
  * a Chromium context configured with touch support (the Android-emulated project),
- * not to turn a desktop test into a mobile test. Shared setup already calls this
- * before each Android test; call explicitly only if the same test takes a
+ * not to turn a desktop test into a mobile test. Shared setup restores touch
+ * if needed before each Android test; call explicitly only if the same test takes a
  * screenshot and then needs to continue exercising touch-dependent behavior.
  *
  * Does not reset the viewport, user agent, or input state. The CDP session stays

@@ -3,8 +3,6 @@ import type { Transaction } from "@tiptap/pm/state";
 import { Plugin, PluginKey } from "@tiptap/pm/state";
 import { Decoration, DecorationSet } from "@tiptap/pm/view";
 
-import { getBlockInfoFromNode } from "../../../api/getBlockInfoFromPos.js";
-
 // Loosely based on https://github.com/ueberdosis/tiptap/blob/7ac01ef0b816a535e903b5ca92492bff110a71ae/packages/extension-mathematics/src/MathematicsPlugin.ts (MIT)
 
 type DecoSpec = {
@@ -16,102 +14,53 @@ type DecoSpec = {
 
 type Deco = Omit<Decoration, "spec"> & { spec: DecoSpec };
 
+function getNumberedListItem(node: Node) {
+  const content = node.firstChild;
+  return node.type.name === "blockContainer" &&
+    content?.type.name === "numberedListItem"
+    ? content
+    : undefined;
+}
+
 /**
  * Calculate the index for a numbered list item based on its position and previous siblings.
- * Iteratively walks backwards to find the start of the contiguous list (or a cached entry),
- * then walks forward to populate the cache. This avoids deep recursion that would overflow
- * the stack on large documents.
+ * Walk backward by sibling index: resolving each predecessor's document position
+ * would scan from the start of the same fragment every time.
  */
 function calculateListItemIndex(
-  node: Node,
-  pos: number,
-  tr: Transaction,
+  parent: Node,
+  childIndex: number,
+  item: Node,
   map: Map<Node, number>,
-): { index: number; isFirst: boolean; hasStart: boolean } {
-  const hasStart = !!node.firstChild!.attrs["start"];
-
-  // Fast path: previous sibling already in cache
-  const blockInfo = getBlockInfoFromNode(node, pos);
-  if (!blockInfo.hasContent) {
-    throw new Error("impossible");
-  }
-  const prevBlock = tr.doc.resolve(blockInfo.block.beforePos).nodeBefore;
-  const prevBlockIndex = prevBlock ? map.get(prevBlock) : undefined;
-  if (prevBlockIndex !== undefined) {
-    const index = prevBlockIndex + 1;
-    map.set(node, index);
-    return { index, isFirst: false, hasStart };
-  }
-
-  // Walk backwards iteratively to collect the chain of consecutive
-  // numbered list items until we hit a cached entry, a non-list block,
-  // or the start of the parent.
-  const chain: { node: Node; pos: number }[] = [{ node, pos }];
-  let curNode = prevBlock;
-  let curBeforePos = blockInfo.block.beforePos;
-
-  while (curNode) {
-    const cachedIndex = map.get(curNode);
-    if (cachedIndex !== undefined) {
-      // Found a cached predecessor — start counting from here
+) {
+  let first = childIndex;
+  let firstItem = item;
+  let indexBeforeRun: number | undefined;
+  while (first > 0) {
+    const previous = parent.child(first - 1);
+    indexBeforeRun = map.get(previous);
+    if (indexBeforeRun !== undefined) {
       break;
     }
-    const curInfo = getBlockInfoFromNode(
-      curNode,
-      curBeforePos - curNode.nodeSize,
-    );
-    if (curInfo.blockNoteType !== "numberedListItem") {
+    const previousItem = getNumberedListItem(previous);
+    if (!previousItem) {
       break;
     }
-    chain.push({ node: curNode, pos: curBeforePos - curNode.nodeSize });
-    const nextPrev = tr.doc.resolve(curInfo.block.beforePos).nodeBefore;
-    curBeforePos = curInfo.block.beforePos;
-    curNode = nextPrev;
+    first--;
+    firstItem = previousItem;
   }
 
-  // Walk forward (reverse of the collected chain) to assign indices
-  // The last element in chain is the furthest predecessor
-  let index: number;
-  let isFirst: boolean;
-
-  // Determine starting index from the block just before the chain
-  const lastInChain = chain[chain.length - 1];
-  const lastInfo = getBlockInfoFromNode(lastInChain.node, lastInChain.pos);
-  if (!lastInfo.hasContent) {
-    throw new Error("impossible");
-  }
-  const predecessorNode = tr.doc.resolve(lastInfo.block.beforePos).nodeBefore;
-  const predecessorIndex = predecessorNode
-    ? map.get(predecessorNode)
-    : undefined;
-
-  if (predecessorIndex !== undefined) {
-    index = predecessorIndex;
-    isFirst = false;
-  } else {
-    // Start of a new list
-    index = (lastInChain.node.firstChild!.attrs["start"] || 1) - 1;
-    isFirst = true;
-  }
-
-  // Assign indices from the end of the chain (furthest back) to the front (original node)
-  for (let i = chain.length - 1; i >= 0; i--) {
-    const entry = chain[i];
-    if (isFirst && i < chain.length - 1) {
-      // Only the very first item in the list gets isFirst
-      isFirst = false;
-    }
+  // Fill the transaction-local cache forward starting at the first uncached
+  // item. A list's explicit start applies only when there is no predecessor.
+  let index = indexBeforeRun ?? (firstItem.attrs["start"] || 1) - 1;
+  for (let i = first; i <= childIndex; i++) {
     index++;
-    map.set(entry.node, index);
+    map.set(parent.child(i), index);
   }
 
-  // isFirst is true only for the very first item in a new list:
-  // chain.length > 1 means we found predecessor list items, so not first.
   return {
     index,
-    isFirst:
-      chain.length === 1 ? isFirst || predecessorIndex === undefined : false,
-    hasStart,
+    isFirst: first === childIndex && indexBeforeRun === undefined,
   };
 }
 
@@ -144,54 +93,56 @@ function getDecorations(
   // in *other* blockGroups (e.g. nested lists) are independent.
   const completedGroups = new Set<Node>();
 
-  tr.doc.nodesBetween(range.from, tr.doc.nodeSize - 2, (node, pos, parent) => {
-    if (parent && completedGroups.has(parent)) {
-      return false;
-    }
-
-    if (
-      node.type.name === "blockContainer" &&
-      node.firstChild!.type.name === "numberedListItem"
-    ) {
-      const { index, isFirst, hasStart } = calculateListItemIndex(
-        node,
-        pos,
-        tr,
-        map,
-      );
-
-      // Search only the numberedListItem node range, not the full
-      // blockContainer (which includes nested blockGroups whose
-      // decorations could falsely match).
-      const blockNode = tr.doc.nodeAt(pos + 1)!;
-      const existingDecorations = nextDecorationSet.find(
-        pos + 1,
-        pos + 1 + blockNode.nodeSize,
-        (deco: DecoSpec) =>
-          deco.index === index &&
-          deco.isFirst === isFirst &&
-          deco.hasStart === hasStart,
-      );
-
-      if (existingDecorations.length === 0) {
-        decorationsToAdd.push(
-          Decoration.node(
-            pos + 1,
-            pos + 1 + blockNode.nodeSize,
-            { "data-index": index.toString() },
-            { index, isFirst, hasStart },
-          ) as Deco,
-        );
-      } else if (pos >= range.to && parent) {
-        // Past the changed range and decoration matches in this blockGroup:
-        // all subsequent siblings must also match. Mark group as done and
-        // skip this node's children (nested lists are unaffected too).
-        completedGroups.add(parent);
+  tr.doc.nodesBetween(
+    range.from,
+    tr.doc.nodeSize - 2,
+    (node, pos, parent, childIndex) => {
+      if (parent && completedGroups.has(parent)) {
         return false;
       }
-    }
-    return undefined;
-  });
+
+      const blockNode = getNumberedListItem(node);
+      if (parent && blockNode) {
+        const { index, isFirst } = calculateListItemIndex(
+          parent,
+          childIndex,
+          blockNode,
+          map,
+        );
+        const hasStart = !!blockNode.attrs["start"];
+
+        // Search only the numberedListItem node range, not the full
+        // blockContainer (which includes nested blockGroups whose
+        // decorations could falsely match).
+        const existingDecorations = nextDecorationSet.find(
+          pos + 1,
+          pos + 1 + blockNode.nodeSize,
+          (deco: DecoSpec) =>
+            deco.index === index &&
+            deco.isFirst === isFirst &&
+            deco.hasStart === hasStart,
+        );
+
+        if (existingDecorations.length === 0) {
+          decorationsToAdd.push(
+            Decoration.node(
+              pos + 1,
+              pos + 1 + blockNode.nodeSize,
+              { "data-index": index.toString() },
+              { index, isFirst, hasStart },
+            ) as Deco,
+          );
+        } else if (pos >= range.to) {
+          // Past the changed range and decoration matches in this blockGroup:
+          // all subsequent siblings must also match. Mark group as done and
+          // skip this node's children (nested lists are unaffected too).
+          completedGroups.add(parent);
+          return false;
+        }
+      }
+      return undefined;
+    },
+  );
 
   // Remove any decorations that exist at the same position, they will be replaced by the new decorations
   const decorationsToRemove = decorationsToAdd.flatMap((deco) =>
