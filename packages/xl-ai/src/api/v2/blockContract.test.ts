@@ -131,7 +131,11 @@ describe("assertBlockContract", () => {
       {
         format: "HTML",
         type: "paragraph",
-        text: '<p style="color: rgb(224, 62, 62);" data-text-color="red"><u>Text</u></p>',
+        // The color value is of the theme, and the order of the attributes
+        // is of the browser engine.
+        text: expect.stringMatching(
+          /^<p (?=[^>]*style="color: rgb\(\d+, \d+, \d+\);")(?=[^>]*data-text-color="red")[^>]*><u>Text<\/u><\/p>$/,
+        ),
         hidden: [],
       },
     ]);
