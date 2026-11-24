@@ -442,8 +442,8 @@ The branch `fix/markdown-roundtrip` fixes these problems:
 - An HTML tag of a media block without a source (for example `<img>` in markdown) gave a block without a URL, which the markdown export does not show. Thus, each later write of the same text added the block again. Now such a tag gives no block (with a caption, it still gives the block).
 - In HTML, the export of a paragraph with only white space was `<p> </p>`, and the parse dropped it. Now the export writes the placeholder character, as for an empty block.
 - In an editor without a view, a new block (for example the block that fills an empty document) got no ID: Tiptap adds the plugins only when the editor mounts. Now the ID plugin also runs without a view.
-- The HTML parse (also of markdown) lost the start of a numbered list whose first item has a nested list: the parse rule read the start of the `div` that groups the item with its children, not of the list. This fix is newer than the base of the lens branch.
-- A table cell span had no limit. A column span of 1,000,000 (in HTML or in JSON) overflowed the stack in the conversion to blocks (`nodeToBlock` spread an array of the span length), also for `editor.document`. Now the HTML parse limits the spans as the HTML table model does (1,000 columns, 65,534 rows), and the conversion uses a loop. The lens also rejects such a span in JSON (`parseJSON`). This fix is newer than the base of the lens branch.
+- The HTML parse (also of markdown) lost the start of a numbered list whose first item has a nested list: the parse rule read the start of the `div` that groups the item with its children, not of the list.
+- A table cell span had no limit. A column span of 1,000,000 (in HTML or in JSON) overflowed the stack in the conversion to blocks (`nodeToBlock` spread an array of the span length), also for `editor.document`. Now the HTML parse limits the spans as the HTML table model does (1,000 columns, 65,534 rows), and the conversion uses a loop. The lens also rejects such a span in JSON (`parseJSON`).
 
 These problems stay:
 
