@@ -1,5 +1,11 @@
 import * as Y from "@y/y";
-import { afterAll, beforeAll, describe, expect } from "vite-plus/test";
+import {
+  afterAll,
+  beforeAll,
+  describe,
+  expect,
+  onTestFinished,
+} from "vite-plus/test";
 
 import type { SetupEditor } from "../../../../../tests/src/commands/browser/setupEditor.js";
 import type { BlockNoteEditor } from "../../editor/BlockNoteEditor.js";
@@ -41,6 +47,7 @@ async function collaborativeEditor(
 /** A replica of `source`, with its own client ID. */
 function replicaOf(source: Y.Doc, clientID: number): Y.Doc {
   const doc = new Y.Doc({ gc: false });
+  onTestFinished(() => doc.destroy());
   doc.clientID = clientID;
   Y.applyUpdateV2(doc, Y.encodeStateAsUpdateV2(source));
   return doc;
@@ -67,6 +74,7 @@ async function sync(docs: Y.Doc[]) {
 /** Two users with an editor each, on replicas of a document with `blocks`. */
 async function twoUsers(setupEditor: SetupEditor, blocks: any[]) {
   const first = new Y.Doc({ gc: false });
+  onTestFinished(() => first.destroy());
   first.clientID = 1;
   const { editor: seed } = await setupEditor({ mountType: false });
   seed.replaceBlocks(seed.document, blocks);

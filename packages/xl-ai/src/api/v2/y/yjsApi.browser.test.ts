@@ -33,6 +33,7 @@ import {
 import {
   bindEditor,
   blockNodeIds,
+  ownedYDoc,
   typeAfter,
   unbindEditor,
 } from "../testUtil/y.js";
@@ -101,9 +102,11 @@ async function setup(
   setupEditor: SetupEditor,
   initialContent: PartialBlock[] = richDocument,
 ) {
-  const ydoc = blocksToYDoc(
-    reader,
-    (await setupEditor({ mountType: false, initialContent })).editor.document,
+  const ydoc = ownedYDoc(
+    blocksToYDoc(
+      reader,
+      (await setupEditor({ mountType: false, initialContent })).editor.document,
+    ),
   );
   const fragment = ydoc.get("prosemirror");
   const editor = reader;
@@ -246,10 +249,12 @@ describe("updateYDoc", () => {
   it("writes to the content as it is, not as a renderer of the fragment shows it", async ({
     setupEditor,
   }) => {
-    const ydoc = blocksToYDoc(reader, [
-      { id: "a", type: "paragraph", content: "Alpha" },
-      { id: "b", type: "paragraph", content: "Beta" },
-    ]);
+    const ydoc = ownedYDoc(
+      blocksToYDoc(reader, [
+        { id: "a", type: "paragraph", content: "Alpha" },
+        { id: "b", type: "paragraph", content: "Beta" },
+      ]),
+    );
     const fragment = ydoc.get("prosemirror");
     const version = Y.snapshot(ydoc);
     const user = await bindEditor(setupEditor, fragment, {
@@ -373,7 +378,7 @@ describe("updateYDoc", () => {
         ),
       );
       // A replica has the Y.Doc as it is before the write.
-      const replica = new Y.Doc();
+      const replica = ownedYDoc(new Y.Doc());
       Y.applyUpdateV2(replica, Y.encodeStateAsUpdateV2(ydoc));
 
       const result = write(
@@ -403,10 +408,16 @@ const threeParagraphs: PartialBlock[] = [
 
 describe("a base that is a V1 update of Yjs", () => {
   it("throws, and does not change the Y.Doc", async ({ setupEditor }) => {
-    const ydoc = blocksToYDoc(
-      reader,
-      (await setupEditor({ mountType: false, initialContent: threeParagraphs }))
-        .editor.document,
+    const ydoc = ownedYDoc(
+      blocksToYDoc(
+        reader,
+        (
+          await setupEditor({
+            mountType: false,
+            initialContent: threeParagraphs,
+          })
+        ).editor.document,
+      ),
     );
     const fragment = ydoc.get("prosemirror");
     const before = Y.encodeStateAsUpdateV2(ydoc);
@@ -581,7 +592,7 @@ describe("yDocChangesAfterBase", () => {
     // A Y.Doc of an earlier version of BlockNote: a block without children
     // has no block group. A block that gets a child and loses it again keeps
     // an empty block group in the fragment. The blocks do not show it.
-    const ydoc = new Y.Doc();
+    const ydoc = ownedYDoc(new Y.Doc());
     const fragment = ydoc.get("prosemirror");
     const { editor: source } = await setupEditor({
       mountType: false,
@@ -635,7 +646,7 @@ describe("yDocChangesAfterBase", () => {
   });
 
   it("gives no changes for a version without content, if the Y.Doc has no content", () => {
-    const ydoc = new Y.Doc();
+    const ydoc = ownedYDoc(new Y.Doc());
     const base = Y.encodeStateAsUpdateV2(ydoc);
 
     expect(yDocChangesAfterBase(reader, ydoc.get("prosemirror"), base)).toEqual(
@@ -644,7 +655,7 @@ describe("yDocChangesAfterBase", () => {
   });
 
   it("gives the content of the document as a change, for a version without content", () => {
-    const ydoc = new Y.Doc();
+    const ydoc = ownedYDoc(new Y.Doc());
     const fragment = ydoc.get("prosemirror");
     const base = Y.encodeStateAsUpdateV2(ydoc);
     valid(
@@ -670,7 +681,7 @@ describe.each([
   }
 
   it("writes text to an empty Y.Doc", () => {
-    const ydoc = new Y.Doc();
+    const ydoc = ownedYDoc(new Y.Doc());
     const fragment = ydoc.get("prosemirror");
     valid(
       updateYDoc(reader, fragment, {
@@ -684,7 +695,7 @@ describe.each([
   });
 
   it("writes text with a base from an empty Y.Doc", () => {
-    const ydoc = new Y.Doc();
+    const ydoc = ownedYDoc(new Y.Doc());
     const fragment = ydoc.get("prosemirror");
     valid(
       mergeWrite(reader, fragment, {
@@ -700,7 +711,7 @@ describe.each([
   it.each(merges)(
     "keeps the text of another writer, if the base is an empty Y.Doc (merge %s)",
     (merge) => {
-      const ydoc = new Y.Doc();
+      const ydoc = ownedYDoc(new Y.Doc());
       const fragment = ydoc.get("prosemirror");
       const base = Y.encodeStateAsUpdateV2(ydoc);
       valid(
@@ -726,7 +737,7 @@ describe.each([
    * current version writes nothing for a document without blocks.
    */
   function yDocWithEmptyRootGroup(): Y.Doc {
-    const ydoc = new Y.Doc();
+    const ydoc = ownedYDoc(new Y.Doc());
     const schema = reader.pmSchema;
     ydoc
       .get("prosemirror")
@@ -785,14 +796,16 @@ describe.each([
   );
 
   it("clears a document, and writes text again", async ({ setupEditor }) => {
-    const ydoc = blocksToYDoc(
-      reader,
-      (
-        await setupEditor({
-          mountType: false,
-          initialContent: [{ type: "paragraph", content: "Old text" }],
-        })
-      ).editor.document,
+    const ydoc = ownedYDoc(
+      blocksToYDoc(
+        reader,
+        (
+          await setupEditor({
+            mountType: false,
+            initialContent: [{ type: "paragraph", content: "Old text" }],
+          })
+        ).editor.document,
+      ),
     );
     const fragment = ydoc.get("prosemirror");
     const editor = reader;
@@ -1115,7 +1128,7 @@ describe("concurrent writes (merge lens): conflicts", () => {
 describe.each(merges)("comments (merge %s)", (merge) => {
   /** A Y.Doc with comments, from a client with the comments extension. */
   async function setupWithComments(setupEditor: SetupEditor) {
-    const ydoc = new Y.Doc();
+    const ydoc = ownedYDoc(new Y.Doc());
     const fragment = ydoc.get("prosemirror");
     const editor = await bindEditor(
       setupEditor,
@@ -1217,7 +1230,9 @@ describe.each(formatCases)(
         mountType: false,
         initialContent: randomDocument(random),
       });
-      const fragment = blocksToYDoc(editor, editor.document).get("prosemirror");
+      const fragment = ownedYDoc(blocksToYDoc(editor, editor.document)).get(
+        "prosemirror",
+      );
       const text = randomEdits(random, getDocumentText(editor, format), edit);
 
       valid(updateDocument(editor, { format, text }));
@@ -1266,10 +1281,12 @@ describe("Y.Doc writes after a move of a nested block", () => {
 
   /** The block IDs of the Y.Doc and of an editor after the same write. */
   async function write(setupEditor: SetupEditor, text: string) {
-    const ydoc = blocksToYDoc(
-      reader,
-      (await setupEditor({ mountType: false, initialContent: nested })).editor
-        .document,
+    const ydoc = ownedYDoc(
+      blocksToYDoc(
+        reader,
+        (await setupEditor({ mountType: false, initialContent: nested })).editor
+          .document,
+      ),
     );
     const fragment = ydoc.get("prosemirror");
     valid(
@@ -1350,26 +1367,28 @@ describe.each(merges)("concurrent writes with columns (merge %s)", (merge) => {
    * Yjs state (`base`).
    */
   async function columnsOf(setupEditor: SetupEditor, texts: string[]) {
-    const ydoc = blocksToYDoc(
-      editor,
-      (
-        await setupEditor({
-          mountType: false,
-          schema,
-          initialContent: [
-            {
-              id: "list",
-              type: "columnList",
-              children: texts.map((text) => ({
-                id: `column-${text}`,
-                type: "column",
-                children: [{ id: text, type: "paragraph", content: text }],
-              })),
-            },
-            { id: "end", type: "paragraph", content: "End" },
-          ] as (typeof schema.PartialBlock)[],
-        })
-      ).editor.document,
+    const ydoc = ownedYDoc(
+      blocksToYDoc(
+        editor,
+        (
+          await setupEditor({
+            mountType: false,
+            schema,
+            initialContent: [
+              {
+                id: "list",
+                type: "columnList",
+                children: texts.map((text) => ({
+                  id: `column-${text}`,
+                  type: "column",
+                  children: [{ id: text, type: "paragraph", content: text }],
+                })),
+              },
+              { id: "end", type: "paragraph", content: "End" },
+            ] as (typeof schema.PartialBlock)[],
+          })
+        ).editor.document,
+      ),
     );
     const fragment = ydoc.get("prosemirror");
     return {
@@ -1567,7 +1586,7 @@ describe.each(merges)("concurrent writes with columns (merge %s)", (merge) => {
         "Bravo",
         "Charlie",
       ]);
-      const replica = new Y.Doc();
+      const replica = ownedYDoc(new Y.Doc());
       Y.applyUpdateV2(replica, base);
       valid(
         updateYDoc(editor, replica.get("prosemirror"), {
@@ -1599,8 +1618,8 @@ describe("changes of other writers in a list with more than one structural chang
   it("keeps a change of another client that arrives after the write in its block", async ({
     setupEditor,
   }) => {
-    const ydoc = blocksToYDoc(reader, blocks);
-    const other = new Y.Doc();
+    const ydoc = ownedYDoc(blocksToYDoc(reader, blocks));
+    const other = ownedYDoc(new Y.Doc());
     Y.applyUpdateV2(other, Y.encodeStateAsUpdateV2(ydoc));
     // The other client changes Alpha. The lens does not have this change yet.
     (await bindEditor(setupEditor, other.get("prosemirror"))).updateBlock("a", {
@@ -1628,8 +1647,8 @@ describe("changes of other writers in a list with more than one structural chang
   }) => {
     // updateDocument on an editor that is bound to a Y.Doc (for
     // example AI in a collaborative editor) uses the same transactions.
-    const ydoc = blocksToYDoc(reader, blocks);
-    const other = new Y.Doc();
+    const ydoc = ownedYDoc(blocksToYDoc(reader, blocks));
+    const other = ownedYDoc(new Y.Doc());
     Y.applyUpdateV2(other, Y.encodeStateAsUpdateV2(ydoc));
     (await bindEditor(setupEditor, other.get("prosemirror"))).updateBlock("a", {
       content: "Alpha of the other client",
@@ -1653,7 +1672,7 @@ describe("changes of other writers in a list with more than one structural chang
   it.for(merges)(
     "keeps a change of another writer in its block, with inserts at two places (merge %s)",
     async (merge, { setupEditor }) => {
-      const ydoc = blocksToYDoc(reader, blocks);
+      const ydoc = ownedYDoc(blocksToYDoc(reader, blocks));
       const fragment = ydoc.get("prosemirror");
       const editor = await bindEditor(setupEditor, fragment);
       const base = Y.encodeStateAsUpdateV2(ydoc);
@@ -1680,7 +1699,7 @@ describe("changes of other writers in a list with more than one structural chang
   it.for(merges)(
     "keeps a change of another writer to a block that a move passes (merge %s)",
     async (merge, { setupEditor }) => {
-      const ydoc = blocksToYDoc(reader, blocks);
+      const ydoc = ownedYDoc(blocksToYDoc(reader, blocks));
       const fragment = ydoc.get("prosemirror");
       const editor = await bindEditor(setupEditor, fragment);
       const base = Y.encodeStateAsUpdateV2(ydoc);
@@ -1714,11 +1733,13 @@ describe("changes of other writers in a list with more than one structural chang
 // `assertBlockIds`).
 describe("a Y.Doc with two blocks with one ID", () => {
   it("throws, and the Y.Doc does not change", () => {
-    const ydoc = blocksToYDoc(reader, [
-      { id: "a", type: "paragraph", content: "Alpha" },
-      { id: "a", type: "paragraph", content: "Alpha copy" },
-      { id: "b", type: "paragraph", content: "Beta" },
-    ]);
+    const ydoc = ownedYDoc(
+      blocksToYDoc(reader, [
+        { id: "a", type: "paragraph", content: "Alpha" },
+        { id: "a", type: "paragraph", content: "Alpha copy" },
+        { id: "b", type: "paragraph", content: "Beta" },
+      ]),
+    );
     const fragment = ydoc.get("prosemirror");
     const base = Y.encodeStateAsUpdateV2(ydoc);
     const text = getYDocText(reader, fragment, markdownFormat);
@@ -1749,33 +1770,39 @@ describe("a write that fails", () => {
       mountType: false,
       schema,
     });
-    const ydoc = blocksToYDoc(
-      columnsEditor,
-      (
-        await setupEditor({
-          mountType: false,
-          schema,
-          initialContent: [
-            {
-              id: "list",
-              type: "columnList",
-              children: [
-                {
-                  id: "cA",
-                  type: "column",
-                  children: [{ id: "a", type: "paragraph", content: "Alpha" }],
-                },
-                {
-                  id: "cB",
-                  type: "column",
-                  children: [{ id: "b", type: "paragraph", content: "Bravo" }],
-                },
-              ],
-            },
-            { id: "end", type: "paragraph", content: "End" },
-          ] as (typeof schema.PartialBlock)[],
-        })
-      ).editor.document,
+    const ydoc = ownedYDoc(
+      blocksToYDoc(
+        columnsEditor,
+        (
+          await setupEditor({
+            mountType: false,
+            schema,
+            initialContent: [
+              {
+                id: "list",
+                type: "columnList",
+                children: [
+                  {
+                    id: "cA",
+                    type: "column",
+                    children: [
+                      { id: "a", type: "paragraph", content: "Alpha" },
+                    ],
+                  },
+                  {
+                    id: "cB",
+                    type: "column",
+                    children: [
+                      { id: "b", type: "paragraph", content: "Bravo" },
+                    ],
+                  },
+                ],
+              },
+              { id: "end", type: "paragraph", content: "End" },
+            ] as (typeof schema.PartialBlock)[],
+          })
+        ).editor.document,
+      ),
     );
     const fragment = ydoc.get("prosemirror");
     const before = Y.encodeStateAsUpdateV2(ydoc);
@@ -1801,11 +1828,13 @@ describe("a base with an update that the Y.Doc does not have yet", () => {
     edit: (replica: BlockNoteEditor<any, any, any>) => void,
     change: (text: string) => string,
   ) {
-    const server = blocksToYDoc(reader, [
-      { id: "a", type: "paragraph", content: "Alpha" },
-      { id: "b", type: "paragraph", content: "Beta" },
-    ]);
-    const replica = new Y.Doc();
+    const server = ownedYDoc(
+      blocksToYDoc(reader, [
+        { id: "a", type: "paragraph", content: "Alpha" },
+        { id: "b", type: "paragraph", content: "Beta" },
+      ]),
+    );
+    const replica = ownedYDoc(new Y.Doc());
     Y.applyUpdateV2(replica, Y.encodeStateAsUpdateV2(server));
     edit(await bindEditor(setupEditor, replica.get("prosemirror")));
     return {
@@ -1922,7 +1951,7 @@ describe("computeYDocOperations and applyYDocOperations", () => {
   }) => {
     const { editor, ydoc, read } = await setup(setupEditor, threeParagraphs);
     const fragment = ydoc.get("prosemirror");
-    const replica = new Y.Doc();
+    const replica = ownedYDoc(new Y.Doc());
     Y.applyUpdateV2(replica, Y.encodeStateAsUpdateV2(ydoc));
     const client = read();
     const { operations } = valid(
@@ -1998,10 +2027,12 @@ describe("computeYDocOperations and applyYDocOperations", () => {
 
 describe("a write to a Y.Doc that fails", () => {
   const twoParagraphs = () =>
-    blocksToYDoc(reader, [
-      { id: "a", type: "paragraph", content: "Alpha" },
-      { id: "b", type: "paragraph", content: "Beta" },
-    ]);
+    ownedYDoc(
+      blocksToYDoc(reader, [
+        { id: "a", type: "paragraph", content: "Alpha" },
+        { id: "b", type: "paragraph", content: "Beta" },
+      ]),
+    );
 
   it.each(["no merge", ...merges] as const)(
     "does not change the Y.Doc if the document of the client is not valid (%s)",
@@ -2035,7 +2066,7 @@ describe("a write to a Y.Doc that fails", () => {
     const fragment = server.get("prosemirror");
     // `stored` gets only the updates of the results, as a store without a
     // provider does.
-    const stored = new Y.Doc();
+    const stored = ownedYDoc(new Y.Doc());
     Y.applyUpdateV2(stored, Y.encodeStateAsUpdateV2(server));
     const change = {
       format: markdownFormat,
@@ -2114,12 +2145,14 @@ async function writeWhileOtherTypes(
   document: PartialBlock[],
   [after, typed]: [string, string],
 ) {
-  const ydoc = blocksToYDoc(
-    reader,
-    (await setupEditor({ mountType: false, initialContent: blocks })).editor
-      .document,
+  const ydoc = ownedYDoc(
+    blocksToYDoc(
+      reader,
+      (await setupEditor({ mountType: false, initialContent: blocks })).editor
+        .document,
+    ),
   );
-  const other = new Y.Doc();
+  const other = ownedYDoc(new Y.Doc());
   Y.applyUpdateV2(other, Y.encodeStateAsUpdateV2(ydoc));
   typeAfter(
     await bindEditor(setupEditor, other.get("prosemirror"), {
@@ -2301,10 +2334,12 @@ describe("a write to a Y.Doc while another replica types", () => {
   it("is not a change of the user of a bound editor: the undo of that editor does not revert it", async ({
     setupEditor,
   }) => {
-    const ydoc = blocksToYDoc(
-      reader,
-      (await setupEditor({ mountType: false, initialContent: three })).editor
-        .document,
+    const ydoc = ownedYDoc(
+      blocksToYDoc(
+        reader,
+        (await setupEditor({ mountType: false, initialContent: three })).editor
+          .document,
+      ),
     );
     const fragment = ydoc.get("prosemirror");
     const editor = await bindEditor(setupEditor, fragment, {

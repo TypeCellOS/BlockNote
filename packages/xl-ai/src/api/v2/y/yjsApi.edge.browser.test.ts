@@ -6,7 +6,7 @@ import { afterAll, beforeAll, describe, expect } from "vite-plus/test";
 import type { SetupEditor } from "../../../../../../tests/src/commands/browser/setupEditor.js";
 import { createSetupEditor } from "../../../../../../tests/src/commands/node/setupEditor.js";
 
-import { bindEditor, unbindEditor } from "../testUtil/y.js";
+import { bindEditor, ownedYDoc, unbindEditor } from "../testUtil/y.js";
 import { updateYDoc } from "./yjsApi.js";
 import { updateYDocWithMerge } from "./yjsApiWithMerge.js";
 
@@ -21,9 +21,11 @@ beforeAll(async () => {
 afterAll(() => disposeReader());
 
 async function setup(setupEditor: SetupEditor, initialContent: PartialBlock[]) {
-  const ydoc = blocksToYDoc(
-    reader,
-    (await setupEditor({ mountType: false, initialContent })).editor.document,
+  const ydoc = ownedYDoc(
+    blocksToYDoc(
+      reader,
+      (await setupEditor({ mountType: false, initialContent })).editor.document,
+    ),
   );
   const fragment = ydoc.get("prosemirror");
   // The editor of the writes is not bound to the Y.Doc.

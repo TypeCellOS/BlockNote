@@ -8,7 +8,7 @@ import { createSetupEditor } from "../../../../../../tests/src/commands/node/set
 
 import { updateDocument } from "../index.js";
 import { valid } from "../testUtil/valid.js";
-import { bindEditor, typeAfter } from "../testUtil/y.js";
+import { bindEditor, ownedYDoc, typeAfter } from "../testUtil/y.js";
 
 /**
  * A write of `updateDocument` to an editor that is bound to a Y.Doc with the
@@ -65,12 +65,14 @@ async function writeWhileOtherTypes(
   document: PartialBlock[],
   [after, typed]: [string, string],
 ) {
-  const ydoc = blocksToYDoc(
-    reader,
-    (await setupEditor({ mountType: false, initialContent: blocks })).editor
-      .document,
+  const ydoc = ownedYDoc(
+    blocksToYDoc(
+      reader,
+      (await setupEditor({ mountType: false, initialContent: blocks })).editor
+        .document,
+    ),
   );
-  const other = new Y.Doc();
+  const other = ownedYDoc(new Y.Doc());
   Y.applyUpdate(other, Y.encodeStateAsUpdate(ydoc));
   const editor = await bindEditor(setupEditor, ydoc.get("prosemirror"), {
     trailingBlock: false,
@@ -252,14 +254,16 @@ describe("the undo history of a bound editor", () => {
   it("has a write of updateDocument as one undo step", async ({
     setupEditor,
   }) => {
-    const ydoc = blocksToYDoc(
-      reader,
-      (
-        await setupEditor({
-          mountType: false,
-          initialContent: [...three, paragraph("d", "Delta")],
-        })
-      ).editor.document,
+    const ydoc = ownedYDoc(
+      blocksToYDoc(
+        reader,
+        (
+          await setupEditor({
+            mountType: false,
+            initialContent: [...three, paragraph("d", "Delta")],
+          })
+        ).editor.document,
+      ),
     );
     const editor = await bindEditor(setupEditor, ydoc.get("prosemirror"), {
       trailingBlock: false,

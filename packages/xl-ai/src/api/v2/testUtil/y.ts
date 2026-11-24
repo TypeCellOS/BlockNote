@@ -2,6 +2,7 @@ import type { BlockNoteEditor, BlockNoteEditorOptions } from "@blocknote/core";
 import { blockNoteTransformer, withCollaboration } from "@blocknote/core/y";
 import { ynodeToPmnode } from "@y/prosemirror";
 import type * as Y from "@y/y";
+import { onTestFinished } from "vite-plus/test";
 
 /**
  * The `setupEditor` fixture of the browser tests, as {@link bindEditor} uses
@@ -11,6 +12,12 @@ import type * as Y from "@y/y";
 type SetupMountedEditor = (
   options: any,
 ) => Promise<{ editor: BlockNoteEditor<any, any, any> }>;
+
+/** Returns the Y.Doc. The test destroys it at its end. */
+export function ownedYDoc(ydoc: Y.Doc): Y.Doc {
+  onTestFinished(() => ydoc.destroy());
+  return ydoc;
+}
 
 /**
  * The options of an editor that is bound to the fragment with the Yjs 14
