@@ -37,6 +37,9 @@ type InlineTokenizer = (
   allowLinks: boolean,
 ) => { html: string; end: number } | null;
 
+/** The characters that a backslash escapes. */
+const ESCAPABLE_CHARACTERS = "\\`*_{}[]()#+-.!~|<>";
+
 function tryBackslashEscape(
   text: string,
   i: number,
@@ -52,7 +55,7 @@ function tryBackslashEscape(
     return { html: "<br>", end: i + 2 };
   }
   // Escapable characters
-  if ("\\`*_{}[]()#+-.!~|<>".includes(next)) {
+  if (ESCAPABLE_CHARACTERS.includes(next)) {
     return { html: escapeHtml(next), end: i + 2 };
   }
   return null;
@@ -575,7 +578,18 @@ function parseDestinationAndTitle(raw: string): {
     }
   }
 
-  return { url, title };
+  return { url: removeBackslashEscapes(url), title };
+}
+
+/**
+ * Removes the backslash of each backslash escape. As in CommonMark, a
+ * backslash escape works in a link destination as it does in text. The
+ * markdown exporter writes `\(`, `\)` and `\\` in a link destination.
+ */
+function removeBackslashEscapes(text: string): string {
+  return text.replace(/\\(.)/g, (match, char: string) =>
+    ESCAPABLE_CHARACTERS.includes(char) ? char : match,
+  );
 }
 
 function parseDelimited(
