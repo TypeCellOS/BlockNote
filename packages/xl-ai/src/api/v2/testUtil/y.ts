@@ -20,22 +20,31 @@ afterEach(() => {
 });
 
 /**
- * An editor that is bound to the fragment with the Yjs 14 binding
- * (`withCollaboration` of `@blocknote/core/y`) and mounted: a client of the
- * Y.Doc, for example a user who types. The lens does not need such an editor
- * to write to a Y.Doc. Each call gives a new client. The editor unmounts at
- * the end of the test, or with {@link unbindEditor}.
+ * The options of an editor that is bound to the fragment with the Yjs 14
+ * binding (`withCollaboration` of `@blocknote/core/y`). Mounted, such an
+ * editor is a client of the Y.Doc, for example a user who types. The lens
+ * does not need such an editor to write to a Y.Doc.
+ */
+export function boundEditorOptions(
+  fragment: Y.Node,
+  options: Partial<BlockNoteEditorOptions<any, any, any>> = {},
+) {
+  return withCollaboration({
+    ...options,
+    collaboration: { fragment, user: { name: "User", color: "#000000" } },
+  });
+}
+
+/**
+ * An editor that is bound to the fragment (see {@link boundEditorOptions})
+ * and mounted. Each call gives a new client. The editor unmounts at the end
+ * of the test, or with {@link unbindEditor}.
  */
 export function bindEditor(
   fragment: Y.Node,
   options: Partial<BlockNoteEditorOptions<any, any, any>> = {},
 ): BlockNoteEditor<any, any, any> {
-  const editor = BlockNoteEditor.create(
-    withCollaboration({
-      ...options,
-      collaboration: { fragment, user: { name: "User", color: "#000000" } },
-    }),
-  );
+  const editor = BlockNoteEditor.create(boundEditorOptions(fragment, options));
   const element = document.createElement("div");
   document.body.appendChild(element);
   editor.mount(element);

@@ -148,38 +148,41 @@ export const columnSchema = withMultiColumn(
   BlockNoteSchema.create({ blockSpecs: defaultBlockSpecs }),
 );
 
-/** An editor with two columns: "Alpha" (block a) in column c1 and "Beta" (block b) in column c2. */
+/** The options of an editor with two columns: "Alpha" (block a) in column c1 and "Beta" (block b) in column c2. */
+export function columnsEditorOptions() {
+  const initialContent: (typeof columnSchema.PartialBlock)[] = [
+    {
+      id: "list",
+      type: "columnList",
+      children: [
+        {
+          id: "c1",
+          type: "column",
+          children: [{ id: "a", type: "paragraph", content: "Alpha" }],
+        },
+        {
+          id: "c2",
+          type: "column",
+          children: [{ id: "b", type: "paragraph", content: "Beta" }],
+        },
+      ],
+    },
+  ];
+  return { schema: columnSchema, initialContent };
+}
+
+/** An editor with the options of {@link columnsEditorOptions}. */
 export function createColumnsEditor() {
-  return BlockNoteEditor.create({
-    schema: columnSchema,
-    initialContent: [
-      {
-        id: "list",
-        type: "columnList",
-        children: [
-          {
-            id: "c1",
-            type: "column",
-            children: [{ id: "a", type: "paragraph", content: "Alpha" }],
-          },
-          {
-            id: "c2",
-            type: "column",
-            children: [{ id: "b", type: "paragraph", content: "Beta" }],
-          },
-        ],
-      },
-    ],
-  });
+  return BlockNoteEditor.create(columnsEditorOptions());
 }
 
 /**
- * An editor with a tab set, a layout block that does not dissolve (as
- * `tabs` in the layout tests of core): tab t1 with "One" (block a), and tab
- * t2 with "Two" (block b). The tab set has at least `min` tabs. It needs a
- * DOM (the frame of a layout block).
+ * The options of an editor with a tab set, a layout block that does not
+ * dissolve (as `tabs` in the layout tests of core): tab t1 with "One"
+ * (block a), and tab t2 with "Two" (block b). The tab set has at least `min`
+ * tabs. The editor needs a DOM (the frame of a layout block).
  */
-export function createTabsEditor(min = 1) {
+export function tabsEditorOptions(min = 1) {
   const frame = () => {
     const dom = document.createElement("div");
     return { dom, slot: dom };
@@ -204,7 +207,7 @@ export function createTabsEditor(min = 1) {
     },
     { renderFrame: frame },
   )();
-  return BlockNoteEditor.create({
+  return {
     schema: BlockNoteSchema.create().extend({
       blockSpecs: { ...defaultBlockSpecs, tabs, tab },
     }),
@@ -226,7 +229,12 @@ export function createTabsEditor(min = 1) {
         ],
       },
     ] as PartialBlock<any, any, any>[],
-  });
+  };
+}
+
+/** An editor with the options of {@link tabsEditorOptions}. */
+export function createTabsEditor(min = 1) {
+  return BlockNoteEditor.create(tabsEditorOptions(min));
 }
 
 /** A bullet "Fruit" with the bullets "Apples" and "Pears" as children, and a paragraph "End". */
@@ -253,9 +261,9 @@ export function writeText(
   return valid(updateDocument(editor, { format, text }));
 }
 
-/** Makes an editor with the shared test document (`shared/testDocumentBlocks.ts`). */
-export function createSharedDocumentEditor() {
-  return BlockNoteEditor.create({
+/** The options of an editor with the shared test document (`shared/testDocumentBlocks.ts`). */
+export function sharedDocumentEditorOptions() {
+  return {
     schema: withMultiColumn(
       BlockNoteSchema.create({
         blockSpecs: {
@@ -265,7 +273,12 @@ export function createSharedDocumentEditor() {
       }),
     ),
     initialContent: testDocumentBlocks,
-  });
+  };
+}
+
+/** Makes an editor with the shared test document (`shared/testDocumentBlocks.ts`). */
+export function createSharedDocumentEditor() {
+  return BlockNoteEditor.create(sharedDocumentEditorOptions());
 }
 
 /** Replaces the occurrence of `search` in `text`. Throws an error if there is not exactly one occurrence. */
