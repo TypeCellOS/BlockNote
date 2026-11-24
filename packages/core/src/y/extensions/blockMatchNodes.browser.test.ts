@@ -1,6 +1,3 @@
-/**
- * @vitest-environment jsdom
- */
 import * as Y from "@y/y";
 import { afterEach, describe, expect, it } from "vite-plus/test";
 

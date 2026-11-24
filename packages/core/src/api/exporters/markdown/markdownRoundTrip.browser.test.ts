@@ -21,8 +21,6 @@ import type {
  * (markdown has no underline, colors or toggles). After that, the markdown
  * must not change: `serialize(parse(serialize(doc)))` must be equal to
  * `serialize(doc)`.
- *
- * @vitest-environment jsdom
  */
 
 type InlineContent = PartialInlineContent<
