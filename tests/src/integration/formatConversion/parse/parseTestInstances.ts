@@ -600,6 +600,13 @@ export const htmlParseCases: ParseTestCase[] = [
     name: "inlineImageInQuote",
     content: `<blockquote><p>As the picture shows <img src="https://example.com/diagram.png" alt="A diagram"> the result is good.</p></blockquote>`,
   },
+  // An image in a heading (a logo next to a title). The heading splits around
+  // the image. There is no text before the image, so there is no heading
+  // before it.
+  {
+    name: "inlineImageInHeading",
+    content: `<h1><img src="https://example.com/logo.png" alt="Project logo" width="32"> Project</h1>`,
+  },
   {
     name: "fakeImageCaption",
     content: `<div>
@@ -1771,6 +1778,12 @@ Final paragraph with [a link](https://example.com).`,
   {
     name: "inlineImageInQuote",
     content: `> Quote ![inline](https://example.com/img.png) text after`,
+  },
+  // An image in a heading: the heading splits around the image. Text before
+  // and after the image gives two headings.
+  {
+    name: "inlineImageInHeading",
+    content: `## Heading ![inline](https://example.com/img.png) text after`,
   },
   // Code block immediately after heading
   {

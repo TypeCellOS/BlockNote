@@ -1,14 +1,14 @@
 import { detachedDoc } from "../../../../util/detachedDoc.js";
 
 // The elements with text that split around an image.
-const TEXT_BLOCKS = "p, blockquote";
+const TEXT_BLOCKS = "p, blockquote, h1, h2, h3, h4, h5, h6";
 
 /**
  * Moves each image out of the text that holds it. An image is a block, and
  * ProseMirror drops a block that is in the text of a block.
  *
- * A paragraph and a quote split around the image, and the parts keep the
- * attributes of the element.
+ * A paragraph, a quote and a heading split around the image, and the parts
+ * keep the attributes of the element.
  */
 export function moveImagesOutOfText(root: HTMLElement) {
   for (const image of root.querySelectorAll("img")) {
