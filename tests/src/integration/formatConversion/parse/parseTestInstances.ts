@@ -766,6 +766,7 @@ console.log("Third Line")</code></pre>`,
     content: `<img src="exampleURL" width="100">`,
   },
   // A media element without a source shows nothing, so it gives no block.
+  // Other props (a caption, a name) do not change that.
   {
     name: "mediaWithoutSource",
     content: `<p>Paragraph 1</p>
@@ -773,6 +774,10 @@ console.log("Third Line")</code></pre>`,
 <video></video>
 <audio></audio>
 <embed>
+<img data-caption="Image Caption" data-name="Image Name">
+<video data-caption="Video Caption"></video>
+<audio data-caption="Audio Caption"></audio>
+<embed data-caption="File Caption">
 <p>Paragraph 2</p>`,
   },
   // The caption of a figure without a source stays as text.
