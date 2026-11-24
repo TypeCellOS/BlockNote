@@ -1,4 +1,4 @@
-import { BlockNoteEditor, type PartialBlock } from "@blocknote/core";
+import type { BlockNoteEditor } from "@blocknote/core";
 import {
   CommentsExtension,
   DefaultThreadStoreAuth,
@@ -20,11 +20,6 @@ export function commentEditorOptions() {
       CommentsExtension({ threadStore, resolveUsers: async () => [] }),
     ],
   };
-}
-
-/** An editor with the comments extension (see {@link commentEditorOptions}). */
-export function createCommentEditor(initialContent: PartialBlock[]) {
-  return BlockNoteEditor.create({ initialContent, ...commentEditorOptions() });
 }
 
 /**

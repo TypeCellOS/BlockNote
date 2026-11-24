@@ -28,7 +28,7 @@ import { valid } from "./testUtil/valid.js";
 /*
  * The tests of layout blocks: column lists and tab sets. A tab set is a
  * layout block that does not dissolve (`children.dissolve: false`, see
- * `createTabsEditor`). No format shows the tabs, thus a client sees only the
+ * `tabsEditorOptions`). No format shows the tabs, thus a client sees only the
  * blocks in them. Markdown and plain text also do not show the columns.
  */
 

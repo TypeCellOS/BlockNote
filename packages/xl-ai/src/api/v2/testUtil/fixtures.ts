@@ -1,5 +1,5 @@
 import {
-  BlockNoteEditor,
+  type BlockNoteEditor,
   BlockNoteSchema,
   createBlockSpec,
   createPageBreakBlockSpec,
@@ -139,10 +139,6 @@ export const richDocument: PartialBlock[] = [
   { id: "last", type: "paragraph", content: "Last paragraph" },
 ];
 
-export function createEditor(initialContent: PartialBlock[] = richDocument) {
-  return BlockNoteEditor.create({ initialContent });
-}
-
 /** The default blocks, with the column blocks. */
 export const columnSchema = withMultiColumn(
   BlockNoteSchema.create({ blockSpecs: defaultBlockSpecs }),
@@ -169,11 +165,6 @@ export function columnsEditorOptions() {
     },
   ];
   return { schema: columnSchema, initialContent };
-}
-
-/** An editor with the options of {@link columnsEditorOptions}. */
-export function createColumnsEditor() {
-  return BlockNoteEditor.create(columnsEditorOptions());
 }
 
 /**
@@ -231,11 +222,6 @@ export function tabsEditorOptions(min = 1) {
   return { schema, initialContent };
 }
 
-/** An editor with the options of {@link tabsEditorOptions}. */
-export function createTabsEditor(min = 1) {
-  return BlockNoteEditor.create(tabsEditorOptions(min));
-}
-
 /** A bullet "Fruit" with the bullets "Apples" and "Pears" as children, and a paragraph "End". */
 export const fruitDocument: PartialBlock[] = [
   {
@@ -274,11 +260,6 @@ export function sharedDocumentEditorOptions() {
     schema,
     initialContent: testDocumentBlocks as (typeof schema.PartialBlock)[],
   };
-}
-
-/** Makes an editor with the shared test document (`shared/testDocumentBlocks.ts`). */
-export function createSharedDocumentEditor() {
-  return BlockNoteEditor.create(sharedDocumentEditorOptions());
 }
 
 /** Replaces the occurrence of `search` in `text`. Throws an error if there is not exactly one occurrence. */
