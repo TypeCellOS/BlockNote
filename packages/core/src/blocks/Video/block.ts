@@ -1,6 +1,5 @@
 import { createBlockConfig, createBlockSpec } from "../../schema/index.js";
 import { defaultProps, parseDefaultProps } from "../defaultProps.js";
-import { isEmptyMediaElement } from "../File/helpers/parse/isEmptyMediaElement.js";
 import { parseFigureElement } from "../File/helpers/parse/parseFigureElement.js";
 import { createResizableFileBlockWrapper } from "../File/helpers/render/createResizableFileBlockWrapper.js";
 import { createFigureWithCaption } from "../File/helpers/toExternalHTML/createFigureWithCaption.js";
@@ -39,30 +38,37 @@ export const videoParse = (_config: VideoOptions) => (element: HTMLElement) => {
       return undefined;
     }
 
-    if (isEmptyMediaElement(element)) {
+    // A video without a URL gives no block.
+    const video = parseVideoElement(element as HTMLVideoElement);
+    if (!video.url) {
       return undefined;
     }
 
     const { backgroundColor } = parseDefaultProps(element);
 
     return {
-      ...parseVideoElement(element as HTMLVideoElement),
+      ...video,
       backgroundColor,
     };
   }
 
   if (element.tagName === "FIGURE") {
     const parsedFigure = parseFigureElement(element, "video");
-    if (!parsedFigure || isEmptyMediaElement(parsedFigure.targetElement)) {
+    if (!parsedFigure) {
       return undefined;
     }
 
     const { targetElement, caption } = parsedFigure;
 
+    const video = parseVideoElement(targetElement as HTMLVideoElement);
+    if (!video.url) {
+      return undefined;
+    }
+
     const { backgroundColor } = parseDefaultProps(element);
 
     return {
-      ...parseVideoElement(targetElement as HTMLVideoElement),
+      ...video,
       backgroundColor,
       caption,
     };

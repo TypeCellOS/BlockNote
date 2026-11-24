@@ -5,7 +5,6 @@ import {
   createBlockSpec,
 } from "../../schema/index.js";
 import { defaultProps, parseDefaultProps } from "../defaultProps.js";
-import { isEmptyMediaElement } from "../File/helpers/parse/isEmptyMediaElement.js";
 import { parseFigureElement } from "../File/helpers/parse/parseFigureElement.js";
 import { createFileBlockWrapper } from "../File/helpers/render/createFileBlockWrapper.js";
 import { createFigureWithCaption } from "../File/helpers/toExternalHTML/createFigureWithCaption.js";
@@ -57,30 +56,37 @@ export const audioParse =
         return undefined;
       }
 
-      if (isEmptyMediaElement(element)) {
+      // An audio without a URL gives no block.
+      const audio = parseAudioElement(element as HTMLAudioElement);
+      if (!audio.url) {
         return undefined;
       }
 
       const { backgroundColor } = parseDefaultProps(element);
 
       return {
-        ...parseAudioElement(element as HTMLAudioElement),
+        ...audio,
         backgroundColor,
       };
     }
 
     if (element.tagName === "FIGURE") {
       const parsedFigure = parseFigureElement(element, "audio");
-      if (!parsedFigure || isEmptyMediaElement(parsedFigure.targetElement)) {
+      if (!parsedFigure) {
         return undefined;
       }
 
       const { targetElement, caption } = parsedFigure;
 
+      const audio = parseAudioElement(targetElement as HTMLAudioElement);
+      if (!audio.url) {
+        return undefined;
+      }
+
       const { backgroundColor } = parseDefaultProps(element);
 
       return {
-        ...parseAudioElement(targetElement as HTMLAudioElement),
+        ...audio,
         backgroundColor,
         caption,
       };

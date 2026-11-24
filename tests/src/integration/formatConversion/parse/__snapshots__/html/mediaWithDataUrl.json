@@ -52,4 +52,32 @@
     },
     "type": "file",
   },
+  {
+    "children": [],
+    "content": undefined,
+    "id": "5",
+    "props": {
+      "backgroundColor": "default",
+      "caption": "Figure URL",
+      "name": "",
+      "showPreview": true,
+      "textAlignment": "left",
+      "url": "exampleURL",
+    },
+    "type": "image",
+  },
+  {
+    "children": [],
+    "content": undefined,
+    "id": "6",
+    "props": {
+      "backgroundColor": "default",
+      "caption": "Image URL",
+      "name": "",
+      "showPreview": true,
+      "textAlignment": "left",
+      "url": "exampleURL",
+    },
+    "type": "image",
+  },
 ]

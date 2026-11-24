@@ -1,6 +1,5 @@
 import { createBlockConfig, createBlockSpec } from "../../schema/index.js";
 import { defaultProps, parseDefaultProps } from "../defaultProps.js";
-import { isEmptyMediaElement } from "./helpers/parse/isEmptyMediaElement.js";
 import { parseEmbedElement } from "./helpers/parse/parseEmbedElement.js";
 import { parseFigureElement } from "./helpers/parse/parseFigureElement.js";
 import { createFileBlockWrapper } from "./helpers/render/createFileBlockWrapper.js";
@@ -38,30 +37,37 @@ export const fileParse = () => (element: HTMLElement) => {
       return undefined;
     }
 
-    if (isEmptyMediaElement(element)) {
+    // A file without a URL gives no block.
+    const embed = parseEmbedElement(element as HTMLEmbedElement);
+    if (!embed.url) {
       return undefined;
     }
 
     const { backgroundColor } = parseDefaultProps(element);
 
     return {
-      ...parseEmbedElement(element as HTMLEmbedElement),
+      ...embed,
       backgroundColor,
     };
   }
 
   if (element.tagName === "FIGURE") {
     const parsedFigure = parseFigureElement(element, "embed");
-    if (!parsedFigure || isEmptyMediaElement(parsedFigure.targetElement)) {
+    if (!parsedFigure) {
       return undefined;
     }
 
     const { targetElement, caption } = parsedFigure;
 
+    const embed = parseEmbedElement(targetElement as HTMLEmbedElement);
+    if (!embed.url) {
+      return undefined;
+    }
+
     const { backgroundColor } = parseDefaultProps(element);
 
     return {
-      ...parseEmbedElement(targetElement as HTMLEmbedElement),
+      ...embed,
       backgroundColor,
       caption,
     };

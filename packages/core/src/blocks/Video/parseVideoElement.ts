@@ -1,9 +1,7 @@
+import { parseMediaUrl } from "../File/helpers/parse/parseMediaUrl.js";
+
 export const parseVideoElement = (videoElement: HTMLVideoElement) => {
-  // The URL can be in a `<source>` child.
-  const url =
-    videoElement.src ||
-    videoElement.querySelector<HTMLSourceElement>("source[src]")?.src ||
-    undefined;
+  const url = parseMediaUrl(videoElement);
   const previewWidth = videoElement.width || undefined;
   const name = videoElement.getAttribute("data-name") || undefined;
 

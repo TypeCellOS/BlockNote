@@ -5,7 +5,6 @@ import {
   createBlockSpec,
 } from "../../schema/index.js";
 import { defaultProps, parseDefaultProps } from "../defaultProps.js";
-import { isEmptyMediaElement } from "../File/helpers/parse/isEmptyMediaElement.js";
 import { parseFigureElement } from "../File/helpers/parse/parseFigureElement.js";
 import { createResizableFileBlockWrapper } from "../File/helpers/render/createResizableFileBlockWrapper.js";
 import { createFigureWithCaption } from "../File/helpers/toExternalHTML/createFigureWithCaption.js";
@@ -63,30 +62,37 @@ export const imageParse =
         return undefined;
       }
 
-      if (isEmptyMediaElement(element)) {
+      // An image without a URL gives no block.
+      const image = parseImageElement(element as HTMLImageElement);
+      if (!image.url) {
         return undefined;
       }
 
       const { backgroundColor } = parseDefaultProps(element);
 
       return {
-        ...parseImageElement(element as HTMLImageElement),
+        ...image,
         backgroundColor,
       };
     }
 
     if (element.tagName === "FIGURE") {
       const parsedFigure = parseFigureElement(element, "img");
-      if (!parsedFigure || isEmptyMediaElement(parsedFigure.targetElement)) {
+      if (!parsedFigure) {
         return undefined;
       }
 
       const { targetElement, caption } = parsedFigure;
 
+      const image = parseImageElement(targetElement as HTMLImageElement);
+      if (!image.url) {
+        return undefined;
+      }
+
       const { backgroundColor } = parseDefaultProps(element);
 
       return {
-        ...parseImageElement(targetElement as HTMLImageElement),
+        ...image,
         backgroundColor,
         caption,
       };

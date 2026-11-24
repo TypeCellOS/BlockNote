@@ -796,13 +796,26 @@ console.log("Third Line")</code></pre>`,
 <audio><source src="exampleURL"></audio>
 <video><source><source src="exampleURL1"><source src="exampleURL2"></video>`,
   },
-  // The `data-url` attribute of BlockNote's own HTML is a source.
+  // The `data-url` attribute of BlockNote's own HTML gives the URL, on the
+  // element or on its figure.
   {
     name: "mediaWithDataUrl",
     content: `<img data-url="exampleURL">
 <video data-url="exampleURL"></video>
 <audio data-url="exampleURL"></audio>
-<embed data-url="exampleURL">`,
+<embed data-url="exampleURL">
+<figure data-url="exampleURL"><img><figcaption>Figure URL</figcaption></figure>
+<figure><img data-url="exampleURL"><figcaption>Image URL</figcaption></figure>`,
+  },
+  // An empty URL, or a URL of only white space, is no URL. In a list item,
+  // the `src` property of an empty `src` attribute can be the URL of the page.
+  {
+    name: "mediaWithBlankSource",
+    content: `<img src="">
+<img src=" ">
+<video><source src=""></video>
+<img src="exampleURL" data-url="">
+<ul><li>List Item<img src=""></li></ul>`,
   },
   {
     name: "textAlignmentProp",
