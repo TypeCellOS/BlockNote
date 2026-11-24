@@ -48,7 +48,7 @@ function liftNestedListsToParent(element: HTMLElement) {
       if (isWhitespaceNode(sibling)) {
         return;
       }
-      const siblingContainer = document.createElement("li");
+      const siblingContainer = detachedDoc().createElement("li");
       siblingContainer.append(sibling);
       list.insertAdjacentElement("afterend", siblingContainer);
     });
@@ -83,12 +83,12 @@ function liftNestedListsToParent(element: HTMLElement) {
 function createGroups(element: HTMLElement) {
   element.querySelectorAll("li + ul, li + ol").forEach((list) => {
     const listItem = list.previousElementSibling as HTMLElement;
-    const blockContainer = document.createElement("div");
+    const blockContainer = detachedDoc().createElement("div");
 
     listItem.insertAdjacentElement("afterend", blockContainer);
     blockContainer.append(listItem);
 
-    const blockGroup = document.createElement("div");
+    const blockGroup = detachedDoc().createElement("div");
     blockGroup.setAttribute("data-node-type", "blockGroup");
     blockContainer.append(blockGroup);
 
@@ -101,15 +101,10 @@ function createGroups(element: HTMLElement) {
   });
 }
 
-export function nestedListsToBlockNoteStructure(
-  elementOrHTML: HTMLElement | string,
-) {
-  if (typeof elementOrHTML === "string") {
-    const element = detachedDoc().createElement("div");
-    element.innerHTML = elementOrHTML;
-    elementOrHTML = element;
-  }
-  liftNestedListsToParent(elementOrHTML);
-  createGroups(elementOrHTML);
-  return elementOrHTML;
+export function nestedListsToBlockNoteStructure(html: string) {
+  const element = detachedDoc().createElement("div");
+  element.innerHTML = html;
+  liftNestedListsToParent(element);
+  createGroups(element);
+  return element;
 }

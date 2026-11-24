@@ -1,4 +1,4 @@
-import { describe, expect, it } from "vite-plus/test";
+import { describe, expect, it, vi } from "vite-plus/test";
 import { nestedListsToBlockNoteStructure } from "./nestedLists.js";
 
 async function testHTML(html: string) {
@@ -161,5 +161,29 @@ describe("Lift nested lists", () => {
     </li>
  </ol>`;
     await testHTML(html);
+  });
+});
+
+describe("content after a nested list", () => {
+  // The HTML is in a document without a browsing context. In the active
+  // document, an element of the HTML can load a resource and run an event
+  // handler.
+  it("stays out of the active document", ({ onTestFinished }) => {
+    // The code must make no element in the active document: a node that
+    // goes into such an element is in the active document from then on.
+    const createElement = vi.spyOn(document, "createElement");
+    onTestFinished(() => {
+      createElement.mockRestore();
+    });
+
+    const htmlNode = nestedListsToBlockNoteStructure(
+      `<ul><li>Item<ul><li>Nested item</li></ul><img src="image.png"></li></ul>`,
+    );
+
+    // The content after the nested list is in a list item of its own.
+    expect(htmlNode.innerHTML).toMatchInlineSnapshot(
+      `"<ul><div><li>Item</li><div data-node-type="blockGroup"><ul><li>Nested item</li></ul></div></div><li><img src="image.png"></li></ul>"`,
+    );
+    expect(createElement).not.toHaveBeenCalled();
   });
 });
