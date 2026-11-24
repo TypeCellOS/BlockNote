@@ -1,9 +1,13 @@
 import { detachedDoc } from "../../../util/detachedDoc.js";
 import { EMPTY_BLOCK_PLACEHOLDER } from "../../exporters/html/util/serializeBlocksExternalHTML.js";
+import { normalizeSpreadsheetHTML } from "./normalizeSpreadsheetHTML.js";
 
 // Check the original string: attributes on <html> are lost when parsing a fragment.
 const wordHTML =
   /urn:schemas-microsoft-com:office:word|<meta\b[^>]*Word\.Document|mso-list\s*:\s*l\d+\s+level\d+/i;
+const excelHTML =
+  /urn:schemas-microsoft-com:office:excel|<meta\b[^>]*(?:Excel\.Sheet|Microsoft Excel)/i;
+const googleSheetsHTML = /<google-sheets-html-origin[\s>]/i;
 const googleDocsWrapper = '[id^="docs-internal-guid-"]';
 
 // Unknown CSS declarations such as mso-list are discarded by CSSStyleDeclaration.
@@ -138,7 +142,8 @@ function normalizeWordLists(root: HTMLElement) {
       }
     }
     marker = marker.trim();
-    const ordered = /^(?:[0-9]+[.)]|\([0-9]+\))$/.test(marker);
+    const decimal = /^(?:([0-9]+)[.)]|\(([0-9]+)\))$/.exec(marker);
+    const ordered = decimal !== null;
     // Do not discard labels we cannot represent, such as multilevel "1.2.".
     // Leave these as paragraphs with their original marker and formatting.
     if (!ordered && marker && !/^[·•o▪●○■□‣⁃\-\uF0B7]$/u.test(marker)) {
@@ -164,6 +169,10 @@ function normalizeWordLists(root: HTMLElement) {
     let current = stack[stack.length - 1];
     if (!current || current.level !== level) {
       const element = detachedDoc().createElement(tag);
+      const start = Number(decimal?.[1] ?? decimal?.[2]);
+      if (Number.isSafeInteger(start) && start !== 1) {
+        element.setAttribute("start", String(start));
+      }
       if (current) {
         current.lastItem.append(element);
       } else {
@@ -180,17 +189,28 @@ function normalizeWordLists(root: HTMLElement) {
 }
 
 /**
- * Normalizes Microsoft Word lists and paragraph ends, and Google Docs blank
- * paragraphs. Other HTML is left unchanged. This is not an HTML sanitizer.
+ * Normalizes Word lists and paragraph ends, Google Docs blank paragraphs,
+ * and spreadsheet cell formatting. This is not an HTML sanitizer.
  */
 export function normalizeOfficeHTML(html: string): string {
   const isWord = wordHTML.test(html);
-  if (!isWord && !html.includes("docs-internal-guid-")) {
+  const isExcel = excelHTML.test(html);
+  const isGoogleSheets = googleSheetsHTML.test(html);
+  if (
+    !isWord &&
+    !isExcel &&
+    !isGoogleSheets &&
+    !html.includes("docs-internal-guid-")
+  ) {
     return html;
   }
 
   const root = detachedDoc().createElement("div");
   root.innerHTML = html;
+
+  if (isExcel || isGoogleSheets) {
+    normalizeSpreadsheetHTML(root, isExcel);
+  }
 
   if (isWord) {
     for (const end of Array.from(root.getElementsByTagName("o:p"))) {
