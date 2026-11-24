@@ -37,14 +37,13 @@ const markdown = getDocumentText(editor, markdownFormat);
 const result = updateDocument(editor, {
   format: markdownFormat,
   text: changedMarkdown,
-  base: "current", // the client read the current document
 });
 if (result.error === undefined) {
   const { operations, warnings } = result;
 }
 ```
 
-`base` is the version that the client read. `"current"` is correct if no other writer can change the document between the read and the write, for example if the read and the write occur in the same tick. Else, give the version that the client read (see [Concurrent Writes](#concurrent-writes)).
+`updateDocument` writes to the current document, and the text is the truth. This is correct if no other writer can change the document between the read and the write, for example if the read and the write occur in the same tick. Else, see [Concurrent Writes](#concurrent-writes).
 
 `updateDocument` applies the changes in one transaction. `operations` lists the changes by block ID, and `warnings` lists changes that did not apply as written (see [Warnings](#warnings)). To compute the operations, but not apply them, use `computeOperations` with the same change. Then `applyOperations(tr, operations)` applies them to a transaction of your own, for example to show them as suggestions.
 
@@ -70,7 +69,9 @@ A split paragraph keeps its ID on the part with most of its text. Two joined par
 
 ## Concurrent Writes
 
-A client can take time to change the text, for example an AI agent. Other users can change the document in that time. Give the document at the version that the client read as `base`. Then the write applies only if the document is still at that version:
+A client can take time to change the text, for example an AI agent. Other users can change the document in that time. `updateDocument` has no check for this: the text applies to the current document, thus a text from an older version changes the newer changes back.
+
+To prevent this, keep a version with the text that the client read, and compare it before the write. Use a version that you have (a row version, an ETag), or the text itself:
 
 ```typescript
 import {
@@ -79,38 +80,33 @@ import {
   updateDocument,
 } from "@blocknote/xl-ai/text-lens";
 
-const { text, base } = {
-  text: getDocumentText(editor, markdownFormat),
-  base: editor.document, // keep this version, for example in your version history
-};
+// The client reads the text. Keep the text (or a hash of it) as its version.
+const read = getDocumentText(editor, markdownFormat);
 
 // ... later, after the client changed the text:
-const result = updateDocument(editor, {
-  format: markdownFormat,
-  text: changedText,
-  base,
-});
-if (result.error === "document-changed") {
-  // Other users changed the document after `base`. Nothing applied.
-  // result.changesOfOthers: their changes, as operations.
+if (getDocumentText(editor, markdownFormat) !== read) {
+  // Other users changed the document after the read. Do not write.
+} else {
+  const result = updateDocument(editor, {
+    format: markdownFormat,
+    text: changedText,
+  });
 }
 ```
 
-This write is strict, and it is the recommended way to write from an older version. If other users changed the document after `base`, the result is the error `document-changed`, and the document does not change. The error has the changes of the other users in `changesOfOthers`, as operations: the same form as `operations` (an insert has its block, an update has the fields that changed). Then read the document again, make the change in the new text, and write again. For an AI agent, send the current text together with the error, so that the agent can make its change again.
+Do not `await` between the compare and the write: then no other writer can change the document between them. After a refusal, read the document again, make the change in the new text, and write again. For an AI agent, send the current text together with the refusal, so that the agent can make its change again.
 
-The write compares the full documents, also the data that the format does not show (for example a color in markdown). Thus, `base` must be the full document (BlockNote JSON) of that version, as `editor.document` gives it. You can keep it as JSON in a database. A version history keeps full documents anyway, because only a full document shows props and nesting.
-
-With `base: "current"`, there is no check. The text applies to the current document, thus a text from an older version changes the newer changes back.
+A compare of the text does not see a change of data that the format does not show (for example a color in markdown). Such a change is not lost: the write keeps that data of the current document.
 
 ### Merge With the Changes of Other Users
 
 <Callout type="warning">
   The merge is experimental. Its rules can change, and it has known wrong
-  results (see below). Prefer the strict write, and use the merge with
-  `onConflict: "reject"`.
+  results (see below). If the client can write again after a refusal, prefer
+  the compare of versions above. Use the merge with `onConflict: "reject"`.
 </Callout>
 
-With many users, a strict write can fail often: it also fails for a change far from the text of the client. `updateDocumentWithMerge` (and `computeOperationsWithMerge`) merges the change of the client with the changes that other users made after `base`:
+With many users, a compare of versions refuses a write often: also for a change far from the text of the client. `updateDocumentWithMerge` (and `computeOperationsWithMerge`) merges the change of the client with the changes that other users made after `base`. `base` is the full document (BlockNote JSON) at the version that the client read, as `editor.document` gives it. You can keep it as JSON in a database:
 
 ```typescript
 import {
@@ -118,10 +114,14 @@ import {
   updateDocumentWithMerge,
 } from "@blocknote/xl-ai/text-lens";
 
+// At the read of the client: keep the document, for example in your version history.
+const base = editor.document;
+
+// ... later, after the client changed the text:
 const result = updateDocumentWithMerge(editor, {
   format: markdownFormat,
   text: changedText,
-  base, // the document at the version that the client read
+  base,
   onConflict: "reject",
 });
 if (result.error === "conflict") {
@@ -162,14 +162,13 @@ The merge becomes stable after a review of its rules, a decision about the ident
 
 ## BlockNote JSON
 
-Each write function also takes a full document as BlockNote JSON: `{ document, base }` in place of `{ format, text, base }`. The JSON contains the block IDs, thus the blocks pair by ID. Only the changed blocks and fields change. A field that the JSON of a block does not have gets its default value, thus send each block with all its fields:
+Each write function also takes a full document as BlockNote JSON: `{ document }` in place of `{ format, text }`. The JSON contains the block IDs, thus the blocks pair by ID. Only the changed blocks and fields change. A field that the JSON of a block does not have gets its default value, thus send each block with all its fields:
 
 ```typescript
 import { updateDocument } from "@blocknote/xl-ai/text-lens";
 
 const result = updateDocument(editor, {
   document: changedBlocks,
-  base, // "current", or the document at the version that the client read
 });
 ```
 
@@ -181,12 +180,12 @@ If the JSON does not fit the schema of the editor, the result is `{ error: "inva
 
 A collaborative document is in a Y.Doc (Yjs 14, `@y/y`). There are two ways to write to it. The correct one depends on the writer, not on where the code runs.
 
-| The writer | Read | Write | `base` |
-| --- | --- | --- | --- |
-| The user of an editor that is bound to the Y.Doc (for example a command of your app that the user starts) | `getDocumentText(editor, format)` | `updateDocument(editor, change)`, on that editor | `"current"`, or `editor.document` at the read |
-| Each other writer (a server, an agent, an import) | `getYDocText(editor, fragment, format)` | `updateYDoc(editor, fragment, change)` | `"current"`, or `Y.encodeStateAsUpdateV2(ydoc)` at the read |
+| The writer | Read | Write |
+| --- | --- | --- |
+| The user of an editor that is bound to the Y.Doc (for example a command of your app that the user starts) | `getDocumentText(editor, format)` | `updateDocument(editor, change)`, on that editor |
+| Each other writer (a server, an agent, an import) | `getYDocText(editor, fragment, format)` | `updateYDoc(editor, fragment, change)` |
 
-Read and write with the functions of one row. The two rows read the document in different ways, and they take a different `base`.
+Read and write with the functions of one row. The two rows read the document in different ways.
 
 The differences:
 
@@ -196,11 +195,10 @@ The differences:
 
 ### Write to the Y.Doc
 
-For a writer that is not the user of a bound editor, use the functions of the `@blocknote/xl-ai/text-lens/y` entry point. `getYDocText` reads the text, and `updateYDoc` takes the same change as `updateDocument` (a text or BlockNote JSON). The editor gives only the schema and the conversions of the formats. It does not have to be bound to the Y.Doc, and it needs no view: the lens writes to the Y.Doc without an editor view. An editor that is bound to the Y.Doc gets the write as a change of another writer. The write is one Yjs transaction of the Y.Doc, with the client ID of that Y.Doc. `base` is `"current"`, or the Yjs state of the version that the client read:
+For a writer that is not the user of a bound editor, use the functions of the `@blocknote/xl-ai/text-lens/y` entry point. `getYDocText` reads the text, and `updateYDoc` takes the same change as `updateDocument` (a text or BlockNote JSON). The editor gives only the schema and the conversions of the formats. It does not have to be bound to the Y.Doc, and it needs no view: the lens writes to the Y.Doc without an editor view. An editor that is bound to the Y.Doc gets the write as a change of another writer. The write is one Yjs transaction of the Y.Doc, with the client ID of that Y.Doc:
 
 ```typescript
 import { BlockNoteEditor } from "@blocknote/core";
-import * as Y from "@y/y";
 import { markdownFormat } from "@blocknote/xl-ai/text-lens";
 import { getYDocText, updateYDoc } from "@blocknote/xl-ai/text-lens/y";
 
@@ -209,14 +207,11 @@ const fragment = ydoc.get("document-store");
 const editor = BlockNoteEditor.create();
 
 const text = getYDocText(editor, fragment, markdownFormat);
-// The V2 update format, as the versions of BlockNote use it.
-const base = Y.encodeStateAsUpdateV2(ydoc);
 
 // ... later:
 const result = updateYDoc(editor, fragment, {
   format: markdownFormat,
   text: changedText,
-  base,
 });
 if (result.error === undefined) {
   // Send `result.updateV2` to the other clients, if no provider does that.
@@ -226,9 +221,29 @@ if (result.error === undefined) {
 
 Give the editor the same schema and extensions as your other clients (for example comments). If the schema cannot read the content of the Y.Doc, the write throws, and the Y.Doc does not change.
 
-A Yjs state as `base` is a V2 update: `Y.encodeStateAsUpdateV2(ydoc)`. A V1 update (`Y.encodeStateAsUpdate`) is not a valid `base`: Yjs throws for it, and the Y.Doc does not change.
+`updateYDoc` writes to the current document of the Y.Doc, as `updateDocument`: it has no check for [concurrent writes](#concurrent-writes). If you keep the Yjs state of the read as the version of the client, `yDocChangesAfterBase` gives the changes of other users after that version:
 
-`updateYDoc` is strict, as `updateDocument`: with a Yjs state as `base`, the write applies only if the document is still at that version. Else the result is the error `document-changed`, with `changesOfOthers`. A change in a different part of the Y.Doc (not in the fragment of the document) does not stop the write. The Y.Doc must have the version `base`. If the client read from a replica with an update that this Y.Doc does not have yet, the result is the error `unknown-base`, and nothing applies: sync the Y.Doc first (for example with `Y.applyUpdateV2(ydoc, base)`), and write again. The two merge functions have the same rule.
+```typescript
+import * as Y from "@y/y";
+import { markdownFormat } from "@blocknote/xl-ai/text-lens";
+import {
+  updateYDoc,
+  yDocChangesAfterBase,
+} from "@blocknote/xl-ai/text-lens/y";
+
+// At the read of the client. The V2 update format, as the versions of BlockNote use it.
+const base = Y.encodeStateAsUpdateV2(ydoc);
+
+// ... later, with no `await` between the check and the write:
+const check = yDocChangesAfterBase(editor, fragment, base);
+if (check.error === undefined && check.changesOfOthers.length === 0) {
+  updateYDoc(editor, fragment, { format: markdownFormat, text: changedText });
+}
+```
+
+`changesOfOthers` has the changes as operations. A change in a different part of the Y.Doc (not in the fragment of the document) is not a change of the document. The Y.Doc must have the version `base`. If the client read from a replica with an update that this Y.Doc does not have yet, the result is the error `unknown-base`: sync the Y.Doc first (for example with `Y.applyUpdateV2(ydoc, base)`), and call the function again. The two merge functions have the same rule.
+
+A Yjs state as `base` is a V2 update: `Y.encodeStateAsUpdateV2(ydoc)`. A V1 update (`Y.encodeStateAsUpdate`) is not a valid `base`: Yjs throws for it, and the Y.Doc does not change.
 
 As for an editor, each write has a compute function that does not change the Y.Doc: `computeYDocOperations` and `computeYDocOperationsWithMerge`. `applyYDocOperations(editor, fragment, operations)` writes the operations, and returns the Yjs update of the write.
 
@@ -254,7 +269,7 @@ A write needs one block of the text for each block of the document. Thus, the ma
 
 ## Example Server
 
-The [text lens server example](https://github.com/TypeCellOS/BlockNote/tree/main/examples/02-backend/05-text-lens-server) is an HTTP server with Hono. It gives a document as BlockNote JSON, markdown, HTML and plain text, and accepts a changed document back in each format. It keeps the versions in memory, and gives the version of a document as its `ETag`. A write sends that ETag in `If-Match` for a strict write (412 if another user changed the document), or in `Base-Version` for a merge (a merge with a conflict does not apply, unless the request has `On-Conflict: keep-current`). For `If-Match`, the server compares the ETags and then writes with `base: "current"`: a server with version numbers needs no stored document for a strict write. The response of a write gives the ETag of the document that the client wrote: use it as the base of the next write. A read gives the current document, with the changes of other users, and its ETag.
+The [text lens server example](https://github.com/TypeCellOS/BlockNote/tree/main/examples/02-backend/05-text-lens-server) is an HTTP server with Hono. It gives a document as BlockNote JSON, markdown, HTML and plain text, and accepts a changed document back in each format. It keeps the versions in memory, and gives the version of a document as its `ETag`. A write sends that ETag in `If-Match` (the write does not apply if another user changed the document: 412), or in `Base-Version` for a merge (a merge with a conflict does not apply, unless the request has `On-Conflict: keep-current`). For `If-Match`, the server compares the ETags and then calls `updateDocument`: a server with version numbers needs no stored document for this check. The response of a write gives the ETag of the document that the client wrote: use it as the base of the next write. A read gives the current document, with the changes of other users, and its ETag.
 
 ## How It Works
 
@@ -273,5 +288,5 @@ The [text lens server example](https://github.com/TypeCellOS/BlockNote/tree/main
 2. **Parse**: the text of the client gives the blocks of the text.
 3. **Align**: the view blocks and the blocks of the text pair by the location of their text: first the blocks with the same text and the changed blocks that stay in order, then the blocks between these pairs (see [Which Block Is the Same Block](#which-block-is-the-same-block)).
 4. **Merge and plan**: each pair merges three ways. The base is the view block, "ours" is the block of the text, and "theirs" is the document block. A field that the text changed takes the value of the text. Other fields keep the value of the document, thus data that the format does not show stays. The result is the target document.
-5. **Diff**: the target document and the document give the operations, by block ID. A strict write first compares `base` with the current document, and stops if they are different. In a merge, the target is for `base`: it first merges with the current document (a three-way merge of the documents), and the diff is against the current document.
+5. **Diff**: the target document and the document give the operations, by block ID. In a merge, the target is for `base`: it first merges with the current document (a three-way merge of the documents), and the diff is against the current document.
 6. **Apply**: the operations become the smallest ProseMirror steps. Unchanged text keeps its identity and its comments, and a collaboration binding sees only the small changes.
