@@ -41,16 +41,16 @@ The response of a write is JSON: `etag`, `operations`, `warnings` and `changesOf
 
 The response does not contain the document after the write. After a merge, that document has changes that the client did not see. A write of the text of the client with the ETag of that document would remove these changes without a warning. Thus, the rule is: an ETag names the document of the text that came with it. A read gives the current text and its ETag. A write gives the ETag of the text that the client sent. To get the changes of other writers, read the document again.
 
-| Status | Error                              | Cause                                                                                                                                                   |
-| ------ | ---------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| 400    | `invalid-json`                     | The body of a `json` write is not JSON.                                                                                                                 |
-| 400    | `invalid-document`                 | The body is not a document for the schema (for example a JSON block of an unknown type, or an HTML table cell that spans more rows than the table has). |
-| 400    | `on-conflict-without-base-version` | `On-Conflict` without `Base-Version`.                                                                                                                   |
-| 400    | `unknown-on-conflict`              | `On-Conflict` is not `keep-current` or `reject`.                                                                                                        |
-| 404    | `unknown-format`                   | The format is not `json`, `markdown`, `html` or `text`.                                                                                                 |
-| 409    | `unknown-base-version`             | `Base-Version` does not give an ETag of a version of the document.                                                                                      |
-| 409    | `conflict`                         | The merge has a conflict, and the request does not have `On-Conflict: keep-current`. The body has the conflicts. Nothing applies.                       |
-| 412    | `document-changed`                 | `If-Match` does not match the current version. Nothing applies.                                                                                         |
+| Status | Error                              | Cause                                                                                                                                                              |
+| ------ | ---------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| 400    | `invalid-json`                     | The body of a `json` write is not JSON.                                                                                                                            |
+| 400    | `invalid-document`                 | The body is not a document for the schema (for example a JSON block of an unknown type, or an HTML paragraph with a text alignment that the schema does not have). |
+| 400    | `on-conflict-without-base-version` | `On-Conflict` without `Base-Version`.                                                                                                                              |
+| 400    | `unknown-on-conflict`              | `On-Conflict` is not `keep-current` or `reject`.                                                                                                                   |
+| 404    | `unknown-format`                   | The format is not `json`, `markdown`, `html` or `text`.                                                                                                            |
+| 409    | `unknown-base-version`             | `Base-Version` does not give an ETag of a version of the document.                                                                                                 |
+| 409    | `conflict`                         | The merge has a conflict, and the request does not have `On-Conflict: keep-current`. The body has the conflicts. Nothing applies.                                  |
+| 412    | `document-changed`                 | `If-Match` does not match the current version. Nothing applies.                                                                                                    |
 
 The ETags follow RFC 9110:
 

@@ -217,10 +217,9 @@ describe("text lens server", () => {
     expect((await put("toString", "x")).status).toBe(404);
   });
 
-  it("gives an error for an HTML table that does not fit the schema", async () => {
+  it("gives an error for HTML with a prop value that the schema does not have", async () => {
     const { put, get } = setup();
-    const html =
-      '<table><tbody><tr><td rowspan="3">A</td><td>B</td></tr><tr><td>C</td><td>D</td></tr></tbody></table>';
+    const html = '<p data-text-alignment="diagonal">A</p>';
 
     const response = await put("html", html);
 

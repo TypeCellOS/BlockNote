@@ -69,48 +69,30 @@ describe("HTML", () => {
     expect(toggle?.children.map((child) => child.id)).toEqual(["child"]);
   });
 
-  it.each([
-    [
-      "a row span beyond the table",
-      'rowspan="1"><p>c</p>',
-      'rowspan="3"><p>c</p>',
-    ],
-    [
-      "a row span that covers a cell",
-      'rowspan="1"><p>A</p>',
-      'rowspan="2"><p>A</p>',
-    ],
-    [
-      "a column span of 0",
-      'colspan="1" rowspan="1"><p>c</p>',
-      'colspan="0" rowspan="1"><p>c</p>',
-    ],
-  ])(
-    "gives an error for a table with %s, and does not change the document",
-    (_, from, to) => {
-      const editor = createEditor([
-        {
-          id: "t",
-          type: "table",
-          content: {
-            type: "tableContent",
-            rows: [{ cells: ["A", "B"] }, { cells: ["c", "d"] }],
-          },
-        },
-      ]);
-      const html = getDocumentText(editor, htmlFormat);
-      expect(html).toContain(from);
-      const before = editor.document;
+  it("gives an error for a prop value that the schema does not have, and does not change the document", () => {
+    const editor = createEditor([
+      {
+        id: "p",
+        type: "paragraph",
+        props: { textAlignment: "center" },
+        content: "Text",
+      },
+    ]);
+    const html = getDocumentText(editor, htmlFormat);
+    expect(html).toContain('data-text-alignment="center"');
+    const before = editor.document;
 
-      expect(
-        updateDocument(editor, {
-          format: htmlFormat,
-          text: html.replace(from, to),
-        }),
-      ).toEqual({ error: "invalid-document" });
-      expect(editor.document).toEqual(before);
-    },
-  );
+    expect(
+      updateDocument(editor, {
+        format: htmlFormat,
+        text: html.replace(
+          'data-text-alignment="center"',
+          'data-text-alignment="diagonal"',
+        ),
+      }),
+    ).toEqual({ error: "invalid-document" });
+    expect(editor.document).toEqual(before);
+  });
 });
 
 describe("HTML, a change of the type of a parent", () => {

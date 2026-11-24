@@ -47,7 +47,7 @@ if (result.error === undefined) {
 
 `updateDocument` applies the changes in one transaction. `operations` lists the changes by block ID, and `warnings` lists changes that did not apply as written (see [Warnings](#warnings)). To compute the operations, but not apply them, use `computeOperations` with the same change. Then `applyOperations(tr, operations)` applies them to a transaction of your own, for example to show them as suggestions.
 
-If the text gives blocks that do not fit the schema of the editor, the result is `{ error: "invalid-document" }`, and the document does not change. An example is an HTML table cell that spans more rows than the table has.
+If the text gives blocks that do not fit the schema of the editor, the result is `{ error: "invalid-document" }`, and the document does not change. An example is an HTML paragraph with `data-text-alignment="diagonal"`: the schema does not have that text alignment.
 
 The formats are `markdownFormat`, `htmlFormat` and `plainTextFormat`. HTML shows more data than markdown (for example colors and underline), thus a client can also change that data. In HTML, some data shows two times: as a `data-*` attribute and in the visible markup (for example `data-text-alignment` and `style="text-align: …"`, or `data-caption` and `<figcaption>`). The parse reads the attribute. Thus, to change such data, change the `data-*` attribute too.
 

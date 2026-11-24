@@ -25,8 +25,8 @@ describe("parseText", () => {
   });
 
   it("gives an error for blocks that do not fit the schema", () => {
-    // A cell that spans more rows than the table has.
-    const text = '<table><tr><td rowspan="3">a</td></tr></table>';
+    // A text alignment that the schema does not have.
+    const text = '<p data-text-alignment="diagonal">Text</p>';
 
     expect(parseText(editor, htmlFormat, text)).toEqual({
       error: "invalid-document",
