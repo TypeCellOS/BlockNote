@@ -788,11 +788,13 @@ console.log("Third Line")</code></pre>`,
 <figure><audio></audio><figcaption>Audio Caption</figcaption></figure>
 <figure><embed><figcaption>File Caption</figcaption></figure>`,
   },
-  // A `<source>` child is a source. The parse does not read its URL.
+  // The URL of a `<video>` or an `<audio>` can be in a `<source>` child. The
+  // first child with a `src` gives the URL.
   {
     name: "mediaWithSourceChild",
     content: `<video><source src="exampleURL"></video>
-<audio><source src="exampleURL"></audio>`,
+<audio><source src="exampleURL"></audio>
+<video><source><source src="exampleURL1"><source src="exampleURL2"></video>`,
   },
   // The `data-url` attribute of BlockNote's own HTML is a source.
   {
@@ -1206,6 +1208,21 @@ Regular paragraph`,
 <video></video>
 
 Paragraph 2`,
+  },
+  // The URL of a `<video>` or an `<audio>` can be in a `<source>` child, on
+  // the same line or on its own line.
+  {
+    name: "mediaWithSourceChild",
+    content: `<video controls><source src="exampleURL" type="video/mp4"></video>
+
+<video controls>
+  <source src="exampleURL" type="video/mp4">
+  Your browser does not support the video tag.
+</video>
+
+<audio controls>
+  <source src="exampleURL" type="audio/mpeg">
+</audio>`,
   },
   // Individual heading levels
   {
