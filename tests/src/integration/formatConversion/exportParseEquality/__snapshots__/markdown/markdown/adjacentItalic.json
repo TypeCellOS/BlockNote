@@ -1,0 +1,48 @@
+[
+  {
+    "children": [],
+    "content": [
+      {
+        "styles": {
+          "italic": true,
+          "strike": true,
+        },
+        "text": "Struck",
+        "type": "text",
+      },
+      {
+        "styles": {
+          "italic": true,
+        },
+        "text": "Italic",
+        "type": "text",
+      },
+    ],
+    "id": "1",
+    "props": {
+      "backgroundColor": "default",
+      "textAlignment": "left",
+      "textColor": "default",
+    },
+    "type": "paragraph",
+  },
+  {
+    "children": [],
+    "content": [
+      {
+        "styles": {
+          "italic": true,
+        },
+        "text": "ItalicUnderlined",
+        "type": "text",
+      },
+    ],
+    "id": "2",
+    "props": {
+      "backgroundColor": "default",
+      "textAlignment": "left",
+      "textColor": "default",
+    },
+    "type": "paragraph",
+  },
+]

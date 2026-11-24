@@ -783,6 +783,8 @@ function toSingleLine(content: string): string {
 function serializeInlineContent(el: Element): string {
   let result = "";
 
+  mergeAdjacentItalicElements(el);
+
   for (const child of Array.from(el.childNodes)) {
     if (child.nodeType === 3 /* Node.TEXT_NODE */) {
       result += escapeHtmlLikeText(child.textContent || "");
@@ -880,6 +882,41 @@ function serializeInlineContent(el: Element): string {
   }
 
   return result;
+}
+
+/**
+ * The external HTML exporter writes each run of text with its own elements.
+ * Two adjacent italic runs that are different in a second style then give
+ * two adjacent italic elements, for example `<em><s>a</s></em><em>b</em>`.
+ * If the serializer writes each element, the italic delimiter closes and
+ * opens at one position (`*~~a~~**b*`), and the markdown parser reads `**`
+ * as text. Thus, move the content of each italic element into the italic
+ * element directly before it (`<em><s>a</s>b</em>`). The result has one
+ * delimiter pair: `*~~a~~b*`. The elements are in the serializer's own copy
+ * of the document (see `htmlToMarkdown`), so the change has no other effect.
+ */
+function mergeAdjacentItalicElements(parent: Element) {
+  let element = parent.firstElementChild;
+  while (element) {
+    const next = element.nextElementSibling;
+    if (
+      next &&
+      // No text is between the two elements.
+      next === element.nextSibling &&
+      isItalicElement(element) &&
+      isItalicElement(next)
+    ) {
+      element.append(...Array.from(next.childNodes));
+      next.remove();
+      continue;
+    }
+    element = next;
+  }
+}
+
+function isItalicElement(element: Element): boolean {
+  const tag = element.tagName.toLowerCase();
+  return tag === "em" || tag === "i";
 }
 
 /**

@@ -1,0 +1,80 @@
+[
+  {
+    "attrs": {
+      "id": "1",
+    },
+    "content": [
+      {
+        "attrs": {
+          "backgroundColor": "default",
+          "textAlignment": "left",
+          "textColor": "default",
+        },
+        "content": [
+          {
+            "marks": [
+              {
+                "type": "italic",
+              },
+              {
+                "type": "strike",
+              },
+            ],
+            "text": "Struck",
+            "type": "text",
+          },
+          {
+            "marks": [
+              {
+                "type": "italic",
+              },
+            ],
+            "text": "Italic",
+            "type": "text",
+          },
+        ],
+        "type": "paragraph",
+      },
+    ],
+    "type": "blockContainer",
+  },
+  {
+    "attrs": {
+      "id": "2",
+    },
+    "content": [
+      {
+        "attrs": {
+          "backgroundColor": "default",
+          "textAlignment": "left",
+          "textColor": "default",
+        },
+        "content": [
+          {
+            "marks": [
+              {
+                "type": "italic",
+              },
+            ],
+            "text": "Italic",
+            "type": "text",
+          },
+          {
+            "marks": [
+              {
+                "type": "italic",
+              },
+              {
+                "type": "underline",
+              },
+            ],
+            "text": "Underlined",
+            "type": "text",
+          },
+        ],
+        "type": "paragraph",
+      },
+    ],
+    "type": "blockContainer",
+  },
+]

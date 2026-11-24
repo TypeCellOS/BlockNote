@@ -1082,6 +1082,41 @@ export const markdownRoundTripCases: CoreExportCase[] = [
     ],
   },
   {
+    name: "markdown/adjacentItalic",
+    content: [
+      {
+        type: "paragraph",
+        content: [
+          {
+            type: "text",
+            text: "Struck",
+            styles: { italic: true, strike: true },
+          },
+          {
+            type: "text",
+            text: "Italic",
+            styles: { italic: true },
+          },
+        ],
+      },
+      {
+        type: "paragraph",
+        content: [
+          {
+            type: "text",
+            text: "Italic",
+            styles: { italic: true },
+          },
+          {
+            type: "text",
+            text: "Underlined",
+            styles: { italic: true, underline: true },
+          },
+        ],
+      },
+    ],
+  },
+  {
     name: "markdown/specialCharEscaping",
     content: [
       {
