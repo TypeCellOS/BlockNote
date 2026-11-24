@@ -1,5 +1,6 @@
 import { BlockNoteEditor } from "@blocknote/core";
 import { describe, expect } from "vite-plus/test";
+import type { SetupEditor } from "../../../../../tests/src/commands/browser/setupEditor.js";
 
 import {
   computeOperationsWithMerge,
@@ -74,14 +75,16 @@ type Write = {
 };
 
 /** Makes a random document, and writes a random edit of the kind `kind` of its text. */
-function writeRandomEdit(
+async function writeRandomEdit(
+  setupEditor: SetupEditor,
   seed: number,
   format: TextFormat,
   options: NestedDocumentOptions,
   kind: EditKind,
-): Write | undefined {
+): Promise<Write | undefined> {
   const random = createRandom(seed * 7907 + kind.length);
-  const editor = BlockNoteEditor.create({
+  const { editor } = await setupEditor({
+    mountType: false,
     initialContent: randomNestedDocument(random, options),
   });
   const source = editor.document as LensBlock[];
@@ -142,13 +145,20 @@ function modelErrors({ editor, source, edit }: Write): string[] {
 }
 
 /** Runs the model on all seeds, and fails at the first seed with a difference. */
-function expectModelOnAllSeeds(
+async function expectModelOnAllSeeds(
+  setupEditor: SetupEditor,
   format: TextFormat,
   options: NestedDocumentOptions,
   kind: EditKind,
 ) {
   for (const seed of KNOWN_SEEDS) {
-    const write = writeRandomEdit(seed, format, options, kind);
+    const write = await writeRandomEdit(
+      setupEditor,
+      seed,
+      format,
+      options,
+      kind,
+    );
     if (write !== undefined) {
       expect({ seed, errors: modelErrors(write) }).toEqual({
         seed,
@@ -160,24 +170,42 @@ function expectModelOnAllSeeds(
 
 describe("markdown, with only the nesting that markdown shows", () => {
   describe.each(EDIT_KINDS)("edit: %s", (kind) => {
-    it.each(SEEDS)("keeps the laws and the model for seed %i", (seed) => {
-      const write = writeRandomEdit(seed, markdownFormat, VISIBLE, kind);
-      if (write !== undefined) {
-        expectLaws(markdownFormat, write);
-        expect(modelErrors(write)).toEqual([]);
-      }
-    });
+    it.for(SEEDS)(
+      "keeps the laws and the model for seed %i",
+      async (seed, { setupEditor }) => {
+        const write = await writeRandomEdit(
+          setupEditor,
+          seed,
+          markdownFormat,
+          VISIBLE,
+          kind,
+        );
+        if (write !== undefined) {
+          expectLaws(markdownFormat, write);
+          expect(modelErrors(write)).toEqual([]);
+        }
+      },
+    );
   });
 });
 
 describe("markdown, with nesting that markdown does not show", () => {
   describe.each(EDIT_KINDS)("edit: %s", (kind) => {
-    it.each(SEEDS)("keeps the laws for seed %i", (seed) => {
-      const write = writeRandomEdit(seed, markdownFormat, HIDDEN, kind);
-      if (write !== undefined) {
-        expectLaws(markdownFormat, write);
-      }
-    });
+    it.for(SEEDS)(
+      "keeps the laws for seed %i",
+      async (seed, { setupEditor }) => {
+        const write = await writeRandomEdit(
+          setupEditor,
+          seed,
+          markdownFormat,
+          HIDDEN,
+          kind,
+        );
+        if (write !== undefined) {
+          expectLaws(markdownFormat, write);
+        }
+      },
+    );
   });
 
   // A change of the type of a list item: before `parentMovedAlong`, a
@@ -201,35 +229,55 @@ describe("markdown, with nesting that markdown does not show", () => {
     "swap",
     "moveTo",
   ] as const)("edit: %s", (kind) => {
-    it.each(SEEDS)("keeps the model for seed %i", (seed) => {
-      const write = writeRandomEdit(seed, markdownFormat, HIDDEN, kind);
-      if (write !== undefined) {
-        expect(modelErrors(write)).toEqual([]);
-      }
-    });
+    it.for(SEEDS)(
+      "keeps the model for seed %i",
+      async (seed, { setupEditor }) => {
+        const write = await writeRandomEdit(
+          setupEditor,
+          seed,
+          markdownFormat,
+          HIDDEN,
+          kind,
+        );
+        if (write !== undefined) {
+          expect(modelErrors(write)).toEqual([]);
+        }
+      },
+    );
   });
 
   // An outdent and a lift: a block that the text shows one level higher
   // than the view goes where its parent in the view is, or was (see
   // `outdentParent`). That can be a hidden parent. Thus, the next blocks of
   // that hidden parent stay in it.
-  it("keeps the model for an outdent", () => {
-    expectModelOnAllSeeds(markdownFormat, HIDDEN, "outdent");
+  it("keeps the model for an outdent", async ({ setupEditor }) => {
+    await expectModelOnAllSeeds(setupEditor, markdownFormat, HIDDEN, "outdent");
   });
-  it("keeps the model for a removal of a list item without the blocks in it", () => {
-    expectModelOnAllSeeds(markdownFormat, HIDDEN, "lift");
+  it("keeps the model for a removal of a list item without the blocks in it", async ({
+    setupEditor,
+  }) => {
+    await expectModelOnAllSeeds(setupEditor, markdownFormat, HIDDEN, "lift");
   });
 });
 
 describe("HTML, list items with only list items as children", () => {
   describe.each(EDIT_KINDS)("edit: %s", (kind) => {
-    it.each(SEEDS)("keeps the laws and the model for seed %i", (seed) => {
-      const write = writeRandomEdit(seed, htmlFormat, LISTS_ONLY, kind);
-      if (write !== undefined) {
-        expectLaws(htmlFormat, write);
-        expect(modelErrors(write)).toEqual([]);
-      }
-    });
+    it.for(SEEDS)(
+      "keeps the laws and the model for seed %i",
+      async (seed, { setupEditor }) => {
+        const write = await writeRandomEdit(
+          setupEditor,
+          seed,
+          htmlFormat,
+          LISTS_ONLY,
+          kind,
+        );
+        if (write !== undefined) {
+          expectLaws(htmlFormat, write);
+          expect(modelErrors(write)).toEqual([]);
+        }
+      },
+    );
   });
 });
 
@@ -241,12 +289,21 @@ describe("HTML, list items with other blocks as children", () => {
   // before a hidden child of a list item, thus into that list item, where
   // HTML shows it. Now it goes into the parent of the list of the item
   // before it.
-  it.each(SEEDS)("keeps the laws for an insert, for seed %i", (seed) => {
-    const write = writeRandomEdit(seed, htmlFormat, VISIBLE, "insert");
-    if (write !== undefined) {
-      expectLaws(htmlFormat, write);
-    }
-  });
+  it.for(SEEDS)(
+    "keeps the laws for an insert, for seed %i",
+    async (seed, { setupEditor }) => {
+      const write = await writeRandomEdit(
+        setupEditor,
+        seed,
+        htmlFormat,
+        VISIBLE,
+        "insert",
+      );
+      if (write !== undefined) {
+        expectLaws(htmlFormat, write);
+      }
+    },
+  );
 });
 
 /** The moves of a tree edit: the block, and its new parent in the document of the edit. */
@@ -292,11 +349,12 @@ describe.each([
 ])("concurrent moves of list items ($name)", ({ format, options }) => {
   const moves = ["indent", "outdent", "moveTo"] as const;
 
-  it.each(SEEDS)(
+  it.for(SEEDS)(
     "keeps the moves of both writers, and No revert, for seed %i",
-    (seed) => {
+    async (seed, { setupEditor }) => {
       const random = createRandom(seed * 7919);
-      const editor = BlockNoteEditor.create({
+      const { editor } = await setupEditor({
+        mountType: false,
         initialContent: randomNestedDocument(random, options),
       });
       const base = editor.document as LensBlock[];

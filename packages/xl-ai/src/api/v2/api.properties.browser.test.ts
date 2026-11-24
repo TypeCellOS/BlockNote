@@ -79,21 +79,28 @@ describe.each(formatCases)("$name", ({ name, format, codec }) => {
     (seed) => !known(HTML_NESTING_SEEDS.columns).includes(seed),
   );
 
-  it.each(lawSeeds)("keeps the laws for seed %i", (seed) => {
-    const random = createRandom(seed);
-    const editor = BlockNoteEditor.create({
-      initialContent: randomDocument(random),
-    });
-    expectLaws(editor, format, codec, random);
-  });
-
-  it.each(columnSeeds)(
-    "keeps the laws for a document with columns, for seed %i",
-    (seed) => {
+  it.for(lawSeeds)(
+    "keeps the laws for seed %i",
+    async (seed, { setupEditor }) => {
       const random = createRandom(seed);
-      const editor = BlockNoteEditor.create({
+      const { editor } = await setupEditor({
+        mountType: false,
+        initialContent: randomDocument(random),
+      });
+      expectLaws(editor, format, codec, random);
+    },
+  );
+
+  it.for(columnSeeds)(
+    "keeps the laws for a document with columns, for seed %i",
+    async (seed, { setupEditor }) => {
+      const random = createRandom(seed);
+      const { editor } = await setupEditor({
+        mountType: false,
         schema: columnSchema,
-        initialContent: randomDocumentWithColumns(random),
+        initialContent: randomDocumentWithColumns(
+          random,
+        ) as (typeof columnSchema.PartialBlock)[],
       });
       expectLaws(editor, format, codec, random);
     },
@@ -106,24 +113,28 @@ describe.each(formatCases)("$name", ({ name, format, codec }) => {
  */
 describe("markdown, edits of lines", () => {
   const format = markdownFormat;
-  it.each(LINE_EDIT_SEEDS)("keeps the laws for seed %i", (seed) => {
-    const random = createRandom(seed);
-    const editor = BlockNoteEditor.create({
-      initialContent: randomDocument(random),
-    });
-    const edited = randomEdits(
-      random,
-      getDocumentText(editor, format),
-      randomLineEdit,
-    );
-    const update = valid(updateDocument(editor, { format, text: edited }));
-    expect(update.warnings).toEqual([]);
+  it.for(LINE_EDIT_SEEDS)(
+    "keeps the laws for seed %i",
+    async (seed, { setupEditor }) => {
+      const random = createRandom(seed);
+      const { editor } = await setupEditor({
+        mountType: false,
+        initialContent: randomDocument(random),
+      });
+      const edited = randomEdits(
+        random,
+        getDocumentText(editor, format),
+        randomLineEdit,
+      );
+      const update = valid(updateDocument(editor, { format, text: edited }));
+      expect(update.warnings).toEqual([]);
 
-    // PutGet, modulo the normalization of the format.
-    expect(canonicalText(editor, format, getDocumentText(editor, format))).toBe(
-      canonicalText(editor, format, edited),
-    );
-    // PutTwice.
-    expect(textStages(editor, format, edited).operations).toEqual([]);
-  });
+      // PutGet, modulo the normalization of the format.
+      expect(
+        canonicalText(editor, format, getDocumentText(editor, format)),
+      ).toBe(canonicalText(editor, format, edited));
+      // PutTwice.
+      expect(textStages(editor, format, edited).operations).toEqual([]);
+    },
+  );
 });

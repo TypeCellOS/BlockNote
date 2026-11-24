@@ -1,4 +1,3 @@
-import { BlockNoteEditor } from "@blocknote/core";
 import { describe, expect } from "vite-plus/test";
 
 import { flattenBlocks } from "./util/blocks/flatten.js";
@@ -35,40 +34,44 @@ describe.each([
 ] satisfies { name: string; format: TextFormat }[])(
   "random documents with all kinds of blocks ($name)",
   ({ name, format }) => {
-    it.each(SEEDS)("keeps the laws for seed %i", (seed) => {
-      const random = createRandom(seed * 7919 + name.length);
-      const editor = BlockNoteEditor.create({
-        schema: richSchema,
-        initialContent: randomRichDocument(random),
-      });
-      const text = getDocumentText(editor, format);
+    it.for(SEEDS)(
+      "keeps the laws for seed %i",
+      async (seed, { setupEditor }) => {
+        const random = createRandom(seed * 7919 + name.length);
+        const { editor } = await setupEditor({
+          mountType: false,
+          schema: richSchema,
+          initialContent: randomRichDocument(random),
+        });
+        const text = getDocumentText(editor, format);
 
-      // GetPut.
-      expect(textStages(editor, format, text).operations).toEqual([]);
+        // GetPut.
+        expect(textStages(editor, format, text).operations).toEqual([]);
 
-      const edited = randomEdits(random, text, randomTextEdit);
-      const update = updateDocument(editor, {
-        format,
-        text: edited,
-      });
-      if (update.error !== undefined) {
-        // A random edit of HTML markup can give HTML that does not fit the
-        // schema. That is an expected error.
-        expect(update.error).toBe("invalid-document");
-        return;
-      }
+        const edited = randomEdits(random, text, randomTextEdit);
+        const update = updateDocument(editor, {
+          format,
+          text: edited,
+        });
+        if (update.error !== undefined) {
+          // A random edit of HTML markup can give HTML that does not fit the
+          // schema. That is an expected error.
+          expect(update.error).toBe("invalid-document");
+          return;
+        }
 
-      // Each ID identifies one block.
-      const ids = flattenBlocks(editor.document as LensBlock[]).map(
-        ({ block }) => block.id,
-      );
-      expect(new Set(ids).size).toBe(ids.length);
-      // PutGet, modulo the normalization of the format.
-      expect(
-        canonicalText(editor, format, getDocumentText(editor, format)),
-      ).toBe(canonicalText(editor, format, edited));
-      // PutTwice.
-      expect(textStages(editor, format, edited).operations).toEqual([]);
-    });
+        // Each ID identifies one block.
+        const ids = flattenBlocks(editor.document as LensBlock[]).map(
+          ({ block }) => block.id,
+        );
+        expect(new Set(ids).size).toBe(ids.length);
+        // PutGet, modulo the normalization of the format.
+        expect(
+          canonicalText(editor, format, getDocumentText(editor, format)),
+        ).toBe(canonicalText(editor, format, edited));
+        // PutTwice.
+        expect(textStages(editor, format, edited).operations).toEqual([]);
+      },
+    );
   },
 );
