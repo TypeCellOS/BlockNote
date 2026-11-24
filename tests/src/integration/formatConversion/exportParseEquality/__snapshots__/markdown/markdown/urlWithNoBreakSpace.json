@@ -1,0 +1,25 @@
+[
+  {
+    "children": [],
+    "content": [
+      {
+        "content": [
+          {
+            "styles": {},
+            "text": "Link",
+            "type": "text",
+          },
+        ],
+        "href": "https://example.com/my file.pdf",
+        "type": "link",
+      },
+    ],
+    "id": "1",
+    "props": {
+      "backgroundColor": "default",
+      "textAlignment": "left",
+      "textColor": "default",
+    },
+    "type": "paragraph",
+  },
+]

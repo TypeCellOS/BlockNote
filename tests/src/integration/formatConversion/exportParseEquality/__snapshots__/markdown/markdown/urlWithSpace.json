@@ -1,0 +1,53 @@
+[
+  {
+    "children": [],
+    "content": [
+      {
+        "content": [
+          {
+            "styles": {},
+            "text": "Link",
+            "type": "text",
+          },
+        ],
+        "href": "https://example.com/my file.pdf",
+        "type": "link",
+      },
+    ],
+    "id": "1",
+    "props": {
+      "backgroundColor": "default",
+      "textAlignment": "left",
+      "textColor": "default",
+    },
+    "type": "paragraph",
+  },
+  {
+    "children": [],
+    "content": undefined,
+    "id": "2",
+    "props": {
+      "backgroundColor": "default",
+      "caption": "",
+      "name": "Example",
+      "showPreview": true,
+      "textAlignment": "left",
+      "url": "https://example.com/my%20image.png",
+    },
+    "type": "image",
+  },
+  {
+    "children": [],
+    "content": undefined,
+    "id": "3",
+    "props": {
+      "backgroundColor": "default",
+      "caption": "",
+      "name": "Example",
+      "showPreview": true,
+      "textAlignment": "left",
+      "url": "https://example.com/my video.mp4",
+    },
+    "type": "video",
+  },
+]

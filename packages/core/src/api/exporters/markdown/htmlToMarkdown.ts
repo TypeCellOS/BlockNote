@@ -1,4 +1,5 @@
 import { parseAutolinkLiteral } from "../../parsers/markdown/autolink.js";
+import { formatLinkDestination } from "./formatLinkDestination.js";
 import { wrapWithDelimiter } from "./wrapWithDelimiter.js";
 
 /**
@@ -572,7 +573,10 @@ function serializeImage(el: HTMLElement, ctx: SerializeContext): string {
   if (!src) {
     return "\n\n";
   }
-  return ctx.indent + `![${alt}](${escapeLinkDestination(src)})\n\n`;
+  return (
+    ctx.indent +
+    `![${alt}](${formatLinkDestination(escapeLinkDestination(src))})\n\n`
+  );
 }
 
 function serializeVideo(el: HTMLElement, ctx: SerializeContext): string {
@@ -581,7 +585,10 @@ function serializeVideo(el: HTMLElement, ctx: SerializeContext): string {
   if (!src) {
     return "\n\n";
   }
-  return ctx.indent + `![${name}](${escapeLinkDestination(src)})\n\n`;
+  return (
+    ctx.indent +
+    `![${name}](${formatLinkDestination(escapeLinkDestination(src))})\n\n`
+  );
 }
 
 function serializeAudio(el: HTMLElement, ctx: SerializeContext): string {
@@ -602,7 +609,9 @@ function serializeEmbed(el: HTMLElement, ctx: SerializeContext): string {
   if (!src) {
     return "\n\n";
   }
-  return ctx.indent + `[](${escapeLinkDestination(src)})\n\n`;
+  return (
+    ctx.indent + `[](${formatLinkDestination(escapeLinkDestination(src))})\n\n`
+  );
 }
 
 function serializeFigure(el: HTMLElement, ctx: SerializeContext): string {
@@ -658,7 +667,10 @@ function serializeMediaFigure(
 
   // No caption + has a markdown shorthand → use it.
   if (!captionText && kind !== "audio") {
-    return ctx.indent + `![${descriptor}](${escapeLinkDestination(src)})\n\n`;
+    return (
+      ctx.indent +
+      `![${descriptor}](${formatLinkDestination(escapeLinkDestination(src))})\n\n`
+    );
   }
 
   // The descriptor (alt / data-name) is dropped when it duplicates the
@@ -730,7 +742,7 @@ function formatLink(text: string, href: string): string {
       return href;
     }
   }
-  return `[${text}](${escapeLinkDestination(href)})`;
+  return `[${text}](${formatLinkDestination(escapeLinkDestination(href))})`;
 }
 
 /**
@@ -856,7 +868,7 @@ function serializeInlineContent(el: Element): string {
         case "img": {
           const src = childEl.getAttribute("src") || "";
           const alt = childEl.getAttribute("alt") || "";
-          result += `![${alt}](${escapeLinkDestination(src)})`;
+          result += `![${alt}](${formatLinkDestination(escapeLinkDestination(src))})`;
           break;
         }
         case "video": {
@@ -868,7 +880,7 @@ function serializeInlineContent(el: Element): string {
             childEl.getAttribute("data-name") ||
             childEl.getAttribute("title") ||
             "";
-          result += `![${name}](${escapeLinkDestination(src)})`;
+          result += `![${name}](${formatLinkDestination(escapeLinkDestination(src))})`;
           break;
         }
         case "p":
