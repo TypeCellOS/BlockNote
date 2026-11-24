@@ -1,4 +1,3 @@
-// @vitest-environment node
 import { describe, expect, it } from "vite-plus/test";
 
 import type { FlatBlock, LensBlock } from "../model.js";

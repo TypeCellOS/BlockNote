@@ -1,4 +1,3 @@
-// @vitest-environment node
 import { readdirSync, readFileSync } from "node:fs";
 import { describe, it } from "vite-plus/test";
 

@@ -1,4 +1,3 @@
-// @vitest-environment node
 import { BlockNoteEditor } from "@blocknote/core";
 import type { Transaction } from "prosemirror-state";
 import { describe, expect, it } from "vite-plus/test";
