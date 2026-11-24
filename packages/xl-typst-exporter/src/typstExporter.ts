@@ -345,8 +345,13 @@ export class TypstExporter<
     }
     // Headings get extra top padding (the editor's ~18px heading top spacing).
     const extraTop = block.type === "heading" ? "8pt" : undefined;
+    // Typst keeps a heading with the block that follows it, but only while the
+    // heading is a direct child of the flow: wrapped in the spacing block it
+    // can be left alone at the bottom of a page. So the wrapper itself has to
+    // be sticky.
+    const sticky = block.type === "heading";
     if (!children.length) {
-      return this.applyBlockProps(block.props, self, { extraTop });
+      return this.applyBlockProps(block.props, self, { extraTop, sticky });
     }
     // The spacing insets and alignment wrap the block's *own* body only -
     // every child block carries its own - so closing a nested run doesn't
@@ -356,6 +361,7 @@ export class TypstExporter<
     // cover the children as well, as the editor's does.
     const own = this.applyBlockProps(block.props, self, {
       extraTop,
+      sticky,
       skipBackground: true,
     });
     return this.wrapBackground(
@@ -387,7 +393,8 @@ export class TypstExporter<
    * vertical spacing. Spacing is rendered as *padding* (inset) on the block, not
    * margin — so a background fills it and consecutive same-background blocks abut
    * with no gap (page-level margin spacing is zeroed in the preamble). `VPAD` is
-   * half the block-to-block gap; `extraTop` adds space above headings.
+   * half the block-to-block gap; `extraTop` adds space above headings;
+   * `sticky` keeps the block on the same page as the one after it.
    */
   private applyBlockProps(
     props: {
@@ -396,7 +403,7 @@ export class TypstExporter<
       textAlignment?: string;
     },
     s: string,
-    opts?: { extraTop?: string; skipBackground?: boolean },
+    opts?: { extraTop?: string; skipBackground?: boolean; sticky?: boolean },
   ): string {
     // A mapping that rendered nothing stays invisible (an empty math or
     // diagram block must not become a stray padded box) - the paragraph
@@ -423,7 +430,8 @@ export class TypstExporter<
       ? `(x: 6pt, top: ${top}, bottom: ${VPAD})`
       : `(top: ${top}, bottom: ${VPAD})`;
     const fill = bc ? `fill: rgb("${bc}"), ` : "";
-    s = `#block(width: 100%, ${fill}inset: ${inset})[${s}]`;
+    const sticky = opts?.sticky ? "sticky: true, " : "";
+    s = `#block(width: 100%, ${fill}${sticky}inset: ${inset})[${s}]`;
     const align = props?.textAlignment;
     if (align === "right" || align === "center") {
       s = `#align(${align})[${s}]`;

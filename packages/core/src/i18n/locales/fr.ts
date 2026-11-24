@@ -253,6 +253,10 @@ export const fr: Dictionary = {
     add_block_button: "Liste repliable vide. Cliquez pour ajouter un bloc.",
     toggle_button: "Déplier ou replier",
   },
+  block_nesting: {
+    indented: (level: number) => `Retrait augmenté, niveau ${level}`,
+    outdented: (level: number) => `Retrait diminué, niveau ${level}`,
+  },
   code_block: {
     add_source_button_text: "Ajouter le code source",
     ok_button_text: "OK",

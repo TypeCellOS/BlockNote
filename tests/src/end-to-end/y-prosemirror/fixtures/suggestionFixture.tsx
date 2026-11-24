@@ -28,12 +28,13 @@ import { withCollaboration } from "@blocknote/core/y";
 import { BlockNoteView } from "@blocknote/mantine";
 import { useCreateBlockNote } from "@blocknote/react";
 import { Node as PMNode } from "@tiptap/pm/model";
-import { Awareness } from "@y/protocols/awareness";
+import type { Awareness } from "@y/protocols/awareness";
 import * as Y from "@y/y";
 import { prettify } from "htmlfy";
 import { expect } from "vite-plus/test";
-import { render } from "vitest-browser-react";
+import { resizeViewportForTest } from "../../../commands/browser/screenshotFull.js";
 import { page } from "../../../utils/context.js";
+import { createSuggestionFixtureScope } from "./suggestionFixtureScope.js";
 
 export interface SuggestionFixture {
   /** User A's editor – this is the one the test makes suggestions through. */
@@ -46,6 +47,8 @@ export interface SuggestionFixture {
   screen: typeof page;
   baseDoc: Y.Doc;
   suggestionDoc: Y.Doc;
+  awareness: readonly Awareness[];
+  mountedEditors: readonly GalleryEditor[];
   /**
    * Replay updates from `baseDoc` into `suggestionDoc`.
    *
@@ -73,6 +76,7 @@ export interface SuggestionFixtureOptions {
 export async function setupSuggestionTest({
   userAction,
 }: SuggestionFixtureOptions): Promise<SuggestionFixture> {
+  const scope = createSuggestionFixtureScope();
   // Fixed clientIDs so the snapshots are deterministic. Yjs assigns a
   // random clientID to every `Y.Doc`, and that clientID is used to break
   // ties when ordering concurrent items — so a random clientID makes the
@@ -80,16 +84,15 @@ export async function setupSuggestionTest({
   // renderer computes) differ from run to run, flip-flopping the inline
   // snapshots. Pinning both docs to stable clientIDs removes that source
   // of non-determinism.
-  const baseDoc = new Y.Doc();
-  baseDoc.clientID = 1;
-  const baseAwareness = new Awareness(baseDoc);
-  baseAwareness.setLocalStateField("user", {
+  const baseDoc = scope.createDoc(1);
+  const userAwareness = scope.createAwareness(baseDoc);
+  userAwareness.setLocalStateField("user", {
     name: "User A",
     color: "#30bced",
   });
+  const baseAwareness = scope.createAwareness(baseDoc);
 
-  const suggestionDoc = new Y.Doc({ isSuggestionDoc: true });
-  suggestionDoc.clientID = 2;
+  const suggestionDoc = scope.createDoc(2, { isSuggestionDoc: true });
   const renderer = Y.createDiffRenderer(baseDoc, suggestionDoc, {
     attributions: Y.createContentMap(),
   });
@@ -104,7 +107,7 @@ export async function setupSuggestionTest({
         schema: gallerySchema,
         collaboration: {
           fragment: baseDoc.get("doc"),
-          provider: { awareness: baseAwareness },
+          provider: { awareness: userAwareness },
           suggestionDoc,
           renderer,
           user: { name: "User A", color: "#30bced" },
@@ -116,7 +119,7 @@ export async function setupSuggestionTest({
         schema: gallerySchema,
         collaboration: {
           fragment: baseDoc.get("doc"),
-          provider: { awareness: new Awareness(baseDoc) },
+          provider: { awareness: baseAwareness },
           user: { name: "Base", color: "#888888" },
         },
       }),
@@ -143,15 +146,17 @@ export async function setupSuggestionTest({
     );
   }
 
-  await page.viewport(1200, 800);
+  await resizeViewportForTest(1200, 800);
 
-  await render(<Editors />);
+  scope.mount(<Editors />);
 
   return {
     editor: editorA,
     screen: page,
     baseDoc,
     suggestionDoc,
+    awareness: scope.awareness,
+    mountedEditors: [editorBase, editorA],
     sync: async () => {
       // Wait for the y-prosemirror binding to have flushed the editor's
       // latest transaction into `baseDoc` before replaying it, otherwise
@@ -224,7 +229,7 @@ function countBlocks(blocks: { children?: unknown[] }[]): number {
  * matches the editor's document the structural content has been written. The
  * pristine-empty skeleton is not counted, as it is never committed to Y.
  */
-export async function waitForYDocSync(
+async function waitForYDocSync(
   editor: GalleryEditor,
   baseDoc: Y.Doc,
 ): Promise<void> {
@@ -386,8 +391,8 @@ function opToXml(op: DeltaInsertOp): string {
   // concurrent merge of two marks), which would otherwise make these
   // snapshots flaky. Sorted ascending => the alphabetically-first mark
   // ends up innermost (e.g. `<italic><bold>world</bold></italic>`).
-  for (const [name, value] of Object.entries(op.format ?? {}).sort(
-    ([a], [b]) => (a < b ? -1 : a > b ? 1 : 0),
+  for (const [name, value] of Object.entries(op.format ?? {}).sort(([a], [b]) =>
+    a < b ? -1 : a > b ? 1 : 0,
   )) {
     if (value !== null && typeof value === "object") {
       // Object value: trivial empty `{}` renders as a bare tag, richer

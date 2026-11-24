@@ -143,6 +143,9 @@ export const examples = {
           docs: true,
           author: "matthewlipski",
           tags: ["Basic"],
+          dependencies: {
+            "@blocknote/ariakit": "latest",
+          } as any,
         },
         title: "Use with Ariakit",
         group: {
@@ -163,6 +166,9 @@ export const examples = {
           tags: ["Basic"],
           tailwind: true,
           stackBlitz: false,
+          dependencies: {
+            "@blocknote/shadcn": "latest",
+          } as any,
         },
         title: "Use with ShadCN",
         group: {
@@ -506,9 +512,6 @@ export const examples = {
           docs: true,
           author: "matthewlipski",
           tags: ["Intermediate", "Blocks", "UI Components", "Block Side Menu"],
-          dependencies: {
-            "react-icons": "^5.5.0",
-          } as any,
         },
         title: "Adding Drag Handle Menu Items",
         group: {
@@ -591,7 +594,6 @@ export const examples = {
             "@uppy/screen-capture": "^3.2.0",
             "@uppy/status-bar": "^3.1.1",
             "@uppy/webcam": "^3.4.2",
-            "@uppy/xhr-upload": "^3.4.0",
             "react-icons": "^5.5.0",
           } as any,
           pro: true,
@@ -944,7 +946,6 @@ export const examples = {
           author: "nperez0111",
           tags: ["Basic"],
           dependencies: {
-            "@blocknote/code-block": "latest",
             "@shikijs/core": "^4.4.3",
             "@shikijs/engine-javascript": "^4.4.3",
             "@shikijs/langs-precompiled": "^4.4.3",
@@ -959,6 +960,26 @@ export const examples = {
         },
         readme:
           "To configure a code block highlighting theme and language, you can extend the editor's default schema with a new `codeBlock`, which you can pass options into when creating. You can then use a shiki highlighter to add custom syntax highlighting.\n\nFirst use the [shiki-codegen](https://shiki.style/packages/codegen) CLI to create a `shiki.bundle.ts` file. You can then pass this file into the `codeBlock` options when creating it.\n\n**Relevant Docs:**\n\n- [Code Blocks](/docs/features/blocks/code-blocks)\n- [shiki-codegen](https://shiki.style/packages/codegen)\n- [Custom Schema](/docs/features/custom-schemas)",
+      },
+      {
+        projectSlug: "color-combinations",
+        fullSlug: "theming/color-combinations",
+        pathFromRoot: "examples/04-theming/08-color-combinations",
+        config: {
+          playground: true,
+          docs: false,
+          author: "",
+          tags: ["Appearance & Styling"],
+          dependencies: {} as any,
+          pro: false,
+        },
+        title: "Color combinations",
+        group: {
+          pathFromRoot: "examples/04-theming",
+          slug: "theming",
+        },
+        readme:
+          "Inspect every combination of the default text and background colors, including the default color, applied to whole blocks and inline content. Switch between light and dark themes to compare their appearance.\n\n**Try me out!** Use the theme toggle above the editors.\n\n## Relevant docs\n\n- [Themes](https://www.blocknotejs.org/docs/react/styling-theming/themes)",
       },
     ],
   },
@@ -1395,7 +1416,7 @@ export const examples = {
         config: {
           playground: true,
           docs: true,
-          author: "nickthesick",
+          author: "nperez0111",
           tags: [
             "Intermediate",
             "Blocks",
@@ -1433,7 +1454,6 @@ export const examples = {
           dependencies: {
             "@blocknote/code-block": "latest",
             "@blocknote/math-block": "latest",
-            "react-icons": "^5.5.0",
           } as any,
         },
         title: "Math Block",
@@ -1462,7 +1482,6 @@ export const examples = {
           dependencies: {
             "@blocknote/code-block": "latest",
             "@blocknote/diagram-block": "latest",
-            "react-icons": "^5.5.0",
           } as any,
         },
         title: "Diagram Block",
@@ -1502,7 +1521,7 @@ export const examples = {
         config: {
           playground: true,
           docs: true,
-          author: "nickthesick",
+          author: "nperez0111",
           tags: ["Intermediate", "Blocks", "Custom Schemas"],
           dependencies: {
             "@mantine/core": "^9.0.2",
@@ -1778,6 +1797,7 @@ export const examples = {
           author: "nperez0111",
           tags: ["Advanced", "Development", "Collaboration"],
           dependencies: {
+            "prosemirror-view": "^1.42.5",
             "y-partykit": "^0.0.25",
             yjs: "^13.6.33",
           } as any,
@@ -1846,7 +1866,6 @@ export const examples = {
             "@y/protocols": "^1.0.6-rc.1",
             "@y/y": "^14.0.0-rc.26",
             "@y/prosemirror": "^2.0.0-15",
-            "@y/websocket": "^4.0.0-rc.2",
           } as any,
         },
         title: "Suggestions (Experimental)",
@@ -1965,7 +1984,7 @@ export const examples = {
         config: {
           playground: true,
           docs: true,
-          author: "nickthesick",
+          author: "nperez0111",
           tags: ["Advanced", "Saving/Loading", "Collaboration"],
           dependencies: {
             "@y/prosemirror": "^2.0.0-15",
@@ -1999,7 +2018,7 @@ export const examples = {
           tags: ["Extension"],
           pro: true,
           dependencies: {
-            "@tiptap/core": "^3.31.3",
+            "@tiptap/core": "^3.31.4",
           } as any,
         },
         title: "TipTap extension (arrow InputRule)",
@@ -2051,7 +2070,7 @@ export const examples = {
           dependencies: {
             "@blocknote/xl-ai": "latest",
             "@mantine/core": "^9.0.2",
-            ai: "^6.0.5",
+            ai: "^7.0.153",
           } as any,
         },
         title: "Rich Text editor AI integration",
@@ -2074,7 +2093,7 @@ export const examples = {
           dependencies: {
             "@blocknote/xl-ai": "latest",
             "@mantine/core": "^9.0.2",
-            ai: "^6.0.5",
+            ai: "^7.0.153",
           } as any,
         },
         title: "AI Playground",
@@ -2097,7 +2116,7 @@ export const examples = {
           dependencies: {
             "@blocknote/xl-ai": "latest",
             "@mantine/core": "^9.0.2",
-            ai: "^6.0.5",
+            ai: "^7.0.153",
             "react-icons": "^5.5.0",
           } as any,
         },
@@ -2121,7 +2140,8 @@ export const examples = {
           dependencies: {
             "@blocknote/xl-ai": "latest",
             "@mantine/core": "^9.0.2",
-            ai: "^6.0.5",
+            ai: "^7.0.153",
+            "prosemirror-view": "^1.42.5",
             "y-partykit": "^0.0.25",
             yjs: "^13.6.33",
           } as any,
@@ -2146,9 +2166,6 @@ export const examples = {
           dependencies: {
             "@blocknote/xl-ai": "latest",
             "@mantine/core": "^9.0.2",
-            ai: "^6.0.5",
-            "y-partykit": "^0.0.25",
-            yjs: "^13.6.33",
           } as any,
         },
         title: "AI manual execution",
@@ -2169,10 +2186,10 @@ export const examples = {
           author: "yousefed",
           tags: ["AI", "llm"],
           dependencies: {
-            "@ai-sdk/groq": "^3.0.2",
+            "@ai-sdk/groq": "^4.0.70",
             "@blocknote/xl-ai": "latest",
             "@mantine/core": "^9.0.2",
-            ai: "^6.0.5",
+            ai: "^7.0.153",
           } as any,
         },
         title: "AI Integration with ClientSideTransport",
@@ -2195,7 +2212,7 @@ export const examples = {
           dependencies: {
             "@blocknote/xl-ai": "latest",
             "@mantine/core": "^9.0.2",
-            ai: "^6.0.5",
+            ai: "^7.0.153",
           } as any,
         },
         title: "AI Integration with server LLM message persistence",

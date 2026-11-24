@@ -175,6 +175,10 @@ export const fa = {
     add_block_button: "تاشوی خالی. برای افزودن بلوک کلیک کنید.",
     toggle_button: "باز یا بسته کردن",
   },
+  block_nesting: {
+    indented: (level: number) => `تورفتگی افزایش یافت، سطح ${level}`,
+    outdented: (level: number) => `تورفتگی کاهش یافت، سطح ${level}`,
+  },
   code_block: {
     add_source_button_text: "افزودن کد منبع",
     ok_button_text: "تأیید",

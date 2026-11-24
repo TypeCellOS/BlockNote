@@ -1,15 +1,16 @@
-// @vitest-environment node
-import { afterEach, expect, it } from "vite-plus/test";
+import { afterEach, expect } from "vite-plus/test";
 import { ySyncPluginKey, yUndoPluginKey } from "y-prosemirror";
 import * as Y from "yjs";
 import { Awareness } from "y-protocols/awareness";
 
-import { BlockNoteEditor } from "../../editor/BlockNoteEditor.js";
+import type { BlockNoteEditor } from "../../editor/BlockNoteEditor.js";
 import { blocksToYXmlFragment } from "../utils.js";
 import { ForkYDocExtension } from "./ForkYDoc.js";
 import { withCollaboration } from "./index.js";
 import { YCursorExtension } from "./YCursorPlugin.js";
 import { createYjsVersionView } from "./Versioning.js";
+import { YSyncExtension } from "./YSync.js";
+import { YUndoExtension } from "./YUndo.js";
 
 const cleanups: Array<() => void> = [];
 afterEach(() => {
@@ -18,25 +19,36 @@ afterEach(() => {
   }
 });
 
-it("switches version snapshots without reconnecting live sync or cursors", () => {
+/** Install the two collaboration state plugins without running their view hooks. */
+function activateHeadlessHistory(
+  editor: BlockNoteEditor,
+  fragment: Y.XmlFragment,
+) {
+  editor.replaceExtension(
+    ["ySync", "yUndo"],
+    [YSyncExtension({ fragment }), YUndoExtension()],
+  );
+}
+
+it("switches version snapshots without reconnecting live sync or cursors", async ({
+  setupEditor,
+}) => {
   const doc = new Y.Doc();
   const options = {
     fragment: doc.getXmlFragment("doc"),
     user: { name: "Test", color: "red" },
   };
-  const editor = BlockNoteEditor.create(
-    withCollaboration({ collaboration: options }),
-  );
   cleanups.push(() => doc.destroy());
-  cleanups.push(() => editor._tiptapEditor.destroy());
+  const { editor } = await setupEditor(
+    withCollaboration({ collaboration: options, extensions: [] }),
+  );
   editor.replaceBlocks(editor.document, [
     { type: "paragraph", content: "Saved" },
   ]);
   blocksToYXmlFragment(editor, editor.document, options.fragment);
-  editor.prosemirrorView.updateState(
-    editor.prosemirrorState.reconfigure({
-      plugins: editor._tiptapEditor.extensionManager.plugins,
-    }),
+  activateHeadlessHistory(editor, options.fragment);
+  cleanups.push(() =>
+    yUndoPluginKey.getState(editor.prosemirrorState)?.undoManager.destroy(),
   );
   const view = createYjsVersionView(editor, options.fragment).open();
   cleanups.push(() => view.close());
@@ -92,14 +104,17 @@ function replaceText(fragment: Y.XmlFragment, content: string) {
   }, ySyncPluginKey);
 }
 
-it.each([false, true])(
+it.for([false, true])(
   "restores the original cursor and releases the fork document (keepChanges: %s)",
-  (keepChanges) => {
+  async (keepChanges, { setupEditor }) => {
     const doc = new Y.Doc();
     const fragment = doc.getXmlFragment("doc");
     const awareness = new Awareness(doc);
-    const editor = BlockNoteEditor.create(
+    cleanups.push(() => doc.destroy());
+    cleanups.push(() => awareness.destroy());
+    const { editor } = await setupEditor(
       withCollaboration({
+        extensions: [],
         collaboration: {
           fragment,
           provider: { awareness },
@@ -107,19 +122,12 @@ it.each([false, true])(
         },
       }),
     );
-    cleanups.push(() => doc.destroy());
-    cleanups.push(() => awareness.destroy());
-    cleanups.push(() => editor._tiptapEditor.destroy());
     editor.replaceBlocks(editor.document, [
       { type: "paragraph", content: "Original" },
     ]);
     blocksToYXmlFragment(editor, editor.document, fragment);
     // Install real state plugins without DOM rendering or plugin views.
-    editor.prosemirrorView.updateState(
-      editor.prosemirrorState.reconfigure({
-        plugins: editor._tiptapEditor.extensionManager.plugins,
-      }),
-    );
+    activateHeadlessHistory(editor, fragment);
     const originalUndo: Y.UndoManager = yUndoPluginKey.getState(
       editor.prosemirrorState,
     )!.undoManager;
@@ -168,30 +176,28 @@ it.each([false, true])(
   },
 );
 
-it("isolates fork undo and preserves original undo/redo history", () => {
+it("isolates fork undo and preserves original undo/redo history", async ({
+  setupEditor,
+}) => {
   const doc = new Y.Doc();
   const fragment = doc.getXmlFragment("doc");
-  const editor = BlockNoteEditor.create(
+  cleanups.push(() => doc.destroy());
+  const { editor } = await setupEditor(
     withCollaboration({
+      extensions: [],
       collaboration: {
         fragment,
         user: { name: "Test", color: "red" },
       },
     }),
   );
-  cleanups.push(() => doc.destroy());
-  cleanups.push(() => editor._tiptapEditor.destroy());
   editor.replaceBlocks(editor.document, [
     { type: "paragraph", content: "Initial" },
   ]);
   blocksToYXmlFragment(editor, editor.document, fragment);
   // Install the actual state plugins without mounting plugin views. Write real
   // Yjs transactions with the binding's origin; DOM hydration is not under test.
-  editor.prosemirrorView.updateState(
-    editor.prosemirrorState.reconfigure({
-      plugins: editor._tiptapEditor.extensionManager.plugins,
-    }),
-  );
+  activateHeadlessHistory(editor, fragment);
   const original: Y.UndoManager = yUndoPluginKey.getState(
     editor.prosemirrorState,
   )!.undoManager;

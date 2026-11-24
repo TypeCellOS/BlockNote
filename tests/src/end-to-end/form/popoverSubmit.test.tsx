@@ -1,16 +1,14 @@
-import TestingApp from "@examples/01-basic/testing/src/App";
-import { beforeEach, describe, expect, test, vi } from "vite-plus/test";
-import { render } from "vitest-browser-react";
+import type { PartialBlock } from "@blocknote/core";
+import { describe, expect } from "vite-plus/test";
 
-import { browserName, commands, userEvent } from "../../utils/context.js";
-import type { ImeCompositionCommand } from "../../utils/imeComposition.js";
+import type { SetupEditor } from "../../commands/browser/setupEditor.js";
+import { browserName, commands, page, userEvent } from "../../utils/context.js";
 import { EDITOR_SELECTOR, LINK_BUTTON_SELECTOR } from "../../utils/const.js";
-import { focusOnEditor, waitForSelector } from "../../utils/editor.js";
-import { executeSlashCommand } from "../../utils/slashmenu.js";
-
-const browserCommands = commands as typeof commands & {
-  imeComposition: ImeCompositionCommand;
-};
+import {
+  expectElement,
+  focusOnEditor,
+  waitForSelector,
+} from "../../utils/editor.js";
 
 /**
  * The toolbar popovers commit through their form's `submit` event, because a
@@ -22,127 +20,135 @@ const browserCommands = commands as typeof commands & {
  * the popover happens to render (see ./implicitSubmit.test.tsx).
  */
 
-beforeEach(async () => {
+async function mountTestingApp() {
+  const [{ default: TestingApp }, { render }] = await Promise.all([
+    import("@examples/01-basic/testing/src/App"),
+    import("vitest-browser-react"),
+  ]);
   await render(<TestingApp />);
   await waitForSelector(EDITOR_SELECTOR);
-});
+}
 
-async function createLink(url: string) {
-  await focusOnEditor();
-  await userEvent.keyboard("link me");
-  await userEvent.keyboard("{Home}{Shift>}{End}{/Shift}");
-  await userEvent.click(await waitForSelector(LINK_BUTTON_SELECTOR));
-  const input = (await waitForSelector(
-    'input[name="url"]',
-  )) as HTMLInputElement;
-  await userEvent.click(input);
-  await userEvent.keyboard(`${url}{Enter}`);
-  return waitForSelector(`a[href="https://${url}"]`);
+const linkedDocument: PartialBlock[] = [
+  {
+    type: "paragraph",
+    content: [
+      {
+        type: "link",
+        href: "https://example.com",
+        content: [{ type: "text", text: "link me", styles: {} }],
+      },
+    ],
+  },
+];
+
+async function openLinkEditForm() {
+  await userEvent.hover(await waitForSelector('a[href="https://example.com"]'));
+  await page.getByRole("button", { name: "Edit link", exact: true }).click();
+  return waitForSelector('input[name="url"]');
+}
+
+async function openImageEmbedForm(setupEditor: SetupEditor) {
+  const { editor } = await setupEditor({
+    initialContent: [{ id: "image", type: "image" }, { type: "paragraph" }],
+    // Match the testing app's upload callback so Upload is the default tab.
+    async uploadFile(file) {
+      return new Promise<string>((resolve, reject) => {
+        const reader = new FileReader();
+        reader.onload = () => resolve(reader.result as string);
+        reader.onerror = () => reject(reader.error);
+        reader.readAsDataURL(file);
+      });
+    },
+  });
+  editor.setTextCursorPosition("image");
+  editor.focus();
+  await window.__blockNoteWaitForEditorFocus();
+  await userEvent.click(await waitForSelector(".bn-add-file-button"));
+  await userEvent.click(await waitForSelector(`[data-test="embed-tab"]`));
+  return waitForSelector(`[data-test="embed-input"]`);
 }
 
 describe("Submitting a toolbar popover with Enter", () => {
-  test("the link edit form commits, though it has two fields", async () => {
+  it("the link edit form commits, though it has two fields", async ({
+    setupEditor,
+  }) => {
     // The regression this guards: HTML only submits a form implicitly when it
     // has a submit button *or* exactly one field. The create form has one
     // field (url) and submits on its own; this edit form adds the title
     // field, so without the submit button `Form.Root` renders, Enter reaches
     // nothing and the edit is silently dropped.
-    const link = await createLink("example.com");
-
-    await userEvent.hover(link);
-    await vi.waitFor(() => {
-      const editButton = [
-        ...document.querySelectorAll<HTMLElement>(".bn-toolbar button"),
-      ].find((button) => button.textContent?.trim() === "Edit link");
-      if (!editButton) {
-        throw new Error("the link toolbar's edit button never appeared");
-      }
-      editButton.click();
-    });
-
-    const urlInput = (await waitForSelector(
-      'input[name="url"]',
-    )) as HTMLInputElement;
+    await setupEditor({ initialContent: linkedDocument });
+    const urlInput = await openLinkEditForm();
     // Both fields are present — that is what makes this case different.
     expect(document.querySelector('input[name="title"]')).not.toBeNull();
 
     await userEvent.tripleClick(urlInput);
     await userEvent.keyboard("edited.com{Enter}");
 
-    await vi.waitFor(() => {
-      if (!document.querySelector('a[href="https://edited.com"]')) {
-        throw new Error("Enter did not commit the two-field edit form");
-      }
-    });
+    await waitForSelector('a[href="https://edited.com"]');
   });
 
-  test("the submit control stays available to assistive technology", async () => {
+  it("the submit control stays available to assistive technology", async ({
+    setupEditor,
+  }) => {
     // `display: none` would take the button out of the accessibility tree
     // entirely, leaving Enter as the only way to commit — nothing for a
     // screen reader or voice control to target. It has to be clipped instead,
     // and carry a real accessible name.
-    await createLink("example.com");
+    await setupEditor({ initialContent: linkedDocument });
+    const input = await openLinkEditForm();
 
-    await userEvent.hover(
-      await waitForSelector('a[href="https://example.com"]'),
-    );
-    await vi.waitFor(() => {
-      const editButton = [
-        ...document.querySelectorAll<HTMLElement>(".bn-toolbar button"),
-      ].find((button) => button.textContent?.trim() === "Edit link");
-      if (!editButton) {
-        throw new Error("the link toolbar's edit button never appeared");
-      }
-      editButton.click();
-    });
-    const input = await waitForSelector('input[name="url"]');
-
-    const submit = input.closest("form")!.querySelector("button[type=submit]");
-    expect(submit, "the form must expose a submit control").not.toBeNull();
-
-    const styles = getComputedStyle(submit!);
-    expect(styles.display).not.toBe("none");
-    expect(styles.visibility).not.toBe("hidden");
-    expect(submit!.textContent?.trim(), "it needs an accessible name").toBe(
-      "OK",
-    );
+    const form = input.closest("form")!;
+    const submit = form.querySelector<HTMLButtonElement>("button[type=submit]");
+    if (!submit) {
+      throw new Error("The form must expose a submit control");
+    }
+    await expect
+      .poll(() =>
+        page
+          .elementLocator(form)
+          .getByRole("button", { name: "OK", exact: true })
+          .query(),
+      )
+      .toBe(submit);
     // Out of the tab order, so sighted keyboard users never land on a control
     // they can't see.
-    expect((submit as HTMLButtonElement).tabIndex).toBe(-1);
+    expect(submit.tabIndex).toBe(-1);
   });
 
-  test("the embed tab's visible button is the form's one submit control", async () => {
+  it("the embed tab's visible button is the form's one submit control", async ({
+    setupEditor,
+  }) => {
     // The embed button lives inside the `<form>` as its `submitButton`, so
     // clicking it, pressing Enter, and a mobile IME's action key all commit
     // through the same `submit` event — and assistive technology sees exactly
     // one labelled action for the one thing this panel does. Exactly one:
     // a second (hidden) submit control would announce two.
-    await focusOnEditor();
-    await executeSlashCommand("image");
-    await userEvent.click(await waitForSelector(`[data-test="embed-tab"]`));
-    const input = await waitForSelector(`[data-test="embed-input"]`);
+    const input = await openImageEmbedForm(setupEditor);
 
-    const form = input.closest("form");
-    expect(form, "the embed field must be in a form").not.toBeNull();
-    const submits = form!.querySelectorAll("button[type=submit]");
-    expect(submits.length).toBe(1);
-    expect(
-      (submits[0] as HTMLElement).textContent?.trim(),
-      "the submit control is the visible, labelled embed button",
-    ).not.toBe("Submit");
-    expect(form!.querySelectorAll("button").length).toBe(1);
+    const form = input.closest("form")!;
+    const submit = form.querySelector("button[type=submit]");
+    if (!submit) {
+      throw new Error("The embed form must expose a submit control");
+    }
+    const formLocator = page.elementLocator(form);
+    await expect
+      .poll(() =>
+        formLocator
+          .getByRole("button", { name: "Embed image", exact: true })
+          .query(),
+      )
+      .toBe(submit);
+    expect(formLocator.getByRole("button").elements()).toEqual([submit]);
+    expect(form.querySelectorAll("button[type=submit]")).toHaveLength(1);
+    await expectElement(submit).toBeVisible();
   });
 
-  test("the embed tab's URL field commits", async () => {
+  it("the embed tab's URL field commits", async ({ setupEditor }) => {
     // The embed tab used to be the one input with an Enter handler and no
     // form at all, so its action key did nothing on mobile.
-    await focusOnEditor();
-    await executeSlashCommand("image");
-
-    await userEvent.click(await waitForSelector(`[data-test="embed-tab"]`));
-    const input = (await waitForSelector(
-      `[data-test="embed-input"]`,
-    )) as HTMLInputElement;
+    const input = await openImageEmbedForm(setupEditor);
     await userEvent.click(input);
 
     const url = "https://placehold.co/800x540.png";
@@ -153,7 +159,7 @@ describe("Submitting a toolbar popover with Enter", () => {
 
   // `Input.imeSetComposition` is CDP-only, so the real composition state can
   // only be entered in chromium.
-  test.skipIf(browserName !== "chromium")(
+  it.skipIf(browserName !== "chromium")(
     "accepting an IME candidate does not commit the popover",
     async () => {
       // The real accept path: the IME consumes the confirming key and
@@ -161,6 +167,7 @@ describe("Submitting a toolbar popover with Enter", () => {
       // reaches the page and nothing submits — natively, with no composition
       // guard in `Form.Root` (see ./compositionSubmit.test.tsx for why none
       // is needed).
+      await mountTestingApp();
       await focusOnEditor();
       await userEvent.keyboard("link me");
       await userEvent.keyboard("{Home}{Shift>}{End}{/Shift}");
@@ -170,7 +177,7 @@ describe("Submitting a toolbar popover with Enter", () => {
       )) as HTMLInputElement;
       await userEvent.click(input);
 
-      await browserCommands.imeComposition([
+      await commands.imeComposition([
         { type: "setComposition", text: "example.co" },
         { type: "commit", text: "example.com" },
       ]);

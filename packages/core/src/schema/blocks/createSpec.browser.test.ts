@@ -1,16 +1,8 @@
 import { Fragment } from "prosemirror-model";
-import {
-  afterAll,
-  beforeAll,
-  beforeEach,
-  describe,
-  expect,
-  it,
-} from "vite-plus/test";
+import { describe, expect } from "vite-plus/test";
 
 import { BlockNoteSchema } from "../../blocks/BlockNoteSchema.js";
 import { defaultBlockSpecs } from "../../blocks/defaultBlocks.js";
-import { BlockNoteEditor } from "../../editor/BlockNoteEditor.js";
 import { createBlockSpec } from "./createSpec.js";
 
 // Every test here goes through `tryParseHTMLToBlocks`, which parses real HTML
@@ -69,39 +61,21 @@ const schema = BlockNoteSchema.create().extend({
   } as const,
 });
 
-let editor: BlockNoteEditor<any, any, any>;
-const div = document.createElement("div");
-
-beforeAll(() => {
-  document.body.appendChild(div);
-  editor = BlockNoteEditor.create({ schema }) as any;
-  editor.mount(div);
-});
-
-afterAll(() => {
-  editor._tiptapEditor.destroy();
-  div.remove();
-  editor = undefined as any;
-});
-
-beforeEach(() => {
-  editor.replaceBlocks(editor.document, [
-    { id: "p-0", type: "paragraph", content: "Paragraph 0" },
-  ]);
-});
-
 describe("layout block `parse`", () => {
-  it("parses an external element into a layout block, children intact", () => {
+  it("parses an external element into a layout block, children intact", async ({
+    setupEditor,
+  }) => {
+    const { editor } = await setupEditor({ mountType: false, schema });
     const blocks = editor.tryParseHTMLToBlocks(
       '<div class="card" data-tone="warning"><p>First</p><h1>Second</h1></div>',
     );
 
     expect(blocks).toHaveLength(1);
     expect(blocks[0].type).toBe("card");
-    expect(blocks[0].props.tone).toBe("warning");
+    expect(blocks[0].props).toHaveProperty("tone", "warning");
     // No `getContent` is supplied, so ProseMirror parses the children with the
     // normal block rules and `findWrapping` adds the `blockContainer`s.
-    expect(blocks[0].children.map((child: any) => child.type)).toEqual([
+    expect(blocks[0].children.map((child) => child.type)).toEqual([
       "paragraph",
       "heading",
     ]);
@@ -110,14 +84,17 @@ describe("layout block `parse`", () => {
     ]);
   });
 
-  it("places inline nodes returned by `parseContent` into a child block", () => {
+  it("places inline nodes returned by `parseContent` into a child block", async ({
+    setupEditor,
+  }) => {
+    const { editor } = await setupEditor({ mountType: false, schema });
     const blocks = editor.tryParseHTMLToBlocks(
       "<blockquote>Quoted text</blockquote>",
     );
 
     expect(blocks).toHaveLength(1);
     expect(blocks[0].type).toBe("quote");
-    expect(blocks[0].children.map((child: any) => child.type)).toEqual([
+    expect(blocks[0].children.map((child) => child.type)).toEqual([
       "paragraph",
     ]);
     expect(blocks[0].children[0].content).toEqual([
@@ -142,35 +119,34 @@ describe("layout block `runsBefore`", () => {
       },
     );
 
-  const makeEditor = (betaRunsBefore?: string[]) => {
+  function makeSchema(betaRunsBefore?: string[]) {
     const alpha = ambiguous("alpha")();
     const beta = ambiguous("beta")();
     if (betaRunsBefore) {
       (beta.implementation as any).runsBefore = betaRunsBefore;
     }
 
-    return BlockNoteEditor.create({
-      schema: BlockNoteSchema.create().extend({
-        blockSpecs: { ...defaultBlockSpecs, alpha, beta } as any,
-      }),
-    }) as BlockNoteEditor<any, any, any>;
-  };
+    return BlockNoteSchema.create().extend({
+      blockSpecs: { ...defaultBlockSpecs, alpha, beta } as any,
+    });
+  }
 
-  it("orders a layout block's parse rules before another layout block's", () => {
+  it("orders a layout block's parse rules before another layout block's", async ({
+    setupEditor,
+  }) => {
     // Declaration order wins by default; `runsBefore` overrides it.
     for (const [runsBefore, winner] of [
       [undefined, "alpha"],
       [["alpha"], "beta"],
     ] as const) {
-      const other = makeEditor(runsBefore ? [...runsBefore] : undefined);
-      try {
-        expect(
-          other.tryParseHTMLToBlocks('<div class="shared"><p>x</p></div>')[0]
-            .type,
-        ).toBe(winner);
-      } finally {
-        other._tiptapEditor.destroy();
-      }
+      const { editor } = await setupEditor({
+        mountType: false,
+        schema: makeSchema(runsBefore ? [...runsBefore] : undefined),
+      });
+      expect(
+        editor.tryParseHTMLToBlocks('<div class="shared"><p>x</p></div>')[0]
+          .type,
+      ).toBe(winner);
     }
   });
 });

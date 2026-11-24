@@ -1,33 +1,19 @@
 import { getSortedEntries, toHashString } from "msw-snapshot";
-import path from "node:path";
-import { TestRunner } from "vite-plus/test";
 
-async function createRequestHash(req: Request): Promise<string> {
+// The historical request identity is tested independently of HTML replay,
+// whose lookup uses the test title and request number, not the hash.
+export async function createRequestHash(req: Request): Promise<string> {
   const url = new URL(req.url);
+  // AI SDK 7 includes the OS-specific runtime user-agent. It must not make
+  // otherwise identical recordings platform-dependent.
+  const headers = new Headers(req.headers);
+  headers.delete("user-agent");
   return toHashString([
     req.method,
     url.origin,
     url.pathname,
     getSortedEntries(url.searchParams),
-    getSortedEntries(req.headers),
+    getSortedEntries(headers),
     new TextDecoder("utf-8").decode(await req.arrayBuffer()),
   ]);
-}
-
-export function createSnapshotPathFn(_basePath: string) {
-  const fetchCountMap: Record<string, number> = {};
-
-  return async (info: { request: Request }): Promise<string> => {
-    const t = TestRunner.getCurrentTest()!;
-    const mswPath = path.join(
-      t.suite!.name,
-      "__msw_snapshots__",
-      t.suite!.suite!.name,
-      t.name,
-    );
-    fetchCountMap[mswPath] = (fetchCountMap[mswPath] || 0) + 1;
-    const counter = fetchCountMap[mswPath];
-    const hash = await createRequestHash(info.request);
-    return `${mswPath}_${counter}_${hash}.json`;
-  };
 }

@@ -25,19 +25,15 @@ import { UnreachableCaseError } from "../../util/typescript.js";
 import { getRelativeToAbsoluteTableCellMapping } from "../blockManipulation/tables/tables.js";
 import { getStyleSchema, isPlainContentNodeType } from "../pmUtil.js";
 
-/**
- * Convert a StyledText inline element to a
- * prosemirror text node with the appropriate marks
- */
-function styledTextToNodes<T extends StyleSchema>(
-  styledText: StyledText<T>,
+/** Convert BlockNote styles to their schema's ProseMirror marks. */
+export function stylesToMarks(
+  styles: Readonly<Record<string, string | boolean | undefined>>,
   schema: Schema,
-  styleSchema: T,
-  blockType?: string,
-): Node[] {
+  styleSchema: StyleSchema,
+): Mark[] {
   const marks: Mark[] = [];
 
-  for (const [style, value] of Object.entries(styledText.styles || {})) {
+  for (const [style, value] of Object.entries(styles)) {
     const config = styleSchema[style];
     if (!config) {
       throw new Error(`style ${style} not found in styleSchema`);
@@ -55,6 +51,18 @@ function styledTextToNodes<T extends StyleSchema>(
       throw new UnreachableCaseError(config.propSchema);
     }
   }
+
+  return marks;
+}
+
+/** Convert styled text to nodes without discarding its existing styles. */
+function styledTextToNodes<T extends StyleSchema>(
+  styledText: StyledText<T>,
+  schema: Schema,
+  styleSchema: T,
+  blockType?: string,
+): Node[] {
+  const marks = stylesToMarks(styledText.styles || {}, schema, styleSchema);
 
   // Backwards compat: old BlockNote JSON may carry formatting marks (e.g. bold)
   // on a block whose content type is now "plain". Those marks aren't allowed on

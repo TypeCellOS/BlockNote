@@ -1,8 +1,8 @@
-import { describe, expect, it } from "vite-plus/test";
+import { describe, expect } from "vite-plus/test";
 
 import { setupTestEnv } from "../setupTestEnv.js";
 
-const getEditor = setupTestEnv();
+const getEditor = setupTestEnv(it);
 
 // Tab and Shift-Tab with a selection spanning two columns. There is no
 // nestable range inside the column list — it holds only `column`s — so the
@@ -53,7 +53,7 @@ describe("Nest & unnest a selection spanning two columns", () => {
       "paragraph-2",
     ]);
     expect(editor.getTextCursorPosition().block.id).toBe("paragraph-2");
-    expect(() => editor.prosemirrorState.doc.check()).not.toThrow();
+    expect(() => editor.transact(({ doc }) => doc.check())).not.toThrow();
   });
 
   it("Unnests the whole column list out of its parent", () => {

@@ -9,54 +9,60 @@ import "@blocknote/mantine/style.css";
 import { useCreateBlockNote } from "@blocknote/react";
 
 // Base theme
-const lightRedTheme = {
-  colors: {
-    editor: {
-      text: "#222222",
-      background: "#ffeeee",
-    },
-    menu: {
-      text: "#ffffff",
-      background: "#9b0000",
-    },
-    tooltip: {
-      text: "#ffffff",
-      background: "#b00000",
-    },
-    hovered: {
-      text: "#ffffff",
-      background: "#b00000",
-    },
-    selected: {
-      text: "#ffffff",
-      background: "#c50000",
-    },
-    disabled: {
-      text: "#9b0000",
-      background: "#7d0000",
-    },
-    shadow: "#640000",
-    border: "#870000",
-    sideMenu: "#bababa",
-    highlights: lightDefaultTheme.colors!.highlights,
+const redThemeVariables = {
+  textColor: {
+    primary: "#222222",
+    menu: "#ffffff",
+    tooltip: "#ffffff",
+    hovered: "#ffffff",
+    selected: "#ffffff",
+    disabled: "#9b0000",
+    muted: "#bababa",
   },
-  borderRadius: 4,
-  fontFamily: "Helvetica Neue, sans-serif",
+  backgroundColor: {
+    editor: "#ffeeee",
+    menu: "#9b0000",
+    tooltip: "#b00000",
+    hovered: "#b00000",
+    selected: "#c50000",
+    disabled: "#7d0000",
+  },
+  shadow: { default: "0 4px 12px #640000", subtle: "0 2px 6px #870000" },
+  border: { color: "#870000", colorStrong: "#bababa" },
+  focusRing: { color: "#bababa" },
+  radius: { small: "2px", medium: "4px", large: "6px" },
+  fontFamily: { default: "Helvetica Neue, sans-serif" },
+};
+
+const lightRedTheme = {
+  ...lightDefaultTheme,
+  ...redThemeVariables,
+  textColor: {
+    ...lightDefaultTheme.textColor,
+    ...redThemeVariables.textColor,
+  },
+  backgroundColor: {
+    ...lightDefaultTheme.backgroundColor,
+    ...redThemeVariables.backgroundColor,
+  },
 } satisfies Theme;
 
-// The theme for dark mode,
-// users the light theme defined above with a few changes
 const darkRedTheme = {
-  ...lightRedTheme,
-  colors: {
-    ...lightRedTheme.colors,
-    editor: {
-      text: "#ffffff",
-      background: "#9b0000",
-    },
-    sideMenu: "#ffffff",
-    highlights: darkDefaultTheme.colors!.highlights,
+  ...darkDefaultTheme,
+  ...redThemeVariables,
+  textColor: {
+    ...darkDefaultTheme.textColor,
+    ...redThemeVariables.textColor,
+    primary: "#ffffff",
+    muted: "#ffffff",
   },
+  backgroundColor: {
+    ...darkDefaultTheme.backgroundColor,
+    ...redThemeVariables.backgroundColor,
+    editor: "#9b0000",
+  },
+  border: { ...redThemeVariables.border, colorStrong: "#ffffff" },
+  focusRing: { color: "#ffffff" },
 } satisfies Theme;
 
 // The combined "red theme",

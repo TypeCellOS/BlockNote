@@ -40,6 +40,8 @@ export type BlockTypeSelectItem = {
   icon: IconType;
 };
 
+type SelectItems = ComponentProps["FormattingToolbar"]["Select"]["items"];
+
 const icons: Record<DefaultBlockTypeItem["key"], IconType> = {
   paragraph: RiText,
   heading: RiH1,
@@ -113,7 +115,7 @@ export const BlockTypeSelect = (props: { items?: BlockTypeSelectItem[] }) => {
   // `Components.FormattingToolbar.Select`.
   const selectItems: ComponentProps["FormattingToolbar"]["Select"]["items"] =
     useMemo(() => {
-      return filteredItems.map((item) => {
+      const items: SelectItems = filteredItems.map((item) => {
         const Icon = item.icon;
 
         const typesMatch = item.type === firstSelectedBlock.type;
@@ -140,6 +142,26 @@ export const BlockTypeSelect = (props: { items?: BlockTypeSelectItem[] }) => {
           isSelected: typesMatch && propsMatch,
         };
       });
+
+      // An inline block can be converted even when it isn't a menu option.
+      // All UI skins need a selected item to display the current type; use a
+      // disabled entry rather than mislabelling it as a built-in block. Keep
+      // media, tables, and empty menus on their existing toolbar paths.
+      if (
+        items.length > 0 &&
+        !items.some((item) => item.isSelected) &&
+        editor.schema.blockSchema[firstSelectedBlock.type].content === "inline"
+      ) {
+        items.unshift({
+          text: firstSelectedBlock.type,
+          icon: <RiText size={16} />,
+          onClick: () => {},
+          isSelected: true,
+          isDisabled: true,
+        });
+      }
+
+      return items;
     }, [
       editor,
       filteredItems,

@@ -23,7 +23,7 @@ jobs:
           fetch-depth: 100
           persist-credentials: false
 
-      - uses: voidzero-dev/setup-vp@68f39c78aaf39be468cabd2afb09c162574c84af # v1.21.2
+      - uses: voidzero-dev/setup-vp@cab1ab9eaff52d4857875f4f2c016e36af8f2c76 # v1.22.0
         with:
           node-version-file: ".node-version"
           cache: true
@@ -57,7 +57,7 @@ jobs:
         run: vp run --no-cache test
 
       - name: Run Next.js integration test (production build)
-        run: NEXTJS_TEST_MODE=build vp test run src/unit/nextjs/serverUtil.test.ts
+        run: NEXTJS_TEST_MODE=build vp test run src/integration/nextjs/serverUtil.test.ts
         working-directory: tests
 
       - name: Upload webpack stats artifact (editor)
@@ -98,7 +98,7 @@ jobs:
           fetch-depth: 100
           persist-credentials: false
 
-      - uses: voidzero-dev/setup-vp@68f39c78aaf39be468cabd2afb09c162574c84af # v1.21.2
+      - uses: voidzero-dev/setup-vp@cab1ab9eaff52d4857875f4f2c016e36af8f2c76 # v1.22.0
         with:
           node-version-file: ".node-version"
           cache: true
@@ -150,7 +150,10 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 30
     container:
-      image: mcr.microsoft.com/playwright:v1.60.0-noble
+      image: mcr.microsoft.com/playwright:v1.65.1-noble
+      # Match tests/docker-run.sh: reap browser children and avoid Docker's
+      # default 64 MiB /dev/shm limit, which can crash browser pages mid-suite.
+      options: --init --ipc=host
     strategy:
       fail-fast: false
       matrix:
@@ -163,7 +166,7 @@ jobs:
           fetch-depth: 100
           persist-credentials: false
 
-      - uses: voidzero-dev/setup-vp@68f39c78aaf39be468cabd2afb09c162574c84af # v1.21.2
+      - uses: voidzero-dev/setup-vp@cab1ab9eaff52d4857875f4f2c016e36af8f2c76 # v1.22.0
         with:
           node-version-file: ".node-version"
           cache: true
@@ -210,7 +213,9 @@ jobs:
     timeout-minutes: 30
     needs: build-typst-compiler
     container:
-      image: mcr.microsoft.com/playwright:v1.60.0-noble
+      image: mcr.microsoft.com/playwright:v1.65.1-noble
+      # Keep the same browser process/shared-memory setup as the other shards.
+      options: --init --ipc=host
     strategy:
       fail-fast: false
       matrix:
@@ -221,7 +226,7 @@ jobs:
           fetch-depth: 100
           persist-credentials: false
 
-      - uses: voidzero-dev/setup-vp@68f39c78aaf39be468cabd2afb09c162574c84af # v1.21.2
+      - uses: voidzero-dev/setup-vp@cab1ab9eaff52d4857875f4f2c016e36af8f2c76 # v1.22.0
         with:
           node-version-file: ".node-version"
           cache: true
@@ -271,7 +276,7 @@ jobs:
           fetch-depth: 100
           persist-credentials: false
 
-      - uses: voidzero-dev/setup-vp@68f39c78aaf39be468cabd2afb09c162574c84af # v1.21.2
+      - uses: voidzero-dev/setup-vp@cab1ab9eaff52d4857875f4f2c016e36af8f2c76 # v1.22.0
         with:
           node-version-file: ".node-version"
           cache: true
@@ -342,7 +347,7 @@ jobs:
       # sticky comment with the URL. The companion `pr-preview-cleanup` workflow
       # removes it when the PR closes.
       - name: Deploy report to PR preview
-        uses: rossjrw/pr-preview-action@ffa7509e91a3ec8dfc2e5536c4d5c1acdf7a6de9 # v1
+        uses: rossjrw/pr-preview-action@873417d2df72380da1f3978378fb58560bcde976 # v1
         with:
           source-dir: e2e-report
           preview-branch: gh-pages

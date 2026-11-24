@@ -1,5 +1,5 @@
 import { execFile, execFileSync } from "node:child_process";
-import {
+import fs, {
   copyFileSync,
   cpSync,
   existsSync,
@@ -10,6 +10,7 @@ import {
   rmSync,
   writeFileSync,
 } from "node:fs";
+import { syncBuiltinESMExports } from "node:module";
 import { tmpdir } from "node:os";
 import { delimiter, dirname, join } from "node:path";
 import { promisify } from "node:util";
@@ -29,8 +30,6 @@ import {
   writeManifest,
 } from "./wasm-cache.mjs";
 
-vi.mock("node:fs", { spy: true });
-
 const temps = [];
 function temp() {
   const dir = mkdtempSync(join(tmpdir(), "typst-cache-test-"));
@@ -38,7 +37,6 @@ function temp() {
   return dir;
 }
 afterEach(() => {
-  vi.clearAllMocks();
   vi.unstubAllEnvs();
   for (const dir of temps.splice(0)) {
     rmSync(dir, { recursive: true, force: true });
@@ -47,14 +45,9 @@ afterEach(() => {
 
 function fixture() {
   const root = temp();
-  for (const dir of ["rust/src", "scripts", "node_modules/wasm-pack", "bin"]) {
+  for (const dir of ["rust/src", "scripts", "node_modules/wasm-pack"]) {
     mkdirSync(join(root, dir), { recursive: true });
   }
-  cpSync(
-    join(packageDir, "node_modules/fflate"),
-    join(root, "node_modules/fflate"),
-    { recursive: true, dereference: true },
-  );
   for (const file of ["Cargo.toml", "Cargo.lock", "rust-toolchain.toml"]) {
     writeFileSync(join(root, "rust", file), file);
   }
@@ -300,17 +293,33 @@ describe("GitHub artifacts", () => {
         }),
         new Response(zip),
       ];
-      vi.mocked(copyFileSync).mockClear();
-      const result = await downloadOutput("hash", destination, {
-        token: "test-token",
-        fetcher: async (url, options) => {
-          calls.push({ url, options });
-          return responses.shift();
-        },
-      });
-      expect(result).toEqual(
-        corrupt ? { error: "artifact checksum mismatch" } : { restored: true },
-      );
+      const stageDirectory = vi.spyOn(fs, "mkdtempSync");
+      const copyFile = vi.spyOn(fs, "copyFileSync");
+      // wasm-cache imports named Node exports. Observe the real operations
+      // through those bindings without mocking the rest of the module.
+      syncBuiltinESMExports();
+      try {
+        const result = await downloadOutput("hash", destination, {
+          token: "test-token",
+          fetcher: async (url, options) => {
+            calls.push({ url, options });
+            return responses.shift();
+          },
+        });
+        expect(result).toEqual(
+          corrupt
+            ? { error: "artifact checksum mismatch" }
+            : { restored: true },
+        );
+        expect(stageDirectory.mock.calls.at(-1)?.[0]).toBe(
+          join(dirname(destination), ".typst-stage-"),
+        );
+        expect(copyFile).not.toHaveBeenCalled();
+      } finally {
+        stageDirectory.mockRestore();
+        copyFile.mockRestore();
+        syncBuiltinESMExports();
+      }
       expect(validateOutput(destination, corrupt ? "previous" : "hash")).toBe(
         true,
       );
@@ -318,10 +327,6 @@ describe("GitHub artifacts", () => {
       expect(calls[0].url).toContain(`name=${artifactName("hash")}`);
       expect(calls[0].options.headers.Authorization).toBe("Bearer test-token");
       expect(calls[3].options.headers.Authorization).toBeUndefined();
-      expect(vi.mocked(mkdtempSync).mock.calls.at(-1)[0]).toBe(
-        join(dirname(destination), ".typst-stage-"),
-      );
-      expect(copyFileSync).not.toHaveBeenCalled();
     },
   );
 
@@ -414,6 +419,17 @@ describe("GitHub artifacts", () => {
 });
 
 describe("build entry point", () => {
+  function buildFixture() {
+    const root = fixture();
+    // Only child processes need to resolve fflate from the staged checkout.
+    cpSync(
+      join(packageDir, "node_modules/fflate"),
+      join(root, "node_modules/fflate"),
+      { recursive: true, dereference: true },
+    );
+    return root;
+  }
+
   function buildOptions(root, extraEnv = {}) {
     return {
       encoding: "utf8",
@@ -435,7 +451,8 @@ describe("build entry point", () => {
     );
   }
 
-  function fakeToolchain(root) {
+  function fakeToolchain(root, delayMs = 0) {
+    mkdirSync(join(root, "bin"));
     writeFileSync(join(root, "bin/cargo"), "#!/bin/sh\nexit 0\n", {
       mode: 0o755,
     });
@@ -445,7 +462,7 @@ describe("build entry point", () => {
 const fs = require("node:fs");
 const path = require("node:path");
 const pkg = path.resolve("../pkg");
-setTimeout(() => {
+function compile() {
   fs.mkdirSync(pkg, { recursive: true });
   for (const file of ${JSON.stringify(outputFiles)}) {
     fs.writeFileSync(path.join(pkg, file), "compiled output");
@@ -453,15 +470,21 @@ setTimeout(() => {
   fs.appendFileSync(path.resolve("../compilations"), "compiled\\n");
   fs.writeFileSync(path.resolve("../compiler-args.json"), JSON.stringify(process.argv.slice(2)));
   console.log("compiled");
-}, 100);
+}
+${delayMs ? `setTimeout(compile, ${delayMs});` : "compile();"}
 `,
       { mode: 0o755 },
     );
-    return { PATH: `${join(root, "bin")}${delimiter}${process.env.PATH}` };
+    // ensure-wasm puts CARGO_HOME/bin before PATH. Don't let a developer's
+    // real cargo take precedence over the fake toolchain in this fixture.
+    return {
+      CARGO_HOME: root,
+      PATH: `${join(root, "bin")}${delimiter}${process.env.PATH}`,
+    };
   }
 
   it("restores a fresh checkout without invoking a compiler, then reuses pkg locally", () => {
-    const root = fixture();
+    const root = buildFixture();
     const hash = inputHash(root);
     output(join(root, "shared-cache", hash), hash);
     expect(build(root)).toContain("restored shared WASM cache");
@@ -471,7 +494,7 @@ setTimeout(() => {
   });
 
   it("reports missing Rust on Windows CI without attempting the Unix installer", async () => {
-    const root = fixture();
+    const root = buildFixture();
     const preload = join(root, "windows.cjs");
     writeFileSync(
       preload,
@@ -496,7 +519,7 @@ setTimeout(() => {
   });
 
   it("force and source-only bypass matching local and shared outputs", () => {
-    const root = fixture();
+    const root = buildFixture();
     const hash = inputHash(root);
     output(join(root, "pkg"), hash);
     output(join(root, "shared-cache", hash), hash);
@@ -509,7 +532,7 @@ setTimeout(() => {
   });
 
   it("executes changed settings from the automatically hashed build contract", () => {
-    const root = fixture();
+    const root = buildFixture();
     const before = inputHash(root);
     const contract = join(root, "scripts/wasm-build.mjs");
     writeFileSync(
@@ -534,10 +557,12 @@ setTimeout(() => {
   });
 
   it("serializes cold builds and saves source output for another worktree", async () => {
-    const root = fixture();
-    const env = fakeToolchain(root);
+    const root = buildFixture();
+    // Keep compilation in progress long enough for the other build to contend.
+    const env = fakeToolchain(root, 100);
     const execute = promisify(execFile);
-    const results = await Promise.all([
+    // Wait for both children to exit before afterEach can remove the checkout.
+    const results = await Promise.allSettled([
       execute(
         process.execPath,
         [join(root, "scripts/ensure-wasm.mjs")],
@@ -549,11 +574,21 @@ setTimeout(() => {
         buildOptions(root, env),
       ),
     ]);
-    expect(results.map((result) => result.stdout).join("")).toContain(
-      "compiled",
+    const errors = results.flatMap((result) =>
+      result.status === "rejected" ? [result.reason] : [],
     );
+    if (errors.length === 1) {
+      throw errors[0];
+    }
+    if (errors.length > 1) {
+      throw new AggregateError(errors, "Both cold builds failed");
+    }
+    const stdout = results.flatMap((result) =>
+      result.status === "fulfilled" ? [result.value.stdout] : [],
+    );
+    expect(stdout.join("")).toContain("compiled");
     expect(readFileSync(join(root, "compilations"), "utf8")).toBe("compiled\n");
-    const other = fixture();
+    const other = buildFixture();
     expect(
       build(other, { BLOCKNOTE_TYPST_CACHE_DIR: join(root, "shared-cache") }),
     ).toContain("restored shared WASM cache");

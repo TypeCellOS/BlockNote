@@ -2,7 +2,7 @@ import { ReactCustomBlockRenderProps } from "@blocknote/react";
 import type { ComponentType } from "react";
 
 import { plainContentToString } from "@blocknote/core";
-import { mathMLExportContent } from "../../../helpers/toExternalHTML/latexToMathMLElement.js";
+import { mathMLExportContent } from "../../../helpers/toExternalHTML/mathMLExportContent.js";
 import { MathBlockConfig } from "../../createReactMathBlockSpec.js";
 
 export const BlockMathMLElement = ({
@@ -24,7 +24,7 @@ export const BlockMathMLElement = ({
       xmlns="http://www.w3.org/1998/Math/MathML"
       display="block"
       alttext={source}
-      dangerouslySetInnerHTML={{ __html: mathMLExportContent(source, false) }}
+      dangerouslySetInnerHTML={{ __html: mathMLExportContent(source) }}
     />
   );
 };

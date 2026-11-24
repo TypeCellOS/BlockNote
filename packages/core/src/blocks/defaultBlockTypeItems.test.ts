@@ -1,6 +1,3 @@
-/**
- * @vitest-environment node
- */
 import { describe, expect, it } from "vite-plus/test";
 
 import type { BlockNoteEditor } from "../editor/BlockNoteEditor.js";

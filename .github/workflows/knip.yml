@@ -1,0 +1,35 @@
+name: Knip
+
+on:
+  pull_request:
+  push:
+    branches:
+      - main
+
+permissions:
+  contents: read
+
+env:
+  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
+
+jobs:
+  knip:
+    name: Knip report
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    # Advisory only. Build and E2E run independently of this workflow.
+    continue-on-error: true
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
+      - uses: voidzero-dev/setup-vp@cab1ab9eaff52d4857875f4f2c016e36af8f2c76 # v1.22.0
+        with:
+          node-version-file: ".node-version"
+          cache: true
+
+      - name: Report unused code and dependencies
+        run: >-
+          vp run knip --no-exit-code --reporter compact --reporter markdown
+          --output-file "markdown=$GITHUB_STEP_SUMMARY"

@@ -1,13 +1,13 @@
-// @vitest-environment node
-import { BlockNoteEditor, getNodeById } from "@blocknote/core";
+import { getNodeById } from "@blocknote/core";
 import { EditorState } from "prosemirror-state";
-import { expect, test } from "vite-plus/test";
+import { expect } from "vite-plus/test";
 
+import type { SetupEditor } from "../../../../../tests/src/commands/node/setupEditor.js";
 import { createColumnResizePlugin } from "./ColumnResizeExtension.js";
 import { testEditorSchema } from "../../test/setupTestEnv.js";
 
-function setup() {
-  const editor = BlockNoteEditor.create({
+async function setup(setupEditor: SetupEditor) {
+  const { editor } = await setupEditor({
     schema: testEditorSchema,
     disableExtensions: ["sideMenu"],
     initialContent: [
@@ -21,7 +21,9 @@ function setup() {
       },
     ],
   });
-  const doc = editor.prosemirrorState.doc;
+  // The plugin's state transition is the unit under test: mount-free
+  // ProseMirror transactions here, actual pointer events in the browser suite.
+  const doc = editor.transact(({ doc }) => doc);
   const plugin = createColumnResizePlugin(editor);
   const state = EditorState.create({ doc, plugins: [plugin] });
   // Only the node and position are used by the decorations/state callbacks.
@@ -29,8 +31,10 @@ function setup() {
   return { editor, plugin, state, columnList };
 }
 
-test("clears column hover decorations when the hovered node is removed", () => {
-  const { plugin, state, columnList } = setup();
+it("clears column hover decorations when the hovered node is removed", async ({
+  setupEditor,
+}) => {
+  const { plugin, state, columnList } = await setup(setupEditor);
   const hovered = state.apply(
     state.tr.setMeta(plugin, {
       type: "hover-column-list",
@@ -41,8 +45,10 @@ test("clears column hover decorations when the hovered node is removed", () => {
   expect(plugin.getState(deleted)).toEqual({ type: "default" });
 });
 
-test("refreshes hovered positions and node sizes after document edits", () => {
-  const { plugin, state, columnList } = setup();
+it("refreshes hovered positions and node sizes after document edits", async ({
+  setupEditor,
+}) => {
+  const { plugin, state, columnList } = await setup(setupEditor);
   const hovered = state.apply(
     state.tr.setMeta(plugin, { type: "hover-column-list", columnList }),
   );
@@ -64,8 +70,10 @@ test("refreshes hovered positions and node sizes after document edits", () => {
   });
 });
 
-test("keeps resizing and its measured widths during width transactions", () => {
-  const { plugin, state, columnList } = setup();
+it("keeps resizing and its measured widths during width transactions", async ({
+  setupEditor,
+}) => {
+  const { plugin, state, columnList } = await setup(setupEditor);
   const leftColumn = {
     id: "left",
     ...getNodeById("left", state.doc)!,
@@ -99,10 +107,10 @@ test("keeps resizing and its measured widths during width transactions", () => {
   });
 });
 
-test.each(["hover-column", "resize"])(
+it.for(["hover-column", "resize"])(
   "clears %s state when one of the two columns disappears",
-  (type) => {
-    const { plugin, state, columnList } = setup();
+  async (type, { setupEditor }) => {
+    const { plugin, state, columnList } = await setup(setupEditor);
     const leftColumn = { id: "left", ...getNodeById("left", state.doc)! };
     const rightColumn = { id: "right", ...getNodeById("right", state.doc)! };
     const active = state.apply(

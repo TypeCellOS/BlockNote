@@ -1,14 +1,11 @@
-import {
-  BlockNoteEditor,
-  getBlockInfoFromNode,
-  getNodeById,
-} from "@blocknote/core";
-import { expect, it } from "vite-plus/test";
+import { getBlockInfoFromNode, getNodeById } from "@blocknote/core";
+import { expect } from "vite-plus/test";
+import type { SetupEditor } from "../../../../tests/src/commands/node/setupEditor.js";
 import { AttributionMarksExtension } from "./AttributionMarks.js";
 import { getApplySuggestionsTr, rebaseTool } from "./rebaseTool.js";
 
-function getExampleEditorWithSuggestions() {
-  const editor = BlockNoteEditor.create({
+async function getExampleEditorWithSuggestions(setupEditor: SetupEditor) {
+  const { editor } = await setupEditor({
     // The `insertion`/`deletion`/`modification` suggestion marks live with the
     // AI extension, so register them here (the schema needs them for
     // `applySuggestions` to run).
@@ -22,14 +19,12 @@ function getExampleEditorWithSuggestions() {
     ],
   });
 
-  const blockPos = getNodeById("1", editor.prosemirrorState.doc)!;
-
-  const block = getBlockInfoFromNode(blockPos.node, blockPos.posBeforeNode);
-  if (!block.hasContent) {
-    throw new Error("Block is not a container");
-  }
-
   editor.transact((tr) => {
+    const blockPos = getNodeById("1", tr.doc)!;
+    const block = getBlockInfoFromNode(blockPos.node, blockPos.posBeforeNode);
+    if (!block.hasContent) {
+      throw new Error("Block is not a container");
+    }
     tr.addMark(
       block.content.beforePos + 1,
       block.content.beforePos + 6,
@@ -46,13 +41,15 @@ function getExampleEditorWithSuggestions() {
   return editor;
 }
 
-it("should create some example suggestions", async () => {
-  const editor = getExampleEditorWithSuggestions();
-  expect(editor.prosemirrorState.doc.toJSON()).toMatchSnapshot();
+it("should create some example suggestions", async ({ setupEditor }) => {
+  const editor = await getExampleEditorWithSuggestions(setupEditor);
+  expect(editor.transact(({ doc }) => doc.toJSON())).toMatchSnapshot();
 });
 
-it("should be able to apply changes to a clean doc (use invertMap)", async () => {
-  const editor = getExampleEditorWithSuggestions();
+it("should be able to apply changes to a clean doc (use invertMap)", async ({
+  setupEditor,
+}) => {
+  const editor = await getExampleEditorWithSuggestions(setupEditor);
 
   const cleaned = rebaseTool(editor, getApplySuggestionsTr(editor));
 
@@ -77,11 +74,13 @@ it("should be able to apply changes to a clean doc (use invertMap)", async () =>
     );
   });
 
-  expect(editor.prosemirrorState.doc.toJSON()).toMatchSnapshot();
+  expect(editor.transact(({ doc }) => doc.toJSON())).toMatchSnapshot();
 });
 
-it("should be able to apply changes to a clean doc (use rebaseTr)", async () => {
-  const editor = getExampleEditorWithSuggestions();
+it("should be able to apply changes to a clean doc (use rebaseTr)", async ({
+  setupEditor,
+}) => {
+  const editor = await getExampleEditorWithSuggestions(setupEditor);
 
   const cleaned = rebaseTool(editor, getApplySuggestionsTr(editor));
 

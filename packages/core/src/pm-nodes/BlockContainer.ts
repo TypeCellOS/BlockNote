@@ -13,6 +13,7 @@ import {
 } from "../schema/blocks/frame.js";
 import { BlockNoteDOMAttributes } from "../schema/index.js";
 import { mergeCSSClasses } from "../util/browser.js";
+import { isBlockWrapperMutation } from "./createBlockNodeView.js";
 import { suggestionMarks } from "./suggestionMarks.js";
 
 /** The block props whose colors `Block.css` applies to a block's children. */
@@ -78,7 +79,7 @@ export const BlockContainer = Node.create<{
   parseHTML() {
     return [
       {
-        tag: "div[data-node-type=" + this.name + "]",
+        tag: `div[data-node-type="${this.name}"]`,
         getAttrs: (element) => {
           if (typeof element === "string") {
             return false;
@@ -169,6 +170,7 @@ export const BlockContainer = Node.create<{
         setBlockColorAttributes(block, attrs);
       }
 
+      const frameHooks = frameNodeViewHooks(frame);
       const nodeView: NodeView = {
         dom,
         contentDOM: frame.slot,
@@ -192,7 +194,13 @@ export const BlockContainer = Node.create<{
           }
           return true;
         },
-        ...frameNodeViewHooks(frame),
+        ...frameHooks,
+        ignoreMutation(mutation) {
+          return (
+            isBlockWrapperMutation(mutation, dom, block) ||
+            frameHooks.ignoreMutation(mutation)
+          );
+        },
       };
       return nodeView;
     }) as unknown as NodeViewRenderer;

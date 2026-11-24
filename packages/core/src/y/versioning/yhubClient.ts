@@ -63,7 +63,7 @@ export interface YHubChangeset {
   attributions?: Uint8Array;
 }
 
-export interface YHubDocument {
+interface YHubDocument {
   doc: Uint8Array;
 }
 

@@ -1,76 +1,65 @@
-import { BlockNoteEditor } from "@blocknote/core";
+import type { BlockNoteEditor } from "@blocknote/core";
 import { filterSuggestionItems } from "@blocknote/core/extensions";
-import { BlockNoteView } from "@blocknote/mantine";
 import "@blocknote/mantine/style.css";
 import {
   getDefaultReactSlashMenuItems,
   SuggestionMenuController,
-  useCreateBlockNote,
 } from "@blocknote/react";
-import { afterEach, expect, test, vi } from "vite-plus/test";
-import { cleanup, render } from "vitest-browser-react";
+import { expect, vi } from "vite-plus/test";
 
+import type { SetupEditor } from "../../commands/browser/setupEditor.js";
 import { page, userEvent } from "../../utils/context.js";
-import { sleep, waitForSelector } from "../../utils/editor.js";
+import {
+  waitForSelector,
+  waitForSelectorDetached,
+} from "../../utils/editor.js";
 
 // Where the slash menu goes relative to its trigger (#2771): below, unless
 // there is too little room there and more room above. It keeps its side
 // while the user filters the items.
 
-/** How long the slash menu items take to load, with `slowItems`. */
-const ITEMS_DELAY = 500;
+const MENU = ".bn-suggestion-menu";
+const ITEM = ".bn-suggestion-menu-item";
 
 let editor: BlockNoteEditor;
 
-function Editor(props: { slowItems?: boolean }) {
-  editor = useCreateBlockNote({
+/** Opens the slash menu at the end of the paragraph at height `y`. */
+async function openSlashMenuAt(
+  setupEditor: SetupEditor,
+  y: number,
+  options: { waitForItems?: () => Promise<void>; scrollTop?: number } = {},
+) {
+  const { waitForItems } = options;
+  ({ editor } = await setupEditor({
     initialContent: Array.from({ length: 40 }, (_, i) => ({
       type: "paragraph" as const,
       content: `Paragraph ${i}`,
     })),
-  });
-  if (!props.slowItems) {
-    return <BlockNoteView editor={editor} />;
-  }
-  // Items that load asynchronously, e.g. from a server.
-  return (
-    <BlockNoteView editor={editor} slashMenu={false}>
-      <SuggestionMenuController
-        triggerCharacter="/"
-        getItems={async (query) => {
-          await sleep(ITEMS_DELAY);
-          return filterSuggestionItems(
-            getDefaultReactSlashMenuItems(editor),
-            query,
-          );
-        }}
-      />
-    </BlockNoteView>
-  );
-}
-
-afterEach(async () => {
-  await cleanup();
-});
-
-/** Opens the slash menu at the end of the paragraph at height `y`. */
-async function openSlashMenuAt(
-  y: number,
-  options: { slowItems?: boolean; scrollTop?: number } = {},
-) {
-  await render(<Editor slowItems={options.slowItems} />);
-  await waitForSelector(".bn-editor");
+    // Items that load asynchronously, e.g. from a server.
+    props: waitForItems ? { slashMenu: false } : undefined,
+    children: waitForItems
+      ? ({ editor }) => (
+          <SuggestionMenuController
+            triggerCharacter="/"
+            getItems={async (query) => {
+              await waitForItems();
+              return filterSuggestionItems(
+                getDefaultReactSlashMenuItems(editor),
+                query,
+              );
+            }}
+          />
+        )
+      : undefined,
+  }));
   if (options.scrollTop) {
     document.scrollingElement!.scrollTop = options.scrollTop;
-    await sleep(100);
   }
-  const menu = await typeSlashAt(y);
-  await sleep(200);
-  return menu;
+  return typeSlashAt(y, options.waitForItems ? "loading" : "loaded");
 }
 
 /** Types "/" at the end of the paragraph at height `y`, in the editor. */
-async function typeSlashAt(y: number) {
+async function typeSlashAt(y: number, items: "loading" | "loaded" = "loaded") {
   const paragraph = [
     ...document.querySelectorAll('[data-content-type="paragraph"]'),
   ].find((element) => {
@@ -87,7 +76,38 @@ async function typeSlashAt(y: number) {
   );
   editor.focus();
   await userEvent.keyboard("/");
-  return waitForSelector(".bn-suggestion-menu");
+  const menu = await waitForSelector(MENU);
+  if (items === "loaded") {
+    await waitForResults(menu, "");
+  } else {
+    await waitForSelector(`${MENU} .bn-suggestion-menu-loader`);
+    await waitForPlacement(menu);
+  }
+  return menu;
+}
+
+async function waitForPlacement(menu: HTMLElement) {
+  await vi.waitFor(() => expect(Math.abs(gap(menu))).toBeLessThan(15));
+}
+
+async function waitForResults(menu: HTMLElement, query: string) {
+  const titles = filterSuggestionItems(
+    getDefaultReactSlashMenuItems(editor),
+    query,
+  ).map((item) => item.title);
+  await vi.waitFor(() =>
+    expect(
+      Array.from(
+        menu.querySelectorAll(".bn-mt-suggestion-menu-item-title"),
+        (item) => item.textContent,
+      ),
+    ).toEqual(titles),
+  );
+  // Item commits can resize the menu. Allow Floating UI's resize observation
+  // and the resulting position update before asserting unchanged geometry.
+  await new Promise(requestAnimationFrame);
+  await new Promise(requestAnimationFrame);
+  await waitForPlacement(menu);
 }
 
 /** The gap (px) between the menu and its trigger. */
@@ -109,25 +129,31 @@ function side(menu: HTMLElement): "above" | "below" {
   return menu.getBoundingClientRect().top > trigger.top ? "below" : "above";
 }
 
-test("stays below the trigger when there is enough room, even with more room above", async () => {
+it("stays below the trigger when there is enough room, even with more room above", async ({
+  setupEditor,
+}) => {
   // About 380px below the trigger, more above.
-  const menu = await openSlashMenuAt(innerHeight * 0.45);
+  const menu = await openSlashMenuAt(setupEditor, innerHeight * 0.45);
   expect(side(menu)).toBe("below");
 });
 
-test("goes above the trigger when the room below fits only a few items", async () => {
+it("goes above the trigger when the room below fits only a few items", async ({
+  setupEditor,
+}) => {
   // About 250px below the trigger: a menu there would show only about four
   // items, with more room above.
-  const menu = await openSlashMenuAt(innerHeight * 0.62);
+  const menu = await openSlashMenuAt(setupEditor, innerHeight * 0.62);
   expect(side(menu)).toBe("above");
 });
 
-test("is no taller than its maximum height, even with more room", async () => {
+it("is no taller than its maximum height, even with more room", async ({
+  setupEditor,
+}) => {
   // A taller window than the default 720px, so the room below the trigger
   // (about 850px) is more than the maximum height.
   await page.viewport(1280, 1000);
   try {
-    const menu = await openSlashMenuAt(innerHeight * 0.1);
+    const menu = await openSlashMenuAt(setupEditor, innerHeight * 0.1);
     expect(side(menu)).toBe("below");
     const height = menu.getBoundingClientRect().height;
     expect(height).toBeLessThanOrEqual(600);
@@ -139,50 +165,61 @@ test("is no taller than its maximum height, even with more room", async () => {
   }
 });
 
-test("goes above the trigger when there is too little room below", async () => {
-  const menu = await openSlashMenuAt(innerHeight * 0.85);
+it("goes above the trigger when there is too little room below", async ({
+  setupEditor,
+}) => {
+  const menu = await openSlashMenuAt(setupEditor, innerHeight * 0.85);
   expect(side(menu)).toBe("above");
   // Not squeezed: it gets the room above.
   expect(menu.getBoundingClientRect().height).toBeGreaterThan(200);
 });
 
-test("keeps its side while the user filters the items", async () => {
+it("keeps its side while the user filters the items", async ({
+  setupEditor,
+}) => {
   // About 150px below the trigger: the full list goes above, and the
   // filtered list would fit below.
-  const menu = await openSlashMenuAt(innerHeight - 170);
+  const menu = await openSlashMenuAt(setupEditor, innerHeight - 170);
   expect(side(menu)).toBe("above");
 
-  for (const key of ["q", "u", "o", "t", "e"]) {
-    await userEvent.keyboard(key);
-    await sleep(100);
+  const query = "quote";
+  for (let i = 0; i < query.length; i++) {
+    await userEvent.keyboard(query[i]);
+    await waitForResults(menu, query.slice(0, i + 1));
     expect(side(menu)).toBe("above");
     // #2155: the shorter menu stays next to the trigger.
     expect(gap(menu)).toBeLessThan(15);
   }
-  for (let i = 0; i < 5; i++) {
+  for (let i = query.length - 1; i >= 0; i--) {
     await userEvent.keyboard("{Backspace}");
-    await sleep(100);
+    await waitForResults(menu, query.slice(0, i));
     expect(side(menu)).toBe("above");
   }
 });
 
-test("goes above the trigger at once when the items load asynchronously", async () => {
-  const menu = await openSlashMenuAt(innerHeight * 0.85, { slowItems: true });
+it("goes above the trigger at once when the items load asynchronously", async ({
+  setupEditor,
+}) => {
+  const items = Promise.withResolvers<void>();
+  const menu = await openSlashMenuAt(setupEditor, innerHeight * 0.85, {
+    waitForItems: () => items.promise,
+  });
   // The items are still loading: the menu is nearly empty, and still goes
   // above.
-  expect(menu.querySelectorAll(".bn-suggestion-menu-item")).toHaveLength(0);
+  expect(menu.querySelectorAll(ITEM)).toHaveLength(0);
   expect(side(menu)).toBe("above");
 
-  await sleep(ITEMS_DELAY + 300);
-  expect(
-    menu.querySelectorAll(".bn-suggestion-menu-item").length,
-  ).toBeGreaterThan(5);
+  items.resolve();
+  await waitForResults(menu, "");
+  expect(menu.querySelectorAll(ITEM).length).toBeGreaterThan(5);
   expect(side(menu)).toBe("above");
 });
 
-test("chooses its side again when the page scrolls", async () => {
+it("chooses its side again when the page scrolls", async ({ setupEditor }) => {
   // The page is scrolled down first, so it can scroll back up below.
-  const menu = await openSlashMenuAt(innerHeight * 0.5, { scrollTop: 300 });
+  const menu = await openSlashMenuAt(setupEditor, innerHeight * 0.5, {
+    scrollTop: 300,
+  });
   expect(side(menu)).toBe("below");
 
   // Scrolling up moves the trigger down, near the bottom of the screen.
@@ -191,34 +228,38 @@ test("chooses its side again when the page scrolls", async () => {
   await vi.waitFor(() => expect(side(menu)).toBe("above"), { timeout: 3000 });
 });
 
-test("chooses its side again when the window is resized", async () => {
+it("chooses its side again when the window is resized", async ({
+  setupEditor,
+}) => {
   try {
     // About 300px below the trigger: the menu goes below.
-    const menu = await openSlashMenuAt(innerHeight * 0.55);
+    const menu = await openSlashMenuAt(setupEditor, innerHeight * 0.55);
     expect(side(menu)).toBe("below");
 
     // A shorter window (e.g. a phone's keyboard opens): little room is left
     // below the trigger, and more above.
     await page.viewport(1280, 480);
-    await sleep(300);
-    expect(side(menu)).toBe("above");
+    await vi.waitFor(() => expect(side(menu)).toBe("above"));
   } finally {
     await page.viewport(1280, 720);
   }
 });
 
-test("shows the last item when it is selected near the bottom of the screen", async () => {
-  const menu = await openSlashMenuAt(innerHeight * 0.85);
+it("shows the last item when it is selected near the bottom of the screen", async ({
+  setupEditor,
+}) => {
+  const menu = await openSlashMenuAt(setupEditor, innerHeight * 0.85);
 
   // ArrowUp from the first item selects the last one.
   await userEvent.keyboard("{ArrowUp}");
-  await sleep(300);
-
-  const selected = menu.querySelector('[aria-selected="true"]')!;
-  const item = selected.getBoundingClientRect();
-  const visible = menu.getBoundingClientRect();
-  expect(item.top).toBeGreaterThanOrEqual(visible.top - 1);
-  expect(item.bottom).toBeLessThanOrEqual(visible.bottom + 1);
+  const last = Array.from(menu.querySelectorAll(ITEM)).at(-1)!;
+  await vi.waitFor(() => {
+    expect(last.getAttribute("aria-selected")).toBe("true");
+    const item = last.getBoundingClientRect();
+    const visible = menu.getBoundingClientRect();
+    expect(item.top).toBeGreaterThanOrEqual(visible.top - 1);
+    expect(item.bottom).toBeLessThanOrEqual(visible.bottom + 1);
+  });
 });
 
 /** The menu's width (px). */
@@ -226,66 +267,80 @@ function width(menu: HTMLElement): number {
   return Math.round(menu.getBoundingClientRect().width);
 }
 
-test("keeps its width while the user filters the items", async () => {
-  const menu = await openSlashMenuAt(innerHeight * 0.15);
+it("keeps its width while the user filters the items", async ({
+  setupEditor,
+}) => {
+  const menu = await openSlashMenuAt(setupEditor, innerHeight * 0.15);
   const opened = width(menu);
 
   // "quo" leaves only short items, which on their own are narrower.
-  for (const key of ["q", "u", "o"]) {
-    await userEvent.keyboard(key);
-    await sleep(100);
+  const query = "quo";
+  for (let i = 0; i < query.length; i++) {
+    await userEvent.keyboard(query[i]);
+    await waitForResults(menu, query.slice(0, i + 1));
     expect(width(menu)).toBe(opened);
   }
-  for (let i = 0; i < 3; i++) {
+  for (let i = query.length - 1; i >= 0; i--) {
     await userEvent.keyboard("{Backspace}");
-    await sleep(100);
+    await waitForResults(menu, query.slice(0, i));
     expect(width(menu)).toBe(opened);
   }
 });
 
-test("grows when the items load asynchronously, then keeps its width while filtering", async () => {
-  const menu = await openSlashMenuAt(innerHeight * 0.15, { slowItems: true });
+it("grows when the items load asynchronously, then keeps its width while filtering", async ({
+  setupEditor,
+}) => {
+  let items = Promise.withResolvers<void>();
+  const menu = await openSlashMenuAt(setupEditor, innerHeight * 0.15, {
+    waitForItems: () => items.promise,
+  });
   const loading = width(menu);
 
-  await sleep(ITEMS_DELAY + 300);
+  items.resolve();
+  await waitForResults(menu, "");
   const loaded = width(menu);
   // The items are wider than the menu while it loads: it grows.
   expect(loaded).toBeGreaterThan(loading);
 
   // Each query loads its items again.
+  items = Promise.withResolvers<void>();
   await userEvent.keyboard("quo");
-  await sleep(ITEMS_DELAY + 300);
-  expect(menu.querySelectorAll(".bn-suggestion-menu-item").length).toBeLessThan(
-    5,
-  );
+  await waitForSelector(`${MENU} .bn-suggestion-menu-loader`);
+  items.resolve();
+  await waitForResults(menu, "quo");
+  expect(menu.querySelectorAll(ITEM).length).toBeLessThan(5);
   expect(width(menu)).toBe(loaded);
 });
 
-test("chooses its side and height again when opened again elsewhere", async () => {
-  const first = await openSlashMenuAt(innerHeight * 0.15);
+it("chooses its side and height again when opened again elsewhere", async ({
+  setupEditor,
+}) => {
+  const first = await openSlashMenuAt(setupEditor, innerHeight * 0.15);
   expect(side(first)).toBe("below");
 
   await userEvent.keyboard("{Escape}");
-  await sleep(400);
+  await waitForSelectorDetached(MENU);
   const second = await typeSlashAt(innerHeight * 0.85);
-  await sleep(200);
   expect(side(second)).toBe("above");
   // The room above, not the height it had below.
   expect(second.getBoundingClientRect().height).toBeGreaterThan(400);
 });
 
-test("starts at its own width when opened again", async () => {
-  const first = await openSlashMenuAt(innerHeight * 0.15, {
-    slowItems: true,
+it("starts at its own width when opened again", async ({ setupEditor }) => {
+  let items = Promise.withResolvers<void>();
+  const first = await openSlashMenuAt(setupEditor, innerHeight * 0.15, {
+    waitForItems: () => items.promise,
   });
-  await sleep(ITEMS_DELAY + 300);
+  items.resolve();
+  await waitForResults(first, "");
   const loaded = width(first);
 
   await userEvent.keyboard("{Escape}");
-  // After the menu has faded out.
-  await sleep(400);
-  const second = await typeSlashAt(innerHeight * 0.3);
+  await waitForSelectorDetached(MENU);
+  items = Promise.withResolvers<void>();
+  const second = await typeSlashAt(innerHeight * 0.3, "loading");
   // The items are loading again: the menu is as narrow as it was then, not
   // as wide as it was with its items.
   expect(width(second)).toBeLessThan(loaded);
+  items.resolve();
 });

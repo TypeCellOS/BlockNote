@@ -46,15 +46,44 @@ use day to day:
 | `pnpm lint`      | Lint and type-check the codebase. Run this before pushing. |
 | `pnpm run check` | Auto-fix lint and formatting issues across the project.    |
 | `pnpm build`     | Build all packages.                                        |
-| `pnpm e2e`       | Run the Playwright end-to-end tests.                       |
+| `vp run e2e`     | Run the full browser suite in Docker.                      |
 
 To run the unit tests for a single package, run `pnpm test` from inside that
 package's directory; append `-u` to update snapshots.
+
+The unfiltered local browser run reuses iframes and uses two workers per desktop
+browser. The native clipboard smoke test runs separately because the OS
+clipboard is shared.
+
+Use `BLOCKNOTE_E2E_PARALLEL_REUSE=0 vp run e2e` to compare against the legacy
+runner. Filtered runs, CI, and `vp run e2e:updateSnaps` keep their existing
+behavior.
+
+If a cold browser run reports React hook errors or a reload during a test, use
+`bash tests/docker-run.sh -e CI=1 -e DEBUG=vite:deps -- --run <file> --retry=0`.
+Look for `optimized dependencies changed. reloading` in the output. If a late
+import triggers the reload, add that import to `optimizeDeps.include` in
+`tests/vite.config.browser.ts` and rerun in a fresh container. Startup
+optimization by itself is normal.
 
 ## Adding packages
 
 - Add the dependency to the relevant `package.json` file (packages/xxx/package.json)
 - Double check `pnpm-lock.yaml` to make sure only the relevant packages have been affected
+
+## Finding unused code
+
+Run `pnpm knip` from the repository root to audit unused files, dependencies,
+and exports. Use `pnpm knip --dependencies` for dependency findings or
+`pnpm knip --workspace packages/core` to focus on a workspace and its related
+workspaces.
+
+CI runs Knip as a separate, non-blocking report. On a pull request, open
+**Checks → Knip report** to read it. Review findings before removing code:
+published exports can have consumers outside this repository, and dependencies
+can be loaded by build scripts, CSS, or framework conventions.
+The audit focuses on the packages and their supporting tooling and tests. The
+docs, playground, and standalone StackBlitz example workspaces are excluded.
 
 ## Packages
 

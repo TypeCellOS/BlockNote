@@ -1,14 +1,13 @@
 import { Chat } from "@ai-sdk/react";
-import { BlockNoteEditor } from "@blocknote/core";
 import {
   ChatTransport,
   DefaultChatTransport,
   UIMessage,
   UIMessageChunk,
 } from "ai";
-import { describe, expect, it } from "vite-plus/test";
+import { describe, expect } from "vite-plus/test";
+import { jsonBlockLLMFormat } from "../../../api/formats/json/json.js";
 import { AttributionMarksExtension } from "../../../prosemirror/AttributionMarks.js";
-import { aiDocumentFormats } from "../../../server.js";
 import { ChunkExecutionError } from "../../ChunkExecutionError.js";
 import { setupToolCallStreaming } from "./chatHandlers.js";
 
@@ -33,8 +32,8 @@ class FakeTransport extends DefaultChatTransport<any> {
 }
 
 describe("setupToolCallStreaming", () => {
-  it("should handle missing tool error gracefully", async () => {
-    const editor = BlockNoteEditor.create();
+  it("should handle missing tool error gracefully", async ({ setupEditor }) => {
+    const { editor } = await setupEditor();
     const chat = new Chat({
       transport: new FakeTransport([
         { type: "start" },
@@ -55,7 +54,7 @@ describe("setupToolCallStreaming", () => {
       ]),
     });
 
-    const streamTools = aiDocumentFormats.html
+    const streamTools = jsonBlockLLMFormat
       .getStreamToolsProvider({ withDelays: false })
       .getStreamTools(editor, false);
 
@@ -80,8 +79,8 @@ describe("setupToolCallStreaming", () => {
     // console.log(ret.error);
   });
 
-  it("should handle abort signal", async () => {
-    const editor = BlockNoteEditor.create({
+  it("should handle abort signal", async ({ setupEditor }) => {
+    const { editor } = await setupEditor({
       // The stream tools apply changes as suggestions, which need the AI
       // suggestion marks (`insertion` / `deletion` / `modification`) in the
       // schema.
@@ -114,7 +113,17 @@ describe("setupToolCallStreaming", () => {
                 type: "add",
                 position: "after",
                 referenceId: "ref1$",
-                blocks: ["<p>insert a long block to test the abort signal</p>"],
+                blocks: [
+                  {
+                    type: "paragraph",
+                    content: [
+                      {
+                        type: "text",
+                        text: "insert a long block to test the abort signal",
+                      },
+                    ],
+                  },
+                ],
               },
             ],
           },
@@ -124,7 +133,7 @@ describe("setupToolCallStreaming", () => {
       ]),
     });
 
-    const streamTools = aiDocumentFormats.html
+    const streamTools = jsonBlockLLMFormat
       .getStreamToolsProvider({ withDelays: true })
       .getStreamTools(editor, false);
 
@@ -157,8 +166,10 @@ describe("setupToolCallStreaming", () => {
     expect((ret.error as ChunkExecutionError).aborted).toBe(true);
   });
 
-  it("should handle abort signal that is already aborted", async () => {
-    const editor = BlockNoteEditor.create({
+  it("should handle abort signal that is already aborted", async ({
+    setupEditor,
+  }) => {
+    const { editor } = await setupEditor({
       // The stream tools apply changes as suggestions, which need the AI
       // suggestion marks (`insertion` / `deletion` / `modification`) in the
       // schema.
@@ -194,7 +205,12 @@ describe("setupToolCallStreaming", () => {
                 type: "add",
                 position: "after",
                 referenceId: "ref1$",
-                blocks: ["<p>test</p>"],
+                blocks: [
+                  {
+                    type: "paragraph",
+                    content: [{ type: "text", text: "test" }],
+                  },
+                ],
               },
             ],
           },
@@ -204,7 +220,7 @@ describe("setupToolCallStreaming", () => {
       ]),
     });
 
-    const streamTools = aiDocumentFormats.html
+    const streamTools = jsonBlockLLMFormat
       .getStreamToolsProvider({ withDelays: true })
       .getStreamTools(editor, false);
 

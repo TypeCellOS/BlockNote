@@ -150,7 +150,7 @@ The factory takes one option:
 createDiagramBlockMapping(options?: {
   /**
    * Renders the Mermaid source to an image. Defaults to Pele, producing
-   * PNG for ODT and email, or vector SVG for DOCX and Typst / PDF.
+   * PNG for email, or vector SVG for DOCX, ODT, and Typst / PDF.
    */
   renderDiagram?: RenderDiagram;
 });
@@ -162,11 +162,11 @@ The email subpath's factory additionally takes an `imageDelivery` option: some e
 
 ### Exporting server-side
 
-DOCX and Typst / PDF exports work on the server out of the box: Pele produces vector SVG without a browser. Typst / PDF labels use the exporter's font family; make those fonts available to the PDF compiler. Exports resolve Pele's default colors so standalone SVG consumers do not need CSS variables; preview-only CSS overrides are not included.
+DOCX, ODT, and Typst / PDF exports work on the server out of the box: Pele produces vector SVG without a browser. Typst / PDF labels use the exporter's font family; make those fonts available to the PDF compiler. Exports resolve Pele's default colors so standalone SVG consumers do not need CSS variables; preview-only CSS overrides are not included.
 
 DOCX diagrams require a reader that supports embedded SVG. Readers without SVG support display a blank placeholder; a rasterized compatibility copy is not generated. To support those readers, supply a custom `renderDiagram` callback that returns PNG or another supported raster format.
 
-ODT and email use PNG images. Their built-in rasterizer requires browser canvas. For server-side exports to those formats, pass a `renderDiagram` function to `createDiagramBlockMapping`; without one, the export throws:
+Email uses PNG images for client compatibility. Its built-in rasterizer requires browser canvas. For server-side email exports, pass a `renderDiagram` function to `createDiagramBlockMapping`; without one, the export throws:
 
 ```typescript
 import { createDiagramBlockMapping } from "@blocknote/diagram-block/odt-exporter";

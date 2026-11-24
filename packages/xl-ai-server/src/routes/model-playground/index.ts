@@ -1,5 +1,5 @@
 import { createAnthropic } from "@ai-sdk/anthropic";
-import { createGoogleGenerativeAI } from "@ai-sdk/google";
+import { createGoogle } from "@ai-sdk/google";
 import { createGroq } from "@ai-sdk/groq";
 import { createMistral } from "@ai-sdk/mistral";
 import { createOpenAI } from "@ai-sdk/openai";
@@ -30,7 +30,7 @@ modelPlaygroundRoute.post("/streamText", async (c) => {
 
   const result = streamText({
     model,
-    system: aiDocumentFormats.html.systemPrompt,
+    instructions: aiDocumentFormats.html.systemPrompt,
     messages: await convertToModelMessages(
       injectDocumentStateMessages(messages),
     ),
@@ -84,7 +84,7 @@ function getModel(aiModelString: string) {
       apiKey: providerKey,
     })(modelName);
   } else if (provider === "google.generative-ai") {
-    return createGoogleGenerativeAI({
+    return createGoogle({
       apiKey: providerKey,
     })(modelName);
   } else {

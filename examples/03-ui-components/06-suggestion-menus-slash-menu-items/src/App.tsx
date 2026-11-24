@@ -12,6 +12,7 @@ import {
   SuggestionMenuController,
   useCreateBlockNote,
 } from "@blocknote/react";
+import { useCallback } from "react";
 import { HiOutlineGlobeAlt } from "react-icons/hi";
 
 // Custom Slash Menu item to insert a block after the current one.
@@ -59,15 +60,19 @@ export default function App() {
     ],
   });
 
+  const getItems = useCallback(
+    async (query: string) =>
+      filterSuggestionItems(getCustomSlashMenuItems(editor), query),
+    [editor],
+  );
+
   // Renders the editor instance.
   return (
     <BlockNoteView editor={editor} slashMenu={false}>
       <SuggestionMenuController
         triggerCharacter={"/"}
         // Replaces the default Slash Menu items with our custom ones.
-        getItems={async (query) =>
-          filterSuggestionItems(getCustomSlashMenuItems(editor), query)
-        }
+        getItems={getItems}
       />
     </BlockNoteView>
   );

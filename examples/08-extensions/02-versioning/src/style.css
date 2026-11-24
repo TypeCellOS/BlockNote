@@ -40,8 +40,8 @@
 /* `RenderInPortalElement` creates a themed root *inside* the application-owned
    slot. Theme variables live on that root, not on its parent. */
 .sidebar-section > .bn-root {
-  background-color: var(--bn-colors-editor-background);
-  border-left: 1px solid var(--bn-colors-border);
+  background-color: var(--bn-background-color-editor);
+  border-left: 1px solid var(--bn-border-color);
   box-shadow: -6px 0 16px rgba(0, 0, 0, 0.05);
   display: flex;
   flex: 1;
@@ -53,11 +53,11 @@
 }
 
 .show-history-button {
-  background-color: var(--bn-colors-menu-background);
-  border: var(--bn-border);
-  border-radius: var(--bn-border-radius-medium);
-  box-shadow: var(--bn-shadow-medium);
-  color: var(--bn-colors-menu-text);
+  background-color: var(--bn-background-color-menu);
+  border: var(--bn-menu-border);
+  border-radius: var(--bn-radius-medium);
+  box-shadow: var(--bn-shadow-default);
+  color: var(--bn-text-color-menu);
   cursor: pointer;
   font-size: 13px;
   font-weight: 600;

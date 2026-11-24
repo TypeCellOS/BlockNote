@@ -248,6 +248,10 @@ export const zh: Dictionary = {
     add_block_button: "空的切换区。点击添加区块。",
     toggle_button: "展开或收起",
   },
+  block_nesting: {
+    indented: (level: number) => `已增加缩进，第 ${level} 级`,
+    outdented: (level: number) => `已减少缩进，第 ${level} 级`,
+  },
   code_block: {
     add_source_button_text: "添加源代码",
     ok_button_text: "确定",

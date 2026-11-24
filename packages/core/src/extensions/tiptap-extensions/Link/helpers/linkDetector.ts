@@ -61,7 +61,11 @@ const SPECIAL_HOSTS = new Set(["localhost"]);
 // ---------------------------------------------------------------------------
 
 // Characters that are unlikely to be part of a URL when they appear at the end
-const TRAILING_PUNCT = /[.,;:!?"']+$/;
+//
+// The expression matches one character: `trimTrailing` reads the URL from its
+// end. A search for `[...]+$` in the full URL takes quadratic time for a long
+// run of these characters that is not at the end.
+const TRAILING_PUNCT = /[.,;:!?"']/;
 
 // Protocol URLs: http:// https:// ftp:// ftps://
 const PROTOCOL_RE = /(?:https?|ftp|ftps):\/\/[^\s]+/g;
@@ -70,13 +74,23 @@ const PROTOCOL_RE = /(?:https?|ftp|ftps):\/\/[^\s]+/g;
 const MAILTO_RE = /mailto:[^\s]+/g;
 
 // Bare email addresses: user@domain.tld
+//
+// Only group 1 is an address. The second alternative consumes a run of
+// local-part characters in which no address starts. Without it, the search
+// tries the run again from each of its characters: quadratic time for a long
+// token.
 const EMAIL_RE =
-  /[a-zA-Z0-9._%+-]+@(?:[a-zA-Z0-9](?:[a-zA-Z0-9-]*[a-zA-Z0-9])?\.)+[a-zA-Z]{2,}/g;
+  /([a-zA-Z0-9._%+-]+@(?:[a-zA-Z0-9](?:[a-zA-Z0-9-]*[a-zA-Z0-9])?\.)+[a-zA-Z]{2,})|[a-zA-Z0-9._%+-]+/g;
 
 // Schemeless URLs: domain.tld with optional port and path
 // Hostname: one or more labels separated by dots, TLD is alpha-only 2+ chars
+//
+// Only group 1 is a URL. The other alternatives consume text in which no URL
+// starts: labels with no TLD after them, or one run of label characters.
+// Without them, the search tries that text again from each of its
+// characters: quadratic time for a long token.
 const SCHEMELESS_RE =
-  /(?:[a-zA-Z0-9](?:[a-zA-Z0-9-]*[a-zA-Z0-9])?\.)+[a-zA-Z]{2,}(?::\d{1,5})?(?:[/?#][^\s]*)?/g;
+  /((?:[a-zA-Z0-9](?:[a-zA-Z0-9-]*[a-zA-Z0-9])?\.)+[a-zA-Z]{2,}(?::\d{1,5})?(?:[/?#][^\s]*)?)|(?:[a-zA-Z0-9](?:[a-zA-Z0-9-]*[a-zA-Z0-9])?\.)+|[a-zA-Z0-9][a-zA-Z0-9-]*/g;
 
 // ---------------------------------------------------------------------------
 // Post-processing helpers
@@ -86,39 +100,31 @@ const SCHEMELESS_RE =
  * Trim trailing punctuation and unbalanced closing brackets from a URL match.
  */
 function trimTrailing(value: string): string {
-  let v = value;
+  // The number of closing brackets that have no opening bracket in the value.
+  // Each trimmed bracket lowers the number by one. A new count of the full
+  // value for each trimmed bracket takes quadratic time.
+  let unbalancedRound = countChar(value, ")") - countChar(value, "(");
+  let unbalancedSquare = countChar(value, "]") - countChar(value, "[");
 
-  // Iteratively trim trailing punctuation and unbalanced brackets
-  let changed = true;
-  while (changed) {
-    changed = false;
-
-    // Trim trailing punctuation chars
-    const before = v;
-    v = v.replace(TRAILING_PUNCT, "");
-    if (v !== before) {
-      changed = true;
-    }
-
-    // Trim unbalanced closing brackets from the end
-    for (const [open, close] of [
-      ["(", ")"],
-      ["[", "]"],
-    ] as const) {
-      while (v.endsWith(close)) {
-        const openCount = countChar(v, open);
-        const closeCount = countChar(v, close);
-        if (closeCount > openCount) {
-          v = v.slice(0, -1);
-          changed = true;
-        } else {
-          break;
-        }
-      }
+  // Trim trailing punctuation and unbalanced closing brackets, one character
+  // at a time from the end
+  let end = value.length;
+  while (end > 0) {
+    const char = value[end - 1];
+    if (TRAILING_PUNCT.test(char)) {
+      end--;
+    } else if (char === ")" && unbalancedRound > 0) {
+      unbalancedRound--;
+      end--;
+    } else if (char === "]" && unbalancedSquare > 0) {
+      unbalancedSquare--;
+      end--;
+    } else {
+      break;
     }
   }
 
-  return v;
+  return value.slice(0, end);
 }
 
 function countChar(str: string, ch: string): number {
@@ -212,6 +218,10 @@ export function findLinks(text: string, options?: FindOptions): LinkMatch[] {
 
   // 3. Bare email addresses
   for (const m of text.matchAll(EMAIL_RE)) {
+    if (m[1] === undefined) {
+      // Text without an address, see EMAIL_RE.
+      continue;
+    }
     rawMatches.push({
       type: "email",
       value: m[0],
@@ -222,6 +232,10 @@ export function findLinks(text: string, options?: FindOptions): LinkMatch[] {
 
   // 4. Schemeless URLs
   for (const m of text.matchAll(SCHEMELESS_RE)) {
+    if (m[1] === undefined) {
+      // Text without a URL, see SCHEMELESS_RE.
+      continue;
+    }
     rawMatches.push({
       type: "url",
       value: m[0],

@@ -2,7 +2,7 @@ import { StyleSchema } from "@blocknote/core";
 import { ReactCustomInlineContentRenderProps } from "@blocknote/react";
 import type { ComponentType } from "react";
 
-import { mathMLExportContent } from "../../../helpers/toExternalHTML/latexToMathMLElement.js";
+import { mathMLExportContent } from "../../../helpers/toExternalHTML/mathMLExportContent.js";
 import { MathInlineContentConfig } from "../../createReactMathInlineContentSpec.js";
 
 export const InlineMathMLElement = ({

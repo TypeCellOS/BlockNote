@@ -1,7 +1,8 @@
 import { BlockNoteSchema, defaultBlockSpecs } from "@blocknote/core";
 import { ColumnBlock, ColumnListBlock } from "@blocknote/xl-multi-column";
 import { expect } from "vite-plus/test";
-import { screenshotFull } from "../../utils/screenshotFull.js";
+import { page } from "../../utils/context.js";
+import { expectElement } from "../../utils/editor.js";
 
 // The exporter e2e files (emailImages / typstPdfImages) run complete
 // exports of the full shared test document with the default
@@ -79,31 +80,66 @@ export function removeExportFrame() {
 export async function screenshotPdfPages(
   pdfBytes: Uint8Array,
   name: string,
-  options?: Parameters<typeof screenshotFull>[2],
+  options?: Parameters<
+    ReturnType<typeof expectElement>["toMatchScreenshot"]
+  >[1],
 ) {
-  const pdfjs = await import("pdfjs-dist");
-  const workerUrl = (
-    await import("pdfjs-dist/build/pdf.worker.min.mjs?url" as string)
-  ).default;
-  pdfjs.GlobalWorkerOptions.workerSrc = workerUrl;
+  const [pdfjs, worker] = await Promise.all([
+    import("pdfjs-dist"),
+    import("pdfjs-dist/build/pdf.worker.min.mjs?url" as string),
+  ]);
+  const previousWorkerSrc = pdfjs.GlobalWorkerOptions.workerSrc;
+  const { innerWidth, innerHeight } = window;
+  pdfjs.GlobalWorkerOptions.workerSrc = worker.default;
 
-  const parsed = await pdfjs.getDocument({ data: pdfBytes.slice() }).promise;
-  // The shared test document contains a page break.
-  expect(parsed.numPages).toBeGreaterThanOrEqual(2);
+  let loadingTask: ReturnType<typeof pdfjs.getDocument> | undefined;
+  let frame: HTMLElement | undefined;
+  try {
+    loadingTask = pdfjs.getDocument({ data: pdfBytes.slice() });
+    const parsed = await loadingTask.promise;
+    // The shared test document contains a page break.
+    expect(parsed.numPages).toBeGreaterThanOrEqual(2);
 
-  const frame = createExportFrame("fit-content");
-  for (let n = 1; n <= parsed.numPages; n++) {
-    const pdfPage = await parsed.getPage(n);
-    const viewport = pdfPage.getViewport({ scale: 1 });
+    frame = createExportFrame("fit-content");
     const canvas = document.createElement("canvas");
-    canvas.width = viewport.width;
-    canvas.height = viewport.height;
     canvas.style.display = "block";
-    await pdfPage.render({
-      canvasContext: canvas.getContext("2d")!,
-      viewport,
-    } as any).promise;
-    frame.replaceChildren(canvas);
-    await screenshotFull(frame, `${name}-${n}`, options);
+    frame.append(canvas);
+    let resized = false;
+    for (let n = 1; n <= parsed.numPages; n++) {
+      const pdfPage = await parsed.getPage(n);
+      const viewport = pdfPage.getViewport({ scale: 1 });
+      // Reset the bitmap and context even when consecutive pages are the same size.
+      canvas.width = viewport.width;
+      canvas.height = viewport.height;
+      await pdfPage.render({
+        canvasContext: canvas.getContext("2d")!,
+        viewport,
+      } as any).promise;
+
+      // Keep screenshotFull's capture geometry, but don't shrink and regrow
+      // the viewport between pages with the same dimensions.
+      const height = Math.max(
+        720,
+        Math.ceil(frame.getBoundingClientRect().bottom) + 40,
+      );
+      if (!resized || height !== window.innerHeight) {
+        await page.viewport(1280, height);
+        resized = true;
+      }
+      await expectElement(frame).toMatchScreenshot(`${name}-${n}`, options);
+    }
+  } finally {
+    try {
+      await loadingTask?.destroy();
+    } finally {
+      pdfjs.GlobalWorkerOptions.workerSrc = previousWorkerSrc;
+      frame?.remove();
+      if (
+        window.innerWidth !== innerWidth ||
+        window.innerHeight !== innerHeight
+      ) {
+        await page.viewport(innerWidth, innerHeight);
+      }
+    }
   }
 }

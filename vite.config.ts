@@ -1,10 +1,56 @@
 import { defineConfig } from "vite-plus";
 
+// Opt existing suites into the new conventions as they are migrated, rather
+// than requiring unrelated legacy tests to change in this PR.
+const componentTestFiles = [
+  "packages/core/src/blocks/Heading/Heading.browser.test.tsx",
+  "packages/react/src/components/FormattingToolbar/FormattingToolbar.browser.test.tsx",
+  "packages/react/src/components/FormattingToolbar/DesktopFormattingToolbarController.browser.test.tsx",
+  "packages/react/src/components/FormattingToolbar/DefaultButtons/BasicTextStyleButton.browser.test.tsx",
+  "packages/react/src/components/FormattingToolbar/DefaultButtons/ColorStyleButton.browser.test.tsx",
+  "packages/react/src/components/FormattingToolbar/DefaultButtons/CreateLinkButton.browser.test.tsx",
+  "packages/react/src/components/FormattingToolbar/DefaultButtons/NestBlockButtons.browser.test.tsx",
+  "packages/react/src/components/FormattingToolbar/DefaultButtons/TextAlignButton.browser.test.tsx",
+  "packages/react/src/components/FormattingToolbar/DefaultSelects/BlockTypeSelect.browser.test.tsx",
+];
+const testIdRestriction = {
+  property: "getByTestId",
+  message:
+    "Use accessible locators such as getByRole with a name or getByLabel in browser tests.",
+};
+const testSleepMessage =
+  "Wait for an observable condition (for example expect.element or expect.poll), not elapsed time. If testing timer behavior itself, document a targeted lint exception.";
+const testSleepProperties = [
+  { property: "waitForTimeout", message: testSleepMessage },
+  { property: "setTimeout", message: testSleepMessage },
+  { property: "sleep", message: testSleepMessage },
+];
+const browserTestImportPatterns = [
+  {
+    group: [
+      "**/utils/accessibility",
+      "**/utils/accessibility.*",
+      "**/utils/keyboard",
+      "**/utils/keyboard.*",
+      "**/screen-reader/screenReader",
+      "**/screen-reader/screenReader.*",
+    ],
+    allowTypeImports: true,
+    message:
+      "Use the registered commands from tests/src/utils/context.ts instead of importing command implementations.",
+  },
+  {
+    group: ["timers", "timers/*", "node:timers", "node:timers/*"],
+    message: testSleepMessage,
+  },
+];
+
 export default defineConfig({
   staged: {
     // Format + fast lint (no type-aware) on pre-commit for speed.
-    // Full type-aware check runs in CI via `vp check`.
-    "*": "vp check --fix",
+    // Full type-aware check runs in CI via `vp run lint`.
+    // Include the audit host even for CSS-only staged changes.
+    "*": "vp check --fix vite.config.ts",
   },
   run: {
     // Cache package.json scripts by default (off by default in vp).
@@ -14,6 +60,34 @@ export default defineConfig({
     // its tsc step reads `core`'s `.d.ts` files.
     cache: { scripts: true },
     tasks: {
+      // Docker owns image reuse. Always ask the daemon and execute browser runs:
+      // image state, installed browsers, and reports aren't task-cache inputs.
+      "e2e:image": {
+        command: "bash tests/docker-build.sh",
+        cache: false,
+      },
+      e2e: {
+        command:
+          "BLOCKNOTE_E2E_FULL=1 bash tests/docker-run.sh -e CI=1 -- --run",
+        cache: false,
+      },
+      "e2e:local": {
+        command: "vp test -c vite.config.browser.ts --mode browser-local --run",
+        cwd: "tests",
+        cache: false,
+      },
+      "e2e:updateSnaps": {
+        command: "bash tests/docker-run.sh -e CI=1 -- --run --update=true",
+        cache: false,
+      },
+      "e2e:report": {
+        command: "serve -l 4173 tests/playwright-report",
+        cache: false,
+      },
+      "test:screen-reader": {
+        command: "node tests/src/screen-reader/run-screen-reader.mjs",
+        cache: false,
+      },
       "copy-package-readmes": {
         command: "node scripts/copy-package-readmes.mjs",
         // These copies are outputs, not inputs: automatic tracking of the
@@ -45,7 +119,9 @@ export default defineConfig({
       "./packages/ariakit/vite.config.ts",
       "./packages/code-block/vite.config.ts",
       "./packages/core/vite.config.ts",
+      "./packages/diagram-block/vite.config.ts",
       "./packages/mantine/vite.config.ts",
+      "./packages/math-block/vite.config.ts",
       "./packages/react/vite.config.ts",
       "./packages/server-util/vite.config.ts",
       "./packages/shadcn/vite.config.ts",
@@ -56,15 +132,22 @@ export default defineConfig({
       "./packages/xl-multi-column/vite.config.ts",
       "./packages/xl-odt-exporter/vite.config.ts",
       "./packages/xl-pdf-exporter/vite.config.ts",
+      "./packages/xl-typst-compiler/vite.config.ts",
+      "./packages/xl-typst-exporter/vite.config.ts",
       "./tests/vite.config.ts",
       "./tests/vite.config.browser.ts",
     ],
   },
   lint: {
     plugins: ["typescript", "react", "import"],
-    // Adds pre-migration ESLint rules with no oxlint equivalents.
+    // ESLint compatibility rules and BlockNote-specific conventions.
     jsPlugins: [
       { name: "import-eslint", specifier: "eslint-plugin-import" },
+      {
+        name: "blocknote-tests",
+        specifier: "./scripts/lint/component-browser-tests.mjs",
+      },
+      { name: "blocknote", specifier: "./scripts/css-variable-plugin.mjs" },
       // The rules of the text lens (packages/xl-ai/src/api/v2). FOLLOW-UP
       // (later): use them outside the lens too.
       { name: "lens", specifier: "./packages/xl-ai/lint/lensPlugin.js" },
@@ -76,6 +159,7 @@ export default defineConfig({
       typeCheck: true,
     },
     rules: {
+      "blocknote/css-variable-layering": "error",
       "no-console": "error",
       curly: "warn",
       "@typescript-eslint/no-non-null-assertion": "off",
@@ -103,6 +187,30 @@ export default defineConfig({
     },
     overrides: [
       {
+        // Pilot on the component examples
+        files: componentTestFiles,
+        rules: {
+          "blocknote-tests/component-browser-structure": "error",
+        },
+      },
+      {
+        files: ["packages/*/src/**/*.{ts,tsx}"],
+        excludeFiles: ["**/*.test.{ts,tsx}"],
+        rules: {
+          "no-restricted-imports": [
+            "error",
+            {
+              patterns: [
+                {
+                  group: ["**/*.test", "**/*.test.*"],
+                  message: "Production code must not import test files.",
+                },
+              ],
+            },
+          ],
+        },
+      },
+      {
         // The text lens: each module imports only modules before it (see its
         // README), and the size of a function has limits. A function above a
         // limit has a disable comment with the reason.
@@ -122,6 +230,10 @@ export default defineConfig({
                   group: ["./*/**", "../**/*/*", "!**/index.js", "!../../*"],
                   message:
                     "Import the index.js of the folder. It has the API of the folder for the other folders.",
+                },
+                {
+                  group: ["**/*.test", "**/*.test.*"],
+                  message: "Production code must not import test files.",
                 },
               ],
             },
@@ -174,6 +286,80 @@ export default defineConfig({
           complexity: "off",
           "max-depth": "off",
           "max-lines-per-function": "off",
+        },
+      },
+      {
+        files: [
+          "**/*.browser.test.{ts,tsx}",
+          "**/*.screen-reader.test.{ts,tsx}",
+        ],
+        plugins: ["vitest"],
+        rules: {
+          // The plugin enables these defaults, which do not fit our test conventions.
+          // Assertions can live in shared helpers outside a test callback.
+          "vitest/expect-expect": "off",
+          "vitest/no-standalone-expect": "off",
+          // Browser-specific coverage and documented known failures are intentional.
+          "vitest/no-conditional-expect": "off",
+          "vitest/no-conditional-tests": "off",
+          "vitest/no-disabled-tests": "off",
+          // Existing mocks do not all provide explicit type parameters.
+          "vitest/require-mock-type-parameters": "off",
+          "vitest/no-focused-tests": "error",
+          "vitest/valid-expect": ["error", { maxArgs: 2 }],
+          "vitest/require-awaited-expect-poll": "error",
+          "typescript/no-floating-promises": [
+            "error",
+            { ignoreVoid: false, checkThenables: true },
+          ],
+          "no-restricted-imports": [
+            "error",
+            {
+              patterns: browserTestImportPatterns,
+            },
+          ],
+          "no-restricted-properties": [
+            "error",
+            testIdRestriction,
+            {
+              property: "waitForTimeout",
+              message:
+                "Wait for observable readiness with expect.element or expect.poll instead of sleeping.",
+            },
+            {
+              property: "sleep",
+              message:
+                "Wait for observable readiness with expect.element or expect.poll instead of sleeping.",
+            },
+          ],
+        },
+      },
+      {
+        files: componentTestFiles,
+        rules: {
+          "no-restricted-globals": [
+            "error",
+            { name: "setTimeout", message: testSleepMessage },
+          ],
+          "no-restricted-properties": [
+            "error",
+            ...testSleepProperties,
+            testIdRestriction,
+          ],
+          "no-restricted-imports": [
+            "error",
+            {
+              // Overrides replace rule options, so retain the shared safeguards.
+              patterns: [
+                ...browserTestImportPatterns,
+                {
+                  group: ["**/utils/editor.js", "**/utils/editor"],
+                  importNames: ["sleep"],
+                  message: testSleepMessage,
+                },
+              ],
+            },
+          ],
         },
       },
       {

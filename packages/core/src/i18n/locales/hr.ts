@@ -220,6 +220,10 @@ export const hr: Dictionary = {
     add_block_button: "Prazan sklopivi blok. Klikni da dodaš sadržaj.",
     toggle_button: "Proširi ili sažmi",
   },
+  block_nesting: {
+    indented: (level: number) => `Uvlaka povećana, razina ${level}`,
+    outdented: (level: number) => `Uvlaka smanjena, razina ${level}`,
+  },
   code_block: {
     add_source_button_text: "Dodaj izvorni kôd",
     ok_button_text: "U redu",

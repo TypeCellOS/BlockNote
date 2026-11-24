@@ -14,7 +14,7 @@
   top: 33px;
   bottom: 12px;
   width: 1px;
-  background: var(--bn-colors-border);
+  background: var(--bn-border-color);
 }
 
 /* Numbering is a CSS counter, so it stays correct as steps are added,
@@ -51,10 +51,10 @@
   width: 25px;
   height: 25px;
   box-sizing: border-box;
-  border: 1px solid var(--bn-colors-border);
+  border: 1px solid var(--bn-border-color);
   border-radius: 999px;
-  background: var(--bn-colors-editor-background);
-  color: var(--bn-colors-side-menu);
+  background: var(--bn-background-color-editor);
+  color: var(--bn-text-color-muted);
   font: inherit;
   font-size: 0.8rem;
   padding: 0;
@@ -63,7 +63,7 @@
 
 .step-number {
   counter-increment: step;
-  color: var(--bn-colors-editor-text);
+  color: var(--bn-text-color-primary);
 }
 
 .step-number::before {
@@ -94,9 +94,9 @@
   padding: 0;
   cursor: pointer;
   font: inherit;
-  color: var(--bn-colors-side-menu);
+  color: var(--bn-text-color-muted);
 }
 
 .stepper-add:hover {
-  color: var(--bn-colors-hovered-text);
+  color: var(--bn-text-color-hovered);
 }

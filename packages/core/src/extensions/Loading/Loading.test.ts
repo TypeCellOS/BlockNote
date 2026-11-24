@@ -1,19 +1,11 @@
-// @vitest-environment node
-import { afterEach, expect, it } from "vite-plus/test";
-import { BlockNoteEditor } from "../../editor/BlockNoteEditor.js";
-import { ReadOnlyExtension } from "../ReadOnly/ReadOnly.js";
+import { expect } from "vite-plus/test";
 import { LoadingExtension } from "./Loading.js";
 
-const editor = BlockNoteEditor.create();
-const loading = editor.getExtension(LoadingExtension)!;
-const readOnly = editor.getExtension(ReadOnlyExtension)!;
-
-afterEach(() => {
-  editor.isEditable = true;
-  readOnly.setReadOnly(false, "preview");
-});
-
-it("blocks editing until every loading token is released", () => {
+it("blocks editing until every loading token is released", async ({
+  setupEditor,
+}) => {
+  const { editor } = await setupEditor();
+  const loading = editor.getExtension(LoadingExtension)!;
   const release = loading.acquire();
   const releaseOther = loading.acquire();
   try {
@@ -29,28 +21,35 @@ it("blocks editing until every loading token is released", () => {
   }
 });
 
-it("preserves application and independent feature restrictions", () => {
+it("preserves application and independent feature restrictions", async ({
+  setupEditor,
+}) => {
+  const { editor } = await setupEditor();
+  const loading = editor.getExtension(LoadingExtension)!;
   const release = loading.acquire();
   editor.isEditable = false;
-  readOnly.setReadOnly(true, "preview");
+  const releasePreview = editor.acquireEditingLock();
   release();
   expect(editor.isEditable).toBe(false);
   editor.isEditable = true;
   expect(editor.isEditable).toBe(false);
-  readOnly.setReadOnly(false, "preview");
+  releasePreview();
   expect(editor.isEditable).toBe(true);
 });
 
-it("tracks tokens without a ReadOnly extension", () => {
-  const editor = BlockNoteEditor.create({ disableExtensions: ["readOnly"] });
-  try {
-    const loading = editor.getExtension(LoadingExtension)!;
-    expect(editor.getExtension(ReadOnlyExtension)).toBeUndefined();
-    const release = loading.acquire();
-    expect(loading.store.state.size).toBe(1);
-    release();
-    expect(loading.store.state.size).toBe(0);
-  } finally {
-    editor._tiptapEditor.destroy();
-  }
+it("preserves an initially read-only editor when loading completes", async ({
+  setupEditor,
+}) => {
+  const { editor } = await setupEditor({
+    _tiptapOptions: { editable: false },
+  });
+  const loading = editor.getExtension(LoadingExtension)!;
+  const release = loading.acquire();
+  expect(loading.store.state.size).toBe(1);
+  expect(editor.isEditable).toBe(false);
+  release();
+  expect(loading.store.state.size).toBe(0);
+  expect(editor.isEditable).toBe(false);
+  editor.isEditable = true;
+  expect(editor.isEditable).toBe(true);
 });

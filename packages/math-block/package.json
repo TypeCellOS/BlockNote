@@ -97,19 +97,16 @@
   "dependencies": {
     "@blocknote/core": "workspace:^",
     "@blocknote/react": "workspace:^",
-    "@handlewithcare/prosemirror-inputrules": "^0.1.4",
     "katex": "^0.18.9",
     "prosemirror-model": "^1.25.11",
     "prosemirror-state": "^1.4.4"
   },
   "devDependencies": {
-    "@blocknote/shared": "workspace:^",
     "react-icons": "^5.5.0",
     "@blocknote/xl-docx-exporter": "workspace:^",
     "@blocknote/xl-email-exporter": "workspace:^",
     "@blocknote/xl-odt-exporter": "workspace:^",
     "@react-email/components": "^1.0.12",
-    "@types/katex": "^0.16.7",
     "mathml2omml": "^0.5.0",
     "@types/react": "^19.2.3",
     "@types/react-dom": "^19.2.3",

@@ -1,0 +1,27 @@
+{
+  "extends": "./tsconfig.json",
+  "compilerOptions": {
+    "composite": false,
+    "rootDir": "..",
+    "sourceMap": false,
+    "types": ["node", "vite-plus/client"],
+    "paths": {
+      "@shared/*": ["../shared/*"],
+      "@blocknote/core": ["../packages/core/src/index.ts"],
+      "@blocknote/core/*": ["../packages/core/src/*"]
+    }
+  },
+  "include": [
+    "vitestSetup.node-fixtures.ts",
+    "src/integration/**/*.test.ts",
+    "src/integration/**/*.test.tsx",
+    "../packages/*/src/**/*.test.ts",
+    "../packages/*/src/**/*.test.tsx",
+    "../examples/07-collaboration/12-multi-doc-versioning/src/*.test.ts"
+  ],
+  "exclude": [
+    "src/integration/**/*.browser.test.*",
+    "../packages/*/src/**/*.browser.test.*",
+    "../packages/*/src/**/*.screen-reader.test.ts"
+  ]
+}

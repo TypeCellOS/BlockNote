@@ -24,9 +24,9 @@ export type TCollabComment<Data = any> = {
   content: any;
 };
 
-export type ThreadType = "archived" | "unarchived";
+type ThreadType = "archived" | "unarchived";
 
-export type GetThreadsOptions = {
+type GetThreadsOptions = {
   /**
    * The types of threads to get
    * @default ['unarchived']
@@ -34,7 +34,7 @@ export type GetThreadsOptions = {
   types?: Array<ThreadType>;
 };
 
-export type DeleteCommentOptions = {
+type DeleteCommentOptions = {
   /**
    * If `true`, the thread will also be deleted if the deleted comment was the first comment in the thread.
    */
@@ -46,7 +46,7 @@ export type DeleteCommentOptions = {
   deleteContent?: boolean;
 };
 
-export type DeleteThreadOptions = {
+type DeleteThreadOptions = {
   /**
    * If `true`, will remove the comments on the thread,
    * otherwise will only mark the thread as deleted

@@ -267,7 +267,7 @@ function InlineEmojiPickerContent(props: {
 
   useEffect(() => {
     const handleKeyDown = (event: KeyboardEvent) => {
-      if (event.isComposing) {
+      if (event.isComposing || event.keyCode === 229) {
         return;
       }
 

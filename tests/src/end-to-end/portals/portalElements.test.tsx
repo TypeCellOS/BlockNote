@@ -1,105 +1,31 @@
-/* eslint-disable react/globals -- Test components expose mounted editor instances to assertions after render. */
-import { BlockNoteEditor } from "@blocknote/core";
 import "@blocknote/core/fonts/inter.css";
 import { BlockNoteView } from "@blocknote/mantine";
 import "@blocknote/mantine/style.css";
 import {
   BlockNoteViewEditor,
   PortalElementOverride,
-  PortalElementsMap,
-  useCreateBlockNote,
   usePortalElement,
 } from "@blocknote/react";
-import { afterEach, describe, expect, test, vi } from "vite-plus/test";
-import { useEffect, useLayoutEffect, useRef } from "react";
+import { describe, expect } from "vite-plus/test";
+import { useLayoutEffect, useRef } from "react";
 import { createPortal } from "react-dom";
-import { render } from "vitest-browser-react";
 import { userEvent } from "../../utils/context.js";
 import { focusOnEditor, waitForSelector } from "../../utils/editor.js";
-
-function PortalTestEditor(props: {
-  portalElements?: PortalElementsMap;
-  theme?: "light" | "dark";
-  onEditor: (editor: BlockNoteEditor) => void;
-}) {
-  const editor = useCreateBlockNote();
-
-  useEffect(() => {
-    props.onEditor(editor);
-  }, [editor, props]);
-
-  return (
-    <BlockNoteView
-      editor={editor}
-      portalElements={props.portalElements}
-      theme={props.theme}
-    />
-  );
-}
+import { createPortalTarget } from "./portalTarget.js";
 
 /**
  * A layout that renders the editor itself: a scrolling pane with the editor
  * next to a sidebar, both inside the `BlockNoteView`, as an app would.
  */
-function ManualLayoutEditor(props: {
-  onEditor: (editor: BlockNoteEditor) => void;
-}) {
-  const editor = useCreateBlockNote();
-
-  useEffect(() => {
-    props.onEditor(editor);
-  }, [editor, props]);
-
+function ManualLayout() {
   return (
-    <BlockNoteView editor={editor} renderEditor={false}>
-      <div style={{ display: "flex" }}>
-        <div
-          data-test="pane"
-          style={{ flex: 1, height: 300, overflow: "auto" }}
-        >
-          <BlockNoteViewEditor />
-        </div>
-        <div data-test="sidebar" style={{ width: 200 }} />
+    <div style={{ display: "flex" }}>
+      <div data-test="pane" style={{ flex: 1, height: 300, overflow: "auto" }}>
+        <BlockNoteViewEditor />
       </div>
-    </BlockNoteView>
+      <div data-test="sidebar" style={{ width: 200 }} />
+    </div>
   );
-}
-
-function createPortalTarget(id: string, className?: string) {
-  const target = document.createElement("div");
-  target.id = id;
-  target.dataset.testPortalTarget = "";
-  target.className = className || "";
-  document.body.append(target);
-  return target;
-}
-
-async function renderEditor(props: {
-  portalElements?: PortalElementsMap;
-  theme?: "light" | "dark";
-}) {
-  let editor: BlockNoteEditor | undefined;
-
-  await render(
-    <PortalTestEditor
-      {...props}
-      onEditor={(value) => {
-        editor = value;
-      }}
-    />,
-  );
-  await waitForSelector(".bn-editor");
-  await vi.waitFor(() => {
-    if (!editor) {
-      throw new Error("Editor was not created");
-    }
-  });
-
-  if (!editor) {
-    throw new Error("Editor was not created");
-  }
-
-  return editor;
 }
 
 async function openSlashMenu() {
@@ -108,15 +34,11 @@ async function openSlashMenu() {
   return waitForSelector("#bn-suggestion-menu");
 }
 
-afterEach(() => {
-  document
-    .querySelectorAll<HTMLElement>("[data-test-portal-target]")
-    .forEach((target) => target.remove());
-});
-
 describe("Portal elements", () => {
-  test("uses the editor container as the default portal target", async () => {
-    const editor = await renderEditor({});
+  it("uses the editor container as the default portal target", async ({
+    setupEditor,
+  }) => {
+    const { editor } = await setupEditor();
     const menu = await openSlashMenu();
     const container = document.querySelector<HTMLElement>(".bn-container");
 
@@ -126,11 +48,13 @@ describe("Portal elements", () => {
     expect(editor.isWithinEditor(menu)).toBe(true);
   });
 
-  test("creates a themed root in an external default portal target", async () => {
-    const target = createPortalTarget("default-portal-target");
-    const editor = await renderEditor({
-      portalElements: { default: target },
-      theme: "dark",
+  it("creates a themed root in an external default portal target", async ({
+    onTestFinished,
+    setupEditor,
+  }) => {
+    const target = createPortalTarget(onTestFinished, "default-portal-target");
+    const { editor } = await setupEditor({
+      props: { portalElements: { default: target }, theme: "dark" },
     });
     const menu = await openSlashMenu();
     const root = menu.closest<HTMLElement>(".bn-root");
@@ -143,16 +67,27 @@ describe("Portal elements", () => {
     expect(editor.isWithinEditor(menu)).toBe(true);
   });
 
-  test("uses a per-element selector target instead of the default target", async () => {
-    const defaultTarget = createPortalTarget("default-portal-target");
-    const slashTarget = createPortalTarget("slash-portal-target");
+  it("uses a per-element selector target instead of the default target", async ({
+    onTestFinished,
+    setupEditor,
+  }) => {
+    const defaultTarget = createPortalTarget(
+      onTestFinished,
+      "default-portal-target",
+    );
+    const slashTarget = createPortalTarget(
+      onTestFinished,
+      "slash-portal-target",
+    );
 
-    const editor = await renderEditor({
-      portalElements: {
-        default: defaultTarget,
-        slashMenu: "#slash-portal-target",
+    const { editor } = await setupEditor({
+      props: {
+        portalElements: {
+          default: defaultTarget,
+          slashMenu: "#slash-portal-target",
+        },
+        theme: "dark",
       },
-      theme: "dark",
     });
     const menu = await openSlashMenu();
     const root = menu.closest<HTMLElement>(".bn-root");
@@ -164,10 +99,11 @@ describe("Portal elements", () => {
     expect(editor.isWithinEditor(menu)).toBe(true);
   });
 
-  test("portals into document.body without registering the whole page", async () => {
-    const editor = await renderEditor({
-      portalElements: { slashMenu: document.body },
-      theme: "dark",
+  it("portals into document.body without registering the whole page", async ({
+    setupEditor,
+  }) => {
+    const { editor } = await setupEditor({
+      props: { portalElements: { slashMenu: document.body }, theme: "dark" },
     });
     const menu = await openSlashMenu();
     const root = menu.closest<HTMLElement>(".bn-root");
@@ -179,24 +115,13 @@ describe("Portal elements", () => {
     expect(editor.isWithinEditor(document.body)).toBe(false);
   });
 
-  test("portals next to the editor when the layout renders it manually", async () => {
-    let editor: BlockNoteEditor | undefined;
-    await render(
-      <ManualLayoutEditor
-        onEditor={(value) => {
-          editor = value;
-        }}
-      />,
-    );
-    await waitForSelector(".bn-editor");
-    await vi.waitFor(() => {
-      if (!editor) {
-        throw new Error("Editor was not created");
-      }
+  it("portals next to the editor when the layout renders it manually", async ({
+    setupEditor,
+  }) => {
+    const { editor } = await setupEditor({
+      props: { renderEditor: false },
+      children: <ManualLayout />,
     });
-    if (!editor) {
-      throw new Error("Editor was not created");
-    }
 
     const menu = await openSlashMenu();
     const pane = document.querySelector<HTMLElement>("[data-test=pane]")!;
@@ -211,40 +136,42 @@ describe("Portal elements", () => {
   // into the override root and checks its DOM in its own layout effect must
   // not find it detached (Ariakit does that when choosing where to mount a
   // popover, and moves a detached element to `document.body`).
-  test("has an override root in the document before its children's layout effects run", async () => {
-    const target = createPortalTarget("portal-target");
+  it("has an override root in the document before its children's layout effects run", async ({
+    onTestFinished,
+    setupEditor,
+  }) => {
+    const target = createPortalTarget(onTestFinished, "portal-target");
     const seen: { connected: boolean; registered: boolean }[] = [];
-    let editor: BlockNoteEditor | undefined;
-
-    function Probe() {
+    function Probe({
+      editor,
+    }: {
+      editor: import("@blocknote/core").BlockNoteEditor;
+    }) {
       const portalElement = usePortalElement();
       const ref = useRef<HTMLDivElement>(null);
       useLayoutEffect(() => {
         seen.push({
           connected: ref.current?.isConnected ?? false,
-          registered: editor?.isWithinEditor(ref.current!) ?? false,
+          registered: editor.isWithinEditor(ref.current!),
         });
-      }, []);
+      }, [editor]);
       if (!portalElement) {
         return null;
       }
       return createPortal(<div ref={ref} data-test="probe" />, portalElement);
     }
 
-    function App() {
-      const created = useCreateBlockNote();
-      editor = created;
-      return (
-        <BlockNoteView editor={created} renderEditor={false}>
+    await setupEditor({
+      props: { renderEditor: false },
+      children: ({ editor }) => (
+        <>
           <BlockNoteViewEditor />
           <PortalElementOverride target={target}>
-            <Probe />
+            <Probe editor={editor} />
           </PortalElementOverride>
-        </BlockNoteView>
-      );
-    }
-
-    await render(<App />);
+        </>
+      ),
+    });
     await waitForSelector("[data-test=probe]");
 
     expect(seen.length).toBeGreaterThan(0);
@@ -258,9 +185,14 @@ describe("Portal elements", () => {
   // composer is, must not inherit the outer view's portal element: that one
   // is registered with the outer editor only, so the nested editor's own menus
   // and popovers would count as outside it (see `PortalElementReset`).
-  test("resolves its own container inside another view's portalled UI", async () => {
-    const target = createPortalTarget("outer-portal-target");
-    let inner: BlockNoteEditor | undefined;
+  it("resolves its own container inside another view's portalled UI", async ({
+    onTestFinished,
+    setupEditor,
+  }) => {
+    const target = createPortalTarget(onTestFinished, "outer-portal-target");
+    const { editor: inner } = await setupEditor({ mountType: "dom" });
+    // The inner view must mount in the parent's React context for this test.
+    inner.unmount();
 
     function Probe() {
       const portalElement = usePortalElement();
@@ -270,35 +202,24 @@ describe("Portal elements", () => {
       return createPortal(<div data-test="nested-probe" />, portalElement);
     }
 
-    function NestedView() {
-      const created = useCreateBlockNote();
-      inner = created;
-      return (
-        <BlockNoteView editor={created}>
-          <Probe />
-        </BlockNoteView>
-      );
-    }
-
-    function App() {
-      const outer = useCreateBlockNote();
-      return (
-        <BlockNoteView editor={outer} renderEditor={false}>
+    await setupEditor({
+      props: { renderEditor: false },
+      children: (
+        <>
           <BlockNoteViewEditor />
           <PortalElementOverride target={target}>
-            <NestedView />
+            <BlockNoteView editor={inner}>
+              <Probe />
+            </BlockNoteView>
           </PortalElementOverride>
-        </BlockNoteView>
-      );
-    }
-
-    await render(<App />);
+        </>
+      ),
+    });
     const probe = await waitForSelector("[data-test=nested-probe]");
 
-    expect(inner).toBeDefined();
-    expect(inner!.isWithinEditor(probe)).toBe(true);
+    expect(inner.isWithinEditor(probe)).toBe(true);
     // Into the nested view's own container, not straight into the outer root.
-    expect(probe.closest(".bn-container")?.contains(inner!.domElement!)).toBe(
+    expect(probe.closest(".bn-container")?.contains(inner.domElement!)).toBe(
       true,
     );
   });

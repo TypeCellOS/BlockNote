@@ -1,4 +1,3 @@
-// @vitest-environment node
 import { expect, it } from "vite-plus/test";
 
 // Pure transformations: no generator entry point or translation corpora needed.

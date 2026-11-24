@@ -1,3 +1,4 @@
+import { escapeHtml } from "../../../util/escapeHtml.js";
 import { isVideoUrl } from "../../../util/string.js";
 import { findLinks } from "../../../extensions/tiptap-extensions/Link/helpers/linkDetector.js";
 import { EMPTY_BLOCK_PLACEHOLDER } from "../../exporters/html/util/serializeBlocksExternalHTML.js";
@@ -9,16 +10,6 @@ import { parseAutolinkLiteral } from "./autolink.js";
  * Replaces the unified/remark/rehype pipeline with a direct, minimal implementation
  * that handles exactly the markdown features BlockNote needs.
  */
-
-// ─── HTML Escaping ───────────────────────────────────────────────────────────
-
-function escapeHtml(str: string): string {
-  return str
-    .replace(/&/g, "&amp;")
-    .replace(/</g, "&lt;")
-    .replace(/>/g, "&gt;")
-    .replace(/"/g, "&quot;");
-}
 
 // ─── Helpers ─────────────────────────────────────────────────────────────────
 

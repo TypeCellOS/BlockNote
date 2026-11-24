@@ -4,7 +4,7 @@ import {
   odtDefaultSchemaMappings,
 } from "@blocknote/xl-odt-exporter";
 import { BlobReader, ZipReader } from "@zip.js/zip.js";
-import { beforeAll, describe, expect, it } from "vite-plus/test";
+import { describe, expect, it } from "vite-plus/test";
 
 import {
   diagramDocument,
@@ -13,11 +13,6 @@ import {
   zipEntryContent,
 } from "../exporterTestUtil.js";
 import { createDiagramBlockMapping, diagramBlockMapping } from "./index.js";
-
-beforeAll(async () => {
-  // @ts-expect-error - Blob polyfill for Node test environment
-  globalThis.Blob = (await import("node:buffer")).Blob;
-});
 
 function createExporter(diagram: ReturnType<typeof createDiagramBlockMapping>) {
   const mappings = {
@@ -67,11 +62,27 @@ describe("odt exporter mappings", () => {
     expect(contentXML).not.toContain("draw:image");
   });
 
-  it("should throw a descriptive error without a renderer outside the browser", async () => {
+  it("should embed real vector diagrams outside the browser by default", async () => {
+    expect(typeof document).toBe("undefined");
     const exporter = createExporter(diagramBlockMapping);
-
-    await expect(exporter.toODTDocument(diagramDocument)).rejects.toThrow(
-      "pass a `renderDiagram` function",
+    const odt = await exporter.toODTDocument(diagramDocument);
+    const reader = new ZipReader(new BlobReader(odt));
+    const entries = await reader.getEntries();
+    const svgEntry = entries.find((entry) =>
+      /^Pictures\/.*\.svg$/.test(entry.filename),
     );
+    expect(svgEntry).toBeDefined();
+    if (!svgEntry) {
+      throw new Error("SVG picture missing from exported ODT");
+    }
+    const svg = await zipEntryContent(odt, svgEntry.filename);
+    expect(svg).toContain("pele-flowchart");
+    expect(svg).not.toContain("foreignObject");
+    const contentXML = await zipEntryContent(odt, "content.xml");
+    expect(contentXML).toContain(`xlink:href="${svgEntry.filename}"`);
+    expect(contentXML).toContain('draw:mime-type="image/svg+xml"');
+    const manifest = await zipEntryContent(odt, "META-INF/manifest.xml");
+    expect(manifest).toContain('manifest:media-type="image/svg+xml"');
+    await reader.close();
   });
 });

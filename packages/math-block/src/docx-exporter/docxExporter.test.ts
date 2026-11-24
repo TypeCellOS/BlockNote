@@ -17,7 +17,7 @@ import {
   ZipReader,
 } from "@zip.js/zip.js";
 import { Document, Packer, Paragraph } from "docx";
-import { describe, expect, it } from "vite-plus/test";
+import { describe, expect, it, onTestFinished, vi } from "vite-plus/test";
 import xmlFormat from "xml-formatter";
 
 import { inlineMathMapping, mathBlockMapping } from "./index.js";
@@ -49,6 +49,10 @@ describe("docx exporter mappings", () => {
   ])(
     "should preserve XML escaping in block and inline math: %s",
     async (source, escaped) => {
+      const warn = vi.spyOn(console, "warn");
+      onTestFinished(() => {
+        warn.mockRestore();
+      });
       const exporter = new DOCXExporter(
         BlockNoteSchema.create(),
         docxDefaultSchemaMappings,
@@ -87,6 +91,7 @@ describe("docx exporter mappings", () => {
         expect(xml.match(/<m:oMath[ >]/g)).toHaveLength(2);
         expect(xml.split(escaped)).toHaveLength(3);
         expect(() => xmlFormat(xml)).not.toThrow();
+        expect(warn).not.toHaveBeenCalledWith("Type not supported: annotation");
       } finally {
         await zip.close();
       }

@@ -3,11 +3,7 @@ import { beforeEach, describe, expect, test, vi } from "vite-plus/test";
 import { render } from "vitest-browser-react";
 import { userEvent } from "../../utils/context.js";
 import { EDITOR_SELECTOR, EMOJI_PICKER_SELECTOR } from "../../utils/const.js";
-import {
-  focusOnEditor,
-  waitForSelector,
-  waitForTextInEditor,
-} from "../../utils/editor.js";
+import { waitForSelector, waitForTextInEditor } from "../../utils/editor.js";
 import { waitForSelectedEmoji } from "../../utils/emojipicker.js";
 import { executeSlashCommand } from "../../utils/slashmenu.js";
 
@@ -54,12 +50,14 @@ beforeEach(async () => {
       <App />
     </form>,
   );
-  await waitForSelector(EDITOR_SELECTOR);
+  // Only the emoji interactions are under test; no pointer trip is needed
+  // to focus the initially empty editor.
+  (await waitForSelector(EDITOR_SELECTOR)).focus();
+  await window.__blockNoteWaitForEditorFocus();
 });
 
 describe("Check Emoji Picker Functionality", () => {
   test("should open only after two characters and select the top-left emoji", async () => {
-    await focusOnEditor();
     await userEvent.keyboard(":");
     expect(document.querySelector(EMOJI_PICKER_SELECTOR)).toBeNull();
     await userEvent.keyboard("s");
@@ -76,7 +74,6 @@ describe("Check Emoji Picker Functionality", () => {
     );
   });
   test("should leave Enter to the editor for a bare colon", async () => {
-    await focusOnEditor();
     await userEvent.keyboard(":");
 
     await userEvent.keyboard("{Enter}");
@@ -88,7 +85,6 @@ describe("Check Emoji Picker Functionality", () => {
     });
   });
   test("should navigate and reveal emoji rows without moving the editor caret", async () => {
-    await focusOnEditor();
     const editor = await waitForSelector(EDITOR_SELECTOR);
     await userEvent.keyboard(":an");
     const selector = ".bn-frimousse-emoji[data-selected]";
@@ -137,7 +133,6 @@ describe("Check Emoji Picker Functionality", () => {
     });
   });
   test("should preserve the selected skin tone when the query changes and insert with Enter", async () => {
-    await focusOnEditor();
     await userEvent.keyboard(":waving hand");
     await waitForSelector(".bn-frimousse-emoji[data-selected]");
 
@@ -161,7 +156,6 @@ describe("Check Emoji Picker Functionality", () => {
     await waitForTextInEditor("👋🏻 ");
   });
   test("should insert the selected skin tone when clicked without submitting a form", async () => {
-    await focusOnEditor();
     await userEvent.keyboard(":waving hand");
     await waitForSelector(".bn-frimousse-emoji[data-selected]");
 
@@ -184,10 +178,8 @@ describe("Check Emoji Picker Functionality", () => {
     );
   });
   test("should navigate emojis while focus remains in the editor", async () => {
-    await focusOnEditor();
     const editor = await waitForSelector(EDITOR_SELECTOR);
     await userEvent.keyboard(":sm");
-    await waitForSelector(EMOJI_PICKER_SELECTOR);
 
     const selectedSelector = ".bn-frimousse-emoji[data-selected]";
     const first = await waitForSelector(selectedSelector);
@@ -227,14 +219,10 @@ describe("Check Emoji Picker Functionality", () => {
     await waitForTextInEditor(`${selectedAfterQuery} `);
   });
   test("should clamp navigation to the last item in a partial row", async () => {
-    await focusOnEditor();
     await userEvent.keyboard(":keycap");
     await waitForSelector(".bn-frimousse-emoji[data-selected]");
 
-    for (let index = 0; index < 8; index++) {
-      await userEvent.keyboard("{ArrowRight}");
-    }
-    await userEvent.keyboard("{ArrowDown}");
+    await userEvent.keyboard("{ArrowRight}".repeat(8) + "{ArrowDown}");
 
     const lastEmoji = await vi.waitFor(() => {
       const selected = document.querySelector<HTMLButtonElement>(
@@ -253,7 +241,6 @@ describe("Check Emoji Picker Functionality", () => {
     expect(lastEmoji.getAttribute("aria-selected")).toBe("true");
   });
   test("should wrap horizontally between neighboring rows", async () => {
-    await focusOnEditor();
     await userEvent.keyboard(":keycap");
     await waitForSelector(".bn-frimousse-emoji[data-selected]");
     const selection = window.getSelection()!;
@@ -288,7 +275,6 @@ describe("Check Emoji Picker Functionality", () => {
   test.each(["ArrowLeft", "ArrowUp", "ArrowRight", "ArrowDown"])(
     "should leave %s at a grid boundary to the editor",
     async (key) => {
-      await focusOnEditor();
       const editor = await waitForSelector(EDITOR_SELECTOR);
       await userEvent.keyboard(" tail");
       window
@@ -321,7 +307,6 @@ describe("Check Emoji Picker Functionality", () => {
   test.each(["ArrowLeft", "ArrowUp", "ArrowRight", "ArrowDown"])(
     "should not consume %s when there are no results",
     async (key) => {
-      await focusOnEditor();
       const editor = await waitForSelector(EDITOR_SELECTOR);
       await userEvent.keyboard(":qq");
       expect((await waitForSelector(".bn-frimousse-empty")).textContent).toBe(
@@ -331,7 +316,6 @@ describe("Check Emoji Picker Functionality", () => {
     },
   );
   test("should dismiss only after more than three unmatched query characters", async () => {
-    await focusOnEditor();
     const editor = await waitForSelector(EDITOR_SELECTOR);
     await userEvent.keyboard(":qqq");
     await waitForSelector(".bn-frimousse-empty");
@@ -346,7 +330,6 @@ describe("Check Emoji Picker Functionality", () => {
     });
   });
   test("should count unmatched characters from the last useful query", async () => {
-    await focusOnEditor();
     await userEvent.keyboard(":frog");
     await waitForSelectedEmoji();
 
@@ -361,7 +344,6 @@ describe("Check Emoji Picker Functionality", () => {
     await waitForTextInEditor(":frogzzzz");
   });
   test("should dismiss with Escape and continue typing at the same caret", async () => {
-    await focusOnEditor();
     const editor = await waitForSelector(EDITOR_SELECTOR);
     await userEvent.keyboard(":keycap");
     await waitForSelector(".bn-frimousse-emoji[data-selected]");
@@ -377,7 +359,6 @@ describe("Check Emoji Picker Functionality", () => {
     expect(editor.textContent).toBe(":keycaps");
   });
   test("should expose the editor selection rather than the hovered emoji", async () => {
-    await focusOnEditor();
     const editor = await waitForSelector(EDITOR_SELECTOR);
     await userEvent.keyboard(":keycap");
     await waitForSelector(
@@ -418,7 +399,6 @@ describe("Check Emoji Picker Functionality", () => {
     });
   });
   test("should leave composing navigation keys to the editor", async () => {
-    await focusOnEditor();
     const editor = await waitForSelector(EDITOR_SELECTOR);
     await userEvent.keyboard(":frog");
     const selected = await waitForSelector(
@@ -437,30 +417,39 @@ describe("Check Emoji Picker Functionality", () => {
       "ArrowUp",
       "Enter",
     ]) {
-      const event = new KeyboardEvent("keydown", {
-        key,
-        isComposing: true,
-        bubbles: true,
-        cancelable: true,
-      });
-      editor.dispatchEvent(event);
-      expect(event.defaultPrevented, key).toBe(false);
-      await new Promise(requestAnimationFrame);
-      expect(
-        document.querySelector(".bn-frimousse-emoji[data-selected]")
-          ?.textContent,
-      ).toBe(emoji);
+      for (const signal of [
+        { isComposing: true, keyCode: 0 },
+        { isComposing: false, keyCode: 229 },
+      ]) {
+        const event = new KeyboardEvent("keydown", {
+          key,
+          ...signal,
+          bubbles: true,
+          cancelable: true,
+        });
+        editor.dispatchEvent(event);
+        expect(event.defaultPrevented, key).toBe(false);
+        await new Promise(requestAnimationFrame);
+        expect(
+          document.querySelector(".bn-frimousse-emoji[data-selected]")
+            ?.textContent,
+        ).toBe(emoji);
+      }
     }
     expect(editor.textContent).toContain(":frog");
     expect(document.activeElement).toBe(editor);
     editor.dispatchEvent(
       new CompositionEvent("compositionend", { bubbles: true }),
     );
+    await userEvent.keyboard("{Enter}");
+    await waitForTextInEditor(`${emoji} `);
+    await vi.waitFor(() =>
+      expect(document.querySelector(EMOJI_PICKER_SELECTOR)).toBeNull(),
+    );
   });
   test.each(["an", "in"])(
     "should allow mouse scrolling and picking with query '%s'",
     async (query) => {
-      await focusOnEditor();
       await userEvent.keyboard(`:${query}`);
       const viewport = await waitForSelector("[frimousse-viewport]");
       await waitForSelectedEmoji();
@@ -486,6 +475,13 @@ describe("Check Emoji Picker Functionality", () => {
       ] as const) {
         if (top === 0) {
           await userEvent.keyboard("{ArrowDown}".repeat(12));
+          // Wait for the final row to mount and its keyboard scroll to finish
+          // before testing manual scrolling; key delivery alone doesn't wait
+          // for Frimousse's virtualization and the selection effect.
+          await waitForSelector(
+            '[aria-rowindex="13"] .bn-frimousse-emoji[data-selected]',
+          );
+          await waitForSelectedEmoji();
           await scrollTo(0);
         }
         await vi.waitFor(() => {
@@ -536,9 +532,8 @@ describe("Check Emoji Picker Functionality", () => {
     },
   );
   test("should scroll to a mounted emoji without estimating its position", async () => {
-    await focusOnEditor();
     await userEvent.keyboard(":an");
-    await waitForSelector(".bn-frimousse-emoji[data-selected]");
+    await waitForSelectedEmoji();
     const viewport = await waitForSelector("[frimousse-viewport]");
     viewport.scrollTop = 96;
     for (let frame = 0; frame < 3; frame++) {
@@ -566,7 +561,6 @@ describe("Check Emoji Picker Functionality", () => {
     }
   });
   test("Should be able to insert emoji after slash command", async () => {
-    await focusOnEditor();
     await executeSlashCommand("emoji");
     await userEvent.keyboard("frog");
     expect((await waitForSelectedEmoji()).textContent).toBe("🐸");

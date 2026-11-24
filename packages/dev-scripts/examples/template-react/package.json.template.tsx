@@ -13,11 +13,9 @@ const template = (project: Project) => ({
     preview: "vite preview",
   },
   dependencies: {
-    "@blocknote/ariakit": "latest",
     "@blocknote/core": "latest",
     "@blocknote/mantine": "latest",
     "@blocknote/react": "latest",
-    "@blocknote/shadcn": "latest",
     "@mantine/core": "^9.0.2",
     "@mantine/hooks": "^9.0.2",
     react: "^19.2.3",

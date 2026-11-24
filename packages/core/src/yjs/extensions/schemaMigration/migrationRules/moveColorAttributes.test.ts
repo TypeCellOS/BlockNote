@@ -1,15 +1,19 @@
-import { expect, it } from "vite-plus/test";
-import * as Y from "yjs";
-import { BlockNoteEditor } from "../../../../editor/BlockNoteEditor.js";
-import { moveColorAttributes } from "./moveColorAttributes.js";
+import { expect } from "vite-plus/test";
 import { prosemirrorJSONToYXmlFragment } from "y-prosemirror";
+import * as Y from "yjs";
+import { moveColorAttributes } from "./moveColorAttributes.js";
 
-it("can move color attributes on older documents", async () => {
+it("can move color attributes on older documents", async ({
+  onTestFinished,
+  setupEditor,
+}) => {
   const doc = new Y.Doc();
+  onTestFinished(() => doc.destroy());
   const fragment = doc.getXmlFragment("doc");
-  const editor = BlockNoteEditor.create({
+  const { editor } = await setupEditor({
     initialContent: [
       {
+        id: "0",
         type: "paragraph",
         content: "Welcome to this demo!",
       },
@@ -42,12 +46,17 @@ it("can move color attributes on older documents", async () => {
   );
 });
 
-it("does not move color attributes on newer documents", async () => {
+it("does not move color attributes on newer documents", async ({
+  onTestFinished,
+  setupEditor,
+}) => {
   const doc = new Y.Doc();
+  onTestFinished(() => doc.destroy());
   const fragment = doc.getXmlFragment("doc");
-  const editor = BlockNoteEditor.create({
+  const { editor } = await setupEditor({
     initialContent: [
       {
+        id: "0",
         type: "paragraph",
         content: "Welcome to this demo!",
         props: {
@@ -62,7 +71,7 @@ it("does not move color attributes on newer documents", async () => {
 
   prosemirrorJSONToYXmlFragment(
     editor.pmSchema,
-    JSON.parse(JSON.stringify(editor.prosemirrorState.doc.toJSON())),
+    JSON.parse(JSON.stringify(editor.transact(({ doc }) => doc.toJSON()))),
     fragment,
   );
 
@@ -77,12 +86,17 @@ it("does not move color attributes on newer documents", async () => {
   expect(tr.docChanged).toBe(false);
 });
 
-it("can move color attributes on older documents multiple times", async () => {
+it("can move color attributes on older documents multiple times", async ({
+  onTestFinished,
+  setupEditor,
+}) => {
   const doc = new Y.Doc();
+  onTestFinished(() => doc.destroy());
   const fragment = doc.getXmlFragment("doc");
-  const editor = BlockNoteEditor.create({
+  const { editor } = await setupEditor({
     initialContent: [
       {
+        id: "0",
         type: "paragraph",
         content: "Welcome to this demo!",
       },
