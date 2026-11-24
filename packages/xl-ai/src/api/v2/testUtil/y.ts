@@ -18,7 +18,7 @@ type SetupMountedEditor = (
  * editor is a client of the Y.Doc, for example a user who types. The lens
  * does not need such an editor to write to a Y.Doc.
  */
-export function boundEditorOptions(
+function boundEditorOptions(
   fragment: Y.Node,
   options: Partial<BlockNoteEditorOptions<any, any, any>> = {},
 ) {
