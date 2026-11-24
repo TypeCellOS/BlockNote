@@ -1,5 +1,6 @@
 import { BlockNoteEditor, type PartialBlock } from "@blocknote/core";
 import { describe, expect } from "vite-plus/test";
+import type { SetupEditor } from "../../../../../tests/src/commands/browser/setupEditor.js";
 
 import {
   computeOperations,
@@ -18,6 +19,19 @@ import { canonicalText } from "./testUtil/canonical.js";
 import { textStages } from "./testUtil/stages.js";
 import { replaceOnce } from "./testUtil/fixtures.js";
 import { valid } from "./testUtil/valid.js";
+
+// One editor without a view for the read-only cases of the core tests of this file.
+const it = globalThis.it.extend(
+  "editor",
+  { scope: "file" },
+  // eslint-disable-next-line no-empty-pattern -- Vitest requires destructured fixture dependencies.
+  async ({}, { onCleanup }) => {
+    const { createSetupEditor } =
+      await import("../../../../../tests/src/commands/node/setupEditor.js");
+    const { editor } = await createSetupEditor(onCleanup)();
+    return editor;
+  },
+);
 
 /**
  * The nesting that markdown (and HTML) can show: list items, and the
@@ -101,12 +115,16 @@ function idsOf(blocks: readonly LensBlock[]): Set<string> {
  * Examines PutGet and PutTwice. Returns the shape of the result and the
  * warnings.
  */
-function write(
+async function write(
+  setupEditor: SetupEditor,
   document: Block[],
   edit: (text: string) => string,
   format: TextFormat = markdownFormat,
 ) {
-  const editor = BlockNoteEditor.create({ initialContent: document });
+  const { editor } = await setupEditor({
+    mountType: false,
+    initialContent: document as PartialBlock[],
+  });
   const known = idsOf(editor.document as LensBlock[]);
   const text = edit(getDocumentText(editor, format));
   const update = valid(updateDocument(editor, { format, text }));
@@ -127,8 +145,7 @@ function write(
 // `tryParseMarkdownToBlocks`), not the lens. Move them to the markdown tests of
 // core, with the core PR.
 describe("core: the markdown round trip of the nesting", () => {
-  const editor = BlockNoteEditor.create();
-  function roundTrip(document: Block[]): string {
+  function roundTrip(editor: BlockNoteEditor, document: Block[]): string {
     return typesOf(
       editor.tryParseMarkdownToBlocks(
         editor.blocksToMarkdownLossy(document as never),
@@ -136,7 +153,7 @@ describe("core: the markdown round trip of the nesting", () => {
     );
   }
 
-  it.each<[string, Block[], string]>([
+  it.for<[string, Block[], string]>([
     [
       "a bullet in a bullet",
       [bullet("A", [bullet("B")])],
@@ -172,11 +189,14 @@ describe("core: the markdown round trip of the nesting", () => {
       [numbered("A", [bullet("B", [check("C", [numbered("D", [p("E")])])])])],
       "numbered:A[bullet:B[check:C[numbered:D[paragraph:E]]]]",
     ],
-  ])("keeps the children of a list item: %s", (_, document, expected) => {
-    expect(roundTrip(document)).toBe(expected);
-  });
+  ])(
+    "keeps the children of a list item: %s",
+    ([, document, expected], { editor }) => {
+      expect(roundTrip(editor, document)).toBe(expected);
+    },
+  );
 
-  it.each<[string, Block[], string]>([
+  it.for<[string, Block[], string]>([
     [
       "a toggle becomes a bullet, with its children",
       [toggle("A", [p("B"), bullet("C")])],
@@ -207,8 +227,8 @@ describe("core: the markdown round trip of the nesting", () => {
       [bullet("A", [p("B", [p("C"), bullet("D")])])],
       "bullet:A[paragraph:B paragraph:C bullet:D]",
     ],
-  ])("changes the nesting: %s", (_, document, expected) => {
-    expect(roundTrip(document)).toBe(expected);
+  ])("changes the nesting: %s", ([, document, expected], { editor }) => {
+    expect(roundTrip(editor, document)).toBe(expected);
   });
 });
 
@@ -216,12 +236,11 @@ describe("core: the markdown round trip of the nesting", () => {
 // `tryParseMarkdownToBlocks`), not the lens. Move them to the markdown tests of
 // core, with the core PR.
 describe("core: the markdown parse of nesting that the exporter does not write", () => {
-  const editor = BlockNoteEditor.create();
-  function parse(markdown: string): string {
+  function parse(editor: BlockNoteEditor, markdown: string): string {
     return typesOf(editor.tryParseMarkdownToBlocks(markdown) as LensBlock[]);
   }
 
-  it.each<[string, string, string]>([
+  it.for<[string, string, string]>([
     ["an indent of four spaces", "- a\n    - b\n", "bullet:a[bullet:b]"],
     ["a tab", "- a\n\t- b\n", "bullet:a[bullet:b]"],
     ["a loose list", "* a\n\n  * b\n\n* c\n", "bullet:a[bullet:b] bullet:c"],
@@ -243,8 +262,8 @@ describe("core: the markdown parse of nesting that the exporter does not write",
     // hard breaks.
     ["a quote with two paragraphs", "> a\n>\n> b\n", "quote:a\nb"],
     ["a quote in a quote", "> a\n>\n> > b\n", "quote:a\nb"],
-  ])("%s", (_, markdown, expected) => {
-    expect(parse(markdown)).toBe(expected);
+  ])("%s", ([, markdown, expected], { editor }) => {
+    expect(parse(editor, markdown)).toBe(expected);
   });
 
   // The numbered list item takes the start from the `start` attribute of
@@ -252,108 +271,161 @@ describe("core: the markdown parse of nesting that the exporter does not write",
   // `nestedLists.ts` wraps the item in a `div`. The parse rule of the
   // numbered list item reads the attribute of the list, not of that `div`
   // (`NumberedListItem/block.ts`).
-  it("keeps the start of a numbered list whose first item has a nested list", () => {
+  it("keeps the start of a numbered list whose first item has a nested list", ({
+    editor,
+  }) => {
     const blocks = editor.tryParseMarkdownToBlocks("3. A\n   * c\n4. B\n");
     expect(blocks[0].props).toMatchObject({ start: 3 });
   });
 
   // The tokenizer of a quote joins all its lines, and the HTML parse of the
   // quote takes only the text. A quote has no container form in BlockNote.
-  it.fails("KNOWN: keeps the list items of a list in a quote", () => {
-    expect(parse("> Q\n>\n> * a\n> * b\n")).toBe("quote:Q[bullet:a bullet:b]");
+  it.fails("KNOWN: keeps the list items of a list in a quote", ({ editor }) => {
+    expect(parse(editor, "> Q\n>\n> * a\n> * b\n")).toBe(
+      "quote:Q[bullet:a bullet:b]",
+    );
   });
 
   // CommonMark: a line without indent after the first line of a list item
   // continues its paragraph (a lazy continuation line). The tokenizer of a
   // list item ends the item at a line with less indent than its content.
-  it.fails("KNOWN: keeps a lazy continuation line in its list item", () => {
-    expect(parse("* a\nb\n")).toBe("bullet:a\nb");
+  it.fails("KNOWN: keeps a lazy continuation line in its list item", ({
+    editor,
+  }) => {
+    expect(parse(editor, "* a\nb\n")).toBe("bullet:a\nb");
   });
 });
 
 describe("markdown, list items", () => {
-  it("indents a list item", () => {
+  it("indents a list item", async ({ setupEditor }) => {
     expect(
-      write([bullet("A"), bullet("B"), bullet("C")], (text) =>
-        replaceOnce(text, "* B", "  * B"),
+      (
+        await write(
+          setupEditor,
+          [bullet("A"), bullet("B"), bullet("C")],
+          (text) => replaceOnce(text, "* B", "  * B"),
+        )
       ).shape,
     ).toBe("A[B] C");
   });
 
-  it("outdents a list item, and the next items go into it", () => {
+  it("outdents a list item, and the next items go into it", async ({
+    setupEditor,
+  }) => {
     expect(
-      write([bullet("A", [bullet("B"), bullet("C"), bullet("D")])], (text) =>
-        replaceOnce(text, "  * C", "* C"),
+      (
+        await write(
+          setupEditor,
+          [bullet("A", [bullet("B"), bullet("C"), bullet("D")])],
+          (text) => replaceOnce(text, "  * C", "* C"),
+        )
       ).shape,
     ).toBe("A[B] C[D]");
   });
 
-  it("moves a list item into a list item of a different list", () => {
+  it("moves a list item into a list item of a different list", async ({
+    setupEditor,
+  }) => {
     expect(
-      write(
-        [bullet("A", [bullet("B")]), p("x"), bullet("X", [bullet("Y")])],
-        (text) =>
-          replaceOnce(
-            replaceOnce(text, "  * B\n", ""),
-            "  * Y",
-            "  * Y\n  * B",
-          ),
+      (
+        await write(
+          setupEditor,
+          [bullet("A", [bullet("B")]), p("x"), bullet("X", [bullet("Y")])],
+          (text) =>
+            replaceOnce(
+              replaceOnce(text, "  * B\n", ""),
+              "  * Y",
+              "  * Y\n  * B",
+            ),
+        )
       ).shape,
     ).toBe("A x X[Y B]");
   });
 
-  it("moves a list item up two levels and into a different list item", () => {
+  it("moves a list item up two levels and into a different list item", async ({
+    setupEditor,
+  }) => {
     expect(
-      write([bullet("A", [bullet("B", [bullet("C")])]), bullet("D")], (text) =>
-        replaceOnce(replaceOnce(text, "    * C\n", ""), "* D", "* D\n  * C"),
+      (
+        await write(
+          setupEditor,
+          [bullet("A", [bullet("B", [bullet("C")])]), bullet("D")],
+          (text) =>
+            replaceOnce(
+              replaceOnce(text, "    * C\n", ""),
+              "* D",
+              "* D\n  * C",
+            ),
+        )
       ).shape,
     ).toBe("A[B] D[C]");
   });
 
-  it("changes the type of a list item in a list item of a different type", () => {
-    const { shape, editor } = write([numbered("A", [bullet("B")])], (text) =>
-      replaceOnce(text, "   * B", "   1. B"),
+  it("changes the type of a list item in a list item of a different type", async ({
+    setupEditor,
+  }) => {
+    const { shape, editor } = await write(
+      setupEditor,
+      [numbered("A", [bullet("B")])],
+      (text) => replaceOnce(text, "   * B", "   1. B"),
     );
     expect(shape).toBe("A[B]");
     expect(editor.getBlock("B")?.type).toBe("numberedListItem");
   });
 
-  it("checks a check item in a bullet", () => {
-    const { editor } = write([bullet("A", [check("B")])], (text) =>
-      replaceOnce(text, "[ ] B", "[x] B"),
+  it("checks a check item in a bullet", async ({ setupEditor }) => {
+    const { editor } = await write(
+      setupEditor,
+      [bullet("A", [check("B")])],
+      (text) => replaceOnce(text, "[ ] B", "[x] B"),
     );
     expect(editor.getBlock("B")?.props).toMatchObject({ checked: true });
   });
 
-  it.each([
+  it.for([
     ["a loose list", "* A\n\n  * B\n\n* C\n"],
     ["dashes and an indent of four spaces", "- A\n    - B\n- C\n"],
     ["plus signs and a tab", "+ A\n\t+ B\n+ C\n"],
-  ])("writes %s with the same list items, without operations", (_, text) => {
-    const editor = BlockNoteEditor.create({
-      initialContent: [bullet("A", [bullet("B")]), bullet("C")],
-    });
-    expect(
-      valid(
-        computeOperations(editor, {
-          format: markdownFormat,
-          text,
-        }),
-      ).operations,
-    ).toEqual([]);
-  });
+  ])(
+    "writes %s with the same list items, without operations",
+    async ([, text], { setupEditor }) => {
+      const { editor } = await setupEditor({
+        mountType: false,
+        initialContent: [
+          bullet("A", [bullet("B")]),
+          bullet("C"),
+        ] as PartialBlock[],
+      });
+      expect(
+        valid(
+          computeOperations(editor, {
+            format: markdownFormat,
+            text,
+          }),
+        ).operations,
+      ).toEqual([]);
+    },
+  );
 
-  it("adds a paragraph to a list item with two paragraphs", () => {
+  it("adds a paragraph to a list item with two paragraphs", async ({
+    setupEditor,
+  }) => {
     expect(
-      write([bullet("A", [p("B"), p("C")])], (text) =>
-        replaceOnce(text, "  C\n", "  C\n\n  D\n"),
+      (
+        await write(setupEditor, [bullet("A", [p("B"), p("C")])], (text) =>
+          replaceOnce(text, "  C\n", "  C\n\n  D\n"),
+        )
       ).shape,
     ).toBe("A[B C +D]");
   });
 
-  it("changes a code block in a list item, and keeps its ID", () => {
-    const { shape, editor } = write([bullet("A", [code("x = 1")])], (text) =>
-      replaceOnce(text, "x = 1", "x = 2"),
+  it("changes a code block in a list item, and keeps its ID", async ({
+    setupEditor,
+  }) => {
+    const { shape, editor } = await write(
+      setupEditor,
+      [bullet("A", [code("x = 1")])],
+      (text) => replaceOnce(text, "x = 1", "x = 2"),
     );
     expect(shape).toBe("A[x = 1]");
     expect(editor.getBlock("x = 1")?.content).toMatchObject([
@@ -361,77 +433,124 @@ describe("markdown, list items", () => {
     ]);
   });
 
-  it("moves a code block and a quote out of a list item", () => {
+  it("moves a code block and a quote out of a list item", async ({
+    setupEditor,
+  }) => {
     expect(
-      write([bullet("A", [code("x = 1"), q("Q")]), p("Z")], (text) =>
-        replaceOnce(
-          replaceOnce(text, "  ```text\n  x = 1\n  ```", "```text\nx = 1\n```"),
-          "  > Q",
-          "> Q",
-        ),
+      (
+        await write(
+          setupEditor,
+          [bullet("A", [code("x = 1"), q("Q")]), p("Z")],
+          (text) =>
+            replaceOnce(
+              replaceOnce(
+                text,
+                "  ```text\n  x = 1\n  ```",
+                "```text\nx = 1\n```",
+              ),
+              "  > Q",
+              "> Q",
+            ),
+        )
       ).shape,
     ).toBe("A x = 1 Q Z");
   });
 
-  it("indents a list item to the fourth level", () => {
+  it("indents a list item to the fourth level", async ({ setupEditor }) => {
     expect(
-      write([bullet("A", [bullet("B", [bullet("C"), bullet("D")])])], (text) =>
-        replaceOnce(text, "    * D", "      * D"),
+      (
+        await write(
+          setupEditor,
+          [bullet("A", [bullet("B", [bullet("C"), bullet("D")])])],
+          (text) => replaceOnce(text, "    * D", "      * D"),
+        )
       ).shape,
     ).toBe("A[B[C[D]]]");
   });
 
-  it("puts a new list item between two nested list items", () => {
+  it("puts a new list item between two nested list items", async ({
+    setupEditor,
+  }) => {
     expect(
-      write([bullet("A", [bullet("B"), bullet("C")])], (text) =>
-        replaceOnce(text, "  * C", "  * N\n  * C"),
+      (
+        await write(
+          setupEditor,
+          [bullet("A", [bullet("B"), bullet("C")])],
+          (text) => replaceOnce(text, "  * C", "  * N\n  * C"),
+        )
       ).shape,
     ).toBe("A[B +N C]");
   });
 
-  it("puts a new list item at the end of a nested list", () => {
+  it("puts a new list item at the end of a nested list", async ({
+    setupEditor,
+  }) => {
     expect(
-      write([bullet("A", [bullet("B"), bullet("C")]), bullet("D")], (text) =>
-        replaceOnce(text, "  * C", "  * C\n  * N"),
+      (
+        await write(
+          setupEditor,
+          [bullet("A", [bullet("B"), bullet("C")]), bullet("D")],
+          (text) => replaceOnce(text, "  * C", "  * C\n  * N"),
+        )
       ).shape,
     ).toBe("A[B C +N] D");
   });
 
-  it("puts a new empty list item between two nested list items", () => {
+  it("puts a new empty list item between two nested list items", async ({
+    setupEditor,
+  }) => {
     expect(
-      write([bullet("A", [bullet("B"), bullet("C")])], (text) =>
-        replaceOnce(text, "  * C", "  *\n  * C"),
+      (
+        await write(
+          setupEditor,
+          [bullet("A", [bullet("B"), bullet("C")])],
+          (text) => replaceOnce(text, "  * C", "  *\n  * C"),
+        )
       ).shape,
     ).toBe("A[B + C]");
   });
 
-  it("indents an empty list item", () => {
+  it("indents an empty list item", async ({ setupEditor }) => {
     expect(
-      write(
-        [bullet("A"), { id: "E", type: "bulletListItem" }, bullet("C")],
-        (text) => replaceOnce(text, "* \n", "  *\n"),
+      (
+        await write(
+          setupEditor,
+          [bullet("A"), { id: "E", type: "bulletListItem" }, bullet("C")],
+          (text) => replaceOnce(text, "* \n", "  *\n"),
+        )
       ).shape,
     ).toBe("A[E] C");
   });
 
-  it("keeps the children of a list item that the text removes", () => {
+  it("keeps the children of a list item that the text removes", async ({
+    setupEditor,
+  }) => {
     expect(
-      write([bullet("A", [bullet("B"), bullet("C")]), p("Z")], (text) =>
-        replaceOnce(text, "* A\n", ""),
+      (
+        await write(
+          setupEditor,
+          [bullet("A", [bullet("B"), bullet("C")]), p("Z")],
+          (text) => replaceOnce(text, "* A\n", ""),
+        )
       ).shape,
     ).toBe("B C Z");
   });
 
-  it("keeps a toggle, and the hidden child of a paragraph in it, if the text changes the toggle", () => {
-    const { shape, editor } = write([toggle("T", [p("B", [p("C")])])], (text) =>
-      replaceOnce(text, "* T", "* T2"),
+  it("keeps a toggle, and the hidden child of a paragraph in it, if the text changes the toggle", async ({
+    setupEditor,
+  }) => {
+    const { shape, editor } = await write(
+      setupEditor,
+      [toggle("T", [p("B", [p("C")])])],
+      (text) => replaceOnce(text, "* T", "* T2"),
     );
     expect(shape).toBe("T[B[C]]");
     expect(editor.getBlock("T")?.type).toBe("toggleListItem");
   });
 
-  it("changes the start of a numbered list", () => {
-    const { editor } = write(
+  it("changes the start of a numbered list", async ({ setupEditor }) => {
+    const { editor } = await write(
+      setupEditor,
       [{ ...numbered("A"), props: { start: 3 } }, numbered("B")],
       (text) => replaceOnce(text, "3. A", "5. A"),
     );
@@ -440,61 +559,98 @@ describe("markdown, list items", () => {
 });
 
 describe("markdown, lists in a nesting that markdown does not show", () => {
-  it("keeps a list in a paragraph if the text indents an item of it", () => {
+  it("keeps a list in a paragraph if the text indents an item of it", async ({
+    setupEditor,
+  }) => {
     expect(
-      write([p("P", [bullet("N1"), bullet("N2")])], (text) =>
-        replaceOnce(text, "* N2", "  * N2"),
+      (
+        await write(
+          setupEditor,
+          [p("P", [bullet("N1"), bullet("N2")])],
+          (text) => replaceOnce(text, "* N2", "  * N2"),
+        )
       ).shape,
     ).toBe("P[N1[N2]]");
   });
 
-  it("puts a new list item between two items of a list in a paragraph into the paragraph", () => {
+  it("puts a new list item between two items of a list in a paragraph into the paragraph", async ({
+    setupEditor,
+  }) => {
     expect(
-      write([p("P", [bullet("N1"), bullet("N2")])], (text) =>
-        replaceOnce(text, "* N2", "* M\n* N2"),
+      (
+        await write(
+          setupEditor,
+          [p("P", [bullet("N1"), bullet("N2")])],
+          (text) => replaceOnce(text, "* N2", "* M\n* N2"),
+        )
       ).shape,
     ).toBe("P[N1 +M N2]");
   });
 
-  it("puts a new list item between a heading and its hidden child into the heading", () => {
+  it("puts a new list item between a heading and its hidden child into the heading", async ({
+    setupEditor,
+  }) => {
     expect(
-      write([h("H", [p("C"), p("D")])], (text) =>
-        replaceOnce(text, "C\n\nD", "C\n\n* N\n\nD"),
+      (
+        await write(setupEditor, [h("H", [p("C"), p("D")])], (text) =>
+          replaceOnce(text, "C\n\nD", "C\n\n* N\n\nD"),
+        )
       ).shape,
     ).toBe("H[C +N D]");
   });
 
-  it("indents an item of a list after a paragraph with a hidden child, and keeps the hidden child", () => {
+  it("indents an item of a list after a paragraph with a hidden child, and keeps the hidden child", async ({
+    setupEditor,
+  }) => {
     expect(
-      write([p("P", [p("C")]), bullet("X"), bullet("Y")], (text) =>
-        replaceOnce(text, "* Y", "  * Y"),
+      (
+        await write(
+          setupEditor,
+          [p("P", [p("C")]), bullet("X"), bullet("Y")],
+          (text) => replaceOnce(text, "* Y", "  * Y"),
+        )
       ).shape,
     ).toBe("P[C] X[Y]");
   });
 
-  it("indents a list item with a paragraph with a hidden child, and keeps the hidden child", () => {
+  it("indents a list item with a paragraph with a hidden child, and keeps the hidden child", async ({
+    setupEditor,
+  }) => {
     expect(
-      write([bullet("A"), bullet("B", [p("C", [p("D")])])], (text) =>
-        text
-          .replace("* B", "  * B")
-          .replace("\n  C", "\n    C")
-          .replace("\n  D", "\n    D"),
+      (
+        await write(
+          setupEditor,
+          [bullet("A"), bullet("B", [p("C", [p("D")])])],
+          (text) =>
+            text
+              .replace("* B", "  * B")
+              .replace("\n  C", "\n    C")
+              .replace("\n  D", "\n    D"),
+        )
       ).shape,
     ).toBe("A[B[C[D]]]");
   });
 
-  it("keeps a hidden child if the text checks the check item around it", () => {
+  it("keeps a hidden child if the text checks the check item around it", async ({
+    setupEditor,
+  }) => {
     expect(
-      write([check("A", [p("B", [p("C")])])], (text) =>
-        replaceOnce(text, "[ ]", "[x]"),
+      (
+        await write(setupEditor, [check("A", [p("B", [p("C")])])], (text) =>
+          replaceOnce(text, "[ ]", "[x]"),
+        )
       ).shape,
     ).toBe("A[B[C]]");
   });
 
-  it("moves the hidden child of a removed paragraph to the place of the paragraph", () => {
+  it("moves the hidden child of a removed paragraph to the place of the paragraph", async ({
+    setupEditor,
+  }) => {
     expect(
-      write([p("P", [p("C")]), p("Z")], (text) =>
-        replaceOnce(text, "P\n\n", ""),
+      (
+        await write(setupEditor, [p("P", [p("C")]), p("Z")], (text) =>
+          replaceOnce(text, "P\n\n", ""),
+        )
       ).shape,
     ).toBe("C Z");
   });
@@ -505,7 +661,7 @@ describe("markdown, lists in a nesting that markdown does not show", () => {
   // A). Thus, a change of the type of A moved C out of B, into A. B does not
   // change. Markdown shows the children of a bullet, a numbered item and a
   // check item in the same way.
-  it.each<[string, Block[], (text: string) => string]>([
+  it.for<[string, Block[], (text: string) => string]>([
     [
       "a bullet becomes a check item",
       [bullet("A", [p("B", [p("C")])])],
@@ -523,8 +679,8 @@ describe("markdown, lists in a nesting that markdown does not show", () => {
     ],
   ])(
     "keeps a hidden child in its parent if %s around them",
-    (_, document, edit) => {
-      expect(write(document, edit).shape).toBe("A[B[C]]");
+    async ([, document, edit], { setupEditor }) => {
+      expect((await write(setupEditor, document, edit)).shape).toBe("A[B[C]]");
     },
   );
 
@@ -532,7 +688,7 @@ describe("markdown, lists in a nesting that markdown does not show", () => {
   // parent of the hidden child C, the text decided, also if the hidden
   // parent B moved with C (B and C stay siblings in the text, as in the
   // view).
-  it.each<[string, Block[], (text: string) => string, string]>([
+  it.for<[string, Block[], (text: string) => string, string]>([
     [
       "the text removes the list item around them",
       [bullet("L", [p("B", [p("C")])]), p("Z")],
@@ -564,20 +720,24 @@ describe("markdown, lists in a nesting that markdown does not show", () => {
     ],
   ])(
     "keeps a hidden child in its parent if %s",
-    (_, document, edit, expected) => {
-      expect(write(document, edit).shape).toBe(expected);
+    async ([, document, edit, expected], { setupEditor }) => {
+      expect((await write(setupEditor, document, edit)).shape).toBe(expected);
     },
   );
 });
 
 describe("markdown, writes from an older version that change the nesting", () => {
   /** Another writer writes `theirs`, then the client writes `ours` from the version before. */
-  function writeTwo(
+  async function writeTwo(
+    setupEditor: SetupEditor,
     document: Block[],
     theirs: (text: string) => string,
     ours: (text: string) => string,
   ) {
-    const editor = BlockNoteEditor.create({ initialContent: document });
+    const { editor } = await setupEditor({
+      mountType: false,
+      initialContent: document as PartialBlock[],
+    });
     const known = idsOf(editor.document as LensBlock[]);
     const base = editor.document;
     const text = getDocumentText(editor, markdownFormat);
@@ -613,8 +773,11 @@ describe("markdown, writes from an older version that change the nesting", () =>
     };
   }
 
-  it("keeps the outdent of another writer and the change of the client", () => {
-    const { shape, editor } = writeTwo(
+  it("keeps the outdent of another writer and the change of the client", async ({
+    setupEditor,
+  }) => {
+    const { shape, editor } = await writeTwo(
+      setupEditor,
       [bullet("A", [bullet("B"), bullet("C")])],
       (text) => replaceOnce(text, "  * C", "* C"),
       (text) => replaceOnce(text, "  * C", "  * C2"),
@@ -623,18 +786,26 @@ describe("markdown, writes from an older version that change the nesting", () =>
     expect(editor.getBlock("C")?.content).toMatchObject([{ text: "C2" }]);
   });
 
-  it("keeps the indents of two writers of two blocks", () => {
+  it("keeps the indents of two writers of two blocks", async ({
+    setupEditor,
+  }) => {
     expect(
-      writeTwo(
-        [bullet("A"), bullet("B"), bullet("C")],
-        (text) => replaceOnce(text, "* B", "  * B"),
-        (text) => replaceOnce(text, "* C", "  * C"),
+      (
+        await writeTwo(
+          setupEditor,
+          [bullet("A"), bullet("B"), bullet("C")],
+          (text) => replaceOnce(text, "* B", "  * B"),
+          (text) => replaceOnce(text, "* C", "  * C"),
+        )
       ).shape,
     ).toBe("A[B[C]]");
   });
 
-  it("keeps the parent of another writer, with a warning, if the client indents the block into a different parent", () => {
-    const { shape, warnings } = writeTwo(
+  it("keeps the parent of another writer, with a warning, if the client indents the block into a different parent", async ({
+    setupEditor,
+  }) => {
+    const { shape, warnings } = await writeTwo(
+      setupEditor,
       [bullet("A"), bullet("X"), bullet("B")],
       (text) =>
         replaceOnce(replaceOnce(text, "* B\n", ""), "* A\n", "* A\n  * B\n"),
@@ -644,8 +815,11 @@ describe("markdown, writes from an older version that change the nesting", () =>
     expect(warnings).toEqual([{ type: "conflicting-change", id: "B" }]);
   });
 
-  it("keeps a list item with a new child of another writer, with a warning, if the client removes it", () => {
-    const { shape, warnings } = writeTwo(
+  it("keeps a list item with a new child of another writer, with a warning, if the client removes it", async ({
+    setupEditor,
+  }) => {
+    const { shape, warnings } = await writeTwo(
+      setupEditor,
       [bullet("A"), bullet("B"), bullet("C")],
       (text) => replaceOnce(text, "* B", "* B\n  * new"),
       (text) => replaceOnce(text, "* B\n", ""),
@@ -654,12 +828,17 @@ describe("markdown, writes from an older version that change the nesting", () =>
     expect(warnings).toEqual([{ type: "removed-changed-block", id: "B" }]);
   });
 
-  it("moves a new child of the client to the place of its parent, if another writer removed the parent", () => {
+  it("moves a new child of the client to the place of its parent, if another writer removed the parent", async ({
+    setupEditor,
+  }) => {
     expect(
-      writeTwo(
-        [bullet("A", [bullet("B")]), p("Z")],
-        (text) => replaceOnce(text, "* A\n  * B\n", ""),
-        (text) => replaceOnce(text, "  * B", "  * B\n  * N"),
+      (
+        await writeTwo(
+          setupEditor,
+          [bullet("A", [bullet("B")]), p("Z")],
+          (text) => replaceOnce(text, "* A\n  * B\n", ""),
+          (text) => replaceOnce(text, "  * B", "  * B\n  * N"),
+        )
       ).shape,
     ).toBe("+N Z");
   });
@@ -674,7 +853,7 @@ describe("markdown, list items that the text shows as one list share the parent 
   // Before the list rule, a moved block kept its hidden nesting only near a
   // hidden ancestor that the format does not render (for example a column),
   // and the moved item went to the parent of the text.
-  it.each<[string, Block[], (text: string) => string, string]>([
+  it.for<[string, Block[], (text: string) => string, string]>([
     [
       "a list in a paragraph",
       [p("P", [bullet("N1"), bullet("N2")]), p("Z")],
@@ -695,18 +874,22 @@ describe("markdown, list items that the text shows as one list share the parent 
     ],
   ])(
     "keeps the hidden nesting if the text swaps the last two items of %s",
-    (_, document, edit, expected) => {
-      expect(write(document, edit).shape).toBe(expected);
+    async ([, document, edit, expected], { setupEditor }) => {
+      expect((await write(setupEditor, document, edit)).shape).toBe(expected);
     },
   );
 
   // A moved block without hidden ancestors stays in its source parent if
   // that parent is open (`isNearHiddenAncestor`). This is also true for
   // blocks that are not list items.
-  it("keeps the hidden nesting if the text swaps the last two paragraphs in a paragraph", () => {
+  it("keeps the hidden nesting if the text swaps the last two paragraphs in a paragraph", async ({
+    setupEditor,
+  }) => {
     expect(
-      write([p("P", [p("C1"), p("C2")]), p("Z")], (text) =>
-        replaceOnce(text, "C1\n\nC2", "C2\n\nC1"),
+      (
+        await write(setupEditor, [p("P", [p("C1"), p("C2")]), p("Z")], (text) =>
+          replaceOnce(text, "C1\n\nC2", "C2\n\nC1"),
+        )
       ).shape,
     ).toBe("P[C2 C1] Z");
   });
@@ -715,7 +898,7 @@ describe("markdown, list items that the text shows as one list share the parent 
   // goes into the parent of that list. Before the list rule, it went into
   // the parent of the text. It closed the hidden parent, and the next items,
   // which the text does not change, left that parent too.
-  it.each<[string, Block[], (text: string) => string, string]>([
+  it.for<[string, Block[], (text: string) => string, string]>([
     [
       "a list in a paragraph",
       [p("P", [bullet("A", [bullet("L")]), bullet("B")])],
@@ -730,8 +913,8 @@ describe("markdown, list items that the text shows as one list share the parent 
     ],
   ])(
     "keeps the next items of %s if the text outdents an item out of an earlier item",
-    (_, document, edit, expected) => {
-      expect(write(document, edit).shape).toBe(expected);
+    async ([, document, edit, expected], { setupEditor }) => {
+      expect((await write(setupEditor, document, edit)).shape).toBe(expected);
     },
   );
 
@@ -740,7 +923,7 @@ describe("markdown, list items that the text shows as one list share the parent 
   // kept block (`nestingOfNext`). At the end of a list in a paragraph, the
   // next kept block is not in the paragraph, thus the new item went to the
   // parent of the text, apart from its list.
-  it.each<[string, Block[], (text: string) => string, string]>([
+  it.for<[string, Block[], (text: string) => string, string]>([
     [
       "a bullet list in a paragraph",
       [p("P", [bullet("N1"), bullet("N2")]), p("Z")],
@@ -767,12 +950,12 @@ describe("markdown, list items that the text shows as one list share the parent 
     ],
   ])(
     "puts a new item at the end of %s into the same list",
-    (_, document, edit, expected) => {
-      expect(write(document, edit).shape).toBe(expected);
+    async ([, document, edit, expected], { setupEditor }) => {
+      expect((await write(setupEditor, document, edit)).shape).toBe(expected);
     },
   );
 
-  it.each<[string, Block[], (text: string) => string, string]>([
+  it.for<[string, Block[], (text: string) => string, string]>([
     [
       "a numbered item after a bullet list in a paragraph",
       [p("P", [bullet("N1"), bullet("N2")]), p("Z")],
@@ -787,8 +970,8 @@ describe("markdown, list items that the text shows as one list share the parent 
     ],
   ])(
     "keeps the other rules for %s: the text does not show it in the list",
-    (_, document, edit, expected) => {
-      expect(write(document, edit).shape).toBe(expected);
+    async ([, document, edit, expected], { setupEditor }) => {
+      expect((await write(setupEditor, document, edit)).shape).toBe(expected);
     },
   );
 });
@@ -797,10 +980,21 @@ describe("markdown, an outdent out of an item of a hidden list", () => {
   // The text shows the code block one level higher than the view: at the
   // level of the item A. Thus, the code block goes where A is: into the
   // hidden parent P. P stays open, and the next item B stays in P.
-  it("keeps the next items of a list in a paragraph if the text outdents a code block out of an earlier item", () => {
+  it("keeps the next items of a list in a paragraph if the text outdents a code block out of an earlier item", async ({
+    setupEditor,
+  }) => {
     expect(
-      write([p("P", [bullet("A", [code("x = 1")]), bullet("B")])], (text) =>
-        replaceOnce(text, "  ```text\n  x = 1\n  ```", "```text\nx = 1\n```"),
+      (
+        await write(
+          setupEditor,
+          [p("P", [bullet("A", [code("x = 1")]), bullet("B")])],
+          (text) =>
+            replaceOnce(
+              text,
+              "  ```text\n  x = 1\n  ```",
+              "```text\nx = 1\n```",
+            ),
+        )
       ).shape,
     ).toBe("P[A x = 1 B]");
   });
@@ -811,8 +1005,11 @@ describe("markdown, the start of a numbered list with a nested list", () => {
   // whose first item has a nested list (see "core: the markdown parse"
   // above). The view of the document had the start, and the text block did
   // not. Thus, the merge took the change of the text: the start went.
-  it("keeps the start of a numbered list if the text adds a nested list to its first item", () => {
-    const { editor } = write(
+  it("keeps the start of a numbered list if the text adds a nested list to its first item", async ({
+    setupEditor,
+  }) => {
+    const { editor } = await write(
+      setupEditor,
       [{ ...numbered("A"), props: { start: 3 } }, numbered("B")],
       (text) => replaceOnce(text, "3. A", "3. A\n   * c"),
     );
@@ -821,8 +1018,11 @@ describe("markdown, the start of a numbered list with a nested list", () => {
 
   // Before the fix of core, the view and the text both lost the start.
   // Thus, the merge saw no change of the start, and the document kept 3.
-  it("changes the start of a numbered list whose first item has a nested list", () => {
-    const { editor } = write(
+  it("changes the start of a numbered list whose first item has a nested list", async ({
+    setupEditor,
+  }) => {
+    const { editor } = await write(
+      setupEditor,
       [{ ...numbered("A", [bullet("c")]), props: { start: 3 } }, numbered("B")],
       (text) => replaceOnce(text, "3. A", "5. A"),
     );
@@ -831,58 +1031,79 @@ describe("markdown, the start of a numbered list with a nested list", () => {
 });
 
 describe("HTML, list items", () => {
-  it("indents a list item into a nested list", () => {
+  it("indents a list item into a nested list", async ({ setupEditor }) => {
     expect(
-      write(
-        [bullet("A"), bullet("B")],
-        (text) =>
-          text
-            .replace(/<\/li><li>/, "<ul><li>")
-            .replace("</li></ul>", "</li></ul></li></ul>"),
-        htmlFormat,
+      (
+        await write(
+          setupEditor,
+          [bullet("A"), bullet("B")],
+          (text) =>
+            text
+              .replace(/<\/li><li>/, "<ul><li>")
+              .replace("</li></ul>", "</li></ul></li></ul>"),
+          htmlFormat,
+        )
       ).shape,
     ).toBe("A[B]");
   });
 
-  it("keeps a toggle and its children if the text changes the toggle", () => {
+  it("keeps a toggle and its children if the text changes the toggle", async ({
+    setupEditor,
+  }) => {
     expect(
-      write(
-        [toggle("T", [bullet("a"), p("b")])],
-        (text) => replaceOnce(text, ">T<", ">T2<"),
-        htmlFormat,
+      (
+        await write(
+          setupEditor,
+          [toggle("T", [bullet("a"), p("b")])],
+          (text) => replaceOnce(text, ">T<", ">T2<"),
+          htmlFormat,
+        )
       ).shape,
     ).toBe("T[a b]");
   });
 
   // HTML does not show the children of a paragraph either. The list rule
   // is the same as in markdown.
-  it("keeps the hidden nesting if the text swaps the last two items of a list in a paragraph", () => {
+  it("keeps the hidden nesting if the text swaps the last two items of a list in a paragraph", async ({
+    setupEditor,
+  }) => {
     expect(
-      write(
-        [p("P", [bullet("N1"), bullet("N2")]), p("Z")],
-        (text) =>
-          text.replace(/(<li[^>]*>.*?<\/li>)(<li[^>]*>.*?<\/li>)/, "$2$1"),
-        htmlFormat,
+      (
+        await write(
+          setupEditor,
+          [p("P", [bullet("N1"), bullet("N2")]), p("Z")],
+          (text) =>
+            text.replace(/(<li[^>]*>.*?<\/li>)(<li[^>]*>.*?<\/li>)/, "$2$1"),
+          htmlFormat,
+        )
       ).shape,
     ).toBe("P[N2 N1] Z");
   });
 
-  it("puts a new item at the end of a list in a paragraph into the same list", () => {
+  it("puts a new item at the end of a list in a paragraph into the same list", async ({
+    setupEditor,
+  }) => {
     expect(
-      write(
-        [p("P", [bullet("N1"), bullet("N2")]), p("Z")],
-        (text) => replaceOnce(text, "</ul>", "<li><p>N3</p></li></ul>"),
-        htmlFormat,
+      (
+        await write(
+          setupEditor,
+          [p("P", [bullet("N1"), bullet("N2")]), p("Z")],
+          (text) => replaceOnce(text, "</ul>", "<li><p>N3</p></li></ul>"),
+          htmlFormat,
+        )
       ).shape,
     ).toBe("P[N1 N2 +N3] Z");
   });
 });
 
 describe("a nesting that the format does not show", () => {
-  it("does not stay under a parent whose type the text changes", () => {
+  it("does not stay under a parent whose type the text changes", async ({
+    setupEditor,
+  }) => {
     // Markdown does not show the child of a paragraph as nested. Under a
     // bullet, it would show it, thus the child becomes the next block.
-    const editor = BlockNoteEditor.create({
+    const { editor } = await setupEditor({
+      mountType: false,
       initialContent: [
         {
           id: "parent",

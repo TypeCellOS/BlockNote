@@ -1,4 +1,5 @@
 import { describe, expect } from "vite-plus/test";
+import type { SetupEditor } from "../../../../../tests/src/commands/browser/setupEditor.js";
 
 import {
   computeOperations,
@@ -6,41 +7,48 @@ import {
   htmlFormat,
   updateDocument,
 } from "./index.js";
-import { createEditor, replaceOnce, writeText } from "./testUtil/fixtures.js";
+import { replaceOnce, writeText } from "./testUtil/fixtures.js";
 import { valid } from "./testUtil/valid.js";
 
 describe("HTML", () => {
-  it("changes a prop that HTML shows", () => {
-    const editor = createEditor([
-      {
-        id: "p",
-        type: "paragraph",
-        props: { textColor: "red" },
-        content: "Hello",
-      },
-    ]);
+  it("changes a prop that HTML shows", async ({ setupEditor }) => {
+    const { editor } = await setupEditor({
+      mountType: false,
+      initialContent: [
+        {
+          id: "p",
+          type: "paragraph",
+          props: { textColor: "red" },
+          content: "Hello",
+        },
+      ],
+    });
     // The HTML of the same paragraph in blue. The export writes a color in
     // the style and in a data attribute; the client changes both.
-    const blue = getDocumentText(
-      createEditor([
+    const { editor: blueEditor } = await setupEditor({
+      mountType: false,
+      initialContent: [
         {
           id: "p",
           type: "paragraph",
           props: { textColor: "blue" },
           content: "Hello",
         },
-      ]),
-      htmlFormat,
-    );
+      ],
+    });
+    const blue = getDocumentText(blueEditor, htmlFormat);
     writeText(editor, htmlFormat, () => blue);
 
     expect(editor.getBlock("p")?.props).toMatchObject({ textColor: "blue" });
   });
 
-  it("changes a style that HTML shows, and keeps the other text", () => {
-    const editor = createEditor([
-      { id: "p", type: "paragraph", content: "Hello world" },
-    ]);
+  it("changes a style that HTML shows, and keeps the other text", async ({
+    setupEditor,
+  }) => {
+    const { editor } = await setupEditor({
+      mountType: false,
+      initialContent: [{ id: "p", type: "paragraph", content: "Hello world" }],
+    });
     writeText(editor, htmlFormat, (html) =>
       replaceOnce(html, "world", "<u>world</u>"),
     );
@@ -51,15 +59,20 @@ describe("HTML", () => {
     ]);
   });
 
-  it("keeps a toggle and its child when the text of the toggle changes", () => {
-    const editor = createEditor([
-      {
-        id: "toggle",
-        type: "toggleListItem",
-        content: "Toggle",
-        children: [{ id: "child", type: "paragraph", content: "Child" }],
-      },
-    ]);
+  it("keeps a toggle and its child when the text of the toggle changes", async ({
+    setupEditor,
+  }) => {
+    const { editor } = await setupEditor({
+      mountType: false,
+      initialContent: [
+        {
+          id: "toggle",
+          type: "toggleListItem",
+          content: "Toggle",
+          children: [{ id: "child", type: "paragraph", content: "Child" }],
+        },
+      ],
+    });
     writeText(editor, htmlFormat, (html) =>
       replaceOnce(html, ">Toggle<", ">Toggle, edited<"),
     );
@@ -69,15 +82,20 @@ describe("HTML", () => {
     expect(toggle?.children.map((child) => child.id)).toEqual(["child"]);
   });
 
-  it("gives an error for a prop value that the schema does not have, and does not change the document", () => {
-    const editor = createEditor([
-      {
-        id: "p",
-        type: "paragraph",
-        props: { textAlignment: "center" },
-        content: "Text",
-      },
-    ]);
+  it("gives an error for a prop value that the schema does not have, and does not change the document", async ({
+    setupEditor,
+  }) => {
+    const { editor } = await setupEditor({
+      mountType: false,
+      initialContent: [
+        {
+          id: "p",
+          type: "paragraph",
+          props: { textAlignment: "center" },
+          content: "Text",
+        },
+      ],
+    });
     const html = getDocumentText(editor, htmlFormat);
     expect(html).toContain('data-text-alignment="center"');
     const before = editor.document;
@@ -96,20 +114,25 @@ describe("HTML", () => {
 });
 
 describe("HTML, a change of the type of a parent", () => {
-  it("gives no operations for a second write of the same text, after a toggle becomes a bullet", () => {
-    const editor = createEditor([
-      {
-        type: "toggleListItem",
-        content: "Alpha",
-        children: [
-          {
-            type: "heading",
-            content: "Gamma",
-            children: [{ type: "numberedListItem", content: "Zeta" }],
-          },
-        ],
-      },
-    ]);
+  it("gives no operations for a second write of the same text, after a toggle becomes a bullet", async ({
+    setupEditor,
+  }) => {
+    const { editor } = await setupEditor({
+      mountType: false,
+      initialContent: [
+        {
+          type: "toggleListItem",
+          content: "Alpha",
+          children: [
+            {
+              type: "heading",
+              content: "Gamma",
+              children: [{ type: "numberedListItem", content: "Zeta" }],
+            },
+          ],
+        },
+      ],
+    });
     const text = getDocumentText(editor, htmlFormat)
       .replace('<details open=""><summary>', "")
       .replace("</summary>", "")
@@ -134,8 +157,13 @@ describe("HTML, a change of the type of a parent", () => {
 });
 
 describe("HTML, a parse in a form that the document does not store", () => {
-  it("gives no operations for a second write of the same text", () => {
-    const editor = createEditor([{ id: "p", type: "paragraph", content: "x" }]);
+  it("gives no operations for a second write of the same text", async ({
+    setupEditor,
+  }) => {
+    const { editor } = await setupEditor({
+      mountType: false,
+      initialContent: [{ id: "p", type: "paragraph", content: "x" }],
+    });
     // The quote joins its paragraphs with hard breaks. The parse gives
     // "note\n" (italic) and "\nipsum". The document stores "note\n\n"
     // (italic) and "ipsum".
@@ -171,63 +199,86 @@ function propsOf(
 describe("HTML, props that the client removes", () => {
   // HTML shows a color and an alignment two times: as a data attribute and
   // in the style. The parse reads the attribute, else the style.
-  function edited(
+  async function edited(
+    setupEditor: SetupEditor,
     props: Record<string, string>,
     edit: (text: string) => string,
   ) {
-    const editor = createEditor([
-      { id: "p", type: "paragraph", props, content: "Hello" },
-    ]);
+    const { editor } = await setupEditor({
+      mountType: false,
+      initialContent: [{ id: "p", type: "paragraph", props, content: "Hello" }],
+    });
     writeText(editor, htmlFormat, edit);
     return propsOf(editor, "p");
   }
 
-  it("gives the default color if the client removes the attribute and the style", () => {
+  it("gives the default color if the client removes the attribute and the style", async ({
+    setupEditor,
+  }) => {
     expect(
-      edited({ textColor: "red" }, (text) =>
-        text
-          .replace(' data-text-color="red"', "")
-          .replace(/color: [^;"]+;? ?/, ""),
+      (
+        await edited(setupEditor, { textColor: "red" }, (text) =>
+          text
+            .replace(' data-text-color="red"', "")
+            .replace(/color: [^;"]+;? ?/, ""),
+        )
       ).textColor,
     ).toBe("default");
   });
 
   // Before the fix in core, the color was the CSS value "rgb(224, 62, 62)",
   // which the editor does not show.
-  it("keeps the color of the style if the client removes only the data attribute", () => {
+  it("keeps the color of the style if the client removes only the data attribute", async ({
+    setupEditor,
+  }) => {
     expect(
-      edited({ textColor: "red" }, (text) =>
-        text.replace(' data-text-color="red"', ""),
+      (
+        await edited(setupEditor, { textColor: "red" }, (text) =>
+          text.replace(' data-text-color="red"', ""),
+        )
       ).textColor,
     ).toBe("red");
   });
 
-  it("keeps the alignment of the style if the client removes only the data attribute (the HTML still shows it)", () => {
+  it("keeps the alignment of the style if the client removes only the data attribute (the HTML still shows it)", async ({
+    setupEditor,
+  }) => {
     expect(
-      edited({ textAlignment: "center" }, (text) =>
-        text.replace(' data-text-alignment="center"', ""),
+      (
+        await edited(setupEditor, { textAlignment: "center" }, (text) =>
+          text.replace(' data-text-alignment="center"', ""),
+        )
       ).textAlignment,
     ).toBe("center");
   });
 
-  it("gives the default alignment if the client removes the attribute and the style", () => {
+  it("gives the default alignment if the client removes the attribute and the style", async ({
+    setupEditor,
+  }) => {
     expect(
-      edited({ textAlignment: "center" }, (text) =>
-        text
-          .replace(' data-text-alignment="center"', "")
-          .replace(/text-align: center;? ?/, ""),
+      (
+        await edited(setupEditor, { textAlignment: "center" }, (text) =>
+          text
+            .replace(' data-text-alignment="center"', "")
+            .replace(/text-align: center;? ?/, ""),
+        )
       ).textAlignment,
     ).toBe("left");
   });
 
-  it("removes the preview width of an image if the client removes the width", () => {
-    const editor = createEditor([
-      {
-        id: "i",
-        type: "image",
-        props: { url: "https://example.com/x.png", previewWidth: 200 },
-      },
-    ]);
+  it("removes the preview width of an image if the client removes the width", async ({
+    setupEditor,
+  }) => {
+    const { editor } = await setupEditor({
+      mountType: false,
+      initialContent: [
+        {
+          id: "i",
+          type: "image",
+          props: { url: "https://example.com/x.png", previewWidth: 200 },
+        },
+      ],
+    });
     writeText(editor, htmlFormat, (text) =>
       text.replace(/ (data-preview-width|width)="200"/g, ""),
     );
@@ -236,21 +287,26 @@ describe("HTML, props that the client removes", () => {
 });
 
 describe("HTML, links", () => {
-  const linkedEditor = () =>
-    createEditor([
-      {
-        id: "p",
-        type: "paragraph",
-        content: [
-          "see ",
-          { type: "link", href: "https://a.example", content: "docs" },
-          " now",
-        ],
-      },
-    ]);
+  async function linkedEditor(setupEditor: SetupEditor) {
+    const { editor } = await setupEditor({
+      mountType: false,
+      initialContent: [
+        {
+          id: "p",
+          type: "paragraph",
+          content: [
+            "see ",
+            { type: "link", href: "https://a.example", content: "docs" },
+            " now",
+          ],
+        },
+      ],
+    });
+    return editor;
+  }
 
-  it("changes the URL of a link", () => {
-    const editor = linkedEditor();
+  it("changes the URL of a link", async ({ setupEditor }) => {
+    const editor = await linkedEditor(setupEditor);
     writeText(editor, htmlFormat, (text) =>
       replaceOnce(text, 'href="https://a.example"', 'href="https://b.example"'),
     );
@@ -261,8 +317,8 @@ describe("HTML, links", () => {
     ]);
   });
 
-  it("removes a link and keeps its text", () => {
-    const editor = linkedEditor();
+  it("removes a link and keeps its text", async ({ setupEditor }) => {
+    const editor = await linkedEditor(setupEditor);
     writeText(editor, htmlFormat, (text) =>
       text.replace(/<a [^>]*>docs<\/a>/, "docs"),
     );

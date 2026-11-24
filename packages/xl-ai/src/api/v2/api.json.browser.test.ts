@@ -1,5 +1,6 @@
-import { type Block, BlockNoteEditor } from "@blocknote/core";
+import { type Block } from "@blocknote/core";
 import { describe, expect } from "vite-plus/test";
+import type { SetupEditor } from "../../../../../tests/src/commands/browser/setupEditor.js";
 
 import {
   type ChangeOperations,
@@ -11,8 +12,23 @@ import {
   updateDocument,
   updateDocumentWithMerge,
 } from "./index.js";
-import { columnSchema, createEditor } from "./testUtil/fixtures.js";
+import { columnSchema } from "./testUtil/fixtures.js";
 import { valid } from "./testUtil/valid.js";
+
+// One editor for the read-only cases of this file.
+const it = globalThis.it.extend(
+  "paragraphEditor",
+  { scope: "file" },
+  // eslint-disable-next-line no-empty-pattern -- Vitest requires destructured fixture dependencies.
+  async ({}, { onCleanup }) => {
+    const { createSetupEditor } =
+      await import("../../../../../tests/src/commands/node/setupEditor.js");
+    const { editor } = await createSetupEditor(onCleanup)({
+      initialContent: [{ id: "p", type: "paragraph" }],
+    });
+    return editor;
+  },
+);
 
 const initial = [
   { id: "a", type: "paragraph" as const, content: "Alpha" },
@@ -34,8 +50,11 @@ function update(
 }
 
 describe("JSON", () => {
-  it("gives no operations for the same document", () => {
-    const editor = createEditor(initial);
+  it("gives no operations for the same document", async ({ setupEditor }) => {
+    const { editor } = await setupEditor({
+      mountType: false,
+      initialContent: initial,
+    });
     expect(
       computeOperations(editor, {
         document: copy(editor.document),
@@ -43,8 +62,13 @@ describe("JSON", () => {
     ).toEqual({ operations: [], warnings: [] });
   });
 
-  it("updates only the changed field of a block, by its ID", () => {
-    const editor = createEditor(initial);
+  it("updates only the changed field of a block, by its ID", async ({
+    setupEditor,
+  }) => {
+    const { editor } = await setupEditor({
+      mountType: false,
+      initialContent: initial,
+    });
     const document = copy(editor.document);
     document[1].props.textColor = "red";
 
@@ -56,8 +80,13 @@ describe("JSON", () => {
     expect(editor.getBlock("b")?.props).toMatchObject({ textColor: "red" });
   });
 
-  it("inserts a block without an ID, removes a missing block, and moves a block", () => {
-    const editor = createEditor(initial);
+  it("inserts a block without an ID, removes a missing block, and moves a block", async ({
+    setupEditor,
+  }) => {
+    const { editor } = await setupEditor({
+      mountType: false,
+      initialContent: initial,
+    });
     const [a, b, c] = copy(editor.document);
 
     update(editor, {
@@ -72,8 +101,13 @@ describe("JSON", () => {
     expect(editor.document[2].content).toMatchObject([{ text: "New" }]);
   });
 
-  it("keeps the change of another writer with a base", () => {
-    const editor = createEditor(initial);
+  it("keeps the change of another writer with a base", async ({
+    setupEditor,
+  }) => {
+    const { editor } = await setupEditor({
+      mountType: false,
+      initialContent: initial,
+    });
     const base = copy(editor.document);
     const document = copy(base);
     document[0].props.textColor = "red";
@@ -94,8 +128,13 @@ describe("JSON", () => {
     ]);
   });
 
-  it("rejects a write with a conflict, with onConflict reject", () => {
-    const editor = createEditor(initial);
+  it("rejects a write with a conflict, with onConflict reject", async ({
+    setupEditor,
+  }) => {
+    const { editor } = await setupEditor({
+      mountType: false,
+      initialContent: initial,
+    });
     const base = copy(editor.document);
     const document = copy(base);
     document[0].props.textColor = "red";
@@ -113,7 +152,7 @@ describe("JSON", () => {
     expect(editor.document).toEqual(before);
   });
 
-  it.each([
+  it.for([
     { name: "an unknown block type", document: [{ type: "unknown" }] },
     {
       name: "an unknown inline content type",
@@ -152,8 +191,11 @@ describe("JSON", () => {
     },
   ])(
     "gives an error for $name, and does not change the document",
-    ({ document }) => {
-      const editor = createEditor(initial);
+    async ({ document }, { setupEditor }) => {
+      const { editor } = await setupEditor({
+        mountType: false,
+        initialContent: initial,
+      });
       const before = copy(editor.document);
 
       expect(
@@ -170,8 +212,13 @@ describe("JSON", () => {
   // client must give each block its own ID. An earlier version gave the later
   // block the ID with a number (`x-2`) and applied the change. We can return
   // to that if clients need it (see `assertBlockIds`).
-  it("gives an error for a later block with the ID of an earlier block", () => {
-    const editor = createEditor(initial);
+  it("gives an error for a later block with the ID of an earlier block", async ({
+    setupEditor,
+  }) => {
+    const { editor } = await setupEditor({
+      mountType: false,
+      initialContent: initial,
+    });
     const before = editor.document;
     const [a, b] = copy(editor.document);
     const duplicate = { ...a, content: "Alpha, copy" };
@@ -184,8 +231,13 @@ describe("JSON", () => {
     expect(editor.document).toEqual(before);
   });
 
-  it("gives an error for a nested block with the ID of a block at a different level", () => {
-    const editor = createEditor(initial);
+  it("gives an error for a nested block with the ID of a block at a different level", async ({
+    setupEditor,
+  }) => {
+    const { editor } = await setupEditor({
+      mountType: false,
+      initialContent: initial,
+    });
     const [a, b, c] = copy(editor.document);
     const nested = { ...b, content: "Nested" };
 
@@ -196,8 +248,13 @@ describe("JSON", () => {
     ).toEqual({ error: "invalid-document" });
   });
 
-  it("with a base, gives the error invalid-document for a block with the ID of a block that another writer added", () => {
-    const editor = createEditor(initial);
+  it("with a base, gives the error invalid-document for a block with the ID of a block that another writer added", async ({
+    setupEditor,
+  }) => {
+    const { editor } = await setupEditor({
+      mountType: false,
+      initialContent: initial,
+    });
     const base = copy(editor.document);
     // Another writer adds block d after the client read the document.
     editor.insertBlocks(
@@ -223,8 +280,11 @@ describe("JSON", () => {
     expect(editor.document).toEqual(before);
   });
 
-  it("keeps a new ID that is not in the document", () => {
-    const editor = createEditor(initial);
+  it("keeps a new ID that is not in the document", async ({ setupEditor }) => {
+    const { editor } = await setupEditor({
+      mountType: false,
+      initialContent: initial,
+    });
     const document = [
       ...copy(editor.document),
       { id: "new", type: "paragraph" as const, content: "New" },
@@ -235,8 +295,13 @@ describe("JSON", () => {
     expect(editor.getBlock("new")?.content).toMatchObject([{ text: "New" }]);
   });
 
-  it("reads children: null as no children, without an exception", () => {
-    const editor = createEditor(initial);
+  it("reads children: null as no children, without an exception", async ({
+    setupEditor,
+  }) => {
+    const { editor } = await setupEditor({
+      mountType: false,
+      initialContent: initial,
+    });
 
     update(editor, {
       document: [
@@ -247,8 +312,13 @@ describe("JSON", () => {
     expect(editor.document.map((block) => block.id)).toEqual(["a"]);
   });
 
-  it("does not add IDs to the document on an error", () => {
-    const editor = createEditor(initial);
+  it("does not add IDs to the document on an error", async ({
+    setupEditor,
+  }) => {
+    const { editor } = await setupEditor({
+      mountType: false,
+      initialContent: initial,
+    });
     editor.removeBlocks(["a", "b", "c"]);
     const before = editor.prosemirrorState.doc;
 
@@ -266,11 +336,16 @@ describe("JSON", () => {
   // alternative keeps the ID (the apply builds the new node in its structure
   // step); return to it if a client needs the ID, for example for comments.
   describe("type changes", () => {
-    function columnsEditor(content: JSONChange["document"]) {
-      return BlockNoteEditor.create({
+    async function columnsEditor(
+      setupEditor: SetupEditor,
+      content: JSONChange["document"],
+    ) {
+      const { editor } = await setupEditor({
+        mountType: false,
         schema: columnSchema,
         initialContent: content as any,
       });
+      return editor;
     }
     const twoColumns = [
       {
@@ -291,10 +366,11 @@ describe("JSON", () => {
       },
     ] as JSONChange["document"];
 
-    it("changes a paragraph into a table", () => {
-      const editor = createEditor([
-        { id: "p", type: "paragraph", content: "Hello" },
-      ]);
+    it("changes a paragraph into a table", async ({ setupEditor }) => {
+      const { editor } = await setupEditor({
+        mountType: false,
+        initialContent: [{ id: "p", type: "paragraph", content: "Hello" }],
+      });
 
       update(editor, {
         document: [
@@ -312,8 +388,10 @@ describe("JSON", () => {
       expect(editor.getBlock("p")?.type).toBe("table");
     });
 
-    it("changes a column into a top-level paragraph, with a new ID", () => {
-      const editor = columnsEditor(twoColumns);
+    it("changes a column into a top-level paragraph, with a new ID", async ({
+      setupEditor,
+    }) => {
+      const editor = await columnsEditor(setupEditor, twoColumns);
 
       update(editor, {
         document: [{ id: "cA", type: "paragraph", content: "Was a column" }],
@@ -326,8 +404,10 @@ describe("JSON", () => {
       ]);
     });
 
-    it("changes a paragraph into a column list, with a new ID", () => {
-      const editor = columnsEditor([
+    it("changes a paragraph into a column list, with a new ID", async ({
+      setupEditor,
+    }) => {
+      const editor = await columnsEditor(setupEditor, [
         { id: "p", type: "paragraph", content: "P" },
       ]);
 
@@ -357,8 +437,10 @@ describe("JSON", () => {
       expect(editor.document[0].children).toHaveLength(2);
     });
 
-    it("changes a column list into a paragraph, with a new ID", () => {
-      const editor = columnsEditor(twoColumns);
+    it("changes a column list into a paragraph, with a new ID", async ({
+      setupEditor,
+    }) => {
+      const editor = await columnsEditor(setupEditor, twoColumns);
 
       update(editor, {
         document: [{ id: "list", type: "paragraph", content: "Was columns" }],
@@ -368,8 +450,10 @@ describe("JSON", () => {
       expect(editor.document[0].id).not.toBe("list");
     });
 
-    it("keeps the IDs of the blocks in a column list that becomes a paragraph with these blocks as children", () => {
-      const editor = columnsEditor(twoColumns);
+    it("keeps the IDs of the blocks in a column list that becomes a paragraph with these blocks as children", async ({
+      setupEditor,
+    }) => {
+      const editor = await columnsEditor(setupEditor, twoColumns);
 
       update(editor, {
         document: [
@@ -395,10 +479,15 @@ describe("JSON", () => {
 });
 
 describe("JSON, a change of the content kind", () => {
-  it("gives a hard break, not a line end in the text, for a code block that becomes a paragraph", () => {
-    const editor = createEditor([
-      { id: "c", type: "codeBlock", content: "line one\nline two" },
-    ]);
+  it("gives a hard break, not a line end in the text, for a code block that becomes a paragraph", async ({
+    setupEditor,
+  }) => {
+    const { editor } = await setupEditor({
+      mountType: false,
+      initialContent: [
+        { id: "c", type: "codeBlock", content: "line one\nline two" },
+      ],
+    });
 
     valid(
       updateDocument(editor, {
@@ -441,9 +530,9 @@ function table(props: Record<string, unknown>) {
 }
 
 describe("JSON, the spans of table cells", () => {
-  const editor = createEditor([{ id: "p", type: "paragraph" }]);
-
-  it("gives an error value, not an exception, for a JSON write with a column span of 1,000,000", () => {
+  it("gives an error value, not an exception, for a JSON write with a column span of 1,000,000", ({
+    paragraphEditor: editor,
+  }) => {
     // Before the check, the conversion of core overflowed the stack.
     expect(
       computeOperations(editor, {
@@ -462,15 +551,20 @@ function propsOf(
 }
 
 describe("JSON, props that the client removes", () => {
-  it("gives the default value to a prop that the client leaves out", () => {
-    const editor = createEditor([
-      {
-        id: "p",
-        type: "paragraph",
-        props: { textColor: "red", textAlignment: "center" },
-        content: "Hello",
-      },
-    ]);
+  it("gives the default value to a prop that the client leaves out", async ({
+    setupEditor,
+  }) => {
+    const { editor } = await setupEditor({
+      mountType: false,
+      initialContent: [
+        {
+          id: "p",
+          type: "paragraph",
+          props: { textColor: "red", textAlignment: "center" },
+          content: "Hello",
+        },
+      ],
+    });
     update(editor, {
       document: [{ id: "p", type: "paragraph", content: "Hello" }],
     });
@@ -480,26 +574,36 @@ describe("JSON, props that the client removes", () => {
     });
   });
 
-  it("removes an optional prop that the client leaves out (the preview width of an image)", () => {
+  it("removes an optional prop that the client leaves out (the preview width of an image)", async ({
+    setupEditor,
+  }) => {
     const url = "https://example.com/x.png";
-    const editor = createEditor([
-      { id: "i", type: "image", props: { url, previewWidth: 200 } },
-    ]);
+    const { editor } = await setupEditor({
+      mountType: false,
+      initialContent: [
+        { id: "i", type: "image", props: { url, previewWidth: 200 } },
+      ],
+    });
     update(editor, {
       document: [{ id: "i", type: "image", props: { url } }],
     });
     expect(propsOf(editor, "i").previewWidth).toBeUndefined();
   });
 
-  it("gives an error for a prop with the value null", () => {
-    const editor = createEditor([
-      {
-        id: "p",
-        type: "paragraph",
-        props: { textColor: "red" },
-        content: "Hello",
-      },
-    ]);
+  it("gives an error for a prop with the value null", async ({
+    setupEditor,
+  }) => {
+    const { editor } = await setupEditor({
+      mountType: false,
+      initialContent: [
+        {
+          id: "p",
+          type: "paragraph",
+          props: { textColor: "red" },
+          content: "Hello",
+        },
+      ],
+    });
     expect(
       updateDocument(editor, {
         document: [

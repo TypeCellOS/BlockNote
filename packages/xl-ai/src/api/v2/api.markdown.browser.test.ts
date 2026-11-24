@@ -5,6 +5,7 @@ import {
   type PartialBlock,
 } from "@blocknote/core";
 import { describe, expect } from "vite-plus/test";
+import type { SetupEditor } from "../../../../../tests/src/commands/browser/setupEditor.js";
 
 import {
   computeOperations,
@@ -17,14 +18,14 @@ import { isTableContent, type LensBlock } from "./model.js";
 import {
   addComment,
   commentedText,
-  createCommentEditor,
+  commentEditorOptions,
 } from "./testUtil/comments.js";
 import {
-  createEditor,
-  createSharedDocumentEditor,
   documentShape,
   replaceOnce,
   writeText,
+  richDocument,
+  sharedDocumentEditorOptions,
 } from "./testUtil/fixtures.js";
 import { valid } from "./testUtil/valid.js";
 import { mention } from "./testUtil/richRandom.js";
@@ -46,8 +47,13 @@ function cellTexts(
 }
 
 describe("markdown", () => {
-  it("a changed paragraph keeps its ID, colors and alignment", () => {
-    const editor = createEditor();
+  it("a changed paragraph keeps its ID, colors and alignment", async ({
+    setupEditor,
+  }) => {
+    const { editor } = await setupEditor({
+      mountType: false,
+      initialContent: richDocument,
+    });
     const update = writeText(editor, markdownFormat, (md) =>
       replaceOnce(
         md,
@@ -74,8 +80,13 @@ describe("markdown", () => {
     });
   });
 
-  it("keeps underline on changed text and on new text in it", () => {
-    const editor = createEditor();
+  it("keeps underline on changed text and on new text in it", async ({
+    setupEditor,
+  }) => {
+    const { editor } = await setupEditor({
+      mountType: false,
+      initialContent: richDocument,
+    });
     writeText(editor, markdownFormat, (md) =>
       replaceOnce(md, "Underlined words here", "Underlined words right here"),
     );
@@ -89,21 +100,30 @@ describe("markdown", () => {
     ]);
   });
 
-  it("gives a new word next to a space the hidden style of the run around it, and no style that the text does not show", () => {
+  it("gives a new word next to a space the hidden style of the run around it, and no style that the text does not show", async ({
+    setupEditor,
+  }) => {
     // Markdown writes the space after "alpha" outside the bold: "**alpha** ".
-    const editor = createEditor([
-      {
-        id: "p",
-        type: "paragraph",
-        content: [
-          { type: "text", text: "alpha", styles: { bold: true } },
-          { type: "text", text: " ", styles: { bold: true, underline: true } },
-          { type: "text", text: "gamma", styles: { underline: true } },
-          { type: "text", text: " ", styles: { italic: true } },
-          { type: "text", text: "beta", styles: { italic: true } },
-        ],
-      },
-    ]);
+    const { editor } = await setupEditor({
+      mountType: false,
+      initialContent: [
+        {
+          id: "p",
+          type: "paragraph",
+          content: [
+            { type: "text", text: "alpha", styles: { bold: true } },
+            {
+              type: "text",
+              text: " ",
+              styles: { bold: true, underline: true },
+            },
+            { type: "text", text: "gamma", styles: { underline: true } },
+            { type: "text", text: " ", styles: { italic: true } },
+            { type: "text", text: "beta", styles: { italic: true } },
+          ],
+        },
+      ],
+    });
     const text = getDocumentText(editor, markdownFormat).replace(
       "gamma",
       "new gamma",
@@ -120,20 +140,25 @@ describe("markdown", () => {
     expect(getDocumentText(editor, markdownFormat)).toBe(text);
   });
 
-  it("gives no visible style to a new word between bold text and a space", () => {
+  it("gives no visible style to a new word between bold text and a space", async ({
+    setupEditor,
+  }) => {
     // Markdown writes the bold space outside the bold: "**alpha** *gamma*".
-    const editor = createEditor([
-      {
-        id: "p",
-        type: "paragraph",
-        content: [
-          { type: "text", text: "gamma", styles: { italic: true } },
-          { type: "text", text: "alpha", styles: { bold: true } },
-          { type: "text", text: " ", styles: { bold: true } },
-          { type: "text", text: "gamma ", styles: { italic: true } },
-        ],
-      },
-    ]);
+    const { editor } = await setupEditor({
+      mountType: false,
+      initialContent: [
+        {
+          id: "p",
+          type: "paragraph",
+          content: [
+            { type: "text", text: "gamma", styles: { italic: true } },
+            { type: "text", text: "alpha", styles: { bold: true } },
+            { type: "text", text: " ", styles: { bold: true } },
+            { type: "text", text: "gamma ", styles: { italic: true } },
+          ],
+        },
+      ],
+    });
     const text = getDocumentText(editor, markdownFormat).replace(
       "**alpha** ",
       "**alpha**new  ",
@@ -144,8 +169,13 @@ describe("markdown", () => {
     expect(getDocumentText(editor, markdownFormat)).toBe(text);
   });
 
-  it("changes the level of a heading and keeps its text color and underline", () => {
-    const editor = createEditor();
+  it("changes the level of a heading and keeps its text color and underline", async ({
+    setupEditor,
+  }) => {
+    const { editor } = await setupEditor({
+      mountType: false,
+      initialContent: richDocument,
+    });
     const content = editor.getBlock("heading")?.content;
     writeText(editor, markdownFormat, (md) =>
       replaceOnce(md, "## **Bold**", "### **Bold**"),
@@ -156,8 +186,13 @@ describe("markdown", () => {
     expect(heading?.content).toEqual(content);
   });
 
-  it("changes a heading to a paragraph and keeps its text color and underline", () => {
-    const editor = createEditor();
+  it("changes a heading to a paragraph and keeps its text color and underline", async ({
+    setupEditor,
+  }) => {
+    const { editor } = await setupEditor({
+      mountType: false,
+      initialContent: richDocument,
+    });
     const content = editor.getBlock("heading")?.content;
     writeText(editor, markdownFormat, (md) =>
       replaceOnce(md, "## **Bold**", "**Bold**"),
@@ -168,8 +203,13 @@ describe("markdown", () => {
     expect(paragraph?.content).toEqual(content);
   });
 
-  it("keeps a toggle as a toggle when its text changes (markdown shows it as a bullet)", () => {
-    const editor = createEditor();
+  it("keeps a toggle as a toggle when its text changes (markdown shows it as a bullet)", async ({
+    setupEditor,
+  }) => {
+    const { editor } = await setupEditor({
+      mountType: false,
+      initialContent: richDocument,
+    });
     writeText(editor, markdownFormat, (md) =>
       replaceOnce(md, "* Toggle\n", "* Toggle, edited\n"),
     );
@@ -179,8 +219,13 @@ describe("markdown", () => {
     expect(toggle?.children.map((child) => child.id)).toEqual(["toggle-child"]);
   });
 
-  it("changes the checked state of a checklist item", () => {
-    const editor = createEditor();
+  it("changes the checked state of a checklist item", async ({
+    setupEditor,
+  }) => {
+    const { editor } = await setupEditor({
+      mountType: false,
+      initialContent: richDocument,
+    });
     writeText(editor, markdownFormat, (md) =>
       replaceOnce(md, "* [x] Checked", "* [ ] Checked"),
     );
@@ -188,8 +233,11 @@ describe("markdown", () => {
     expect(editor.getBlock("checked")?.props).toMatchObject({ checked: false });
   });
 
-  it("keeps the language of a code block", () => {
-    const editor = createEditor();
+  it("keeps the language of a code block", async ({ setupEditor }) => {
+    const { editor } = await setupEditor({
+      mountType: false,
+      initialContent: richDocument,
+    });
     writeText(editor, markdownFormat, (md) =>
       replaceOnce(md, "const x = 1;", "const x = 2;"),
     );
@@ -201,8 +249,13 @@ describe("markdown", () => {
     ]);
   });
 
-  it("keeps the width and alignment of an image when its caption changes", () => {
-    const editor = createEditor();
+  it("keeps the width and alignment of an image when its caption changes", async ({
+    setupEditor,
+  }) => {
+    const { editor } = await setupEditor({
+      mountType: false,
+      initialContent: richDocument,
+    });
     writeText(editor, markdownFormat, (md) =>
       replaceOnce(md, "<figcaption>Caption<", "<figcaption>New caption<"),
     );
@@ -214,8 +267,13 @@ describe("markdown", () => {
     });
   });
 
-  it("keeps the color of a table cell when its text changes", () => {
-    const editor = createEditor();
+  it("keeps the color of a table cell when its text changes", async ({
+    setupEditor,
+  }) => {
+    const { editor } = await setupEditor({
+      mountType: false,
+      initialContent: richDocument,
+    });
     writeText(editor, markdownFormat, (md) =>
       replaceOnce(md, "| c          |", "| c, edited  |"),
     );
@@ -243,10 +301,13 @@ describe("markdown", () => {
     });
   });
 
-  it("does not change a table with a short row when the text changes another block", () => {
+  it("does not change a table with a short row when the text changes another block", async ({
+    setupEditor,
+  }) => {
     // A markdown import can give a table with a short row (for example the
     // contributors table of many READMEs).
-    const editor = BlockNoteEditor.create({
+    const { editor } = await setupEditor({
+      mountType: false,
       initialContent: [
         { id: "p", type: "paragraph", content: "Before" },
         {
@@ -274,8 +335,13 @@ describe("markdown", () => {
     expect(update.operations[0]).toMatchObject({ id: "p" });
   });
 
-  it("moves an outdented list item and keeps the block order of the text", () => {
-    const editor = createEditor();
+  it("moves an outdented list item and keeps the block order of the text", async ({
+    setupEditor,
+  }) => {
+    const { editor } = await setupEditor({
+      mountType: false,
+      initialContent: richDocument,
+    });
     writeText(editor, markdownFormat, (md) =>
       replaceOnce(md, "\n  * Child bullet", "\n* Child bullet"),
     );
@@ -290,17 +356,23 @@ describe("markdown", () => {
       ["child-paragraph"],
     ]);
   });
-  it("a paragraph that the text moves keeps its ID, props and comments", () => {
-    const editor = createCommentEditor([
-      { id: "a", type: "paragraph", content: "First paragraph" },
-      {
-        id: "b",
-        type: "paragraph",
-        props: { textColor: "red" },
-        content: "Second paragraph",
-      },
-      { id: "c", type: "paragraph", content: "Third paragraph" },
-    ]);
+  it("a paragraph that the text moves keeps its ID, props and comments", async ({
+    setupEditor,
+  }) => {
+    const { editor } = await setupEditor({
+      mountType: false,
+      initialContent: [
+        { id: "a", type: "paragraph", content: "First paragraph" },
+        {
+          id: "b",
+          type: "paragraph",
+          props: { textColor: "red" },
+          content: "Second paragraph",
+        },
+        { id: "c", type: "paragraph", content: "Third paragraph" },
+      ],
+      ...commentEditorOptions(),
+    });
     const comment = addComment(editor, "Second");
 
     const update = writeText(editor, markdownFormat, (md) =>
@@ -319,10 +391,14 @@ describe("markdown", () => {
     expect(commentedText(editor.prosemirrorState.doc, comment)).toBe("Second");
   });
 
-  it("keeps a comment on text that the edit does not touch", () => {
-    const editor = createCommentEditor([
-      { id: "p", type: "paragraph", content: "Hello world" },
-    ]);
+  it("keeps a comment on text that the edit does not touch", async ({
+    setupEditor,
+  }) => {
+    const { editor } = await setupEditor({
+      mountType: false,
+      initialContent: [{ id: "p", type: "paragraph", content: "Hello world" }],
+      ...commentEditorOptions(),
+    });
     const comment = addComment(editor, "Hello");
 
     writeText(editor, markdownFormat, (md) =>
@@ -332,18 +408,23 @@ describe("markdown", () => {
     expect(commentedText(editor.prosemirrorState.doc, comment)).toBe("Hello");
   });
 
-  it("a new block between a paragraph and its nested child goes into the paragraph, thus the child stays nested", () => {
-    const editor = createEditor([
-      {
-        id: "intro",
-        type: "paragraph",
-        content: "Buy the fresh items first.",
-        children: [
-          { id: "note", type: "paragraph", content: "A nested note." },
-        ],
-      },
-      { id: "end", type: "paragraph", content: "End" },
-    ]);
+  it("a new block between a paragraph and its nested child goes into the paragraph, thus the child stays nested", async ({
+    setupEditor,
+  }) => {
+    const { editor } = await setupEditor({
+      mountType: false,
+      initialContent: [
+        {
+          id: "intro",
+          type: "paragraph",
+          content: "Buy the fresh items first.",
+          children: [
+            { id: "note", type: "paragraph", content: "A nested note." },
+          ],
+        },
+        { id: "end", type: "paragraph", content: "End" },
+      ],
+    });
     writeText(editor, markdownFormat, (md) =>
       replaceOnce(md, "first.\n\nA nested", "first.\n\nNew note.\n\nA nested"),
     );
@@ -374,8 +455,11 @@ describe("markdown", () => {
       { id: "end", type: "paragraph" as const, content: "End" },
     ];
 
-    it("when the text swaps two images", () => {
-      const editor = createEditor(images);
+    it("when the text swaps two images", async ({ setupEditor }) => {
+      const { editor } = await setupEditor({
+        mountType: false,
+        initialContent: images,
+      });
       writeText(editor, markdownFormat, (md) => {
         const [a, b, ...rest] = md.split("\n\n");
         return [b, a, ...rest].join("\n\n");
@@ -391,8 +475,13 @@ describe("markdown", () => {
       });
     });
 
-    it("when the text removes the first of two images", () => {
-      const editor = createEditor(images);
+    it("when the text removes the first of two images", async ({
+      setupEditor,
+    }) => {
+      const { editor } = await setupEditor({
+        mountType: false,
+        initialContent: images,
+      });
       writeText(editor, markdownFormat, (md) =>
         md.split("\n\n").slice(1).join("\n\n"),
       );
@@ -404,26 +493,35 @@ describe("markdown", () => {
       });
     });
 
-    it("when two images have the same URL and only the first has a hidden prop", () => {
+    it("when two images have the same URL and only the first has a hidden prop", async ({
+      setupEditor,
+    }) => {
       // Markdown does not show the preview width. Thus, the view shows a and
       // b as two equal images. The key match pairs b with the view block of
       // a, but the document order gives the link of each view block. Before
       // the fix, the check of the projection threw "The format does not show
       // the blocks in document order" for this valid document.
-      const editor = createEditor([
-        {
-          id: "a",
-          type: "image",
-          props: { url: "https://example.com/x.png", previewWidth: 200 },
-        },
-        { id: "b", type: "image", props: { url: "https://example.com/x.png" } },
-        {
-          id: "c",
-          type: "image",
-          props: { url: "https://example.com/y.png", previewWidth: 200 },
-        },
-        { id: "end", type: "paragraph", content: "End" },
-      ]);
+      const { editor } = await setupEditor({
+        mountType: false,
+        initialContent: [
+          {
+            id: "a",
+            type: "image",
+            props: { url: "https://example.com/x.png", previewWidth: 200 },
+          },
+          {
+            id: "b",
+            type: "image",
+            props: { url: "https://example.com/x.png" },
+          },
+          {
+            id: "c",
+            type: "image",
+            props: { url: "https://example.com/y.png", previewWidth: 200 },
+          },
+          { id: "end", type: "paragraph", content: "End" },
+        ],
+      });
       writeText(editor, markdownFormat, (md) =>
         md.replace("End", "End, changed"),
       );
@@ -435,17 +533,26 @@ describe("markdown", () => {
     });
   });
 
-  it("keeps a comment in a table cell when the text changes another cell", () => {
-    const editor = createCommentEditor([
-      {
-        id: "table",
-        type: "table",
-        content: {
-          type: "tableContent",
-          rows: [{ cells: ["Commented cell", "Other"] }, { cells: ["c", "d"] }],
+  it("keeps a comment in a table cell when the text changes another cell", async ({
+    setupEditor,
+  }) => {
+    const { editor } = await setupEditor({
+      mountType: false,
+      initialContent: [
+        {
+          id: "table",
+          type: "table",
+          content: {
+            type: "tableContent",
+            rows: [
+              { cells: ["Commented cell", "Other"] },
+              { cells: ["c", "d"] },
+            ],
+          },
         },
-      },
-    ]);
+      ],
+      ...commentEditorOptions(),
+    });
     const comment = addComment(editor, "Commented");
 
     writeText(editor, markdownFormat, (md) =>
@@ -461,25 +568,34 @@ describe("markdown", () => {
     );
   });
 
-  it("changes a row with a merged cell: the row of the text replaces the row", () => {
-    const editor = createEditor([
-      {
-        id: "table",
-        type: "table",
-        content: {
-          type: "tableContent",
-          rows: [
-            {
-              cells: [
-                { type: "tableCell", content: "merged", props: { colspan: 2 } },
-                { type: "tableCell", content: "x" },
-              ],
-            },
-            { cells: ["a", "b", "c"] },
-          ],
+  it("changes a row with a merged cell: the row of the text replaces the row", async ({
+    setupEditor,
+  }) => {
+    const { editor } = await setupEditor({
+      mountType: false,
+      initialContent: [
+        {
+          id: "table",
+          type: "table",
+          content: {
+            type: "tableContent",
+            rows: [
+              {
+                cells: [
+                  {
+                    type: "tableCell",
+                    content: "merged",
+                    props: { colspan: 2 },
+                  },
+                  { type: "tableCell", content: "x" },
+                ],
+              },
+              { cells: ["a", "b", "c"] },
+            ],
+          },
         },
-      },
-    ]);
+      ],
+    });
     const update = writeText(editor, markdownFormat, (md) =>
       replaceOnce(md, "| x ", "| y "),
     );
@@ -494,27 +610,32 @@ describe("markdown", () => {
     ]);
   });
 
-  it("moves a heading next to an image after a nested list, and keeps the heading", () => {
+  it("moves a heading next to an image after a nested list, and keeps the heading", async ({
+    setupEditor,
+  }) => {
     // The image stays in its list item after the nested list (an earlier
     // markdown parse put it into a new, empty list item without a document
     // block). The heading that the text moves next to it keeps its ID.
-    const editor = createEditor([
-      { id: "title", type: "heading", content: "Title" },
-      {
-        id: "item",
-        type: "toggleListItem",
-        content: "Item",
-        children: [
-          { id: "task", type: "checkListItem", content: "Task" },
-          {
-            id: "image",
-            type: "image",
-            props: { url: "https://example.com/a.png" },
-          },
-        ],
-      },
-      { id: "end", type: "paragraph", content: "End" },
-    ]);
+    const { editor } = await setupEditor({
+      mountType: false,
+      initialContent: [
+        { id: "title", type: "heading", content: "Title" },
+        {
+          id: "item",
+          type: "toggleListItem",
+          content: "Item",
+          children: [
+            { id: "task", type: "checkListItem", content: "Task" },
+            {
+              id: "image",
+              type: "image",
+              props: { url: "https://example.com/a.png" },
+            },
+          ],
+        },
+        { id: "end", type: "paragraph", content: "End" },
+      ],
+    });
     const markdown = getDocumentText(editor, markdownFormat);
     expect(markdown).toContain("# Title\n\n");
     const text = markdown
@@ -540,17 +661,22 @@ describe("markdown", () => {
     ]);
   });
 
-  it("changes the visible image, not an image that markdown does not show", () => {
+  it("changes the visible image, not an image that markdown does not show", async ({
+    setupEditor,
+  }) => {
     // An image without a URL (before an upload) has no markdown.
-    const editor = createEditor([
-      { id: "p", type: "paragraph", content: "Images" },
-      { id: "empty", type: "image", props: { url: "" } },
-      {
-        id: "shown",
-        type: "image",
-        props: { url: "https://example.com/b.png", previewWidth: 300 },
-      },
-    ]);
+    const { editor } = await setupEditor({
+      mountType: false,
+      initialContent: [
+        { id: "p", type: "paragraph", content: "Images" },
+        { id: "empty", type: "image", props: { url: "" } },
+        {
+          id: "shown",
+          type: "image",
+          props: { url: "https://example.com/b.png", previewWidth: 300 },
+        },
+      ],
+    });
     const markdown = getDocumentText(editor, markdownFormat);
     expect(markdown).toContain("b.png");
 
@@ -570,26 +696,31 @@ describe("markdown", () => {
 });
 
 describe("markdown, blocks with equal text", () => {
-  it("keep their IDs and colors if a changed block moves past them", () => {
+  it("keep their IDs and colors if a changed block moves past them", async ({
+    setupEditor,
+  }) => {
     // The block after the two equal paragraphs moves before them, and its
     // first word changes: it keeps its ID, because it shares "shared" (more
     // than half of the longer text). The two equal paragraphs did not
     // change. "Other" is a new block.
-    const editor = createEditor([
-      {
-        id: "s1",
-        type: "paragraph",
-        props: { textColor: "red" },
-        content: "Same text",
-      },
-      {
-        id: "s2",
-        type: "paragraph",
-        props: { textColor: "blue" },
-        content: "Same text",
-      },
-      { id: "q", type: "paragraph", content: "Old shared" },
-    ]);
+    const { editor } = await setupEditor({
+      mountType: false,
+      initialContent: [
+        {
+          id: "s1",
+          type: "paragraph",
+          props: { textColor: "red" },
+          content: "Same text",
+        },
+        {
+          id: "s2",
+          type: "paragraph",
+          props: { textColor: "blue" },
+          content: "Same text",
+        },
+        { id: "q", type: "paragraph", content: "Old shared" },
+      ],
+    });
 
     const update = writeText(
       editor,
@@ -620,13 +751,18 @@ describe("markdown, blocks with equal text", () => {
 });
 
 describe("markdown, a paragraph with \\r line breaks", () => {
-  it("keeps the \\r if the text changes a different word", () => {
+  it("keeps the \\r if the text changes a different word", async ({
+    setupEditor,
+  }) => {
     // Markdown shows a `\r` as a hard break. Before, the export wrote it as a
     // raw line end: the paragraph gave two blocks, and each write threw.
-    const editor = createEditor([
-      { id: "p", type: "paragraph", content: "first\r\n\r\nsecond line" },
-      { id: "end", type: "paragraph", content: "End" },
-    ]);
+    const { editor } = await setupEditor({
+      mountType: false,
+      initialContent: [
+        { id: "p", type: "paragraph", content: "first\r\n\r\nsecond line" },
+        { id: "end", type: "paragraph", content: "End" },
+      ],
+    });
     const update = writeText(editor, markdownFormat, (text) =>
       replaceOnce(text, "line", "row"),
     );
@@ -639,10 +775,15 @@ describe("markdown, a paragraph with \\r line breaks", () => {
 });
 
 describe("markdown, a document that markdown shows as no block", () => {
-  it("keeps the hidden blocks and adds the blocks of the text", () => {
+  it("keeps the hidden blocks and adds the blocks of the text", async ({
+    setupEditor,
+  }) => {
     // The text is empty. Its parse gives one empty paragraph (the fill of the
     // schema), and that paragraph is not a block of the view.
-    const editor = createEditor([{ id: "img", type: "image" }]);
+    const { editor } = await setupEditor({
+      mountType: false,
+      initialContent: [{ id: "img", type: "image" }],
+    });
     const update = writeText(editor, markdownFormat, () => "Hello");
 
     expect(update.warnings).toEqual([]);
@@ -666,32 +807,38 @@ describe("markdown, a document that markdown shows as no block", () => {
  */
 describe("markdown, blocks that markdown shows as other blocks", () => {
   const format = markdownFormat;
-  function createMediaEditor() {
-    return createEditor([
-      { id: "a", type: "paragraph", content: "Alpha" },
-      {
-        id: "f",
-        type: "file",
-        props: {
-          url: "https://example.com/report.pdf",
-          name: "report.pdf",
-          caption: "Q3",
+  async function createMediaEditor(setupEditor: SetupEditor) {
+    const { editor } = await setupEditor({
+      mountType: false,
+      initialContent: [
+        { id: "a", type: "paragraph", content: "Alpha" },
+        {
+          id: "f",
+          type: "file",
+          props: {
+            url: "https://example.com/report.pdf",
+            name: "report.pdf",
+            caption: "Q3",
+          },
         },
-      },
-      {
-        id: "v",
-        type: "video",
-        props: { url: "https://example.com/clip.mp4", name: "clip.mp4" },
-      },
-      { id: "z", type: "paragraph", content: "Zulu" },
-    ]);
+        {
+          id: "v",
+          type: "video",
+          props: { url: "https://example.com/clip.mp4", name: "clip.mp4" },
+        },
+        { id: "z", type: "paragraph", content: "Zulu" },
+      ],
+    });
+    return editor;
   }
   const fileText =
     '<figure><a href="https://example.com/report.pdf">report.pdf</a><figcaption>Q3</figcaption></figure>\n\n';
   const videoText = "![clip.mp4](https://example.com/clip.mp4)\n\n";
 
-  it("removes a file block if the text removes its figure", () => {
-    const editor = createMediaEditor();
+  it("removes a file block if the text removes its figure", async ({
+    setupEditor,
+  }) => {
+    const editor = await createMediaEditor(setupEditor);
     const text = getDocumentText(editor, format);
 
     valid(
@@ -704,8 +851,10 @@ describe("markdown, blocks that markdown shows as other blocks", () => {
     expect(editor.document.map((block) => block.id)).toEqual(["a", "v", "z"]);
   });
 
-  it("moves a file block with its props if the text moves its figure", () => {
-    const editor = createMediaEditor();
+  it("moves a file block with its props if the text moves its figure", async ({
+    setupEditor,
+  }) => {
+    const editor = await createMediaEditor(setupEditor);
     const text = getDocumentText(editor, format);
 
     const update = valid(
@@ -728,8 +877,10 @@ describe("markdown, blocks that markdown shows as other blocks", () => {
     });
   });
 
-  it("removes a video if the text removes its image", () => {
-    const editor = createMediaEditor();
+  it("removes a video if the text removes its image", async ({
+    setupEditor,
+  }) => {
+    const editor = await createMediaEditor(setupEditor);
     const text = getDocumentText(editor, format);
 
     valid(
@@ -742,10 +893,12 @@ describe("markdown, blocks that markdown shows as other blocks", () => {
     expect(editor.document.map((block) => block.id)).toEqual(["a", "f", "z"]);
   });
 
-  it("changes the caption of a file block if the text changes it", () => {
+  it("changes the caption of a file block if the text changes it", async ({
+    setupEditor,
+  }) => {
     // The markdown of a file block with a caption is one figure (core). Thus,
     // the change of the caption merges into the block as a prop.
-    const editor = createMediaEditor();
+    const editor = await createMediaEditor(setupEditor);
     const text = getDocumentText(editor, format);
 
     const update = valid(
@@ -770,10 +923,15 @@ describe("markdown, blocks that markdown shows as other blocks", () => {
 });
 
 describe("markdown, a change of the content kind", () => {
-  it("keeps the line break of a paragraph that the text changes into a code block", () => {
-    const editor = createEditor([
-      { id: "p", type: "paragraph", content: "line one\nline two" },
-    ]);
+  it("keeps the line break of a paragraph that the text changes into a code block", async ({
+    setupEditor,
+  }) => {
+    const { editor } = await setupEditor({
+      mountType: false,
+      initialContent: [
+        { id: "p", type: "paragraph", content: "line one\nline two" },
+      ],
+    });
     const text = "```\nline one\nline two\n```\n";
 
     valid(
@@ -805,8 +963,9 @@ describe("markdown, a change of the content kind", () => {
  */
 describe("markdown, custom inline content", () => {
   const format = markdownFormat;
-  function createMentionEditor() {
-    return BlockNoteEditor.create({
+  async function createMentionEditor(setupEditor: SetupEditor) {
+    const { editor } = await setupEditor({
+      mountType: false,
       schema: BlockNoteSchema.create({
         inlineContentSpecs: { ...defaultInlineContentSpecs, mention },
       }),
@@ -822,15 +981,16 @@ describe("markdown, custom inline content", () => {
         },
       ] as PartialBlock<any, any, any>[],
     });
+    return editor;
   }
 
-  it.each([
+  it.for([
     ["Hi", "Hello"],
     ["and", "or"],
   ])(
     "keeps a mention if the text changes the word %s next to it",
-    (word, replacement) => {
-      const editor = createMentionEditor();
+    async ([word, replacement], { setupEditor }) => {
+      const editor = await createMentionEditor(setupEditor);
       const text = getDocumentText(editor, format);
 
       valid(
@@ -851,8 +1011,10 @@ describe("markdown, custom inline content", () => {
     },
   );
 
-  it("changes a mention into text if the text changes the text of the mention", () => {
-    const editor = createMentionEditor();
+  it("changes a mention into text if the text changes the text of the mention", async ({
+    setupEditor,
+  }) => {
+    const editor = await createMentionEditor(setupEditor);
     const text = getDocumentText(editor, format);
 
     valid(
@@ -869,8 +1031,11 @@ describe("markdown, custom inline content", () => {
 });
 
 describe("a table with merged cells", () => {
-  it("applies a change of a row under a cell that spans two rows, without the merged cells, with a warning", () => {
-    const editor = BlockNoteEditor.create({
+  it("applies a change of a row under a cell that spans two rows, without the merged cells, with a warning", async ({
+    setupEditor,
+  }) => {
+    const { editor } = await setupEditor({
+      mountType: false,
       initialContent: [
         {
           id: "t",
@@ -908,8 +1073,13 @@ describe("a table with merged cells", () => {
 });
 
 describe("markdown normalization", () => {
-  it("bullets with `-` instead of `*` change nothing", () => {
-    const editor = createSharedDocumentEditor();
+  it("bullets with `-` instead of `*` change nothing", async ({
+    setupEditor,
+  }) => {
+    const { editor } = await setupEditor({
+      mountType: false,
+      ...sharedDocumentEditorOptions(),
+    });
     const text = getDocumentText(editor, markdownFormat).replace(
       /^(\s*)\* /gm,
       "$1- ",
@@ -926,8 +1096,13 @@ describe("markdown normalization", () => {
 });
 
 describe("line ends", () => {
-  it("reads markdown with \\r\\n line ends as the same text", () => {
-    const editor = createSharedDocumentEditor();
+  it("reads markdown with \\r\\n line ends as the same text", async ({
+    setupEditor,
+  }) => {
+    const { editor } = await setupEditor({
+      mountType: false,
+      ...sharedDocumentEditorOptions(),
+    });
     const text = getDocumentText(editor, markdownFormat).replace(/\n/g, "\r\n");
 
     expect(
@@ -942,21 +1117,26 @@ describe("line ends", () => {
 });
 
 describe("markdown, links", () => {
-  const linkedEditor = () =>
-    createEditor([
-      {
-        id: "p",
-        type: "paragraph",
-        content: [
-          "see ",
-          { type: "link", href: "https://a.example", content: "docs" },
-          " now",
-        ],
-      },
-    ]);
+  async function linkedEditor(setupEditor: SetupEditor) {
+    const { editor } = await setupEditor({
+      mountType: false,
+      initialContent: [
+        {
+          id: "p",
+          type: "paragraph",
+          content: [
+            "see ",
+            { type: "link", href: "https://a.example", content: "docs" },
+            " now",
+          ],
+        },
+      ],
+    });
+    return editor;
+  }
 
-  it("changes the URL of a link", () => {
-    const editor = linkedEditor();
+  it("changes the URL of a link", async ({ setupEditor }) => {
+    const editor = await linkedEditor(setupEditor);
     writeText(editor, markdownFormat, (text) =>
       replaceOnce(text, "(https://a.example)", "(https://b.example)"),
     );
@@ -967,8 +1147,10 @@ describe("markdown, links", () => {
     ]);
   });
 
-  it("changes the text of a link and keeps its URL", () => {
-    const editor = linkedEditor();
+  it("changes the text of a link and keeps its URL", async ({
+    setupEditor,
+  }) => {
+    const editor = await linkedEditor(setupEditor);
     writeText(editor, markdownFormat, (text) =>
       replaceOnce(text, "[docs]", "[guides]"),
     );
@@ -983,8 +1165,8 @@ describe("markdown, links", () => {
     ]);
   });
 
-  it("removes a link and keeps its text", () => {
-    const editor = linkedEditor();
+  it("removes a link and keeps its text", async ({ setupEditor }) => {
+    const editor = await linkedEditor(setupEditor);
     writeText(editor, markdownFormat, (text) =>
       replaceOnce(text, "[docs](https://a.example)", "docs"),
     );
