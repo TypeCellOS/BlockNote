@@ -10,12 +10,12 @@ import {
   Text,
 } from "@react-email/components";
 
-export interface VerifyEmailProps {
+interface VerifyEmailProps {
   name?: string;
   url?: string;
 }
 
-export const VerifyEmail = ({ name, url }: VerifyEmailProps) => {
+const VerifyEmail = ({ name, url }: VerifyEmailProps) => {
   return (
     <Html>
       <Head />

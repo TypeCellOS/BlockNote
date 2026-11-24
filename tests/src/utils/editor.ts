@@ -91,12 +91,3 @@ type ElementExpect = (
 
 export const expectElement = (expect as unknown as { element: ElementExpect })
   .element;
-
-/**
- * Visual regression snapshot of the whole page (captures the editor plus any
- * portalled menus/toolbars). Vitest names baselines per browser + platform
- * automatically.
- */
-export async function matchPageScreenshot(name: string) {
-  await expectElement(document.body).toMatchScreenshot(name);
-}

@@ -48,7 +48,7 @@ import { page } from "../../../utils/context.js";
 import { mouseSequence } from "../../../utils/mouse.js";
 import { createSuggestionFixtureScope } from "./suggestionFixtureScope.js";
 
-export interface ConcurrentSuggestionUser {
+interface ConcurrentSuggestionUser {
   editor: GalleryEditor;
   testId: string;
 }

@@ -229,7 +229,7 @@ function countBlocks(blocks: { children?: unknown[] }[]): number {
  * matches the editor's document the structural content has been written. The
  * pristine-empty skeleton is not counted, as it is never committed to Y.
  */
-export async function waitForYDocSync(
+async function waitForYDocSync(
   editor: GalleryEditor,
   baseDoc: Y.Doc,
 ): Promise<void> {

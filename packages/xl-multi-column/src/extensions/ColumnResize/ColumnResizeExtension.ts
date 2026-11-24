@@ -48,9 +48,7 @@ export type ColumnState =
   | ColumnResizeState;
 
 // Exported for tests only - not part of the package's public API.
-export const columnResizePluginKey = new PluginKey<ColumnState>(
-  "ColumnResizePlugin",
-);
+const columnResizePluginKey = new PluginKey<ColumnState>("ColumnResizePlugin");
 
 function isAdjacentColumnPair(
   doc: Node,

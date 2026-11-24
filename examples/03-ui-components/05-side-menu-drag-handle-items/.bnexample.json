@@ -2,8 +2,5 @@
   "playground": true,
   "docs": true,
   "author": "matthewlipski",
-  "tags": ["Intermediate", "Blocks", "UI Components", "Block Side Menu"],
-  "dependencies": {
-    "react-icons": "^5.5.0"
-  }
+  "tags": ["Intermediate", "Blocks", "UI Components", "Block Side Menu"]
 }

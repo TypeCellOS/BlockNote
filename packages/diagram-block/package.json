@@ -95,7 +95,6 @@
     "pele": "^1.12.0"
   },
   "devDependencies": {
-    "@blocknote/shared": "workspace:^",
     "@blocknote/xl-docx-exporter": "workspace:^",
     "@blocknote/xl-email-exporter": "workspace:^",
     "@blocknote/xl-odt-exporter": "workspace:^",

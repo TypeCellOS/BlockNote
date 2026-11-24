@@ -71,6 +71,23 @@ optimization by itself is normal.
 - Add the dependency to the relevant `package.json` file (packages/xxx/package.json)
 - Double check `pnpm-lock.yaml` to make sure only the relevant packages have been affected
 
+## Finding unused code
+
+Run `pnpm knip` from the repository root to audit unused files, dependencies,
+and exports. Use `pnpm knip --dependencies` for dependency findings or
+`pnpm knip --workspace packages/core` to focus on a workspace and its related
+workspaces.
+
+CI runs Knip as a separate, non-blocking report. On a pull request, open
+**Checks → Knip report** to read it. Review findings before removing code:
+published exports can have consumers outside this repository, and dependencies
+can be loaded by build scripts, CSS, or framework conventions.
+Standalone example workspaces are excluded: their generated manifests are for
+StackBlitz. The docs and playground are still audited against their own
+manifests. Docs copy example sources into an ignored generated directory and
+the playground imports them across workspace boundaries, so check those source
+examples before removing a dependency from either app.
+
 ## Packages
 
 | Package                                                                                          | Size                                                                                                                                                                                          | Version                                                                                                                                            |

@@ -11,11 +11,9 @@
     "preview": "vite preview"
   },
   "dependencies": {
-    "@blocknote/ariakit": "latest",
     "@blocknote/core": "latest",
     "@blocknote/mantine": "latest",
     "@blocknote/react": "latest",
-    "@blocknote/shadcn": "latest",
     "@mantine/core": "^9.0.2",
     "@mantine/hooks": "^9.0.2",
     "react": "^19.2.3",
@@ -30,7 +28,6 @@
     "@uppy/screen-capture": "^3.2.0",
     "@uppy/status-bar": "^3.1.1",
     "@uppy/webcam": "^3.4.2",
-    "@uppy/xhr-upload": "^3.4.0",
     "react-icons": "^5.5.0"
   },
   "devDependencies": {
