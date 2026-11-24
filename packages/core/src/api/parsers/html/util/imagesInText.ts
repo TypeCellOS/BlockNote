@@ -1,3 +1,4 @@
+import { isAllowedUri } from "../../../../extensions/tiptap-extensions/Link/link.js";
 import { detachedDoc } from "../../../../util/detachedDoc.js";
 
 // The elements with text that split around an image.
@@ -9,7 +10,7 @@ const TEXT_BLOCKS = "p, blockquote, h1, h2, h3, h4, h5, h6";
  *
  * A paragraph, a quote and a heading split around the image, and the parts
  * keep the attributes of the element. A table cell cannot hold a block, thus
- * a link replaces the image there.
+ * a link replaces the image there, if the URL of the image can be a link.
  */
 export function moveImagesOutOfText(root: HTMLElement) {
   for (const image of root.querySelectorAll("img")) {
@@ -19,10 +20,14 @@ export function moveImagesOutOfText(root: HTMLElement) {
       continue;
     }
     if (image.closest("td, th")) {
-      const link = detachedDoc().createElement("a");
-      link.href = image.src;
-      link.textContent = image.alt || image.src;
-      image.replaceWith(link);
+      // Not each URL can be a link (for example `file:` and `data:`). Such an
+      // image stays, and the parse of the cell drops it.
+      if (image.src && isAllowedUri(image.src)) {
+        const link = detachedDoc().createElement("a");
+        link.href = image.src;
+        link.textContent = image.alt || image.src;
+        image.replaceWith(link);
+      }
       continue;
     }
     // Splits the parent of the image until no text block holds the image: a

@@ -652,6 +652,35 @@ export const htmlParseCases: ParseTestCase[] = [
     name: "inlineImageInFullHTMLBlock",
     content: `<div data-content-type="paragraph"><p class="bn-inline-content">Before <img src="https://example.com/harbor.jpg" alt="The harbor"> after</p></div>`,
   },
+  // Images in table cells with different URLs. A web URL becomes a link, with
+  // the alt text or the URL as its text, also in a header cell. A `file:` URL
+  // (a table from Word) and a `data:` URL cannot be a link: the image is
+  // dropped, and the cell does not get the URL as text.
+  {
+    name: "imageUrlsInTableCell",
+    content: `<table>
+<tr>
+<th><img src="https://example.com/logo.png" alt="Logo"></th>
+<th>The URL of the image</th>
+</tr>
+<tr>
+<td><img src="https://example.com/chart.png" alt="Chart"></td>
+<td>A web URL, with alt text</td>
+</tr>
+<tr>
+<td><img src="https://example.com/chart.png"></td>
+<td>A web URL, without alt text</td>
+</tr>
+<tr>
+<td>Before <img src="file:///C:/Temp/msohtmlclip1/01/clip_image002.png" alt="Picture 1"> after</td>
+<td>A file URL</td>
+</tr>
+<tr>
+<td><img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNk+M9QDwADhgGAWjR9awAAAABJRU5ErkJggg=="></td>
+<td>A data URL</td>
+</tr>
+</table>`,
+  },
   {
     name: "fakeImageCaption",
     content: `<div>
