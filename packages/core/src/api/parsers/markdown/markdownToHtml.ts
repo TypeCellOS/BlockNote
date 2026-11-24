@@ -40,6 +40,19 @@ type InlineTokenizer = (
 /** The characters that a backslash escapes. */
 const ESCAPABLE_CHARACTERS = "\\`*_{}[]()#+-.!~|<>";
 
+/**
+ * Gives the index after the indent (spaces and tabs) of the line that starts
+ * at `i`. The line after a line break in a paragraph can have any indent,
+ * which is not a part of the text (CommonMark). The line break rules use this
+ * and a code span does not, so the indent of a line in a code span stays.
+ */
+function skipIndent(text: string, i: number): number {
+  while (text[i] === " " || text[i] === "\t") {
+    i++;
+  }
+  return i;
+}
+
 function tryBackslashEscape(
   text: string,
   i: number,
@@ -52,7 +65,7 @@ function tryBackslashEscape(
   // the HTML parser reads that newline as a space at the start of the next
   // line.
   if (next === "\n") {
-    return { html: "<br>", end: i + 2 };
+    return { html: "<br>", end: skipIndent(text, i + 2) };
   }
   // Escapable characters
   if (ESCAPABLE_CHARACTERS.includes(next)) {
@@ -224,7 +237,7 @@ function trySoftBreak(
   i: number,
 ): { html: string; end: number } | null {
   if (text[i] === "\n") {
-    return { html: "<br>", end: i + 1 };
+    return { html: "<br>", end: skipIndent(text, i + 1) };
   }
   return null;
 }
@@ -328,7 +341,7 @@ function parseInline(text: string, allowLinks = true): string {
     ) {
       result = result.replace(/ +$/, "");
       result += "<br>";
-      i++;
+      i = skipIndent(text, i + 1);
       continue;
     }
 
@@ -1140,16 +1153,15 @@ function tokenize(markdown: string): Token[] {
       i++;
     }
     // CommonMark allows up to 3 leading spaces of indent on the first
-    // paragraph line, and any indent on the lines after it. Each of these
-    // lines comes after a line break, so its indent would show as whitespace
-    // at the start of the line.
+    // paragraph line. The lines after it can have any indent: the line break
+    // rules of `parseInline` remove it (see `skipIndent`).
     // Also strip trailing whitespace from the final line so a trailing
     // hard-break sequence (`  \n` at end of paragraph) doesn't leak as
     // literal trailing spaces in the rendered output.
     tokens.push({
       type: "paragraph",
       content: paraLines
-        .map((l, index) => l.replace(index === 0 ? /^ {1,3}/ : /^[ \t]+/, ""))
+        .map((l, index) => (index === 0 ? l.replace(/^ {1,3}/, "") : l))
         .join("\n")
         .replace(/[ \t]+$/, ""),
     });
