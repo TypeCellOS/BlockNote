@@ -80,8 +80,11 @@ export function HTMLToBlocks<
   htmlNode.innerHTML = html;
   // The images move out of the text before the list steps. An image in the
   // paragraph of a list item is then a block for these steps, and a nested
-  // list after it stays in the list item.
-  moveImagesOutOfText(htmlNode);
+  // list after it stays in the list item. Without the image block, the parse
+  // drops each image, and the text around it must stay one block.
+  if (pmSchema.nodes["image"]) {
+    moveImagesOutOfText(htmlNode);
+  }
   nestedListsToBlockNoteStructure(htmlNode);
   preprocessHTMLWhitespace(htmlNode);
   const parser = DOMParser.fromSchema(pmSchema);

@@ -2,6 +2,8 @@ import { DOMParser } from "prosemirror-model";
 import { describe, expect, vi } from "vite-plus/test";
 
 import { HTMLToBlocks } from "../api/parsers/html/parseHTML.js";
+import { BlockNoteSchema } from "../blocks/BlockNoteSchema.js";
+import { defaultBlockSpecs } from "../blocks/defaultBlocks.js";
 
 // An image without a request: the HTML of this test is in the active document,
 // where an image loads its resource.
@@ -84,5 +86,29 @@ describe("the parse of an HTML string", () => {
       "paragraph",
       "bulletListItem",
     ]);
+  });
+
+  // A schema without the image block drops an image in the parse. The text
+  // around the image must then stay one block.
+  it("does not split a paragraph at an image if the schema has no image block", async ({
+    setupEditor,
+  }) => {
+    const { editor } = await setupEditor({
+      mountType: false,
+      schema: BlockNoteSchema.create({
+        blockSpecs: { paragraph: defaultBlockSpecs.paragraph },
+      }),
+    });
+
+    const blocks = HTMLToBlocks(
+      `<p>Before <img src="https://example.com/a.png"> after</p>`,
+      editor.pmSchema,
+    );
+
+    expect(blocks).toHaveLength(1);
+    expect(blocks[0]).toMatchObject({
+      type: "paragraph",
+      content: [{ type: "text", text: "Before  after", styles: {} }],
+    });
   });
 });
