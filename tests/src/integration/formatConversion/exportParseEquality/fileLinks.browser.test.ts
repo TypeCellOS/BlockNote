@@ -198,3 +198,36 @@ describe("external HTML of a file block with a caption", () => {
     },
   );
 });
+
+describe("external HTML of a React file block with a caption", () => {
+  // The export was a `div` with the link and the caption in a paragraph. The
+  // HTML parse and the markdown parse read that as two paragraphs.
+  it.for([
+    { format: "HTML", name: "a.pdf" },
+    { format: "HTML", name: "" },
+    { format: "markdown", name: "a.pdf" },
+    { format: "markdown", name: "" },
+  ] as const)(
+    "reads back as the same block from $format, with the name '$name'",
+    async ({ format, name }, { setupEditor }) => {
+      const { editor } = await setupEditor({
+        mountType: false,
+        schema: BlockNoteSchema.create().extend({
+          blockSpecs: { file: ReactFileBlock() },
+        }),
+      });
+      const props = { url: "https://example.com/a.pdf", name, caption: "Text" };
+
+      const blocks =
+        format === "HTML"
+          ? editor.tryParseHTMLToBlocks(
+              editor.blocksToHTMLLossy([{ type: "file", props }]),
+            )
+          : editor.tryParseMarkdownToBlocks(
+              editor.blocksToMarkdownLossy([{ type: "file", props }]),
+            );
+
+      expect(blocks).toMatchObject([{ type: "file", props }]);
+    },
+  );
+});
