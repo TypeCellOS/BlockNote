@@ -1,5 +1,6 @@
-import { type Block, BlockNoteEditor } from "@blocknote/core";
+import type { Block, BlockNoteEditor } from "@blocknote/core";
 import { describe, expect } from "vite-plus/test";
+import type { SetupEditor } from "../../../../../tests/src/commands/browser/setupEditor.js";
 
 import {
   type ChangeOperations,
@@ -17,10 +18,9 @@ import {
 import type { LensBlock } from "./model.js";
 import {
   columnSchema,
-  createColumnsEditor,
-  createEditor,
-  createTabsEditor,
   documentShape,
+  tabsEditorOptions,
+  columnsEditorOptions,
 } from "./testUtil/fixtures.js";
 import { blockToText } from "./util/blocks/text.js";
 import { valid } from "./testUtil/valid.js";
@@ -33,14 +33,23 @@ import { valid } from "./testUtil/valid.js";
  */
 
 /** The text of top-level paragraphs in the format: the text of a client. */
-function paragraphs(format: TextFormat, texts: readonly string[]): string {
-  return getDocumentText(
-    createEditor(texts.map((text) => ({ type: "paragraph", content: text }))),
-    format,
-  );
+async function paragraphs(
+  setupEditor: SetupEditor,
+  format: TextFormat,
+  texts: readonly string[],
+): Promise<string> {
+  const { editor } = await setupEditor({
+    mountType: false,
+    initialContent: texts.map((text) => ({
+      type: "paragraph" as const,
+      content: text,
+    })),
+  });
+  return getDocumentText(editor, format);
 }
 
-function write(
+async function write(
+  setupEditor: SetupEditor,
   editor: BlockNoteEditor<any, any, any>,
   format: TextFormat,
   texts: readonly string[],
@@ -48,7 +57,7 @@ function write(
   return valid(
     updateDocument(editor, {
       format,
-      text: paragraphs(format, texts),
+      text: await paragraphs(setupEditor, format, texts),
     }),
   );
 }
@@ -79,8 +88,11 @@ function childContents(editor: BlockNoteEditor<any, any, any>, id: string) {
  * A tab set with at least two tabs, and three tabs: t1 with "One" (block a),
  * t2 with "Two" (block b), and t3 with "Three" (block c).
  */
-function createThreeTabsEditor() {
-  const editor = createTabsEditor(2);
+async function createThreeTabsEditor(setupEditor: SetupEditor) {
+  const { editor } = await setupEditor({
+    mountType: false,
+    ...tabsEditorOptions(2),
+  });
   editor.insertBlocks(
     [
       {
@@ -88,7 +100,7 @@ function createThreeTabsEditor() {
         type: "tab",
         children: [{ id: "c", type: "paragraph", content: "Three" }],
       },
-    ],
+    ] as Parameters<typeof editor.insertBlocks>[0],
     "t2",
     "after",
   );
@@ -100,13 +112,25 @@ describe.each([
   { name: "HTML", format: htmlFormat, showsEmptyParagraph: true },
   { name: "plain text", format: plainTextFormat, showsEmptyParagraph: false },
 ])("a tab set in $name", ({ format, showsEmptyParagraph }) => {
-  it("shows the blocks of the tabs, without the tabs", () => {
-    expect(shownTexts(createTabsEditor(), format)).toEqual(["One", "Two"]);
+  it("shows the blocks of the tabs, without the tabs", async ({
+    setupEditor,
+  }) => {
+    const { editor } = await setupEditor({
+      mountType: false,
+      ...tabsEditorOptions(),
+    });
+    expect(shownTexts(editor, format)).toEqual(["One", "Two"]);
   });
 
-  it("changes a block in its tab", () => {
-    const editor = createTabsEditor();
-    const { operations } = write(editor, format, ["One!", "Two"]);
+  it("changes a block in its tab", async ({ setupEditor }) => {
+    const { editor } = await setupEditor({
+      mountType: false,
+      ...tabsEditorOptions(),
+    });
+    const { operations } = await write(setupEditor, editor, format, [
+      "One!",
+      "Two",
+    ]);
     expect(operations.map((operation) => operation.type)).toEqual(["update"]);
     expect(documentShape(editor.document)).toEqual([
       "set",
@@ -115,18 +139,28 @@ describe.each([
     expect(childTexts(editor, "t1")).toEqual(["One!"]);
   });
 
-  it("adds a new block between two tabs to the next tab", () => {
+  it("adds a new block between two tabs to the next tab", async ({
+    setupEditor,
+  }) => {
     // The text cannot show the tab of the new block. A new block goes into
     // the nesting of the next block (see "Target" in the README).
-    const editor = createTabsEditor();
-    write(editor, format, ["One", "New", "Two"]);
+    const { editor } = await setupEditor({
+      mountType: false,
+      ...tabsEditorOptions(),
+    });
+    await write(setupEditor, editor, format, ["One", "New", "Two"]);
     expect(childTexts(editor, "t1")).toEqual(["One"]);
     expect(childTexts(editor, "t2")).toEqual(["New", "Two"]);
   });
 
-  it("adds a new block after the last block to after the tab set", () => {
-    const editor = createTabsEditor();
-    write(editor, format, ["One", "Two", "End"]);
+  it("adds a new block after the last block to after the tab set", async ({
+    setupEditor,
+  }) => {
+    const { editor } = await setupEditor({
+      mountType: false,
+      ...tabsEditorOptions(),
+    });
+    await write(setupEditor, editor, format, ["One", "Two", "End"]);
     expect(editor.document.map((block) => block.type)).toEqual([
       "tabs",
       "paragraph",
@@ -137,40 +171,60 @@ describe.each([
     ]);
   });
 
-  it("moves the tabs with their blocks if the text swaps the blocks", () => {
-    const editor = createTabsEditor();
-    write(editor, format, ["Two", "One"]);
+  it("moves the tabs with their blocks if the text swaps the blocks", async ({
+    setupEditor,
+  }) => {
+    const { editor } = await setupEditor({
+      mountType: false,
+      ...tabsEditorOptions(),
+    });
+    await write(setupEditor, editor, format, ["Two", "One"]);
     expect(documentShape(editor.document)).toEqual([
       "set",
       ["t2", ["b"], "t1", ["a"]],
     ]);
   });
 
-  it("removes a tab whose blocks the text removes, and keeps the tab set", () => {
+  it("removes a tab whose blocks the text removes, and keeps the tab set", async ({
+    setupEditor,
+  }) => {
     // A tab without blocks stays in the editor (core fills it with an empty
     // paragraph), but then the text would show that paragraph. Thus, the
     // tab goes, and PutGet is true.
-    const editor = createTabsEditor();
-    write(editor, format, ["Two"]);
+    const { editor } = await setupEditor({
+      mountType: false,
+      ...tabsEditorOptions(),
+    });
+    await write(setupEditor, editor, format, ["Two"]);
     expect(documentShape(editor.document)).toEqual(["set", ["t2", ["b"]]]);
     expect(shownTexts(editor, format)).toEqual(["Two"]);
   });
 
-  it("removes the tab set if the text removes all its blocks", () => {
+  it("removes the tab set if the text removes all its blocks", async ({
+    setupEditor,
+  }) => {
     // The text has nothing of the tab set, thus it goes (PutGet is true).
-    const editor = createTabsEditor();
-    write(editor, format, ["After"]);
+    const { editor } = await setupEditor({
+      mountType: false,
+      ...tabsEditorOptions(),
+    });
+    await write(setupEditor, editor, format, ["After"]);
     expect(editor.document.map((block) => block.type)).toEqual(["paragraph"]);
     expect(shownTexts(editor, format)).toEqual(["After"]);
   });
 
-  it("keeps an empty tab if the tab set needs it for its minimum", () => {
+  it("keeps an empty tab if the tab set needs it for its minimum", async ({
+    setupEditor,
+  }) => {
     // The schema wins: the tab set needs two tabs. Tab t1 stays, and the
     // apply gives it an empty paragraph, as the editor does. Thus, the next
     // read shows that paragraph if the format shows empty paragraphs
     // (then PutGet is not true).
-    const editor = createTabsEditor(2);
-    write(editor, format, ["Two"]);
+    const { editor } = await setupEditor({
+      mountType: false,
+      ...tabsEditorOptions(2),
+    });
+    await write(setupEditor, editor, format, ["Two"]);
     expect(editor.document[0].children.map((tab) => tab.id)).toEqual([
       "t1",
       "t2",
@@ -185,15 +239,18 @@ describe.each([
     showsEmptyParagraph
       ? "KNOWN LIMIT: a second write of the same text gives the empty tab a new empty paragraph"
       : "a second write of the same text does not change the document",
-    () => {
+    async ({ setupEditor }) => {
       // The text does not have the empty paragraph of t1, thus the write
       // removes it, and the apply fills t1 again: the document is the same,
       // except the ID of the empty paragraph. Plain text does not show an
       // empty paragraph, thus there the text is unchanged.
-      const editor = createTabsEditor(2);
-      write(editor, format, ["Two"]);
+      const { editor } = await setupEditor({
+        mountType: false,
+        ...tabsEditorOptions(2),
+      });
+      await write(setupEditor, editor, format, ["Two"]);
       const [filler] = editor.getBlock("t1")!.children;
-      const { operations } = write(editor, format, ["Two"]);
+      const { operations } = await write(setupEditor, editor, format, ["Two"]);
       expect(operations.map((operation) => operation.type)).toEqual(
         showsEmptyParagraph ? ["delete"] : [],
       );
@@ -206,8 +263,11 @@ describe.each([
 });
 
 describe("a tab set in JSON", () => {
-  it("removes a tab that the JSON does not have", () => {
-    const editor = createTabsEditor();
+  it("removes a tab that the JSON does not have", async ({ setupEditor }) => {
+    const { editor } = await setupEditor({
+      mountType: false,
+      ...tabsEditorOptions(),
+    });
     const [set] = editor.document;
     valid(
       updateDocument(editor, {
@@ -217,10 +277,15 @@ describe("a tab set in JSON", () => {
     expect(documentShape(editor.document)).toEqual(["set", ["t2", ["b"]]]);
   });
 
-  it("gives invalid-document for a tab set with fewer tabs than its minimum", () => {
+  it("gives invalid-document for a tab set with fewer tabs than its minimum", async ({
+    setupEditor,
+  }) => {
     // The client gives a valid document; the lens does not repair it (see
     // `parseJSON`).
-    const editor = createTabsEditor(2);
+    const { editor } = await setupEditor({
+      mountType: false,
+      ...tabsEditorOptions(2),
+    });
     const before = editor.document;
     const [set] = before;
     expect(
@@ -231,8 +296,13 @@ describe("a tab set in JSON", () => {
     expect(editor.document).toEqual(before);
   });
 
-  it("gives invalid-document for a tab without blocks", () => {
-    const editor = createTabsEditor();
+  it("gives invalid-document for a tab without blocks", async ({
+    setupEditor,
+  }) => {
+    const { editor } = await setupEditor({
+      mountType: false,
+      ...tabsEditorOptions(),
+    });
     const before = editor.document;
     const [set] = before;
     expect(
@@ -250,8 +320,13 @@ describe("a tab set in JSON", () => {
 });
 
 describe("a tab set, writes from a version", () => {
-  it("keeps the changes of two writers in two tabs", () => {
-    const editor = createTabsEditor();
+  it("keeps the changes of two writers in two tabs", async ({
+    setupEditor,
+  }) => {
+    const { editor } = await setupEditor({
+      mountType: false,
+      ...tabsEditorOptions(),
+    });
     const version = structuredClone(editor.document) as LensBlock[];
     editor.updateBlock("b", { content: "Two!" });
     valid(
@@ -269,10 +344,12 @@ describe("a tab set, writes from a version", () => {
     expect(getDocumentText(editor, markdownFormat)).toBe("One!\n\nTwo!\n");
   });
 
-  it("keeps an empty tab if another writer removed a tab and too few stay", () => {
+  it("keeps an empty tab if another writer removed a tab and too few stay", async ({
+    setupEditor,
+  }) => {
     // The client removes the blocks of t3, and another writer removed t2.
     // The set needs two tabs, thus t3 stays with an empty paragraph.
-    const editor = createThreeTabsEditor();
+    const editor = await createThreeTabsEditor(setupEditor);
     const version = structuredClone(editor.document) as LensBlock[];
     editor.removeBlocks(["t2"]);
     valid(
@@ -290,10 +367,12 @@ describe("a tab set, writes from a version", () => {
     expect(childContents(editor, "t3")).toEqual([["paragraph", []]]);
   });
 
-  it("adds an empty tab if two writers remove tabs and too few stay", () => {
+  it("adds an empty tab if two writers remove tabs and too few stay", async ({
+    setupEditor,
+  }) => {
     // The client removes t3 (in JSON), and another writer removed t2. The
     // merge keeps only t1, thus the schema adds a tab at the end.
-    const editor = createThreeTabsEditor();
+    const editor = await createThreeTabsEditor(setupEditor);
     const version = structuredClone(editor.document) as LensBlock[];
     editor.removeBlocks(["t2"]);
     valid(
@@ -315,8 +394,13 @@ describe("a tab set, writes from a version", () => {
 });
 
 describe("a column list in markdown", () => {
-  it("swaps two columns if the text swaps their blocks, without a new column", () => {
-    const editor = createColumnsEditor();
+  it("swaps two columns if the text swaps their blocks, without a new column", async ({
+    setupEditor,
+  }) => {
+    const { editor } = await setupEditor({
+      mountType: false,
+      ...columnsEditorOptions(),
+    });
 
     const update = valid(
       updateDocument(editor, {
@@ -340,8 +424,13 @@ describe("a column list in markdown", () => {
     expect(getDocumentText(editor, markdownFormat)).toBe("Beta\n\nAlpha\n");
   });
 
-  it("keeps the columns if the text adds a block between the blocks of two columns", () => {
-    const editor = createColumnsEditor();
+  it("keeps the columns if the text adds a block between the blocks of two columns", async ({
+    setupEditor,
+  }) => {
+    const { editor } = await setupEditor({
+      mountType: false,
+      ...columnsEditorOptions(),
+    });
     expect(getDocumentText(editor, markdownFormat)).toBe("Alpha\n\nBeta\n");
 
     valid(
@@ -371,8 +460,13 @@ describe("a column list in markdown", () => {
     expect(end.content).toMatchObject([{ text: "End" }]);
   });
 
-  it("puts a block that the text moves between the blocks of two columns into the next column", () => {
-    const editor = createColumnsEditor();
+  it("puts a block that the text moves between the blocks of two columns into the next column", async ({
+    setupEditor,
+  }) => {
+    const { editor } = await setupEditor({
+      mountType: false,
+      ...columnsEditorOptions(),
+    });
     editor.insertBlocks(
       [{ id: "p", type: "paragraph", content: "P" }],
       "list",
@@ -402,8 +496,13 @@ describe("a column list in markdown", () => {
     );
   });
 
-  it("removes the only block of a column, and keeps a column with an empty paragraph", () => {
-    const editor = createColumnsEditor();
+  it("removes the only block of a column, and keeps a column with an empty paragraph", async ({
+    setupEditor,
+  }) => {
+    const { editor } = await setupEditor({
+      mountType: false,
+      ...columnsEditorOptions(),
+    });
     editor.insertBlocks(
       [
         {
@@ -437,8 +536,13 @@ describe("a column list in markdown", () => {
     ]);
   });
 
-  it("keeps the column list if the text swaps a top-level block with the block of a column", () => {
-    const editor = createColumnsEditor();
+  it("keeps the column list if the text swaps a top-level block with the block of a column", async ({
+    setupEditor,
+  }) => {
+    const { editor } = await setupEditor({
+      mountType: false,
+      ...columnsEditorOptions(),
+    });
     editor.insertBlocks(
       [{ id: "x", type: "paragraph", content: "Xray" }],
       "list",
@@ -466,8 +570,11 @@ describe("a column list in markdown", () => {
   });
 
   describe("moves of blocks in columns", () => {
-    function createEditorWithTwoBlocksInEachColumn() {
-      return BlockNoteEditor.create({
+    async function createEditorWithTwoBlocksInEachColumn(
+      setupEditor: SetupEditor,
+    ) {
+      const { editor } = await setupEditor({
+        mountType: false,
         schema: columnSchema,
         initialContent: [
           { id: "top", type: "paragraph", content: "Top" },
@@ -496,9 +603,12 @@ describe("a column list in markdown", () => {
           { id: "end", type: "paragraph", content: "End" },
         ],
       });
+      return editor;
     }
-    it("moves a block of a column to the start, out of the column list", () => {
-      const editor = createEditorWithTwoBlocksInEachColumn();
+    it("moves a block of a column to the start, out of the column list", async ({
+      setupEditor,
+    }) => {
+      const editor = await createEditorWithTwoBlocksInEachColumn(setupEditor);
 
       valid(
         updateDocument(editor, {
@@ -516,8 +626,10 @@ describe("a column list in markdown", () => {
       ]);
     });
 
-    it("keeps the other blocks of the columns if the text swaps two blocks of two columns", () => {
-      const editor = createEditorWithTwoBlocksInEachColumn();
+    it("keeps the other blocks of the columns if the text swaps two blocks of two columns", async ({
+      setupEditor,
+    }) => {
+      const editor = await createEditorWithTwoBlocksInEachColumn(setupEditor);
 
       valid(
         updateDocument(editor, {
@@ -542,8 +654,11 @@ describe("a column list in markdown", () => {
 });
 
 describe("a column list in HTML", () => {
-  it("puts two paragraphs into a new column list, without extra columns", () => {
-    const editor = BlockNoteEditor.create({
+  it("puts two paragraphs into a new column list, without extra columns", async ({
+    setupEditor,
+  }) => {
+    const { editor } = await setupEditor({
+      mountType: false,
       schema: columnSchema,
       initialContent: [
         { id: "a", type: "paragraph", content: "Alpha" },
@@ -587,8 +702,11 @@ function update(
 }
 
 describe("a column list in JSON", () => {
-  it("gives an error for a column outside a column list", () => {
-    const editor = BlockNoteEditor.create({
+  it("gives an error for a column outside a column list", async ({
+    setupEditor,
+  }) => {
+    const { editor } = await setupEditor({
+      mountType: false,
       schema: columnSchema,
       initialContent: initial,
     });
@@ -605,8 +723,11 @@ describe("a column list in JSON", () => {
     ).toEqual({ error: "invalid-document" });
   });
 
-  it("puts two blocks into a new column list, without extra columns", () => {
-    const editor = BlockNoteEditor.create({
+  it("puts two blocks into a new column list, without extra columns", async ({
+    setupEditor,
+  }) => {
+    const { editor } = await setupEditor({
+      mountType: false,
       schema: columnSchema,
       initialContent: initial.slice(0, 2),
     });
@@ -634,8 +755,13 @@ describe("a column list in JSON", () => {
 });
 
 describe("JSON, the layout rules", () => {
-  it("gives an error for a column that the JSON empties: the client gives a valid layout", () => {
-    const editor = createColumnsEditor();
+  it("gives an error for a column that the JSON empties: the client gives a valid layout", async ({
+    setupEditor,
+  }) => {
+    const { editor } = await setupEditor({
+      mountType: false,
+      ...columnsEditorOptions(),
+    });
     const before = editor.document;
     const [list] = editor.document;
     const [first, second] = list.children;

@@ -1,4 +1,6 @@
-import { afterEach, describe, expect } from "vite-plus/test";
+import { describe, expect } from "vite-plus/test";
+
+import type { SetupEditor } from "../../../../../tests/src/commands/browser/setupEditor.js";
 
 import {
   applyOperations,
@@ -9,7 +11,6 @@ import {
   plainTextFormat,
   updateDocument,
 } from "./index.js";
-import { createEditor } from "./testUtil/fixtures.js";
 import { canonicalText } from "./testUtil/canonical.js";
 import { valid } from "./testUtil/valid.js";
 
@@ -26,23 +27,16 @@ import { valid } from "./testUtil/valid.js";
  * mounted editor.
  */
 describe("a mounted editor", () => {
-  const mounted: ReturnType<typeof createEditor>[] = [];
-  afterEach(() => {
-    for (const editor of mounted.splice(0)) {
-      editor.unmount();
-    }
-  });
-  function createMountedEditor() {
-    const editor = createEditor([
-      { id: "p", type: "paragraph", content: "Alpha end" },
-    ]);
-    editor.mount(document.createElement("div"));
-    mounted.push(editor);
+  async function createMountedEditor(setupEditor: SetupEditor) {
+    const { editor } = await setupEditor({
+      mountType: "dom",
+      initialContent: [{ id: "p", type: "paragraph", content: "Alpha end" }],
+    });
     return editor;
   }
 
-  it("keeps a URL of a plain text as text", () => {
-    const editor = createMountedEditor();
+  it("keeps a URL of a plain text as text", async ({ setupEditor }) => {
+    const editor = await createMountedEditor(setupEditor);
     const text = "Alpha https://example.com end";
 
     valid(
@@ -57,8 +51,10 @@ describe("a mounted editor", () => {
     ]);
   });
 
-  it("gives back the markdown text of an escaped URL", () => {
-    const editor = createMountedEditor();
+  it("gives back the markdown text of an escaped URL", async ({
+    setupEditor,
+  }) => {
+    const editor = await createMountedEditor(setupEditor);
     const text = "Alpha https\\://example.com end\n";
 
     valid(
@@ -73,26 +69,35 @@ describe("a mounted editor", () => {
 });
 
 describe("a byte order mark", () => {
-  it.each([
+  it.for([
     { name: "markdown", format: markdownFormat },
     { name: "plain text", format: plainTextFormat },
     { name: "HTML", format: htmlFormat },
-  ])("at the start of the text changes nothing ($name)", ({ format }) => {
-    const editor = createEditor([
-      { id: "a", type: "paragraph", content: "Alpha" },
-      { id: "b", type: "paragraph", content: "Beta" },
-    ]);
-    const text = `\uFEFF${getDocumentText(editor, format)}`;
+  ])(
+    "at the start of the text changes nothing ($name)",
+    async ({ format }, { setupEditor }) => {
+      const { editor } = await setupEditor({
+        mountType: false,
+        initialContent: [
+          { id: "a", type: "paragraph", content: "Alpha" },
+          { id: "b", type: "paragraph", content: "Beta" },
+        ],
+      });
+      const text = `\uFEFF${getDocumentText(editor, format)}`;
 
-    expect(
-      valid(computeOperations(editor, { format, text })).operations,
-    ).toEqual([]);
-  });
+      expect(
+        valid(computeOperations(editor, { format, text })).operations,
+      ).toEqual([]);
+    },
+  );
 
-  it("keeps a byte order mark that the document has (plain text)", () => {
-    const editor = createEditor([
-      { id: "a", type: "paragraph", content: "\uFEFFHello" },
-    ]);
+  it("keeps a byte order mark that the document has (plain text)", async ({
+    setupEditor,
+  }) => {
+    const { editor } = await setupEditor({
+      mountType: false,
+      initialContent: [{ id: "a", type: "paragraph", content: "\uFEFFHello" }],
+    });
     const text = getDocumentText(editor, plainTextFormat);
     const update = valid(
       computeOperations(editor, {
@@ -117,8 +122,13 @@ describe("a document with two blocks with one ID", () => {
     { id: "x", type: "paragraph" as const, content: "Beta" },
   ];
 
-  it("throws for a text write, and the document does not change", () => {
-    const editor = createEditor(documentWithOneId);
+  it("throws for a text write, and the document does not change", async ({
+    setupEditor,
+  }) => {
+    const { editor } = await setupEditor({
+      mountType: false,
+      initialContent: documentWithOneId,
+    });
     const before = editor.document;
     const text = getDocumentText(editor, markdownFormat);
 
@@ -131,8 +141,11 @@ describe("a document with two blocks with one ID", () => {
     expect(editor.document).toEqual(before);
   });
 
-  it("throws for computeOperations", () => {
-    const editor = createEditor(documentWithOneId);
+  it("throws for computeOperations", async ({ setupEditor }) => {
+    const { editor } = await setupEditor({
+      mountType: false,
+      initialContent: documentWithOneId,
+    });
     expect(() =>
       computeOperations(editor, {
         format: markdownFormat,
@@ -141,8 +154,13 @@ describe("a document with two blocks with one ID", () => {
     ).toThrow("Two blocks of the current document have the ID x");
   });
 
-  it("throws for a JSON write, also of the unchanged JSON", () => {
-    const editor = createEditor(documentWithOneId);
+  it("throws for a JSON write, also of the unchanged JSON", async ({
+    setupEditor,
+  }) => {
+    const { editor } = await setupEditor({
+      mountType: false,
+      initialContent: documentWithOneId,
+    });
     expect(() =>
       computeOperations(editor, {
         document: JSON.parse(JSON.stringify(editor.document)),
@@ -150,8 +168,11 @@ describe("a document with two blocks with one ID", () => {
     ).toThrow("Two blocks of the current document have the ID x");
   });
 
-  it("throws for applyOperations with an update", () => {
-    const editor = createEditor(documentWithOneId);
+  it("throws for applyOperations with an update", async ({ setupEditor }) => {
+    const { editor } = await setupEditor({
+      mountType: false,
+      initialContent: documentWithOneId,
+    });
     expect(() =>
       editor.transact((tr) =>
         applyOperations(tr, [
@@ -161,8 +182,13 @@ describe("a document with two blocks with one ID", () => {
     ).toThrow("Block x is already in the document");
   });
 
-  it("throws for applyOperations with operations that change the structure", () => {
-    const editor = createEditor(documentWithOneId);
+  it("throws for applyOperations with operations that change the structure", async ({
+    setupEditor,
+  }) => {
+    const { editor } = await setupEditor({
+      mountType: false,
+      initialContent: documentWithOneId,
+    });
     expect(() =>
       editor.transact((tr) =>
         applyOperations(tr, [{ type: "move", id: "x", placement: "start" }]),
@@ -172,12 +198,13 @@ describe("a document with two blocks with one ID", () => {
 });
 
 describe("a document after `removeBlocks` removed all blocks", () => {
-  it("writes the text", () => {
+  it("writes the text", async ({ setupEditor }) => {
     // The editor gives the block that fills the empty document an ID, also
     // without a view (a core fix). Before, that block had no ID.
-    const editor = createEditor([
-      { id: "a", type: "paragraph", content: "Alpha" },
-    ]);
+    const { editor } = await setupEditor({
+      mountType: false,
+      initialContent: [{ id: "a", type: "paragraph", content: "Alpha" }],
+    });
     editor.removeBlocks(editor.document);
 
     valid(
@@ -208,7 +235,7 @@ describe("a document after `removeBlocks` removed all blocks", () => {
  * the laws hold.
  */
 describe("a text with markup that the serializer does not write", () => {
-  it.each([
+  it.for([
     // Markdown: an HTML tag without a source gives no block.
     {
       name: "markdown",
@@ -223,20 +250,24 @@ describe("a text with markup that the serializer does not write", () => {
       text: '<p>Alpha</p><p data-background-color="blue">\uFFFC\n\n</p>',
       blocks: 2,
     },
-  ])("keeps PutTwice and PutGet ($name)", ({ format, text, blocks }) => {
-    const editor = createEditor([
-      { id: "a", type: "paragraph", content: "Alpha" },
-    ]);
-    valid(updateDocument(editor, { format, text }));
+  ])(
+    "keeps PutTwice and PutGet ($name)",
+    async ({ format, text, blocks }, { setupEditor }) => {
+      const { editor } = await setupEditor({
+        mountType: false,
+        initialContent: [{ id: "a", type: "paragraph", content: "Alpha" }],
+      });
+      valid(updateDocument(editor, { format, text }));
 
-    expect(editor.document).toHaveLength(blocks);
-    // PutTwice.
-    expect(
-      valid(computeOperations(editor, { format, text })).operations,
-    ).toEqual([]);
-    // PutGet.
-    expect(canonicalText(editor, format, getDocumentText(editor, format))).toBe(
-      canonicalText(editor, format, text),
-    );
-  });
+      expect(editor.document).toHaveLength(blocks);
+      // PutTwice.
+      expect(
+        valid(computeOperations(editor, { format, text })).operations,
+      ).toEqual([]);
+      // PutGet.
+      expect(
+        canonicalText(editor, format, getDocumentText(editor, format)),
+      ).toBe(canonicalText(editor, format, text));
+    },
+  );
 });

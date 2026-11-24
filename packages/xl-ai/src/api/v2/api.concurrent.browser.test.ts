@@ -1,5 +1,6 @@
 import { BlockNoteEditor, type PartialBlock } from "@blocknote/core";
 import { describe, expect } from "vite-plus/test";
+import type { SetupEditor } from "../../../../../tests/src/commands/browser/setupEditor.js";
 
 import {
   computeOperations,
@@ -17,11 +18,11 @@ import type { LensBlock } from "./model.js";
 import {
   blockFieldsById,
   columnSchema,
-  createEditor,
   diffBlocks,
   documentShape,
   fruitDocument,
   replaceOnce,
+  richDocument,
 } from "./testUtil/fixtures.js";
 import {
   createRandom,
@@ -62,7 +63,7 @@ function write(
 
 describe("a merge write without `base`", () => {
   // The type requires `base`, but a caller without types can forget it.
-  it.each([
+  it.for<[string, (editor: BlockNoteEditor<any, any, any>) => unknown]>([
     [
       "computeOperationsWithMerge",
       (editor: BlockNoteEditor<any, any, any>) =>
@@ -80,18 +81,29 @@ describe("a merge write without `base`", () => {
           onConflict: "reject",
         } as never),
     ],
-  ])("%s throws an error, and does not change the document", (_, write) => {
-    const editor = createEditor();
-    const before = editor.document;
+  ])(
+    "%s throws an error, and does not change the document",
+    async ([, write], { setupEditor }) => {
+      const { editor } = await setupEditor({
+        mountType: false,
+        initialContent: richDocument,
+      });
+      const before = editor.document;
 
-    expect(() => write(editor)).toThrow(/needs the option `base`/);
-    expect(editor.document).toEqual(before);
-  });
+      expect(() => write(editor)).toThrow(/needs the option `base`/);
+      expect(editor.document).toEqual(before);
+    },
+  );
 });
 
 describe("a write from an older version", () => {
-  it("changes nothing if the client did not change the text", () => {
-    const editor = createEditor();
+  it("changes nothing if the client did not change the text", async ({
+    setupEditor,
+  }) => {
+    const { editor } = await setupEditor({
+      mountType: false,
+      initialContent: richDocument,
+    });
     const client = read(editor);
     write(editor, read(editor), (text) =>
       replaceOnce(text, "Last paragraph", "Last paragraph, edited"),
@@ -108,8 +120,13 @@ describe("a write from an older version", () => {
     ).toEqual([]);
   });
 
-  it("keeps the changes of another writer in a different block", () => {
-    const editor = createEditor();
+  it("keeps the changes of another writer in a different block", async ({
+    setupEditor,
+  }) => {
+    const { editor } = await setupEditor({
+      mountType: false,
+      initialContent: richDocument,
+    });
     const client = read(editor);
     write(editor, read(editor), (text) =>
       replaceOnce(text, "Last paragraph", "Last paragraph from B"),
@@ -126,8 +143,13 @@ describe("a write from an older version", () => {
     ]);
   });
 
-  it("keeps a change to a block that another user dragged", () => {
-    const editor = createEditor();
+  it("keeps a change to a block that another user dragged", async ({
+    setupEditor,
+  }) => {
+    const { editor } = await setupEditor({
+      mountType: false,
+      initialContent: richDocument,
+    });
     const client = read(editor);
     const last = editor.getBlock("last");
     if (last === undefined) {
@@ -149,12 +171,17 @@ describe("a write from an older version", () => {
     );
   });
 
-  it("moves a block that another writer changed, and keeps the change", () => {
-    const editor = createEditor([
-      { id: "a", type: "paragraph", content: "Alpha" },
-      { id: "b", type: "paragraph", content: "Beta" },
-      { id: "c", type: "paragraph", content: "Gamma" },
-    ]);
+  it("moves a block that another writer changed, and keeps the change", async ({
+    setupEditor,
+  }) => {
+    const { editor } = await setupEditor({
+      mountType: false,
+      initialContent: [
+        { id: "a", type: "paragraph", content: "Alpha" },
+        { id: "b", type: "paragraph", content: "Beta" },
+        { id: "c", type: "paragraph", content: "Gamma" },
+      ],
+    });
     const client = read(editor);
     write(editor, read(editor), (text) =>
       replaceOnce(text, "Gamma", "Gamma, edited"),
@@ -169,10 +196,13 @@ describe("a write from an older version", () => {
     ]);
   });
 
-  it("keeps the text of two writers who add text at the same position", () => {
-    const editor = createEditor([
-      { id: "p", type: "paragraph", content: "Intro." },
-    ]);
+  it("keeps the text of two writers who add text at the same position", async ({
+    setupEditor,
+  }) => {
+    const { editor } = await setupEditor({
+      mountType: false,
+      initialContent: [{ id: "p", type: "paragraph", content: "Intro." }],
+    });
     const client = read(editor);
     write(editor, read(editor), (text) =>
       replaceOnce(text, "Intro.", "Intro. Added by A."),
@@ -186,12 +216,17 @@ describe("a write from an older version", () => {
     ]);
   });
 
-  it("keeps a block that another writer moved into a block that the text removes", () => {
-    const editor = createEditor([
-      { id: "a", type: "paragraph", content: "Alpha" },
-      { id: "b", type: "bulletListItem", content: "Beta" },
-      { id: "c", type: "bulletListItem", content: "Gamma" },
-    ]);
+  it("keeps a block that another writer moved into a block that the text removes", async ({
+    setupEditor,
+  }) => {
+    const { editor } = await setupEditor({
+      mountType: false,
+      initialContent: [
+        { id: "a", type: "paragraph", content: "Alpha" },
+        { id: "b", type: "bulletListItem", content: "Beta" },
+        { id: "c", type: "bulletListItem", content: "Gamma" },
+      ],
+    });
     const client = read(editor);
     write(editor, read(editor), (text) =>
       replaceOnce(text, "* Gamma", "  * Gamma"),
@@ -201,19 +236,24 @@ describe("a write from an older version", () => {
     expect(documentShape(editor.document)).toEqual(["a", "c"]);
   });
 
-  it("keeps the blocks that the text keeps, if the text removes their parent and another writer removed a sibling", () => {
-    const editor = createEditor([
-      {
-        id: "parent",
-        type: "bulletListItem",
-        content: "Parent",
-        children: [
-          { id: "one", type: "bulletListItem", content: "One" },
-          { id: "two", type: "bulletListItem", content: "Two" },
-        ],
-      },
-      { id: "end", type: "paragraph", content: "End" },
-    ]);
+  it("keeps the blocks that the text keeps, if the text removes their parent and another writer removed a sibling", async ({
+    setupEditor,
+  }) => {
+    const { editor } = await setupEditor({
+      mountType: false,
+      initialContent: [
+        {
+          id: "parent",
+          type: "bulletListItem",
+          content: "Parent",
+          children: [
+            { id: "one", type: "bulletListItem", content: "One" },
+            { id: "two", type: "bulletListItem", content: "Two" },
+          ],
+        },
+        { id: "end", type: "paragraph", content: "End" },
+      ],
+    });
     const client = read(editor);
     write(editor, read(editor), (text) => replaceOnce(text, "  * One\n", ""));
     write(editor, client, () => "* One\n* New\n* Two\n\nEnd\n");
@@ -225,10 +265,13 @@ describe("a write from an older version", () => {
     ).toEqual(["New", "Two", "End"]);
   });
 
-  it("applies a write that a client sends two times one time", () => {
-    const editor = createEditor([
-      { id: "p", type: "paragraph", content: "Intro." },
-    ]);
+  it("applies a write that a client sends two times one time", async ({
+    setupEditor,
+  }) => {
+    const { editor } = await setupEditor({
+      mountType: false,
+      initialContent: [{ id: "p", type: "paragraph", content: "Intro." }],
+    });
     const client = read(editor);
     write(editor, client, (text) =>
       replaceOnce(text, "Intro.", "Intro. Added."),
@@ -242,10 +285,13 @@ describe("a write from an older version", () => {
     ]);
   });
 
-  it("applies the same fix of two writers one time", () => {
-    const editor = createEditor([
-      { id: "p", type: "paragraph", content: "helo" },
-    ]);
+  it("applies the same fix of two writers one time", async ({
+    setupEditor,
+  }) => {
+    const { editor } = await setupEditor({
+      mountType: false,
+      initialContent: [{ id: "p", type: "paragraph", content: "helo" }],
+    });
     const client = read(editor);
     write(editor, read(editor), (text) => replaceOnce(text, "helo", "hello"));
     write(editor, client, (text) => replaceOnce(text, "helo", "hello"));
@@ -253,8 +299,13 @@ describe("a write from an older version", () => {
     expect(editor.getBlock("p")?.content).toMatchObject([{ text: "hello" }]);
   });
 
-  it("does one move if two writers make the same move", () => {
-    const editor = createEditor(fruitDocument);
+  it("does one move if two writers make the same move", async ({
+    setupEditor,
+  }) => {
+    const { editor } = await setupEditor({
+      mountType: false,
+      initialContent: fruitDocument,
+    });
     const client = read(editor);
     write(editor, read(editor), (text) =>
       replaceOnce(text, "  * Pears", "* Pears"),
@@ -269,8 +320,13 @@ describe("a write from an older version", () => {
     ]);
   });
 
-  it("keeps a change to a block that another writer moved", () => {
-    const editor = createEditor(fruitDocument);
+  it("keeps a change to a block that another writer moved", async ({
+    setupEditor,
+  }) => {
+    const { editor } = await setupEditor({
+      mountType: false,
+      initialContent: fruitDocument,
+    });
     const client = read(editor);
     write(editor, read(editor), (text) =>
       replaceOnce(text, "  * Pears", "* Pears"),
@@ -308,11 +364,12 @@ describe("a write from an older version", () => {
 describe.each(formatCases)(
   "random groups of writers ($name)",
   ({ format, codec }) => {
-    it.each(Array.from({ length: 40 }, (_, i) => i + 1))(
+    it.for(Array.from({ length: 40 }, (_, i) => i + 1))(
       "keeps the changes of each writer for seed %i",
-      (seed) => {
+      async (seed, { setupEditor }) => {
         const random = createRandom(seed);
-        const editor = BlockNoteEditor.create({
+        const { editor } = await setupEditor({
+          mountType: false,
           initialContent: randomDocument(random),
         });
 
@@ -335,7 +392,7 @@ describe.each(formatCases)(
               getDocumentText(editor, format),
               codec,
             );
-            writers[writer] = { base, text, change: alone(base, text) };
+            writers[writer] = { base, text, change: await alone(base, text) };
           } else {
             const { base, text } = writers[writer];
             valid(
@@ -398,8 +455,14 @@ describe.each(formatCases)(
         ).toEqual([]);
 
         /** Returns the changes of one writer alone, by block ID. */
-        function alone(base: LensBlock[], text: string): Writer["change"] {
-          const single = BlockNoteEditor.create({ initialContent: base });
+        async function alone(
+          base: LensBlock[],
+          text: string,
+        ): Promise<Writer["change"]> {
+          const { editor: single } = await setupEditor({
+            mountType: false,
+            initialContent: base as PartialBlock[],
+          });
           const before = blockFieldsById(single);
           valid(updateDocument(single, { format, text }));
           const after = blockFieldsById(single);
@@ -428,13 +491,18 @@ function randomSchedule(random: Random, count: number) {
 }
 
 describe("a write from an older version, with blocks that the client moves", () => {
-  it("indents a block under the position that the client wants, if another writer removed the block before it", () => {
-    const editor = createEditor([
-      { id: "a", type: "bulletListItem", content: "Apples" },
-      { id: "b", type: "bulletListItem", content: "Bananas" },
-      { id: "c", type: "bulletListItem", content: "Cherries" },
-      { id: "end", type: "paragraph", content: "End" },
-    ]);
+  it("indents a block under the position that the client wants, if another writer removed the block before it", async ({
+    setupEditor,
+  }) => {
+    const { editor } = await setupEditor({
+      mountType: false,
+      initialContent: [
+        { id: "a", type: "bulletListItem", content: "Apples" },
+        { id: "b", type: "bulletListItem", content: "Bananas" },
+        { id: "c", type: "bulletListItem", content: "Cherries" },
+        { id: "end", type: "paragraph", content: "End" },
+      ],
+    });
     const client = read(editor);
     editor.removeBlocks(["b"]);
 
@@ -451,13 +519,18 @@ describe("a write from an older version, with blocks that the client moves", () 
 });
 
 describe("a move by the client and an insert by another writer next to the moved block", () => {
-  it("puts the block at the place of the client, and keeps the new block of the other writer", () => {
-    const editor = createEditor([
-      { id: "a", type: "paragraph", content: "A" },
-      { id: "x", type: "paragraph", content: "X" },
-      { id: "b", type: "paragraph", content: "B" },
-      { id: "c", type: "paragraph", content: "C" },
-    ]);
+  it("puts the block at the place of the client, and keeps the new block of the other writer", async ({
+    setupEditor,
+  }) => {
+    const { editor } = await setupEditor({
+      mountType: false,
+      initialContent: [
+        { id: "a", type: "paragraph", content: "A" },
+        { id: "x", type: "paragraph", content: "X" },
+        { id: "b", type: "paragraph", content: "B" },
+        { id: "c", type: "paragraph", content: "C" },
+      ],
+    });
     const base = structuredClone(editor.document) as LensBlock[];
     // Another writer inserts Y before X.
     editor.insertBlocks(
@@ -486,12 +559,17 @@ describe("a move by the client and an insert by another writer next to the moved
 });
 
 describe("a write from an older version, with blocks that another writer moved", () => {
-  it("moves a block after a new block that the rebase put into the moved block", () => {
-    const editor = createEditor([
-      { id: "x", type: "paragraph", content: "Xtext" },
-      { id: "p", type: "paragraph", content: "Ptext" },
-      { id: "q", type: "paragraph", content: "Qtext" },
-    ]);
+  it("moves a block after a new block that the rebase put into the moved block", async ({
+    setupEditor,
+  }) => {
+    const { editor } = await setupEditor({
+      mountType: false,
+      initialContent: [
+        { id: "x", type: "paragraph", content: "Xtext" },
+        { id: "p", type: "paragraph", content: "Ptext" },
+        { id: "q", type: "paragraph", content: "Qtext" },
+      ],
+    });
     const client = read(editor);
     // Another writer nests Q in X.
     editor.removeBlocks(["q"]);
@@ -514,8 +592,13 @@ describe("a write from an older version, with blocks that another writer moved",
 });
 
 describe("a write from an older version with a conflict", () => {
-  it("keeps the change of another writer, with a warning, if the client changes the same word", () => {
-    const editor = createEditor(fruitDocument);
+  it("keeps the change of another writer, with a warning, if the client changes the same word", async ({
+    setupEditor,
+  }) => {
+    const { editor } = await setupEditor({
+      mountType: false,
+      initialContent: fruitDocument,
+    });
     const client = read(editor);
     editor.updateBlock("end", { content: "The finish" });
 
@@ -531,10 +614,15 @@ describe("a write from an older version with a conflict", () => {
     ]);
   });
 
-  it("keeps the type of another writer, with a warning, if that type cannot hold the text of the client", () => {
-    const editor = createEditor([
-      { id: "p", type: "paragraph", content: "Alpha beta gamma" },
-    ]);
+  it("keeps the type of another writer, with a warning, if that type cannot hold the text of the client", async ({
+    setupEditor,
+  }) => {
+    const { editor } = await setupEditor({
+      mountType: false,
+      initialContent: [
+        { id: "p", type: "paragraph", content: "Alpha beta gamma" },
+      ],
+    });
     const client = read(editor);
     editor.updateBlock("p", {
       type: "image",
@@ -552,10 +640,15 @@ describe("a write from an older version with a conflict", () => {
     });
   });
 
-  it("keeps a style that the client adds to the last word, if another writer adds text after it", () => {
-    const editor = createEditor([
-      { id: "p", type: "paragraph", content: "Read the manual" },
-    ]);
+  it("keeps a style that the client adds to the last word, if another writer adds text after it", async ({
+    setupEditor,
+  }) => {
+    const { editor } = await setupEditor({
+      mountType: false,
+      initialContent: [
+        { id: "p", type: "paragraph", content: "Read the manual" },
+      ],
+    });
     const client = read(editor);
     editor.updateBlock("p", {
       content: "Read the manual today, and then the guide.",
@@ -570,10 +663,15 @@ describe("a write from an older version with a conflict", () => {
     ]);
   });
 
-  it("gives no warning for changes to different parts of one block", () => {
-    const editor = createEditor([
-      { id: "p", type: "paragraph", content: "One two three four" },
-    ]);
+  it("gives no warning for changes to different parts of one block", async ({
+    setupEditor,
+  }) => {
+    const { editor } = await setupEditor({
+      mountType: false,
+      initialContent: [
+        { id: "p", type: "paragraph", content: "One two three four" },
+      ],
+    });
     const client = read(editor);
     editor.updateBlock("p", { content: "One two three four five" });
 
@@ -587,14 +685,19 @@ describe("a write from an older version with a conflict", () => {
     ]);
   });
 
-  it("gives a warning if another writer split the block that the client changes", () => {
-    const editor = createEditor([
-      {
-        id: "a",
-        type: "paragraph",
-        content: "First half of the text. Second half of the text.",
-      },
-    ]);
+  it("gives a warning if another writer split the block that the client changes", async ({
+    setupEditor,
+  }) => {
+    const { editor } = await setupEditor({
+      mountType: false,
+      initialContent: [
+        {
+          id: "a",
+          type: "paragraph",
+          content: "First half of the text. Second half of the text.",
+        },
+      ],
+    });
     const client = read(editor);
     // Another writer splits the block.
     editor.updateBlock("a", { content: "First half of the text." });
@@ -615,14 +718,19 @@ describe("a write from an older version with a conflict", () => {
     );
   });
 
-  it("keeps a sentence that another writer removed, with a warning, if the client changes it", () => {
-    const editor = createEditor([
-      {
-        id: "p",
-        type: "paragraph",
-        content: "Alpha one. Beta two. Gamma three.",
-      },
-    ]);
+  it("keeps a sentence that another writer removed, with a warning, if the client changes it", async ({
+    setupEditor,
+  }) => {
+    const { editor } = await setupEditor({
+      mountType: false,
+      initialContent: [
+        {
+          id: "p",
+          type: "paragraph",
+          content: "Alpha one. Beta two. Gamma three.",
+        },
+      ],
+    });
     const client = read(editor);
     editor.updateBlock("p", { content: "Alpha one. Gamma three." });
 
@@ -635,10 +743,15 @@ describe("a write from an older version with a conflict", () => {
     expect(getDocumentText(editor, format)).toBe("Alpha one. Gamma three.\n");
   });
 
-  it("keeps a sentence that another writer adds, without a warning, if the client rewrites the rest of the block", () => {
-    const editor = createEditor([
-      { id: "p", type: "paragraph", content: "The cat sat on the mat." },
-    ]);
+  it("keeps a sentence that another writer adds, without a warning, if the client rewrites the rest of the block", async ({
+    setupEditor,
+  }) => {
+    const { editor } = await setupEditor({
+      mountType: false,
+      initialContent: [
+        { id: "p", type: "paragraph", content: "The cat sat on the mat." },
+      ],
+    });
     const client = read(editor);
     editor.updateBlock("p", {
       content: "The cat sat on the mat. It was warm.",
@@ -652,13 +765,18 @@ describe("a write from an older version with a conflict", () => {
     );
   });
 
-  it("keeps the parent of another writer, with a warning, if the client moves the block into a different parent", () => {
+  it("keeps the parent of another writer, with a warning, if the client moves the block into a different parent", async ({
+    setupEditor,
+  }) => {
     const items: PartialBlock[] = ["a", "b", "c"].map((id) => ({
       id,
       type: "bulletListItem",
       content: id.toUpperCase(),
     }));
-    const editor = createEditor(items);
+    const { editor } = await setupEditor({
+      mountType: false,
+      initialContent: items,
+    });
     const client = read(editor);
     // Another writer indents C under A.
     editor.removeBlocks(["c"]);
@@ -691,8 +809,13 @@ describe("a write from an older version with onConflict", () => {
     });
   }
 
-  it("rejects a write with a conflict, and does not change the document", () => {
-    const editor = createEditor(fruitDocument);
+  it("rejects a write with a conflict, and does not change the document", async ({
+    setupEditor,
+  }) => {
+    const { editor } = await setupEditor({
+      mountType: false,
+      initialContent: fruitDocument,
+    });
     const client = read(editor);
     editor.updateBlock("end", { content: "The finish" });
     const before = editor.document;
@@ -711,8 +834,13 @@ describe("a write from an older version with onConflict", () => {
     expect(editor.document).toEqual(before);
   });
 
-  it("rejects a write that removes a block that another writer changed", () => {
-    const editor = createEditor(fruitDocument);
+  it("rejects a write that removes a block that another writer changed", async ({
+    setupEditor,
+  }) => {
+    const { editor } = await setupEditor({
+      mountType: false,
+      initialContent: fruitDocument,
+    });
     const client = read(editor);
     editor.updateBlock("end", { content: "The end" });
 
@@ -729,8 +857,13 @@ describe("a write from an older version with onConflict", () => {
     });
   });
 
-  it("applies a write without a conflict, also with reject", () => {
-    const editor = createEditor(fruitDocument);
+  it("applies a write without a conflict, also with reject", async ({
+    setupEditor,
+  }) => {
+    const { editor } = await setupEditor({
+      mountType: false,
+      initialContent: fruitDocument,
+    });
     const client = read(editor);
     editor.updateBlock("end", { content: "The finish" });
 
@@ -752,8 +885,13 @@ describe("a write from an older version with onConflict", () => {
     ]);
   });
 
-  it("keeps the current document in a conflict with keep-current", () => {
-    const editor = createEditor(fruitDocument);
+  it("keeps the current document in a conflict with keep-current", async ({
+    setupEditor,
+  }) => {
+    const { editor } = await setupEditor({
+      mountType: false,
+      initialContent: fruitDocument,
+    });
     const client = read(editor);
     editor.updateBlock("end", { content: "The finish" });
     const text = replaceOnce(
@@ -812,8 +950,13 @@ describe("a write from an older version with onConflict", () => {
 });
 
 describe("a write from an older version that removes blocks", () => {
-  it("keeps a block that another writer changed, with a warning", () => {
-    const editor = createEditor(fruitDocument);
+  it("keeps a block that another writer changed, with a warning", async ({
+    setupEditor,
+  }) => {
+    const { editor } = await setupEditor({
+      mountType: false,
+      initialContent: fruitDocument,
+    });
     const client = read(editor);
     editor.updateBlock("end", { content: "The end" });
 
@@ -829,8 +972,13 @@ describe("a write from an older version that removes blocks", () => {
     ]);
   });
 
-  it("keeps a block and its child that another writer changed, with a warning, and removes the other child", () => {
-    const editor = createEditor(fruitDocument);
+  it("keeps a block and its child that another writer changed, with a warning, and removes the other child", async ({
+    setupEditor,
+  }) => {
+    const { editor } = await setupEditor({
+      mountType: false,
+      initialContent: fruitDocument,
+    });
     const client = read(editor);
     editor.updateBlock("pears", { content: "Green pears" });
 
@@ -846,8 +994,13 @@ describe("a write from an older version that removes blocks", () => {
     ]);
   });
 
-  it("removes a child that another writer moved out of a block that the client removes", () => {
-    const editor = createEditor(fruitDocument);
+  it("removes a child that another writer moved out of a block that the client removes", async ({
+    setupEditor,
+  }) => {
+    const { editor } = await setupEditor({
+      mountType: false,
+      initialContent: fruitDocument,
+    });
     const client = read(editor);
     // Another writer outdents Apples.
     editor.removeBlocks(["apples"]);
@@ -865,16 +1018,19 @@ describe("a write from an older version that removes blocks", () => {
 });
 
 describe("a write from an older version, with columns", () => {
-  function createColumnsEditor(
+  async function createColumnsEditor(
+    setupEditor: SetupEditor,
     columns: PartialBlock<any, any, any>[],
-  ): BlockNoteEditor<any, any, any> {
-    return BlockNoteEditor.create({
+  ): Promise<BlockNoteEditor<any, any, any>> {
+    const { editor } = await setupEditor({
+      mountType: false,
       schema: columnSchema,
       initialContent: [
         { id: "list", type: "columnList", children: columns },
         { id: "end", type: "paragraph", content: "End" },
-      ],
+      ] as (typeof columnSchema.PartialBlock)[],
     });
+    return editor;
   }
   function column(
     id: string,
@@ -894,8 +1050,10 @@ describe("a write from an older version, with columns", () => {
     ]);
   }
 
-  it("keeps a block that another writer moved into a column whose block the client removes", () => {
-    const editor = createColumnsEditor([
+  it("keeps a block that another writer moved into a column whose block the client removes", async ({
+    setupEditor,
+  }) => {
+    const editor = await createColumnsEditor(setupEditor, [
       column("c1", "a", "Alpha"),
       column("c2", "b", "Beta"),
       column("c3", "g", "Gamma"),
@@ -918,8 +1076,10 @@ describe("a write from an older version, with columns", () => {
     ]);
   });
 
-  it("keeps a column that another writer added, when the client removes the block of another column", () => {
-    const editor = createColumnsEditor([
+  it("keeps a column that another writer added, when the client removes the block of another column", async ({
+    setupEditor,
+  }) => {
+    const editor = await createColumnsEditor(setupEditor, [
       column("c1", "a", "Alpha"),
       column("c2", "b", "Beta"),
     ]);
@@ -937,8 +1097,10 @@ describe("a write from an older version, with columns", () => {
     ]);
   });
 
-  it("removes a column that the client empties, if no other writer changed it", () => {
-    const editor = createColumnsEditor([
+  it("removes a column that the client empties, if no other writer changed it", async ({
+    setupEditor,
+  }) => {
+    const editor = await createColumnsEditor(setupEditor, [
       column("c1", "a", "Alpha"),
       column("c2", "b", "Beta"),
       column("c3", "g", "Gamma"),
@@ -954,8 +1116,10 @@ describe("a write from an older version, with columns", () => {
     ]);
   });
 
-  it("dissolves a column list with one column left, after the client empties the other column", () => {
-    const editor = createColumnsEditor([
+  it("dissolves a column list with one column left, after the client empties the other column", async ({
+    setupEditor,
+  }) => {
+    const editor = await createColumnsEditor(setupEditor, [
       column("c1", "a", "Alpha"),
       column("c2", "b", "Beta"),
     ]);
@@ -967,8 +1131,10 @@ describe("a write from an older version, with columns", () => {
     expect(editor.document.map((block) => block.id)).toEqual(["b", "end"]);
   });
 
-  it("keeps a column with an empty paragraph, also with a base", () => {
-    const editor = createColumnsEditor([
+  it("keeps a column with an empty paragraph, also with a base", async ({
+    setupEditor,
+  }) => {
+    const editor = await createColumnsEditor(setupEditor, [
       {
         id: "cA",
         type: "column",
@@ -989,8 +1155,10 @@ describe("a write from an older version, with columns", () => {
     ]);
   });
 
-  it("puts the blocks of a new column where the column list was, if another writer removed the column list", () => {
-    const editor = createColumnsEditor([
+  it("puts the blocks of a new column where the column list was, if another writer removed the column list", async ({
+    setupEditor,
+  }) => {
+    const editor = await createColumnsEditor(setupEditor, [
       column("c1", "a", "Alpha"),
       column("c2", "b", "Beta"),
     ]);
@@ -1023,30 +1191,34 @@ describe("a write from an older version, with columns", () => {
 });
 
 describe("a write from an older version, with a table", () => {
-  function createTableEditor() {
-    return createEditor([
-      {
-        id: "t",
-        type: "table",
-        content: {
-          type: "tableContent",
-          rows: [
-            { cells: ["Head A", "Head B"] },
-            {
-              cells: [
-                { type: "tableCell", content: "alpha" },
-                {
-                  type: "tableCell",
-                  props: { backgroundColor: "yellow" },
-                  content: "beta",
-                },
-              ],
-            },
-            { cells: ["gamma", "delta"] },
-          ],
+  async function createTableEditor(setupEditor: SetupEditor) {
+    const { editor } = await setupEditor({
+      mountType: false,
+      initialContent: [
+        {
+          id: "t",
+          type: "table",
+          content: {
+            type: "tableContent",
+            rows: [
+              { cells: ["Head A", "Head B"] },
+              {
+                cells: [
+                  { type: "tableCell", content: "alpha" },
+                  {
+                    type: "tableCell",
+                    props: { backgroundColor: "yellow" },
+                    content: "beta",
+                  },
+                ],
+              },
+              { cells: ["gamma", "delta"] },
+            ],
+          },
         },
-      },
-    ]);
+      ],
+    });
+    return editor;
   }
   /** The text and the background color of each cell. */
   function cells(editor: BlockNoteEditor<any, any, any>) {
@@ -1089,8 +1261,10 @@ describe("a write from an older version, with a table", () => {
     editor.updateBlock("t", update);
   }
 
-  it("keeps the change of another writer to a different cell", () => {
-    const editor = createTableEditor();
+  it("keeps the change of another writer to a different cell", async ({
+    setupEditor,
+  }) => {
+    const editor = await createTableEditor(setupEditor);
     const client = read(editor);
     changeCell(editor, "red");
 
@@ -1103,8 +1277,10 @@ describe("a write from an older version, with a table", () => {
     ]);
   });
 
-  it("keeps the change of another writer to a cell, if the client adds a row", () => {
-    const editor = createTableEditor();
+  it("keeps the change of another writer to a cell, if the client adds a row", async ({
+    setupEditor,
+  }) => {
+    const editor = await createTableEditor(setupEditor);
     const client = read(editor);
     changeCell(editor, "yellow");
 
@@ -1123,10 +1299,12 @@ describe("a write from an older version, with a table", () => {
     ]);
   });
 
-  it("takes a version that a store kept as JSON as the same document", () => {
+  it("takes a version that a store kept as JSON as the same document", async ({
+    setupEditor,
+  }) => {
     // A store writes the column widths `[undefined, undefined]` as
     // `[null, null]`. That is not a change of another writer.
-    const editor = createTableEditor();
+    const editor = await createTableEditor(setupEditor);
     const client = read(editor);
     const stored: LensBlock[] = JSON.parse(JSON.stringify(client.base));
     expect(JSON.stringify(stored)).toContain('"columnWidths":[null,null]');
@@ -1162,11 +1340,14 @@ function propsOf(
 
 describe("a write from an older version that removes props", () => {
   /** The document at the version that the client read: a red paragraph. */
-  function setup(textColor = "red") {
-    const editor = createEditor([
-      { id: "p", type: "paragraph", props: { textColor }, content: "Hello" },
-      { id: "e", type: "paragraph", content: "End" },
-    ]);
+  async function setup(setupEditor: SetupEditor, textColor = "red") {
+    const { editor } = await setupEditor({
+      mountType: false,
+      initialContent: [
+        { id: "p", type: "paragraph", props: { textColor }, content: "Hello" },
+        { id: "e", type: "paragraph", content: "End" },
+      ],
+    });
     return { editor, base: editor.document };
   }
   /** A write of another writer: the paragraph with these props and text. */
@@ -1203,23 +1384,29 @@ describe("a write from an older version that removes props", () => {
     );
   }
 
-  it("removes a prop that the client removes and another writer did not change", () => {
-    const { editor, base } = setup();
+  it("removes a prop that the client removes and another writer did not change", async ({
+    setupEditor,
+  }) => {
+    const { editor, base } = await setup(setupEditor);
     const { warnings } = client(editor, base, {});
     expect(propsOf(editor, "p").textColor).toBe("default");
     expect(warnings).toEqual([]);
   });
 
-  it("keeps the change of another writer to a prop that the client removes, with a warning", () => {
-    const { editor, base } = setup();
+  it("keeps the change of another writer to a prop that the client removes, with a warning", async ({
+    setupEditor,
+  }) => {
+    const { editor, base } = await setup(setupEditor);
     otherWriter(editor, { textColor: "blue" });
     const { warnings } = client(editor, base, {});
     expect(propsOf(editor, "p").textColor).toBe("blue");
     expect(warnings).toEqual([{ type: "conflicting-change", id: "p" }]);
   });
 
-  it("keeps the removal of another writer if the client changed only the text", () => {
-    const { editor, base } = setup();
+  it("keeps the removal of another writer if the client changed only the text", async ({
+    setupEditor,
+  }) => {
+    const { editor, base } = await setup(setupEditor);
     otherWriter(editor, {});
     const { warnings } = client(
       editor,
@@ -1234,27 +1421,36 @@ describe("a write from an older version that removes props", () => {
     expect(warnings).toEqual([]);
   });
 
-  it("keeps the removal of another writer, with a warning, if the client changed the prop", () => {
-    const { editor, base } = setup();
+  it("keeps the removal of another writer, with a warning, if the client changed the prop", async ({
+    setupEditor,
+  }) => {
+    const { editor, base } = await setup(setupEditor);
     otherWriter(editor, {});
     const { warnings } = client(editor, base, { textColor: "green" });
     expect(propsOf(editor, "p").textColor).toBe("default");
     expect(warnings).toEqual([{ type: "conflicting-change", id: "p" }]);
   });
 
-  it("removes a prop one time, without a warning, if the two sides removed it", () => {
-    const { editor, base } = setup();
+  it("removes a prop one time, without a warning, if the two sides removed it", async ({
+    setupEditor,
+  }) => {
+    const { editor, base } = await setup(setupEditor);
     otherWriter(editor, {});
     const { warnings } = client(editor, base, {});
     expect(propsOf(editor, "p").textColor).toBe("default");
     expect(warnings).toEqual([]);
   });
 
-  it("keeps the removal of an optional prop by another writer if the client changed a different prop", () => {
+  it("keeps the removal of an optional prop by another writer if the client changed a different prop", async ({
+    setupEditor,
+  }) => {
     const url = "https://example.com/x.png";
-    const editor = createEditor([
-      { id: "i", type: "image", props: { url, previewWidth: 200 } },
-    ]);
+    const { editor } = await setupEditor({
+      mountType: false,
+      initialContent: [
+        { id: "i", type: "image", props: { url, previewWidth: 200 } },
+      ],
+    });
     const base = editor.document;
     valid(
       updateDocument(editor, {
@@ -1278,18 +1474,23 @@ describe("a write from an older version that removes props", () => {
     expect(propsOf(editor, "i").previewWidth).toBeUndefined();
   });
 
-  it("keeps a new link URL of another writer if the client changed other text of the block", () => {
-    const editor = createEditor([
-      {
-        id: "p",
-        type: "paragraph",
-        content: [
-          "see ",
-          { type: "link", href: "https://a.example", content: "docs" },
-          " now",
-        ],
-      },
-    ]);
+  it("keeps a new link URL of another writer if the client changed other text of the block", async ({
+    setupEditor,
+  }) => {
+    const { editor } = await setupEditor({
+      mountType: false,
+      initialContent: [
+        {
+          id: "p",
+          type: "paragraph",
+          content: [
+            "see ",
+            { type: "link", href: "https://a.example", content: "docs" },
+            " now",
+          ],
+        },
+      ],
+    });
     const base = editor.document;
     const linked = (href: string, after: string) => [
       {
@@ -1325,10 +1526,15 @@ describe("a write from an older version that removes props", () => {
 
 describe("a write from an older version that changes the same word as another writer", () => {
   // A merge of characters would give "1502", a number that no writer wrote.
-  it("keeps the word of the other writer, with a warning", () => {
-    const editor = createEditor([
-      { id: "p", type: "paragraph", content: "Total: 1000 EUR" },
-    ]);
+  it("keeps the word of the other writer, with a warning", async ({
+    setupEditor,
+  }) => {
+    const { editor } = await setupEditor({
+      mountType: false,
+      initialContent: [
+        { id: "p", type: "paragraph", content: "Total: 1000 EUR" },
+      ],
+    });
     const client = read(editor);
     write(editor, read(editor), (text) => replaceOnce(text, "1000", "1002"));
     const { warnings } = write(editor, client, (text) =>
@@ -1340,10 +1546,15 @@ describe("a write from an older version that changes the same word as another wr
     expect(warnings).toEqual([{ type: "conflicting-change", id: "p" }]);
   });
 
-  it("applies the changes of the two writers to different words of one sentence", () => {
-    const editor = createEditor([
-      { id: "p", type: "paragraph", content: "go to the shop now" },
-    ]);
+  it("applies the changes of the two writers to different words of one sentence", async ({
+    setupEditor,
+  }) => {
+    const { editor } = await setupEditor({
+      mountType: false,
+      initialContent: [
+        { id: "p", type: "paragraph", content: "go to the shop now" },
+      ],
+    });
     const client = read(editor);
     write(editor, read(editor), (text) => replaceOnce(text, "shop", "store"));
     const { warnings } = write(editor, client, (text) =>
@@ -1361,11 +1572,15 @@ describe("the document that the client wrote, in the result of a write", () => {
   // has the changes of other writers too. The base of the next write of the
   // client is the document that the client wrote (`written`), not the
   // document after the write.
-  function twoParagraphs() {
-    return createEditor([
-      { id: "a", type: "paragraph", content: "Alpha" },
-      { id: "b", type: "paragraph", content: "Beta" },
-    ]);
+  async function twoParagraphs(setupEditor: SetupEditor) {
+    const { editor } = await setupEditor({
+      mountType: false,
+      initialContent: [
+        { id: "a", type: "paragraph", content: "Alpha" },
+        { id: "b", type: "paragraph", content: "Beta" },
+      ],
+    });
+    return editor;
   }
 
   /** The text of each block of the document. */
@@ -1379,8 +1594,10 @@ describe("the document that the client wrote, in the result of a write", () => {
     );
   }
 
-  it("is the base of the next write of the client: the change of another writer stays", () => {
-    const editor = twoParagraphs();
+  it("is the base of the next write of the client: the change of another writer stays", async ({
+    setupEditor,
+  }) => {
+    const editor = await twoParagraphs(setupEditor);
     const client = read(editor);
     editor.updateBlock("b", { content: "Beta, from the other writer" });
 
@@ -1403,10 +1620,12 @@ describe("the document that the client wrote, in the result of a write", () => {
     ]);
   });
 
-  it("is not the document after the write: that base, with the text of the client, removes the change of the other writer", () => {
+  it("is not the document after the write: that base, with the text of the client, removes the change of the other writer", async ({
+    setupEditor,
+  }) => {
     // The fault that `written` prevents. The document after the write is the
     // base only for a text that the client read from it.
-    const editor = twoParagraphs();
+    const editor = await twoParagraphs(setupEditor);
     const client = read(editor);
     editor.updateBlock("b", { content: "Beta, from the other writer" });
 
@@ -1425,8 +1644,10 @@ describe("the document that the client wrote, in the result of a write", () => {
     expect(second.warnings).toEqual([]);
   });
 
-  it("has the text of the client, without the changes of other writers", () => {
-    const editor = twoParagraphs();
+  it("has the text of the client, without the changes of other writers", async ({
+    setupEditor,
+  }) => {
+    const editor = await twoParagraphs(setupEditor);
     const client = read(editor);
     editor.updateBlock("b", { content: "Beta, from the other writer" });
 
@@ -1438,8 +1659,10 @@ describe("the document that the client wrote, in the result of a write", () => {
     expect(written.map((block) => block.id)).toEqual(["a", "b"]);
   });
 
-  it("has a new block of the client with the ID that the document has: the next write does not add the block again", () => {
-    const editor = twoParagraphs();
+  it("has a new block of the client with the ID that the document has: the next write does not add the block again", async ({
+    setupEditor,
+  }) => {
+    const editor = await twoParagraphs(setupEditor);
     const client = read(editor);
     editor.updateBlock("b", { content: "Beta, from the other writer" });
 
@@ -1460,8 +1683,10 @@ describe("the document that the client wrote, in the result of a write", () => {
     expect(first.written[1].id).toBe(editor.document[1].id);
   });
 
-  it("keeps the part of the client that lost a conflict: the next write does not change that part again", () => {
-    const editor = twoParagraphs();
+  it("keeps the part of the client that lost a conflict: the next write does not change that part again", async ({
+    setupEditor,
+  }) => {
+    const editor = await twoParagraphs(setupEditor);
     const client = read(editor);
     editor.updateBlock("a", { content: "Alpha, from the other writer" });
 
@@ -1484,8 +1709,10 @@ describe("the document that the client wrote, in the result of a write", () => {
     expect(second.warnings).toEqual([]);
   });
 
-  it("is the document after the write, if no other writer changed the document", () => {
-    const editor = twoParagraphs();
+  it("is the document after the write, if no other writer changed the document", async ({
+    setupEditor,
+  }) => {
+    const editor = await twoParagraphs(setupEditor);
     const { written } = valid(
       updateDocumentWithMerge(editor, {
         format,
@@ -1502,12 +1729,17 @@ describe("the changes of other writers in the result of a write", () => {
   // A client (for example an AI agent) that reads the document after its
   // write sees the changes of other writers. The result names them, thus the
   // client does not take them for a wrong write.
-  it("names the blocks that other writers changed after base", () => {
-    const editor = createEditor([
-      { id: "a", type: "paragraph", content: "Alpha" },
-      { id: "b", type: "paragraph", content: "Beta" },
-      { id: "c", type: "paragraph", content: "Gamma" },
-    ]);
+  it("names the blocks that other writers changed after base", async ({
+    setupEditor,
+  }) => {
+    const { editor } = await setupEditor({
+      mountType: false,
+      initialContent: [
+        { id: "a", type: "paragraph", content: "Alpha" },
+        { id: "b", type: "paragraph", content: "Beta" },
+        { id: "c", type: "paragraph", content: "Gamma" },
+      ],
+    });
     const client = read(editor);
     editor.updateBlock("b", { content: "Beta, changed" });
     editor.insertBlocks(
@@ -1534,10 +1766,13 @@ describe("the changes of other writers in the result of a write", () => {
     );
   });
 
-  it("names no blocks if no other writer changed the document", () => {
-    const editor = createEditor([
-      { id: "a", type: "paragraph", content: "Alpha" },
-    ]);
+  it("names no blocks if no other writer changed the document", async ({
+    setupEditor,
+  }) => {
+    const { editor } = await setupEditor({
+      mountType: false,
+      initialContent: [{ id: "a", type: "paragraph", content: "Alpha" }],
+    });
     const { changesOfOthers } = write(editor, read(editor), (text) =>
       replaceOnce(text, "Alpha", "Alpha, changed"),
     );
