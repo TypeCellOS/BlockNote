@@ -1,8 +1,10 @@
+import { createFigureWithCaption } from "./createFigureWithCaption.js";
+
 /**
  * Puts the link to the file of a block into a block-level element. With a
- * caption, this is a `div` with the link and the caption in a paragraph.
- * Without a caption, this is a paragraph. A link alone is inline content: the
- * HTML parse joins two adjacent links into one paragraph.
+ * caption, this is a figure, as for an image with a caption. Without a
+ * caption, this is a paragraph. A link alone is inline content: the HTML
+ * parse joins two adjacent links into one paragraph.
  */
 export const createLinkWithCaption = (
   element: HTMLElement,
@@ -17,14 +19,5 @@ export const createLinkWithCaption = (
     };
   }
 
-  const wrapper = document.createElement("div");
-  const fileCaption = document.createElement("p");
-  fileCaption.textContent = caption;
-
-  wrapper.appendChild(element);
-  wrapper.appendChild(fileCaption);
-
-  return {
-    dom: wrapper,
-  };
+  return createFigureWithCaption(element, caption);
 };

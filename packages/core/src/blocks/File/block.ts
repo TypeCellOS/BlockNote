@@ -2,6 +2,7 @@ import { createBlockConfig, createBlockSpec } from "../../schema/index.js";
 import { defaultProps, parseDefaultProps } from "../defaultProps.js";
 import { parseEmbedElement } from "./helpers/parse/parseEmbedElement.js";
 import { parseFigureElement } from "./helpers/parse/parseFigureElement.js";
+import { parseLinkFigure } from "./helpers/parse/parseLinkFigure.js";
 import { createFileBlockWrapper } from "./helpers/render/createFileBlockWrapper.js";
 import { createLinkWithCaption } from "./helpers/toExternalHTML/createLinkWithCaption.js";
 
@@ -46,6 +47,13 @@ export const fileParse = () => (element: HTMLElement) => {
   }
 
   if (element.tagName === "FIGURE") {
+    const linkFigure = parseLinkFigure(element);
+    if (linkFigure) {
+      const { backgroundColor } = parseDefaultProps(element);
+
+      return { ...linkFigure, backgroundColor };
+    }
+
     const parsedFigure = parseFigureElement(element, "embed");
     if (!parsedFigure) {
       return undefined;
