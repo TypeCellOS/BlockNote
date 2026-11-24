@@ -1,5 +1,6 @@
-import { BlockNoteEditor, type PartialBlock } from "@blocknote/core";
+import { type PartialBlock } from "@blocknote/core";
 import { describe, expect } from "vite-plus/test";
+import type { SetupEditor } from "../../../../../../tests/src/commands/browser/setupEditor.js";
 
 import { alignBlocks } from "../alignment/alignBlocks.js";
 import { BlockIndex } from "../util/blocks/blockIndex.js";
@@ -11,12 +12,13 @@ import { textBlocksOf } from "../testUtil/stages.js";
 import { stayingBlockIds } from "./invisibleBlocks.js";
 
 /** The source blocks that stay after a write of `text` (see `stayingBlockIds`). */
-function keptAfter(
+async function keptAfter(
+  setupEditor: SetupEditor,
   initialContent: PartialBlock[],
   format: TextFormat,
   text: string,
-): string[] {
-  const editor = BlockNoteEditor.create({ initialContent });
+): Promise<string[]> {
+  const { editor } = await setupEditor({ mountType: false, initialContent });
   const document = editor.document as LensBlock[];
   const projection = projectDocument(
     editor,
@@ -36,10 +38,13 @@ function keptAfter(
 }
 
 describe("stayingBlockIds", () => {
-  it("keeps the source blocks of the pairs, and no other visible block", () => {
+  it("keeps the source blocks of the pairs, and no other visible block", async ({
+    setupEditor,
+  }) => {
     // Block c is not in the text: it goes.
     expect(
-      keptAfter(
+      await keptAfter(
+        setupEditor,
         [
           { id: "a", type: "paragraph", content: "Alpha" },
           { id: "b", type: "paragraph", content: "Beta" },
@@ -51,9 +56,10 @@ describe("stayingBlockIds", () => {
     ).toEqual(["a", "b"]);
   });
 
-  it("keeps an invisible block", () => {
+  it("keeps an invisible block", async ({ setupEditor }) => {
     expect(
-      keptAfter(
+      await keptAfter(
+        setupEditor,
         [
           { id: "a", type: "paragraph", content: "Alpha" },
           // Markdown does not show an image without a URL.

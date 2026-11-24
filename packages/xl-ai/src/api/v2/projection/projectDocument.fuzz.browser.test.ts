@@ -53,12 +53,13 @@ describe.each([
 ] satisfies { name: string; format: TextFormat }[])(
   "the projection of random documents with all kinds of blocks ($name)",
   ({ name, format }) => {
-    it.each(SEEDS)(
+    it.for(SEEDS)(
       "links each view block to the source block that gives it, for seed %i",
-      (seed) => {
+      async (seed, { setupEditor }) => {
         // The same seed as in `api.fuzz.test.ts` gives the same document.
         const random = createRandom(seed * 7919 + name.length);
-        const editor = BlockNoteEditor.create({
+        const { editor } = await setupEditor({
+          mountType: false,
           schema: richSchema,
           initialContent: randomRichDocument(random),
         });

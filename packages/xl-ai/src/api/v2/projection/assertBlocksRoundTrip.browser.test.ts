@@ -1,5 +1,5 @@
-import { BlockNoteEditor } from "@blocknote/core";
 import { describe, expect } from "vite-plus/test";
+import type { SetupEditor } from "../../../../../../tests/src/commands/browser/setupEditor.js";
 
 import { updateDocument } from "../api.js";
 import { markdownFormat } from "../formats/markdown.js";
@@ -25,8 +25,9 @@ const brokenFormat: TextFormat = {
 };
 
 describe("assertBlocksRoundTrip", () => {
-  function setup() {
-    const editor = BlockNoteEditor.create({
+  async function setup(setupEditor: SetupEditor) {
+    const { editor } = await setupEditor({
+      mountType: false,
       initialContent: [{ id: "p", type: "paragraph", content: "Hello" }],
     });
     const { view } = projectDocument(
@@ -38,8 +39,10 @@ describe("assertBlocksRoundTrip", () => {
     return { editor, view };
   }
 
-  it("accepts the parse of a format that shows each block", () => {
-    const { editor, view } = setup();
+  it("accepts the parse of a format that shows each block", async ({
+    setupEditor,
+  }) => {
+    const { editor, view } = await setup(setupEditor);
     // An HTML tag without a source gives no block (a core rule).
     const text = "Hello\n\n<img>\n\n![](https://example.com/a.png)";
     const parsed = parseText(editor, markdownFormat, text);
@@ -51,8 +54,10 @@ describe("assertBlocksRoundTrip", () => {
     ).not.toThrow();
   });
 
-  it("throws for a block that the format does not show", () => {
-    const { editor, view } = setup();
+  it("throws for a block that the format does not show", async ({
+    setupEditor,
+  }) => {
+    const { editor, view } = await setup(setupEditor);
     const text = "Hello, changed";
 
     expect(() =>
@@ -66,8 +71,10 @@ describe("assertBlocksRoundTrip", () => {
     ).toThrow(/does not show/);
   });
 
-  it("stops a write with such a format, and the document does not change", () => {
-    const { editor } = setup();
+  it("stops a write with such a format, and the document does not change", async ({
+    setupEditor,
+  }) => {
+    const { editor } = await setup(setupEditor);
     const before = editor.document;
 
     expect(() =>

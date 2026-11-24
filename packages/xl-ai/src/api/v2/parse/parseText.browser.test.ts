@@ -1,4 +1,3 @@
-import { BlockNoteEditor } from "@blocknote/core";
 import { describe, expect } from "vite-plus/test";
 
 import { blockToText } from "../util/blocks/text.js";
@@ -6,12 +5,25 @@ import { htmlFormat } from "../formats/html.js";
 import { markdownFormat } from "../formats/markdown.js";
 import { parseText, withoutByteOrderMark } from "./parseText.js";
 
-describe("parseText", () => {
-  const editor = BlockNoteEditor.create({
-    initialContent: [{ id: "p", type: "paragraph", content: "Hello" }],
-  });
+// One editor for the read-only cases of this file.
+const it = globalThis.it.extend(
+  "editor",
+  { scope: "file" },
+  // eslint-disable-next-line no-empty-pattern -- Vitest requires destructured fixture dependencies.
+  async ({}, { onCleanup }) => {
+    const { createSetupEditor } =
+      await import("../../../../../../tests/src/commands/node/setupEditor.js");
+    const { editor } = await createSetupEditor(onCleanup)({
+      initialContent: [{ id: "p", type: "paragraph", content: "Hello" }],
+    });
+    return editor;
+  },
+);
 
-  it("gives the blocks in the form that the document stores them", () => {
+describe("parseText", () => {
+  it("gives the blocks in the form that the document stores them", ({
+    editor,
+  }) => {
     const result = parseText(editor, markdownFormat, "Hello\n\nWorld");
 
     expect(result.error).toBeUndefined();
@@ -24,7 +36,7 @@ describe("parseText", () => {
     expect(blocks[0].props).toEqual(editor.document[0].props);
   });
 
-  it("gives an error for blocks that do not fit the schema", () => {
+  it("gives an error for blocks that do not fit the schema", ({ editor }) => {
     // A text alignment that the schema does not have.
     const text = '<p data-text-alignment="diagonal">Text</p>';
 

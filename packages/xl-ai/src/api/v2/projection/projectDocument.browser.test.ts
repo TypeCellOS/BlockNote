@@ -1,5 +1,4 @@
 import {
-  BlockNoteEditor,
   BlockNoteSchema,
   createBlockSpec,
   defaultBlockSpecs,
@@ -15,30 +14,41 @@ import type { TextFormat } from "../formats/types.js";
 import { projectDocument, roundTripIsolated } from "./projectDocument.js";
 import { columnSchema } from "../testUtil/fixtures.js";
 
-describe("projectDocument", () => {
-  const editor = BlockNoteEditor.create({
-    initialContent: [
-      { id: "heading", type: "heading", content: "Title" },
-      {
-        id: "bullet",
-        type: "bulletListItem",
-        content: "Bullet",
-        children: [
-          { id: "nested", type: "paragraph", content: "Nested paragraph" },
-        ],
-      },
-      { id: "empty", type: "paragraph" },
-      // Markdown does not show an image without a URL.
-      { id: "no-url", type: "image" },
-      {
-        id: "code",
-        type: "codeBlock",
-        content: "const a = 1;\n\nconst b = 2;",
-      },
-    ],
-  });
+// One editor for the read-only cases of this file.
+const it = globalThis.it.extend(
+  "editor",
+  { scope: "file" },
+  // eslint-disable-next-line no-empty-pattern -- Vitest requires destructured fixture dependencies.
+  async ({}, { onCleanup }) => {
+    const { createSetupEditor } =
+      await import("../../../../../../tests/src/commands/node/setupEditor.js");
+    const { editor } = await createSetupEditor(onCleanup)({
+      initialContent: [
+        { id: "heading", type: "heading", content: "Title" },
+        {
+          id: "bullet",
+          type: "bulletListItem",
+          content: "Bullet",
+          children: [
+            { id: "nested", type: "paragraph", content: "Nested paragraph" },
+          ],
+        },
+        { id: "empty", type: "paragraph" },
+        // Markdown does not show an image without a URL.
+        { id: "no-url", type: "image" },
+        {
+          id: "code",
+          type: "codeBlock",
+          content: "const a = 1;\n\nconst b = 2;",
+        },
+      ],
+    });
+    return editor;
+  },
+);
 
-  it("links each view block to its source block", () => {
+describe("projectDocument", () => {
+  it("links each view block to its source block", ({ editor }) => {
     const projection = projectDocument(
       editor,
       markdownFormat,
@@ -60,7 +70,7 @@ describe("projectDocument", () => {
     ]);
   });
 
-  it("finds blocks that the format does not show", () => {
+  it("finds blocks that the format does not show", ({ editor }) => {
     const projection = projectDocument(
       editor,
       markdownFormat,
@@ -70,7 +80,9 @@ describe("projectDocument", () => {
     expect([...projection.invisibleIds]).toEqual(["no-url"]);
   });
 
-  it("shows a code block with a blank line as one paragraph, in plain text", () => {
+  it("shows a code block with a blank line as one paragraph, in plain text", ({
+    editor,
+  }) => {
     // A blank line would start a new paragraph. Thus, plain text shows it as
     // one newline.
     const projection = projectDocument(
@@ -87,7 +99,9 @@ describe("projectDocument", () => {
     ]);
   });
 
-  it("throws for a block type whose export reads back as more than one block", () => {
+  it("throws for a block type whose export reads back as more than one block", async ({
+    setupEditor,
+  }) => {
     const twoParagraphs = createBlockSpec(
       { type: "twoParagraphs" as const, propSchema: {}, content: "none" },
       {
@@ -99,7 +113,8 @@ describe("projectDocument", () => {
         },
       },
     )();
-    const custom = BlockNoteEditor.create({
+    const { editor: custom } = await setupEditor({
+      mountType: false,
       schema: BlockNoteSchema.create().extend({
         blockSpecs: { ...defaultBlockSpecs, twoParagraphs },
       }),
@@ -120,15 +135,16 @@ describe("projectDocument", () => {
     );
   });
 
-  it.each([
+  it.for([
     ["markdown", markdownFormat],
     ["HTML", htmlFormat],
-  ])(
+  ] as const)(
     "gives no view block for a document that the format shows as no block, in %s",
-    (_, format) => {
+    async ([, format], { setupEditor }) => {
       // The text has no blocks. Its parse gives one empty paragraph (the fill
       // of the schema), which no block of the document gives.
-      const imageOnly = BlockNoteEditor.create({
+      const { editor: imageOnly } = await setupEditor({
+        mountType: false,
         initialContent: [{ id: "img", type: "image" }],
       });
       const projection = projectDocument(
@@ -142,10 +158,13 @@ describe("projectDocument", () => {
     },
   );
 
-  it("does not link a paragraph to a hidden table with the same text, in plain text", () => {
+  it("does not link a paragraph to a hidden table with the same text, in plain text", async ({
+    setupEditor,
+  }) => {
     // Plain text does not show a table. The paragraph has the text of the
     // cells of the table, but its view block links to the paragraph.
-    const tableAndParagraph = BlockNoteEditor.create({
+    const { editor: tableAndParagraph } = await setupEditor({
+      mountType: false,
       initialContent: [
         {
           id: "table",
@@ -176,7 +195,9 @@ describe("projectDocument", () => {
     expect([...projection.invisibleIds]).toEqual(["table"]);
   });
 
-  it("throws for a view block that no block of the document gives", () => {
+  it("throws for a view block that no block of the document gives", ({
+    editor,
+  }) => {
     // A format with a bug: its parse adds an image without a URL.
     const broken: TextFormat = {
       serialize: (serializeEditor, blocks) =>
@@ -198,7 +219,9 @@ describe("projectDocument", () => {
     );
   });
 
-  it("throws for a format that does not show the blocks in document order", () => {
+  it("throws for a format that does not show the blocks in document order", async ({
+    setupEditor,
+  }) => {
     // A broken format: its serialize writes the top-level blocks in reverse
     // order. Each block gives one view block, thus the count is correct. No
     // block of the four is at its place. Without the check, view block
@@ -209,7 +232,8 @@ describe("projectDocument", () => {
         markdownFormat.serialize(serializeEditor, [...blocks].reverse()),
       parse: (parseEditor, text) => markdownFormat.parse(parseEditor, text),
     };
-    const fourBlocks = BlockNoteEditor.create({
+    const { editor: fourBlocks } = await setupEditor({
+      mountType: false,
       initialContent: [
         { id: "a", type: "paragraph", content: "Alpha" },
         { id: "b", type: "paragraph", content: "Beta" },
@@ -227,7 +251,9 @@ describe("projectDocument", () => {
     ).toThrow("The format does not show the blocks in document order");
   });
 
-  it("makes the round trip only for the blocks that the view does not show as they are (a guard of the speed)", () => {
+  it("makes the round trip only for the blocks that the view does not show as they are (a guard of the speed)", ({
+    editor,
+  }) => {
     // The IDs of the blocks of each call of `serialize` (a separator has no ID).
     const calls: string[][] = [];
     const spy: TextFormat = {
@@ -252,12 +278,15 @@ describe("projectDocument", () => {
     ]);
   });
 
-  it("links a block whose white space the view does not show, in a column", () => {
+  it("links a block whose white space the view does not show, in a column", async ({
+    setupEditor,
+  }) => {
     // In the text, a blank line comes after the first paragraph. Thus, plain
     // text removes the white space at its end, and the view does not show
     // the block as it is. The block gets the isolated round trip, and it
     // links to its view block by its place in the document order.
-    const columns = BlockNoteEditor.create({
+    const { editor: columns } = await setupEditor({
+      mountType: false,
       schema: columnSchema,
       initialContent: [
         {
@@ -294,13 +323,16 @@ describe("projectDocument", () => {
 });
 
 describe("roundTripIsolated", () => {
-  it("keeps a block apart whose text is the separator character, if the text contains that character", () => {
+  it("keeps a block apart whose text is the separator character, if the text contains that character", async ({
+    setupEditor,
+  }) => {
     // The separator is a paragraph with the shortest run of one private use
     // character that the text does not contain (see `unusedMarker`). This
     // text contains the character, thus the separator has two of them, and
     // the block "\uE000" is not a separator.
     const text = "Alpha \uE000";
-    const editor = BlockNoteEditor.create({
+    const { editor } = await setupEditor({
+      mountType: false,
       initialContent: [
         { id: "marker", type: "paragraph", content: "\uE000" },
         { id: "beta", type: "paragraph", content: "Beta" },
