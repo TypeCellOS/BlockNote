@@ -10,12 +10,12 @@ export function parseMediaUrl(
     | HTMLAudioElement
     | HTMLEmbedElement,
 ): string | undefined {
-  // BlockNote's own HTML has the URL in `data-url`, on the element or on its
-  // figure. The generic parse of the props reads that attribute after the
-  // parse of the block, so it has priority here too.
-  const dataUrl = (element.closest("figure[data-url]") ?? element).getAttribute(
-    "data-url",
-  );
+  // BlockNote's own HTML has the URL in `data-url`, on the figure of the
+  // element or on the element. The generic parse of the props reads that
+  // attribute after the parse of the block, so it has priority here too.
+  const dataUrl =
+    element.closest("figure")?.getAttribute("data-url") ??
+    element.getAttribute("data-url");
   if (dataUrl !== null) {
     return dataUrl.trim() ? dataUrl : undefined;
   }
