@@ -569,6 +569,37 @@ export const htmlParseCases: ParseTestCase[] = [
   <img src="exampleURL">
 </p>`,
   },
+  // An image in the text of a paragraph, as a blog writes it. An image is a
+  // block, so the paragraph splits around the image.
+  {
+    name: "inlineImageInParagraph",
+    content: `<p>We arrived at the harbor before dusk. <img class="alignnone size-medium wp-image-1234" src="https://example.com/wp-content/uploads/harbor-300x200.jpg" alt="The harbor at dusk" width="300" height="200"> The boats were in.</p>`,
+  },
+  // The parts of the paragraph keep its alignment and its colors.
+  {
+    name: "inlineImageInStyledParagraph",
+    content: `<p style="text-align: center; color: red; background-color: yellow;">Before <img src="https://example.com/harbor.jpg" alt="The harbor"> and <strong>after</strong></p>`,
+  },
+  // An image in the paragraph of a list item, as GitHub writes it (the image
+  // is in a link). The image and the text after it become children of the
+  // list item.
+  {
+    name: "inlineImageInListItemParagraph",
+    content: `<ul dir="auto">
+<li>
+<p dir="auto">Open the menu <a target="_blank" rel="noopener noreferrer" href="https://github.com/octo/repo/blob/main/docs/menu.png"><img src="https://github.com/octo/repo/raw/main/docs/menu.png" alt="The menu" style="max-width: 100%;"></a> and select a block</p>
+</li>
+<li>
+<p dir="auto">Close the menu</p>
+</li>
+</ul>`,
+  },
+  // An image in a quote, as a markdown renderer writes it. The quote splits
+  // around the image.
+  {
+    name: "inlineImageInQuote",
+    content: `<blockquote><p>As the picture shows <img src="https://example.com/diagram.png" alt="A diagram"> the result is good.</p></blockquote>`,
+  },
   {
     name: "fakeImageCaption",
     content: `<div>
@@ -1724,10 +1755,22 @@ Final paragraph with [a link](https://example.com).`,
 
 ![Second](https://example.com/second.png)`,
   },
-  // Inline image within text (should be handled)
+  // An image in the text of a paragraph. An image is a block, so the paragraph
+  // splits around the image.
   {
     name: "inlineImage",
     content: `Text before ![inline](https://example.com/img.png) text after`,
+  },
+  // An image in the text of a list item: the image and the text after it
+  // become children of the list item.
+  {
+    name: "inlineImageInListItem",
+    content: `- Item ![inline](https://example.com/img.png) text after`,
+  },
+  // An image in a quote: the quote splits around the image.
+  {
+    name: "inlineImageInQuote",
+    content: `> Quote ![inline](https://example.com/img.png) text after`,
   },
   // Code block immediately after heading
   {

@@ -11,6 +11,7 @@ import { EMPTY_BLOCK_PLACEHOLDER } from "../../exporters/html/util/serializeBloc
 import { nodeToBlock } from "../../nodeConversions/nodeToBlock.js";
 import { nestedListsToBlockNoteStructure } from "./util/nestedLists.js";
 import { preprocessHTMLWhitespace } from "./util/normalizeWhitespace.js";
+import { moveImagesOutOfText } from "./util/imagesInText.js";
 
 /**
  * Removes the placeholder character that the external HTML exporter inserts
@@ -76,6 +77,7 @@ export function HTMLToBlocks<
 >(html: string, pmSchema: Schema): Block<BSchema, I, S>[] {
   const htmlNode = nestedListsToBlockNoteStructure(html);
   preprocessHTMLWhitespace(htmlNode);
+  moveImagesOutOfText(htmlNode);
   const parser = DOMParser.fromSchema(pmSchema);
 
   // Other approach might be to use
