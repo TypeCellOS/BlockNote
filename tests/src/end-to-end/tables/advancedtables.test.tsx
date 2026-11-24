@@ -2,7 +2,7 @@ import AdvancedTablesApp from "@examples/03-ui-components/15-advanced-tables/src
 import { beforeEach, describe, test } from "vite-plus/test";
 import { render } from "vitest-browser-react";
 import { EDITOR_SELECTOR, TABLE_SELECTOR } from "../../utils/const.js";
-import { expectElement, sleep, waitForSelector } from "../../utils/editor.js";
+import { expectElement, waitForSelector } from "../../utils/editor.js";
 
 // The advanced-tables example seeds a table with coloured cells (red/yellow/
 // gray backgrounds, blue/purple text), which is exactly what this screenshot
@@ -16,10 +16,8 @@ beforeEach(async () => {
 
 describe("Check advanced table rendering", () => {
   test("Should render table cell colors", async () => {
-    await waitForSelector(TABLE_SELECTOR);
-    // Let the editor view finish painting the seeded cell colours before the
-    // screenshot (the view mounts asynchronously after render()).
-    await sleep(500);
+    await waitForSelector(`${TABLE_SELECTOR} th[data-background-color="red"]`);
+    await document.fonts.ready;
 
     await expectElement(document.body).toMatchScreenshot("tableCellColors");
   });

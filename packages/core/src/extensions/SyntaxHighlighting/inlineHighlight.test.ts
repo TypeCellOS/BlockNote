@@ -4,10 +4,6 @@ import { Decoration } from "prosemirror-view";
 import { createHighlightPlugin } from "prosemirror-highlight";
 import { describe, expect, it } from "vite-plus/test";
 
-/**
- * @vitest-environment jsdom
- */
-
 // Regression coverage for inline syntax highlighting. `prosemirror-highlight`
 // used to collect only text-block nodes, so inline nodes (e.g. inline math)
 // were never highlighted. Since v0.15.3 it collects nodes by

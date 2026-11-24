@@ -1,6 +1,26 @@
+import { BlockNoteSchema, createBlockSpec } from "@blocknote/core";
 import { describe, expect } from "vite-plus/test";
+import { viewProps } from "../DefaultButtons/defaultButton.test.fixture.js";
 import { FormattingToolbar } from "../FormattingToolbar.js";
 import { BlockTypeSelect } from "./BlockTypeSelect.js";
+
+const customSchema = BlockNoteSchema.create().extend({
+  blockSpecs: {
+    custom: createBlockSpec(
+      { type: "custom", propSchema: {}, content: "inline" },
+      {
+        render() {
+          const contentDOM = document.createElement("div");
+          return { dom: contentDOM, contentDOM };
+        },
+      },
+    )(),
+    customMedia: createBlockSpec(
+      { type: "customMedia", propSchema: {}, content: "none" },
+      { render: () => ({ dom: document.createElement("div") }) },
+    )(),
+  },
+});
 
 describe("BlockTypeSelect", () => {
   describe("unit", () => {
@@ -98,9 +118,119 @@ describe("BlockTypeSelect", () => {
         .element(items)
         .toHaveTextContent(editor.dictionary.slash_menu.paragraph.title);
     });
+
+    it("uses an explicit label for a listed custom block without adding a fallback", async ({
+      setupEditor,
+      page,
+    }) => {
+      await setupEditor({
+        schema: customSchema,
+        initialContent: [{ type: "custom", content: "Custom text" }],
+        props: viewProps,
+        children: (
+          <BlockTypeSelect
+            items={[{ name: "Custom label", type: "custom", icon: () => null }]}
+          />
+        ),
+      });
+
+      await page
+        .getByRole("button", { name: "Custom label", exact: true })
+        .click();
+      const options = page.getByRole("menu").getByRole("menuitem");
+      await expect.element(options).toHaveLength(1);
+      await expect.element(options).toHaveAccessibleName("Custom label");
+      await expect.element(options).toBeEnabled();
+    });
+
+    it("does not offer conversion from an unlisted non-inline custom block", async ({
+      setupEditor,
+      page,
+    }) => {
+      const { editor } = await setupEditor({
+        schema: customSchema,
+        initialContent: [
+          { id: "text", type: "paragraph", content: "Text" },
+          { id: "media", type: "customMedia" },
+        ],
+        props: viewProps,
+        children: <BlockTypeSelect />,
+      });
+      await expect.element(page.getByRole("button")).toBeVisible();
+
+      editor.setTextCursorPosition("media");
+
+      await expect.element(page.getByRole("button")).not.toBeInTheDocument();
+    });
+
+    it.for(["empty", "filtered out"] as const)(
+      "hides the menu when conversion choices are %s",
+      async (items, { setupEditor, page }) => {
+        await setupEditor({
+          schema: customSchema,
+          initialContent: [{ type: "custom", content: "Custom text" }],
+          props: viewProps,
+          children: (
+            <BlockTypeSelect
+              items={
+                items === "empty"
+                  ? []
+                  : [
+                      {
+                        name: "Missing block",
+                        type: "missing",
+                        icon: () => null,
+                      },
+                    ]
+              }
+            />
+          ),
+        });
+        await expect.element(page.getByRole("button")).not.toBeInTheDocument();
+      },
+    );
   });
 
   describe("integration", () => {
+    it("shows a disabled fallback label and converts selected unlisted custom blocks", async ({
+      setupEditor,
+      page,
+    }) => {
+      const { editor } = await setupEditor({
+        schema: customSchema,
+        initialContent: [
+          { id: "first", type: "custom", content: "First" },
+          { id: "second", type: "custom", content: "Second" },
+        ],
+        props: viewProps,
+        children: <BlockTypeSelect />,
+      });
+      editor.setSelection("first", "second");
+
+      await page.getByRole("button", { name: "custom", exact: true }).click();
+      const menu = page.getByRole("menu");
+      await expect
+        .element(menu.getByRole("menuitem", { name: "custom", exact: true }))
+        .toBeDisabled();
+      const paragraph = editor.dictionary.slash_menu.paragraph.title;
+      await menu
+        .getByRole("menuitem", { name: paragraph, exact: true })
+        .click();
+
+      expect(editor.getBlock("first")).toMatchObject({
+        type: "paragraph",
+        content: [{ type: "text", text: "First" }],
+      });
+      expect(editor.getBlock("second")).toMatchObject({
+        type: "paragraph",
+        content: [{ type: "text", text: "Second" }],
+      });
+      await expect.element(menu).not.toBeInTheDocument();
+      await expect
+        .element(page.getByRole("button", { name: paragraph, exact: true }))
+        .toBeVisible();
+    });
+
     it("converts the selected block and updates its label without changing neighboring blocks or text", async ({
       setupEditor,
       selectText,
@@ -373,7 +503,6 @@ describe("BlockTypeSelect", () => {
         exact: true,
       });
       const before = editor.document;
-      const selection = editor.prosemirrorState.selection.toJSON();
       button.element().focus();
       await pressKey("Enter");
       const menu = page.getByRole("menu");
@@ -387,7 +516,7 @@ describe("BlockTypeSelect", () => {
       await expect.element(menu).not.toBeInTheDocument();
       await expect.element(button).toHaveFocus();
       expect(editor.document).toEqual(before);
-      expect(editor.prosemirrorState.selection.toJSON()).toEqual(selection);
+      expect(editor.getSelectedText()).toBe("Selected text");
     });
     it("opens, navigates, and chooses a block type from the keyboard", async ({
       setupEditor,

@@ -1,63 +1,41 @@
-import {
-  afterAll,
-  afterEach,
-  beforeAll,
-  describe,
-  expect,
-  it,
-} from "vite-plus/test";
-
-import { BlockNoteEditor } from "@blocknote/core";
+import { createOpenAI } from "@ai-sdk/openai";
+import { Chat } from "@ai-sdk/react";
+import type { UIMessage } from "ai";
 import { HttpResponse, http } from "msw";
 import { setupServer } from "msw/node";
-
-import { Chat } from "@ai-sdk/react";
-import { UIMessage } from "ai";
-import { sendMessageWithAIRequest } from "../../../index.js";
+import { afterAll, beforeAll, describe, expect, vi } from "vite-plus/test";
 import { ClientSideTransport } from "../../../streamTool/vercelAiSdk/clientside/ClientSideTransport.js";
-import { testAIModels } from "../../../testUtil/testAIModels.js";
 import { buildAIRequest } from "../../aiRequest/builder.js";
+import { sendMessageWithAIRequest } from "../../aiRequest/sendMessageWithAIRequest.js";
+import { jsonBlockLLMFormat } from "./json.js";
 
-// Separate test suite for error handling with its own server
 describe("Error handling", () => {
-  // Create a separate server for error tests with custom handlers
-  const errorServer = setupServer();
+  // This remains a real SDK request, but cannot reach a provider if interception fails.
+  const baseURL = "https://openai.fixture.invalid/v1";
+  const errorServer = setupServer(
+    http.post(`${baseURL}/responses`, () =>
+      HttpResponse.json(
+        {
+          error: {
+            message: "Rate limit exceeded, please try again later",
+            type: "rate_limit_exceeded",
+            code: "rate_limit_exceeded",
+          },
+        },
+        { status: 429 },
+      ),
+    ),
+  );
 
   beforeAll(() => {
-    errorServer.listen();
+    errorServer.listen({ onUnhandledRequest: "error" });
   });
-
   afterAll(() => {
     errorServer.close();
   });
 
-  afterEach(() => {
-    errorServer.resetHandlers();
-  });
-
-  it(`handles 429 Too Many Requests error`, async () => {
-    // Set up handler for this specific test
-    errorServer.use(
-      http.post("*", () => {
-        return new HttpResponse(
-          JSON.stringify({
-            error: {
-              message: "Rate limit exceeded, please try again later",
-              type: "rate_limit_exceeded",
-              code: "rate_limit_exceeded",
-            },
-          }),
-          {
-            status: 429,
-            headers: {
-              "Content-Type": "application/json",
-            },
-          },
-        );
-      }),
-    );
-
-    const editor = BlockNoteEditor.create({
+  it("handles 429 Too Many Requests error", async ({ setupEditor }) => {
+    const { editor } = await setupEditor({
       initialContent: [
         {
           type: "paragraph",
@@ -66,18 +44,26 @@ describe("Error handling", () => {
       ],
     });
 
+    const onError = vi.fn();
     const chat = new Chat<UIMessage>({
       sendAutomaticallyWhen: () => false,
       transport: new ClientSideTransport({
-        model: testAIModels.openai,
+        model: createOpenAI({
+          apiKey: "fixture-only",
+          baseURL,
+        }).responses("gpt-4o-2024-08-06"),
         stream: true,
         _additionalOptions: {
           maxRetries: 0,
+          onError,
         },
       }),
     });
     const aiRequest = await buildAIRequest({
       editor,
+      // The provider rejects the request before running any tools. Keep the
+      // default tools but build the prompt state without serializing HTML.
+      documentStateBuilder: jsonBlockLLMFormat.defaultDocumentStateBuilder,
     });
     const ret = await sendMessageWithAIRequest(chat, aiRequest, {
       role: "user",
@@ -90,6 +76,11 @@ describe("Error handling", () => {
     });
 
     expect(ret.ok).toBe(true);
+    expect(onError).toHaveBeenCalledExactlyOnceWith(
+      expect.objectContaining({
+        error: expect.objectContaining({ statusCode: 429 }),
+      }),
+    );
     expect(chat.status).toBe("error");
     expect(chat.error).toBeDefined();
     expect(chat.error?.message).toContain(

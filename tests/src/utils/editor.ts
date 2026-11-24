@@ -61,37 +61,6 @@ export async function waitForTextInEditor(text: string) {
   );
 }
 
-/**
- * Returns the editor's ProseMirror document as JSON. The test runs inside the
- * browser, so we read the global the editor exposes directly (no
- * `page.evaluate` round-trip needed).
- */
-export function getDoc() {
-  return (window as any).ProseMirror.getJSON();
-}
-
-export function removeAttFromDoc(doc: any, att: string) {
-  if (typeof doc !== "object" || doc === null) {
-    return;
-  }
-  if (Object.keys(doc).includes(att)) {
-    delete doc[att];
-  }
-  Object.keys(doc).forEach((key) => removeAttFromDoc(doc[key], att));
-  return doc;
-}
-
-/**
- * Asserts the editor document matches a stored JSON snapshot. The path is
- * resolved relative to the running test file, so snapshots live in a
- * `__snapshots__/` dir next to each test. Documents are browser-independent,
- * so a single snapshot is shared across the chromium/firefox/webkit instances.
- */
-export async function compareDocToSnapshot(name: string) {
-  const doc = JSON.stringify(getDoc(), null, 2);
-  await expect(doc).toMatchFileSnapshot(`./__snapshots__/${name}.json`);
-}
-
 // Vite Plus ships the browser matchers' `expect.element` augmentation against
 // the bare `vitest` module, but its own `expect` is typed from an internal
 // module, so the augmentation doesn't attach. Type the accessor locally.

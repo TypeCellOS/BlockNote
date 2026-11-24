@@ -4,18 +4,17 @@ import { render } from "vitest-browser-react";
 import { userEvent } from "../../utils/context.js";
 import {
   DRAG_HANDLE_SELECTOR,
+  DRAG_HANDLE_MENU_SELECTOR,
   EDITOR_SELECTOR,
-  LINK_BUTTON_SELECTOR,
   PARAGRAPH_SELECTOR,
 } from "../../utils/const.js";
 import {
   focusOnEditor,
   expectElement,
-  sleep,
   waitForSelector,
 } from "../../utils/editor.js";
-import { moveMouseOverElement, mouseSequence } from "../../utils/mouse.js";
-import { executeSlashCommand } from "../../utils/slashmenu.js";
+import { mouseSequence, moveMouseOverElement } from "../../utils/mouse.js";
+import { executeSlashCommand, openSlashMenu } from "../../utils/slashmenu.js";
 import { waitForEmojiPickerLayout } from "../../utils/emojipicker.js";
 
 // Vitest browser mode has no per-test `colorScheme` knob (the playwright
@@ -26,7 +25,7 @@ import { waitForEmojiPickerLayout } from "../../utils/emojipicker.js";
 // affected.
 let originalMatchMedia: typeof window.matchMedia;
 
-beforeEach(async () => {
+beforeEach(() => {
   originalMatchMedia = window.matchMedia;
   window.matchMedia = ((query: string) => ({
     matches: query.includes("prefers-color-scheme: dark"),
@@ -38,95 +37,127 @@ beforeEach(async () => {
     removeEventListener: () => {},
     dispatchEvent: () => false,
   })) as typeof window.matchMedia;
-  await render(<App />);
-  await waitForSelector(EDITOR_SELECTOR);
 });
 
 afterEach(() => {
   window.matchMedia = originalMatchMedia;
 });
 
+function waitForDarkEditor() {
+  return waitForSelector(
+    `.bn-container[data-color-scheme="dark"] ${EDITOR_SELECTOR}`,
+  );
+}
+
+async function renderApp() {
+  await render(<App />);
+  await waitForDarkEditor();
+  await document.fonts.ready;
+}
+
+// Match the testing example's data-URL upload, which enables the Upload tab.
+function uploadFile(file: File) {
+  return new Promise<string>((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onload = () => resolve(reader.result as string);
+    reader.onerror = () => reject(reader.error);
+    reader.readAsDataURL(file);
+  });
+}
+
 describe("Check Dark Theme is Automatically Applied", () => {
   test("Should show dark editor", async () => {
+    await renderApp();
     await focusOnEditor();
     await userEvent.keyboard("Paragraph");
 
     await expectElement(document.body).toMatchScreenshot("dark-editor");
   });
   test("Should show dark formatting toolbar", async () => {
+    await renderApp();
     await focusOnEditor();
-    await userEvent.keyboard("Paragraph");
-    await userEvent.keyboard("{Shift>}{Home}{/Shift}");
+    await userEvent.keyboard("Paragraph{Shift>}{Home}{/Shift}");
 
-    await sleep(500);
+    await expectElement(
+      await waitForSelector(".bn-formatting-toolbar"),
+    ).toBeVisible();
     await expectElement(document.body).toMatchScreenshot(
       "dark-formatting-toolbar",
     );
   });
-  test("Should show dark link toolbar", async () => {
-    await focusOnEditor();
-    await userEvent.keyboard("Paragraph");
-    await userEvent.keyboard("{Shift>}{Home}{/Shift}");
-
-    await userEvent.click(await waitForSelector(LINK_BUTTON_SELECTOR));
-
-    await sleep(500);
-    await userEvent.keyboard("link");
-    await userEvent.keyboard("{Enter}");
-    await sleep(500);
-    await userEvent.keyboard("{ArrowLeft}");
+  it("Should show dark link toolbar", async ({ setupEditor }) => {
+    const { editor } = await setupEditor({
+      initialContent: [
+        {
+          type: "paragraph",
+          content: [{ type: "link", href: "link", content: "Paragraph" }],
+        },
+      ],
+      uploadFile,
+    });
+    await waitForDarkEditor();
+    editor.focus();
+    await window.__blockNoteWaitForEditorFocus();
     await userEvent.keyboard("{ArrowRight}");
 
     // A missing link toolbar stays within the 2% screenshot tolerance, so
     // assert it exists before comparing (see the ariakit test).
-    await waitForSelector(".bn-link-toolbar");
-
-    await sleep(500);
+    await expectElement(
+      await waitForSelector(".bn-link-toolbar"),
+    ).toBeVisible();
     await expectElement(document.body).toMatchScreenshot("dark-link-toolbar");
   });
   test("Should show dark slash menu", async () => {
+    await renderApp();
     await focusOnEditor();
-    await userEvent.keyboard("/");
+    await openSlashMenu();
 
-    await sleep(500);
     await expectElement(document.body).toMatchScreenshot("dark-slash-menu");
   });
   test("Should show dark emoji picker", async () => {
+    await renderApp();
     await focusOnEditor();
-    await userEvent.keyboard(":");
-    await userEvent.keyboard("sm");
+    await userEvent.keyboard(":sm");
 
     await waitForEmojiPickerLayout();
     await expectElement(document.body).toMatchScreenshot("dark-emoji-picker");
   });
   test("Should show dark side menu", async () => {
+    await renderApp();
     await focusOnEditor();
-    await waitForSelector(PARAGRAPH_SELECTOR);
     await moveMouseOverElement(PARAGRAPH_SELECTOR);
 
-    await sleep(500);
+    await expectElement(
+      await waitForSelector(DRAG_HANDLE_SELECTOR),
+    ).toBeVisible();
     await expectElement(document.body).toMatchScreenshot("dark-side-menu");
   });
   test("Should show drag handle menu", async () => {
+    await renderApp();
     await focusOnEditor();
-    await waitForSelector(PARAGRAPH_SELECTOR);
     await moveMouseOverElement(PARAGRAPH_SELECTOR);
 
-    await sleep(500);
-    await waitForSelector(DRAG_HANDLE_SELECTOR);
-    await moveMouseOverElement(DRAG_HANDLE_SELECTOR);
-    await mouseSequence([{ type: "down" }, { type: "up" }]);
+    const handle = await waitForSelector(DRAG_HANDLE_SELECTOR);
+    await userEvent.click(handle.closest("button")!);
 
-    await sleep(500);
+    await expectElement(
+      await waitForSelector(DRAG_HANDLE_MENU_SELECTOR),
+    ).toBeVisible();
     await expectElement(document.body).toMatchScreenshot(
       "dark-drag-handle-menu",
     );
   });
   test("Should show dark image toolbar", async () => {
+    await renderApp();
     await focusOnEditor();
     await executeSlashCommand("image");
 
-    await sleep(500);
+    await expectElement(await waitForSelector(".bn-panel")).toBeVisible();
+    // This captures the automatic dark theme and opened image toolbar, not the
+    // placeholder's hover styling. Park outside both before taking the baseline.
+    await mouseSequence([
+      { type: "move", x: window.innerWidth - 1, y: window.innerHeight - 1 },
+    ]);
     await expectElement(document.body).toMatchScreenshot("dark-image-toolbar");
   });
 });

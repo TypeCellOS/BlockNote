@@ -1,13 +1,20 @@
-import { describe, expect, it } from "vite-plus/test";
+import { describe, expect } from "vite-plus/test";
 
-import { setupTestEnv } from "../../setupTestEnv.js";
+import { testDocument } from "../../setupTestEnv.js";
 import { updateBlock } from "../updateBlock/updateBlock.js";
 import { removeAndInsertBlocks } from "./replaceBlocks.js";
 import { BlockNoteEditor } from "../../../../editor/BlockNoteEditor.js";
 import { PartialBlock } from "../../../../blocks/defaultBlocks.js";
 import { BlockIdentifier } from "../../../../schema/index.js";
 
-const getEditor = setupTestEnv();
+let editor: BlockNoteEditor;
+it.beforeEach(async ({ setupEditor }) => {
+  ({ editor } = await setupEditor({ initialContent: testDocument }));
+});
+
+function getEditor() {
+  return editor;
+}
 
 function replaceBlocks(
   editor: BlockNoteEditor,
@@ -252,7 +259,7 @@ describe("Test replaceBlocks on a transaction that already has steps", () => {
       removeAndInsertBlocks(tr, ["paragraph-2"], []);
     });
 
-    expect(() => editor.prosemirrorState.doc.check()).not.toThrow();
+    expect(() => editor.transact((tr) => tr.doc.check())).not.toThrow();
     expect(editor.document).toEqual(
       before.filter(
         (block) => block.id !== "paragraph-0" && block.id !== "paragraph-2",
@@ -278,7 +285,7 @@ describe("Test replaceBlocks on a transaction that already has steps", () => {
       removeAndInsertBlocks(tr, ["paragraph-2"], inserted);
     });
 
-    expect(() => editor.prosemirrorState.doc.check()).not.toThrow();
+    expect(() => editor.transact((tr) => tr.doc.check())).not.toThrow();
 
     const updated = editor.getBlock("paragraph-0")!;
     expect(updated.type).toBe("heading");

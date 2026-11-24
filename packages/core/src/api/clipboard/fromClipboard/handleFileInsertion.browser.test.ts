@@ -1,39 +1,62 @@
-import { afterEach, describe, expect, it, vi } from "vite-plus/test";
+import { describe, expect, vi } from "vite-plus/test";
 
 import "../../../style.css";
-import { BlockNoteEditor } from "../../../editor/BlockNoteEditor.js";
 import { handleFileInsertion } from "./handleFileInsertion.js";
 
-let editor: BlockNoteEditor | undefined;
-let root: HTMLDivElement | undefined;
+it("drops a file after a paragraph when the upper half resolves to the text end (#2570)", async ({
+  setupEditor,
+}) => {
+  const { editor } = await setupEditor({
+    mountType: "dom",
+    initialContent: [
+      { id: "target", type: "paragraph", content: "Target line" },
+      { id: "below", type: "paragraph", content: "Below" },
+    ],
+    uploadFile: async () => "https://example.com/test.txt",
+  });
+  const target = editor.domElement!.querySelector('[data-id="target"]')!;
+  const bounds = target.getBoundingClientRect();
+  const dataTransfer = new DataTransfer();
+  dataTransfer.items.add(
+    new File(["test"], "test.txt", { type: "text/plain" }),
+  );
 
-afterEach(() => {
-  editor?._tiptapEditor.destroy();
-  root?.remove();
-  editor = undefined;
-  root = undefined;
+  await handleFileInsertion(
+    new DragEvent("drop", {
+      dataTransfer,
+      clientX: bounds.right - 4,
+      clientY: bounds.top + bounds.height / 4,
+      cancelable: true,
+    }),
+    editor,
+  );
+
+  expect(editor.document).toMatchObject([
+    { id: "target" },
+    { type: "file", props: { name: "test.txt" } },
+    { id: "below" },
+  ]);
 });
 
 // Reproduces #3246 in the real file insertion handler and vanilla node view.
 // Await the handler directly so its rejected promise can be asserted rather
 // than becoming an unhandled rejection in the test runner.
 describe.each(["drop", "paste"] as const)("file %s", (eventType) => {
-  it.each(["empty URL", "rejection", "success"] as const)(
+  it.for(["empty URL", "rejection", "success"] as const)(
     "settles the loading preview after %s",
-    async (outcome) => {
+    async (outcome, { setupEditor }) => {
       const uploadFile = vi.fn(async () => {
         if (outcome === "rejection") {
           throw new Error("rejected");
         }
         return outcome === "success" ? "https://example.com/test.txt" : "";
       });
-      editor = BlockNoteEditor.create({
+      const { editor } = await setupEditor({
+        mountType: "dom",
         initialContent: [{ id: "target", type: "paragraph" }],
         uploadFile,
       });
-      root = document.createElement("div");
-      document.body.append(root);
-      editor.mount(root);
+      const root = editor.domElement!;
       editor.setTextCursorPosition("target");
       const onUploadEnd = vi.fn();
       editor.onUploadEnd(onUploadEnd);

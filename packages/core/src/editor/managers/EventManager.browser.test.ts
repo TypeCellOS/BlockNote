@@ -1,16 +1,23 @@
-import { afterEach, beforeEach, describe, expect, it } from "vite-plus/test";
+import { describe, expect, type TestContext, vi } from "vite-plus/test";
 
-import { BlockNoteEditor } from "../BlockNoteEditor.js";
+import type { BlockNoteEditor } from "../BlockNoteEditor.js";
 
 function appendToRegisteredPortalElement(
-  editor: { registerPortalElement(element: HTMLElement): void },
+  onTestFinished: TestContext["onTestFinished"],
+  editor: Pick<
+    BlockNoteEditor,
+    "registerPortalElement" | "unregisterPortalElement"
+  >,
   ...elements: HTMLElement[]
 ) {
   const root = document.createElement("div");
   document.body.append(root);
+  onTestFinished(() => {
+    editor.unregisterPortalElement(root);
+    root.remove();
+  });
   editor.registerPortalElement(root);
   root.append(...elements);
-  return root;
 }
 
 // Focus tracking is almost entirely DOM semantics — event ordering, what
@@ -19,46 +26,54 @@ function appendToRegisteredPortalElement(
 // reproducible in jsdom, so these run in the browser suite across all three
 // engines.
 
-/** Resolves once the deferred focus settle has run (see attachUIFocusTracker). */
-function settle() {
-  return new Promise((resolve) => setTimeout(resolve, 20));
+function settleFocus(action: () => void) {
+  vi.useFakeTimers({ toFake: ["setTimeout", "clearTimeout"] });
+  try {
+    action();
+    // Run the tracker and the harness's selection-reconciliation barrier
+    // before restoring real time; leaving either pending stalls teardown.
+    vi.runOnlyPendingTimers();
+  } finally {
+    vi.useRealTimers();
+  }
 }
 
 describe("Focus events", () => {
-  let editor: BlockNoteEditor<any, any, any>;
-  let container: HTMLElement;
-  let outside: HTMLInputElement;
-
-  /**
-   * Mounts an editor inside its own container, mirroring how `BlockNoteView`
-   * renders it. The nesting matters: `isWithinEditor` — which `isFocused`
-   * and the focus events are built on — treats the mount element's *parent*
-   * as the editor's boundary, so that it also covers UI rendered as a
-   * sibling of the content area. Mounting straight into `<body>` would make
-   * that boundary the whole page.
-   */
-  function mountEditor() {
-    const editorContainer = document.createElement("div");
-    const mountPoint = document.createElement("div");
-    editorContainer.append(mountPoint);
-    document.body.append(editorContainer);
-    const instance = BlockNoteEditor.create();
-    instance.mount(mountPoint);
-    return { editor: instance, container: editorContainer };
-  }
-
-  beforeEach(() => {
-    outside = document.createElement("input");
-    outside.id = "outside";
-    document.body.append(outside);
-
-    ({ editor, container } = mountEditor());
-  });
-
-  afterEach(() => {
-    editor.unmount();
-    container.remove();
-    outside.remove();
+  const it = globalThis.it.extend<{
+    mountEditor: () => Promise<BlockNoteEditor>;
+    editor: BlockNoteEditor;
+    outside: HTMLInputElement;
+  }>({
+    mountEditor: async ({ setupEditor, onTestFinished }, use) => {
+      await use(async () => {
+        const { editor } = await setupEditor({ mountType: false });
+        // The mount element's parent is the editor's focus boundary. A separate
+        // container keeps an outside input or a second editor out of that boundary.
+        const editorContainer = document.createElement("div");
+        const mountPoint = document.createElement("div");
+        editorContainer.append(mountPoint);
+        document.body.append(editorContainer);
+        onTestFinished(() => {
+          try {
+            editor.unmount();
+          } finally {
+            editorContainer.remove();
+          }
+        });
+        editor.mount(mountPoint);
+        return editor;
+      });
+    },
+    editor: async ({ mountEditor }, use) => {
+      await use(await mountEditor());
+    },
+    outside: async ({ onTestFinished }, use) => {
+      const outside = document.createElement("input");
+      outside.id = "outside";
+      document.body.append(outside);
+      onTestFinished(() => outside.remove());
+      await use(outside);
+    },
   });
 
   /**
@@ -68,10 +83,14 @@ describe("Focus events", () => {
    * immediately on focusin, defer on focusout" split stops being valid — so
    * it's asserted rather than assumed.
    */
-  it("follows the documented focus event order", async () => {
+  it("follows the documented focus event order", ({ onTestFinished }) => {
     const a = document.createElement("input");
     const b = document.createElement("input");
     document.body.append(a, b);
+    onTestFinished(() => {
+      a.remove();
+      b.remove();
+    });
     const order: string[] = [];
     for (const [name, element] of [
       ["a", a],
@@ -87,9 +106,6 @@ describe("Focus events", () => {
     b.focus();
 
     expect(order).toEqual(["blur:a", "focusout:a", "focus:b", "focusin:b"]);
-
-    a.remove();
-    b.remove();
   });
 
   /**
@@ -99,9 +115,12 @@ describe("Focus events", () => {
    * substitute — MDN documents it as null in cases like tabbing out of the
    * page, and it is unreliable on mobile.)
    */
-  it("reports <body> as the active element during focusout", async () => {
+  it("reports <body> as the active element during focusout", ({
+    onTestFinished,
+  }) => {
     const a = document.createElement("input");
     document.body.append(a);
+    onTestFinished(() => a.remove());
     let activeDuringFocusOut: Element | null = null;
     a.addEventListener("focusout", () => {
       activeDuringFocusOut = document.activeElement;
@@ -111,10 +130,9 @@ describe("Focus events", () => {
     a.blur();
 
     expect(activeDuringFocusOut).toBe(document.body);
-    a.remove();
   });
 
-  it("isFocused() tracks the content area", async () => {
+  it("isFocused() tracks the content area", ({ editor, outside }) => {
     expect(editor.isFocused()).toBe(false);
 
     editor.focus();
@@ -124,11 +142,15 @@ describe("Focus events", () => {
     expect(editor.isFocused()).toBe(false);
   });
 
-  it("isFocused({ includeEditorUI }) counts the editor's own UI", async () => {
+  it("isFocused({ includeEditorUI }) counts the editor's own UI", ({
+    editor,
+    outside,
+    onTestFinished,
+  }) => {
     // The portal element is where menus, toolbars and popovers render — it
     // lives outside the content area, so plain content focus can't see it.
     const popoverInput = document.createElement("input");
-    appendToRegisteredPortalElement(editor, popoverInput);
+    appendToRegisteredPortalElement(onTestFinished, editor, popoverInput);
 
     popoverInput.focus();
 
@@ -137,150 +159,157 @@ describe("Focus events", () => {
 
     outside.focus();
     expect(editor.isFocused({ includeEditorUI: true })).toBe(false);
-
-    popoverInput.remove();
   });
 
-  it("onFocusChange reports content focus and blur", async () => {
+  it("onFocusChange reports content focus and blur", ({
+    editor,
+    outside,
+    onTestFinished,
+  }) => {
     const events: boolean[] = [];
-    const unsubscribe = editor.onFocusChange((_editor, ctx) =>
-      events.push(ctx.focused),
+    onTestFinished(
+      editor.onFocusChange((_editor, ctx) => events.push(ctx.focused)),
     );
 
     editor.focus();
-    await settle();
     outside.focus();
-    await settle();
 
     expect(events).toEqual([true, false]);
-    unsubscribe();
   });
 
-  it("onFocusChange({ includeEditorUI }) stays focused across a handoff into the editor's UI", async () => {
+  it("onFocusChange({ includeEditorUI }) stays focused across a handoff into the editor's UI", ({
+    editor,
+    outside,
+    onTestFinished,
+  }) => {
     const popoverInput = document.createElement("input");
-    appendToRegisteredPortalElement(editor, popoverInput);
+    appendToRegisteredPortalElement(onTestFinished, editor, popoverInput);
 
     const events: boolean[] = [];
-    const unsubscribe = editor.onFocusChange(
-      (_editor, ctx) => events.push(ctx.focused),
-      { includeEditorUI: true },
+    onTestFinished(
+      editor.onFocusChange((_editor, ctx) => events.push(ctx.focused), {
+        includeEditorUI: true,
+      }),
     );
 
     editor.focus();
-    await settle();
+    expect(events).toEqual([true]);
     // Content -> a popover input. This is the handoff that matters: the raw
     // channel would report a blur here, which is what used to tear the mobile
     // toolbar (and the popover with it) down mid-interaction.
-    popoverInput.focus();
-    await settle();
+    settleFocus(() => popoverInput.focus());
 
     expect(events.at(-1)).toBe(true);
     expect(events).not.toContain(false);
 
     // Leaving the editor entirely does report a blur.
-    outside.focus();
-    await settle();
+    settleFocus(() => outside.focus());
     expect(events.at(-1)).toBe(false);
-
-    unsubscribe();
-    popoverInput.remove();
   });
 
-  it("does not report a spurious blur while focus moves between UI elements", async () => {
+  it("does not report a spurious blur while focus moves between UI elements", ({
+    editor,
+    outside,
+    onTestFinished,
+  }) => {
     const first = document.createElement("input");
     const second = document.createElement("input");
-    appendToRegisteredPortalElement(editor, first, second);
+    appendToRegisteredPortalElement(onTestFinished, editor, first, second);
 
     editor.focus();
-    await settle();
 
     const events: boolean[] = [];
-    const unsubscribe = editor.onFocusChange(
-      (_editor, ctx) => events.push(ctx.focused),
-      { includeEditorUI: true },
+    onTestFinished(
+      editor.onFocusChange((_editor, ctx) => events.push(ctx.focused), {
+        includeEditorUI: true,
+      }),
     );
 
-    first.focus();
-    second.focus();
-    editor.focus();
-    await settle();
+    settleFocus(() => first.focus());
+    settleFocus(() => second.focus());
+    settleFocus(() => editor.focus());
 
-    expect(events).not.toContain(false);
-
-    unsubscribe();
-    first.remove();
-    second.remove();
+    expect(events).toEqual([]);
+    settleFocus(() => outside.focus());
+    expect(events).toEqual([false]);
   });
 
-  it("ignores focus changes that never involve the editor", async () => {
+  it("ignores focus changes that never involve the editor", ({
+    editor,
+    onTestFinished,
+  }) => {
     // The tracker listens at the document level, so it sees every focus
     // change on the page — including ones with nothing to do with this
     // editor. Those must not reach subscribers.
     const otherA = document.createElement("input");
     const otherB = document.createElement("input");
     document.body.append(otherA, otherB);
+    onTestFinished(() => {
+      otherA.remove();
+      otherB.remove();
+    });
 
     const events: boolean[] = [];
-    const unsubscribe = editor.onFocusChange(
-      (_editor, ctx) => events.push(ctx.focused),
-      { includeEditorUI: true },
+    onTestFinished(
+      editor.onFocusChange((_editor, ctx) => events.push(ctx.focused), {
+        includeEditorUI: true,
+      }),
     );
 
-    otherA.focus();
-    await settle();
-    otherB.focus();
-    await settle();
+    settleFocus(() => otherA.focus());
+    settleFocus(() => otherB.focus());
 
     expect(events).toEqual([]);
-
-    unsubscribe();
-    otherA.remove();
-    otherB.remove();
   });
 
-  it("keeps two editors on one page independent", async () => {
-    const { editor: other, container: otherContainer } = mountEditor();
+  it("keeps two editors on one page independent", async ({
+    editor,
+    mountEditor,
+    onTestFinished,
+  }) => {
+    const other = await mountEditor();
 
     const events: boolean[] = [];
-    const unsubscribe = editor.onFocusChange(
-      (_editor, ctx) => events.push(ctx.focused),
-      { includeEditorUI: true },
+    onTestFinished(
+      editor.onFocusChange((_editor, ctx) => events.push(ctx.focused), {
+        includeEditorUI: true,
+      }),
     );
 
-    other.focus();
-    await settle();
+    settleFocus(() => other.focus());
 
     expect(other.isFocused()).toBe(true);
     expect(editor.isFocused({ includeEditorUI: true })).toBe(false);
     expect(events).toEqual([]);
-
-    unsubscribe();
-    other.unmount();
-    otherContainer.remove();
   });
 
-  it("stops delivering events after unsubscribing", async () => {
+  it("stops delivering events after unsubscribing", ({
+    editor,
+    outside,
+    onTestFinished,
+  }) => {
     const events: boolean[] = [];
     const unsubscribe = editor.onFocusChange(
       (_editor, ctx) => events.push(ctx.focused),
       { includeEditorUI: true },
     );
+    onTestFinished(unsubscribe);
 
     editor.focus();
-    await settle();
     const countWhileSubscribed = events.length;
     expect(countWhileSubscribed).toBeGreaterThan(0);
 
     unsubscribe();
-    outside.focus();
-    await settle();
-    editor.focus();
-    await settle();
+    settleFocus(() => outside.focus());
+    settleFocus(() => editor.focus());
 
     expect(events.length).toBe(countWhileSubscribed);
   });
 
-  it("survives an unsubscribe being called twice", async () => {
+  it("survives an unsubscribe being called twice", ({
+    editor,
+    onTestFinished,
+  }) => {
     // The count backing the shared document listeners is reference-counted.
     // A second call to the same unsubscribe used to drive it negative, so it
     // never reached 1 again and the tracker silently stopped attaching for
@@ -290,32 +319,36 @@ describe("Focus events", () => {
     stale();
 
     const events: boolean[] = [];
-    const unsubscribe = editor.onFocusChange(
-      (_editor, ctx) => events.push(ctx.focused),
-      { includeEditorUI: true },
+    onTestFinished(
+      editor.onFocusChange((_editor, ctx) => events.push(ctx.focused), {
+        includeEditorUI: true,
+      }),
     );
 
     editor.focus();
-    await settle();
 
     expect(events).toEqual([true]);
-    unsubscribe();
   });
 
-  it("supports several subscribers independently", async () => {
+  it("supports several subscribers independently", ({
+    editor,
+    outside,
+    onTestFinished,
+  }) => {
     const first: boolean[] = [];
     const second: boolean[] = [];
     const unsubscribeFirst = editor.onFocusChange(
       (_editor, ctx) => first.push(ctx.focused),
       { includeEditorUI: true },
     );
-    const unsubscribeSecond = editor.onFocusChange(
-      (_editor, ctx) => second.push(ctx.focused),
-      { includeEditorUI: true },
+    onTestFinished(unsubscribeFirst);
+    onTestFinished(
+      editor.onFocusChange((_editor, ctx) => second.push(ctx.focused), {
+        includeEditorUI: true,
+      }),
     );
 
     editor.focus();
-    await settle();
     expect(first.length).toBeGreaterThan(0);
     expect(second.length).toBe(first.length);
 
@@ -323,12 +356,9 @@ describe("Focus events", () => {
     // one subscriber must not stop the other's events.
     unsubscribeFirst();
     const firstCount = first.length;
-    outside.focus();
-    await settle();
+    settleFocus(() => outside.focus());
 
     expect(first.length).toBe(firstCount);
     expect(second.at(-1)).toBe(false);
-
-    unsubscribeSecond();
   });
 });

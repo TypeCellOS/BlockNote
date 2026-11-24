@@ -64,7 +64,13 @@ const nestedEditorBlock = createBlockSpec(
       // The nested editor's UI renders at the body, outside its own DOM tree.
       nestedEditor.registerPortalElement(document.body);
 
-      return { dom, destroy: () => nestedEditor.unmount() };
+      return {
+        dom,
+        destroy: () => {
+          nestedEditor.unregisterPortalElement(document.body);
+          nestedEditor.unmount();
+        },
+      };
     },
   },
 );
@@ -108,9 +114,14 @@ describe("TableHandlesView mouse handling", () => {
   });
 
   afterEach(() => {
-    editor.unmount();
-    editor._tiptapEditor.destroy();
+    // Detach both editor DOM trees before either view releases the shared
+    // TipTap stylesheet. A connected .tiptap host keeps the sheet alive.
     mountPoint.remove();
+    try {
+      editor.unmount();
+    } finally {
+      editor._tiptapEditor.destroy();
+    }
   });
 
   function tableHandlesState() {

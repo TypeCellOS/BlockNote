@@ -1,9 +1,10 @@
-import { BlockNoteEditor } from "@blocknote/core";
+import type { SetupTestEditor } from "../index.js";
 import { AIExtension } from "../../../AIExtension.js";
 import { schemaWithMention as schema } from "../schemas/mention.js";
 
-export function getEditorWithTables() {
-  const editor = BlockNoteEditor.create({
+export async function getEditorWithTables(setupEditor: SetupTestEditor) {
+  const { editor } = await setupEditor({
+    mountType: false,
     initialContent: [
       {
         id: "ref1",

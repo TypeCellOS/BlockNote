@@ -16,6 +16,7 @@ describe("inline code mark exclusions", () => {
     (withComments) => {
       const editor = new Editor({
         element: null,
+        content: { type: "doc" },
         extensions: [
           ...extensions,
           Extension.create({

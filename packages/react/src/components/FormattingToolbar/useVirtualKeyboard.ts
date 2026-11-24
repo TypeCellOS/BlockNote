@@ -1,4 +1,5 @@
-import { useLayoutEffect, useState } from "react";
+import { useContext, useLayoutEffect, useState } from "react";
+import { FormattingToolbarInputContext } from "./FormattingToolbarInputContext.js";
 
 // The tallest layout-equivalent viewport height seen so far — our stand-in for
 // "keyboard closed" — and the layout width it was measured at. Module scope so
@@ -83,9 +84,14 @@ const VIEWPORT_PROPERTIES = [
 let viewportPublishers = 0;
 
 export function useVirtualKeyboard(): boolean {
-  const [open, setOpen] = useState(isVirtualKeyboardOpen);
+  const input = useContext(FormattingToolbarInputContext);
+  const external = input !== undefined;
+  const [open, setOpen] = useState(() => !external && isVirtualKeyboardOpen());
 
   useLayoutEffect(() => {
+    if (external) {
+      return;
+    }
     const html = document.documentElement;
     const vp = window.visualViewport;
     const scrollContainers = () =>
@@ -166,7 +172,7 @@ export function useVirtualKeyboard(): boolean {
         baselineLayoutWidth = 0;
       }
     };
-  }, []);
+  }, [external]);
 
-  return open;
+  return input?.keyboardOpen ?? open;
 }

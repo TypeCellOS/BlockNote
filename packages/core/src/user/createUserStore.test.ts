@@ -1,6 +1,3 @@
-/**
- * @vitest-environment jsdom
- */
 import { describe, expect, expectTypeOf, it, vi } from "vite-plus/test";
 
 import { createUserStore, User } from "./index.js";
@@ -50,15 +47,14 @@ describe("createUserStore", () => {
   });
 
   it("de-duplicates concurrent in-flight requests for the same user", async () => {
-    const resolveUsers = vi.fn(
-      (ids: string[]) =>
-        new Promise<User[]>((resolve) =>
-          setTimeout(() => resolve(ids.map(makeUser)), 10),
-        ),
-    );
+    const { promise, resolve } = Promise.withResolvers<User[]>();
+    const resolveUsers = vi.fn(() => promise);
     const userStore = setup(resolveUsers);
 
-    await Promise.all([userStore.loadUsers(["1"]), userStore.loadUsers(["1"])]);
+    const first = userStore.loadUsers(["1"]);
+    const second = userStore.loadUsers(["1"]);
+    resolve([makeUser("1")]);
+    await Promise.all([first, second]);
 
     expect(resolveUsers).toHaveBeenCalledTimes(1);
     expect(userStore.getUser("1")).toEqual(makeUser("1"));

@@ -33,5 +33,6 @@ export const commands = {
   positionalMouse: nodeCommands.positionalMouse,
   imeComposition: nodeCommands.imeComposition,
   mockCustomBlockImages: nodeCommands.mockCustomBlockImages,
+  mockVersioningMedia: nodeCommands.mockVersioningMedia,
   restoreTouchEmulation: nodeCommands.restoreTouchEmulation,
 };

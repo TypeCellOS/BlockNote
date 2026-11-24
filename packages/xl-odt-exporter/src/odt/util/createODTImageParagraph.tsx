@@ -56,10 +56,10 @@ export const createODTImageParagraph = async (
         text:anchor-type="as-char"
       >
         <draw:image
-          xlink:type="simple"
-          xlink:show="embed"
-          xlink:actuate="onLoad"
-          xlink:href={path}
+          xlinkType="simple"
+          xlinkShow="embed"
+          xlinkActuate="onLoad"
+          xlinkHref={path}
           draw:mime-type={mimeType}
         />
       </draw:frame>

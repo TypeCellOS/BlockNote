@@ -1,4 +1,3 @@
-import React from "react";
 import {
   BlockNoteEditor,
   type BlockNoteEditorOptions,
@@ -13,9 +12,8 @@ import {
 } from "@blocknote/core";
 import type { BlockNoteViewRaw } from "@blocknote/react";
 import type { ComponentProps, ReactNode } from "react";
-import { flushSync } from "react-dom";
-import { createRoot } from "react-dom/client";
 import type { TestContext } from "vite-plus/test";
+import { acquireTiptapFixtureStyles } from "./tiptapFixtureStyles.js";
 
 type ViewProps<
   B extends BlockSchema,
@@ -23,12 +21,15 @@ type ViewProps<
   S extends StyleSchema,
 > = Omit<ComponentProps<typeof BlockNoteViewRaw<B, I, S>>, "editor">;
 
+type EditorSkin = "mantine" | "shadcn" | "ariakit" | "raw";
+
 type RenderOptions<
   B extends BlockSchema,
   I extends InlineContentSchema,
   S extends StyleSchema,
 > = Partial<BlockNoteEditorOptions<B, I, S>> & {
-  skin?: "mantine" | "shadcn" | "ariakit";
+  mountType?: "react";
+  skin?: EditorSkin;
   props?: Omit<ViewProps<B, I, S>, "children">;
   children?:
     | ReactNode
@@ -47,6 +48,49 @@ type DefaultRenderOptions = Omit<
   >,
   "schema"
 > & { schema?: never };
+
+type CoreOptions<
+  B extends BlockSchema,
+  I extends InlineContentSchema,
+  S extends StyleSchema,
+> = Partial<BlockNoteEditorOptions<B, I, S>> & {
+  mountType: false | "dom";
+  skin?: never;
+  props?: never;
+  children?: never;
+  outside?: never;
+};
+
+type DefaultCoreOptions = Omit<
+  CoreOptions<
+    DefaultBlockSchema,
+    DefaultInlineContentSchema,
+    DefaultStyleSchema
+  >,
+  "schema"
+> & { schema?: never };
+
+function prepareDOMMount() {
+  const styles = acquireTiptapFixtureStyles(document);
+  let host: HTMLElement | undefined;
+  return {
+    mount(mountEditor: (host: HTMLElement) => void) {
+      const element = document.createElement("div");
+      host = element;
+      document.body.append(element);
+      styles.track(() => mountEditor(element));
+    },
+    dispose(destroyEditor: () => void) {
+      styles.dispose(() => {
+        try {
+          destroyEditor();
+        } finally {
+          host?.remove();
+        }
+      });
+    },
+  };
+}
 
 // A named result keeps editor hovers from recursively expanding the factory's
 // inferred ReturnType through the generic setupEditor overloads (TS 6).
@@ -68,6 +112,7 @@ export function createSetupEditor(onFinished: TestContext["onTestFinished"]) {
     S extends StyleSchema,
   >(schema: CustomBlockNoteSchema<B, I, S>, options: RenderOptions<B, I, S>) {
     const {
+      mountType: _,
       skin = "mantine",
       props: viewProps,
       children,
@@ -75,52 +120,80 @@ export function createSetupEditor(onFinished: TestContext["onTestFinished"]) {
       ...editorOptions
     } = options;
     // Keep skin modules and their CSS out of tests that never render an editor.
-    const { BlockNoteView } = await loadSkin(skin);
-    const editor = BlockNoteEditor.create({
-      ...editorOptions,
-      schema,
-    });
-    const rootNode = document.createElement("div");
-    document.body.append(rootNode);
-    const root = createRoot(rootNode);
-    onFinished(() => {
-      root.unmount();
-      editor._tiptapEditor.destroy();
-      rootNode.remove();
-    });
-
-    let props = {
-      ...viewProps,
-      children:
-        typeof children === "function" ? children({ editor }) : children,
-    };
-    function rerender(nextProps: ViewProps<B, I, S>) {
-      props = { ...props, ...nextProps };
-      flushSync(() => {
-        const children = <BlockNoteView editor={editor} {...props} />;
-        root.render(
-          <React.StrictMode>
-            {outside ? outside({ editor, children }) : children}
-          </React.StrictMode>,
-        );
+    const [{ BlockNoteView }, { StrictMode }, { flushSync }, { createRoot }] =
+      await Promise.all([
+        loadSkin(skin),
+        import("react"),
+        import("react-dom"),
+        import("react-dom/client"),
+      ]);
+    let rootNode: HTMLDivElement | undefined;
+    let root: ReturnType<typeof createRoot> | undefined;
+    let destroyEditor: (() => void) | undefined;
+    const styles = acquireTiptapFixtureStyles(document);
+    function dispose() {
+      styles.dispose(() => {
+        try {
+          root?.unmount();
+        } finally {
+          try {
+            destroyEditor?.();
+          } finally {
+            rootNode?.remove();
+          }
+        }
       });
     }
-    rerender(props);
-    await document.fonts.ready;
-    return { editor, rootNode, rerender };
+    onFinished(dispose);
+
+    try {
+      const editor = BlockNoteEditor.create({ ...editorOptions, schema });
+      destroyEditor = () => editor._tiptapEditor.destroy();
+      const container = document.createElement("div");
+      rootNode = container;
+      document.body.append(container);
+      const view = createRoot(container);
+      root = view;
+
+      let props = {
+        ...viewProps,
+        children:
+          typeof children === "function" ? children({ editor }) : children,
+      };
+      function rerender(nextProps: ViewProps<B, I, S>) {
+        props = { ...props, ...nextProps };
+        styles.track(() =>
+          flushSync(() => {
+            const children = <BlockNoteView editor={editor} {...props} />;
+            view.render(
+              <StrictMode>
+                {outside ? outside({ editor, children }) : children}
+              </StrictMode>,
+            );
+          }),
+        );
+      }
+      rerender(props);
+      await document.fonts.ready;
+      return { editor, rootNode: container, rerender };
+    } catch (error) {
+      dispose();
+      throw error;
+    }
   }
 
   /**
-   * Creates a real editor and mounts its view in React StrictMode, with
-   * automatic unmount/editor destruction after the test. Use for browser component
-   * tests that need editor context or real document changes. For logic that does
-   * not need browser rendering, the Node fixture provides the same setupEditor
-   * API with editor options only, mounting the core editor in jsdom. Use
-   * BlockNoteEditor.create directly when a headless editor is sufficient.
+   * Creates an editor with automatic cleanup after the test. By default
+   * (`mountType: "react"`), renders its view in React StrictMode. Pass
+   * `mountType: "dom"` to mount directly in the DOM without React, or
+   * `mountType: false` to use browser APIs without mounting. Both return
+   * only `{ editor }`.
+   * If you mount a headless fixture yourself, unmount any manually created
+   * React root before the fixture destroys the editor.
    *
    * Lazily loads the selected `skin` ("mantine" by default, "shadcn", or
-   * "ariakit") and its styles only when called. Use one skin per test file:
-   * styles from a previously loaded skin are not unloaded.
+   * "ariakit") and its styles only when called. Use "raw" for React editor
+   * context without a skin or its CSS. Styles from other renders are not unloaded.
    *
    * Accepts editor options (including a custom schema) at the top level, `props`
    * for the view, `children` inside it, and `outside` to wrap the view or add sibling
@@ -157,6 +230,22 @@ export function createSetupEditor(onFinished: TestContext["onTestFinished"]) {
     I extends InlineContentSchema,
     S extends StyleSchema,
   >(
+    options: CoreOptions<B, I, S> & {
+      schema: CustomBlockNoteSchema<B, I, S>;
+    },
+  ): Promise<{ editor: BlockNoteEditor<B, I, S> }>;
+  function setupEditor(options: DefaultCoreOptions): Promise<{
+    editor: BlockNoteEditor<
+      DefaultBlockSchema,
+      DefaultInlineContentSchema,
+      DefaultStyleSchema
+    >;
+  }>;
+  function setupEditor<
+    B extends BlockSchema,
+    I extends InlineContentSchema,
+    S extends StyleSchema,
+  >(
     options: RenderOptions<B, I, S> & {
       schema: CustomBlockNoteSchema<B, I, S>;
     },
@@ -170,27 +259,46 @@ export function createSetupEditor(onFinished: TestContext["onTestFinished"]) {
       DefaultStyleSchema
     >
   >;
-  function setupEditor<
+  async function setupEditor<
     B extends BlockSchema,
     I extends InlineContentSchema,
     S extends StyleSchema,
   >(
     options:
       | (RenderOptions<B, I, S> & { schema: CustomBlockNoteSchema<B, I, S> })
-      | DefaultRenderOptions = {},
+      | (CoreOptions<B, I, S> & { schema: CustomBlockNoteSchema<B, I, S> })
+      | DefaultRenderOptions
+      | DefaultCoreOptions = {},
   ) {
-    if (options.schema === undefined) {
-      return renderWithSchema(BlockNoteSchema.create(), options);
+    if (options.mountType === undefined || options.mountType === "react") {
+      if (options.schema === undefined) {
+        return renderWithSchema(BlockNoteSchema.create(), options);
+      }
+      return renderWithSchema(options.schema, options);
+    } else {
+      const { mountType, ...editorOptions } = options;
+      const { createSetupEditor } = await import("../node/setupEditor.js");
+      const setupCore = createSetupEditor(
+        onFinished,
+        mountType === "dom" ? prepareDOMMount : undefined,
+      );
+      if (editorOptions.schema === undefined) {
+        return setupCore(editorOptions);
+      }
+      return setupCore({ ...editorOptions, schema: editorOptions.schema });
     }
-    return renderWithSchema(options.schema, options);
   }
   return setupEditor;
 }
 
 export type SetupEditor = ReturnType<typeof createSetupEditor>;
 
-async function loadSkin(skin: "mantine" | "shadcn" | "ariakit") {
+async function loadSkin(skin: EditorSkin) {
   switch (skin) {
+    case "raw": {
+      const { BlockNoteViewRaw } = await import("@blocknote/react");
+      return { BlockNoteView: BlockNoteViewRaw };
+    }
     case "mantine": {
       return (
         await Promise.all([

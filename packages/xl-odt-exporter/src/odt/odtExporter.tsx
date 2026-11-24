@@ -13,8 +13,10 @@ import { corsProxyResolveFileUrl } from "@shared/api/corsProxy.js";
 import { loadFileBuffer } from "@shared/util/fileUtil.js";
 import { getImageDimensions } from "@shared/util/imageUtil.js";
 import { BlobReader, BlobWriter, TextReader, ZipWriter } from "@zip.js/zip.js";
+import { Fragment } from "react";
 import { renderToString } from "react-dom/server";
 import stylesXml from "./template/styles.xml?raw";
+import { keyODTNodes } from "./util/keyODTNodes.js";
 
 export class ODTExporter<
   B extends BlockSchema,
@@ -201,8 +203,10 @@ export class ODTExporter<
       // Detect and remove XML namespaces (already defined in the root element)
       return stringifiedDoc.replace(xmlNamespacesRegEx, "<$1$2>");
     };
-    const blockContent = await this.transformBlocks(blocks);
-    const styles = Array.from(this.automaticStyles.values());
+    const blockContent = keyODTNodes(await this.transformBlocks(blocks));
+    const styles = Array.from(this.automaticStyles, ([name, style]) => (
+      <Fragment key={name}>{style}</Fragment>
+    ));
     const pictures = Array.from(this.pictures.values());
     const fonts = await this.loadFonts();
     const header = xmlOptionToString(options?.header || "");
@@ -388,10 +392,10 @@ export class ODTExporter<
    * ```tsx
    * <draw:frame draw:style-name="..." text:anchor-type="as-char">
    *   <draw:object
-   *     xlink:href={path}
-   *     xlink:type="simple"
-   *     xlink:show="embed"
-   *     xlink:actuate="onLoad"
+   *     xlinkHref={path}
+   *     xlinkType="simple"
+   *     xlinkShow="embed"
+   *     xlinkActuate="onLoad"
    *   />
    * </draw:frame>
    * ```

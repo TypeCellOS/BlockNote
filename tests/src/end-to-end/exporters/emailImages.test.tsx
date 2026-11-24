@@ -8,7 +8,6 @@ import {
   reactEmailDefaultSchemaMappings,
 } from "@blocknote/xl-email-exporter";
 import { testDocumentWithSourceBlocks } from "@shared/testDocument.js";
-import { decodeAndSample } from "@shared/util/browserImageTestUtil.js";
 import { afterEach, describe, expect, test } from "vite-plus/test";
 import { screenshotFull } from "../../utils/screenshotFull.js";
 import {
@@ -23,6 +22,24 @@ import {
 // here rather than in the exporter packages.
 
 afterEach(removeExportFrame);
+
+function hasPaintedPixels(image: HTMLImageElement) {
+  const canvas = document.createElement("canvas");
+  canvas.width = image.naturalWidth;
+  canvas.height = image.naturalHeight;
+  const context = canvas.getContext("2d");
+  if (!context) {
+    throw new Error("Missing 2D canvas context");
+  }
+  context.drawImage(image, 0, 0);
+  const pixels = context.getImageData(0, 0, canvas.width, canvas.height).data;
+  for (let alpha = 3; alpha < pixels.length; alpha += 4) {
+    if (pixels[alpha] > 0) {
+      return true;
+    }
+  }
+  return false;
+}
 
 describe("email export through a complete exporter in the browser", () => {
   test("renders math and diagrams to images", { timeout: 30000 }, async () => {
@@ -52,36 +69,28 @@ describe("email export through a complete exporter in the browser", () => {
 
     const html = await exporter.toReactEmailDocument(emailDocument as any);
 
+    // Render the email as a client would show it, at a typical client width.
+    const frame = createExportFrame("600px");
+    frame.innerHTML = html;
+    const images = [...frame.querySelectorAll("img")];
+
     // Three generated images: block math (rasterized to PNG in the
     // browser), inline math (always SVG), and the valid diagram (PNG). The
     // invalid diagram renders the error placeholder instead - and doesn't
     // fail the export.
-    // Decodes the HTML-escaped attribute value; `&amp;` must be decoded
-    // last - decoding it first would double-unescape sequences like
-    // `&amp;#x27;` (an escaped literal `&#x27;`) into `'`.
-    const srcs = [...html.matchAll(/<img[^>]*src="(data:[^"]+)"/g)].map(
-      (match) => match[1].replaceAll("&#x27;", "'").replaceAll("&amp;", "&"),
-    );
-    expect(srcs).toHaveLength(3);
-    expect(srcs[0]).toMatch(/^data:image\/png/);
-    expect(srcs[1]).toMatch(/^data:image\/svg\+xml/);
-    expect(srcs[2]).toMatch(/^data:image\/png/);
-    for (const src of srcs) {
-      expect((await decodeAndSample(src)).inkedPixels).toBeGreaterThan(0);
-    }
+    expect(images).toHaveLength(3);
+    expect(images[0].src).toMatch(/^data:image\/png/);
+    expect(images[1].src).toMatch(/^data:image\/svg\+xml/);
+    expect(images[2].src).toMatch(/^data:image\/png/);
     expect(html).toContain("Invalid diagram");
     expect(html).toContain("Invalid formula");
 
-    // Visual regression of the exported email as a client would show it,
-    // rendered at 600px (typical email client width).
-    const frame = createExportFrame("600px");
-    frame.innerHTML = html;
-    // Wait until every image is ready to paint - a screenshot taken while a
-    // data: URL is still decoding captures a gap (and unloaded images throw
-    // off the height measurement in screenshotFull).
-    await Promise.all(
-      [...frame.querySelectorAll("img")].map((img) => img.decode()),
-    );
+    // Decode the actual email images once, for both the pixel checks and the
+    // screenshot. Unloaded images also throw off its height measurement.
+    await Promise.all(images.map((image) => image.decode()));
+    for (const image of images) {
+      expect(hasPaintedPixels(image), `Image ${image.alt} is blank`).toBe(true);
+    }
     await screenshotFull(frame, "email-export");
   });
 });

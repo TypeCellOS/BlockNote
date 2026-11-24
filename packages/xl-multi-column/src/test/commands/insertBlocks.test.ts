@@ -1,8 +1,8 @@
-import { describe, expect, it } from "vite-plus/test";
+import { describe, expect } from "vite-plus/test";
 
 import { setupTestEnv } from "../setupTestEnv.js";
 
-const getEditor = setupTestEnv();
+const getEditor = setupTestEnv(it);
 
 describe("Test insertBlocks", () => {
   it("Insert empty column list", () => {
@@ -31,7 +31,7 @@ describe("Test insertBlocks", () => {
       "after",
     );
 
-    const list = getEditor().document[1] as any;
+    const list = getEditor().document[1];
     expect(list.type).toBe("columnList");
     expect(list.children).toHaveLength(2);
     expect(list.children[0].children).toHaveLength(1);
@@ -62,12 +62,12 @@ describe("Test insertBlocks", () => {
       "after",
     );
 
-    const list = getEditor().document[1] as any;
+    const list = getEditor().document[1];
     expect(list.type).toBe("columnList");
     expect(list.children).toHaveLength(2);
-    expect(list.children[0].children[0].content[0].text).toBe(
-      "Inserted Column Paragraph",
-    );
+    expect(list.children[0].children[0].content).toMatchObject([
+      { type: "text", text: "Inserted Column Paragraph" },
+    ]);
     expect(list.children[1].children[0].content).toEqual([]);
   });
 

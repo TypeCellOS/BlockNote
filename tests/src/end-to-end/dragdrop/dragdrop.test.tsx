@@ -1,17 +1,17 @@
 import {
-  BlockNoteEditor,
   BlockNoteSchema,
   createBlockSpec,
+  type PartialBlock,
 } from "@blocknote/core";
-import { BlockNoteView } from "@blocknote/mantine";
+import "@blocknote/core/fonts/inter.css";
 import "@blocknote/mantine/style.css";
-import { createReactBlockSpec, useCreateBlockNote } from "@blocknote/react";
-import TestingApp from "@examples/01-basic/testing/src/App";
+import { createReactBlockSpec } from "@blocknote/react";
 import PdfFileApp from "@examples/06-custom-schema/04-pdf-file-block/src/App";
-import { createRef } from "react";
 import { describe, expect, test } from "vite-plus/test";
 import { render } from "vitest-browser-react";
+import type { SetupEditor } from "../../commands/browser/setupEditor.js";
 import {
+  BLOCK_CONTAINER_SELECTOR,
   EDITOR_SELECTOR,
   H_ONE_BLOCK_SELECTOR,
   H_THREE_BLOCK_SELECTOR,
@@ -21,9 +21,7 @@ import {
   PDF_SELECTOR,
 } from "../../utils/const.js";
 import { browserName, MOD, userEvent } from "../../utils/context.js";
-import { insertHeading, insertParagraph } from "../../utils/copypaste.js";
 import {
-  compareDocToSnapshot,
   focusOnEditor,
   sleep,
   waitForSelector,
@@ -31,12 +29,10 @@ import {
 } from "../../utils/editor.js";
 import {
   dragAndDropBlock,
-  dropDraggedBlock,
   getRect,
   mouseSequence,
   startBlockDrag,
 } from "../../utils/mouse.js";
-import { executeSlashCommand } from "../../utils/slashmenu.js";
 
 // `expect.element` is augmented against the bare `vitest` module, but vite-plus
 // types `expect` from an internal module, so the augmentation doesn't attach.
@@ -47,48 +43,71 @@ type ElementMatchers = {
 type ElementExpect = (element: Element | null) => ElementMatchers;
 const expectElement = (expect as unknown as { element: ElementExpect }).element;
 
+function heading(
+  id: string,
+  level: 1 | 2 | 3,
+  children?: PartialBlock[],
+): PartialBlock {
+  return {
+    id,
+    type: "heading",
+    props: { level },
+    content: "Heading",
+    children,
+  };
+}
+
+const imageDocument: PartialBlock[] = [
+  { id: "0", type: "image" },
+  heading("1", 1),
+];
+
 describe("Check Block Dragging Functionality", () => {
   // Playwright doesn't correctly simulate drag events in Firefox.
-  test.skipIf(browserName === "firefox")(
+  it.skipIf(browserName === "firefox")(
     "Should be able to drag & drop non-nested blocks",
-    async () => {
-      await render(<TestingApp />);
-      await waitForSelector(EDITOR_SELECTOR);
-      await focusOnEditor();
-
-      await insertHeading(1);
-      await userEvent.keyboard("{Enter}");
-      await insertHeading(2);
-      await userEvent.keyboard("{Enter}");
-      await insertHeading(3);
+    async ({ setupEditor }) => {
+      const { editor } = await setupEditor({
+        initialContent: [heading("0", 1), heading("1", 2), heading("2", 3)],
+      });
+      const [h1, h2, h3] = editor.document;
+      editor.setTextCursorPosition("2", "end");
+      editor.focus();
 
       await dragAndDropBlock(H_ONE_BLOCK_SELECTOR, H_TWO_BLOCK_SELECTOR, false);
 
-      await compareDocToSnapshot("dragdropsingle");
+      expect(editor.document).toEqual([h2, h1, h3]);
     },
   );
 
-  test.skipIf(browserName === "firefox")(
+  it.skipIf(browserName === "firefox")(
     "Should be able to drag & drop nested blocks",
-    async () => {
-      await render(<TestingApp />);
-      await waitForSelector(EDITOR_SELECTOR);
-      await focusOnEditor();
-
-      await insertHeading(1);
-      await userEvent.keyboard("{Enter}");
-      await insertParagraph();
-      await userEvent.keyboard("{Enter}");
-      await userEvent.keyboard("{Tab}");
-      await insertHeading(2);
-      await userEvent.keyboard("{Enter}");
-      await insertParagraph();
-      await userEvent.keyboard("{Enter}");
-      await userEvent.keyboard("{Tab}");
-      await insertHeading(3);
-      await userEvent.keyboard("{Enter}");
-      await userEvent.keyboard("{Shift>}{Tab}{/Shift}");
-      await userEvent.keyboard("{Shift>}{Tab}{/Shift}");
+    async ({ setupEditor }) => {
+      const { editor } = await setupEditor({
+        initialContent: [
+          heading("0", 1),
+          {
+            id: "1",
+            type: "paragraph",
+            content: "Paragraph",
+            children: [
+              heading("2", 2),
+              {
+                id: "3",
+                type: "paragraph",
+                content: "Paragraph",
+                children: [heading("4", 3)],
+              },
+            ],
+          },
+          { id: "5", type: "paragraph" },
+        ],
+      });
+      const [h1, paragraph, last] = editor.document;
+      const [h2, childParagraph] = paragraph.children;
+      const [h3] = childParagraph.children;
+      editor.setTextCursorPosition("5");
+      editor.focus();
 
       // Dragging first heading into next nested element.
       await dragAndDropBlock(H_ONE_BLOCK_SELECTOR, H_TWO_BLOCK_SELECTOR, true);
@@ -107,83 +126,141 @@ describe("Check Block Dragging Functionality", () => {
         true,
       );
 
-      await compareDocToSnapshot("dragdropnested");
+      expect(editor.document).toEqual([
+        { ...paragraph, children: [h1, { ...childParagraph, children: [h2] }] },
+        h3,
+        last,
+      ]);
     },
   );
 
-  test.skipIf(browserName === "firefox")(
+  it.skipIf(browserName === "firefox")(
     "Should be able to drag image",
-    async () => {
-      await render(<TestingApp />);
-      await waitForSelector(EDITOR_SELECTOR);
-      await focusOnEditor();
-      await executeSlashCommand("image");
-      await userEvent.keyboard("{Escape}");
-      const paragraphs = document.querySelectorAll(PARAGRAPH_SELECTOR);
-      await userEvent.click(paragraphs[paragraphs.length - 1]);
-      await insertHeading(1);
+    async ({ setupEditor }) => {
+      const { editor } = await setupEditor({ initialContent: imageDocument });
+      const [image, h1] = editor.document;
+      editor.setTextCursorPosition("1", "end");
+      editor.focus();
 
       await dragAndDropBlock(IMAGE_SELECTOR, H_ONE_BLOCK_SELECTOR, false);
 
-      await compareDocToSnapshot("dragImage");
+      expect(editor.document).toEqual([h1, image]);
     },
   );
 
-  test.skipIf(browserName === "firefox")(
+  it.skipIf(browserName === "firefox")(
     "Formatting toolbar should not appear when dragging image block",
-    async () => {
-      await render(<TestingApp />);
-      await waitForSelector(EDITOR_SELECTOR);
-      await focusOnEditor();
-      await executeSlashCommand("image");
-      await userEvent.keyboard("{Escape}");
-      const paragraphs = document.querySelectorAll(PARAGRAPH_SELECTOR);
-      await userEvent.click(paragraphs[paragraphs.length - 1]);
-      await insertHeading(1);
+    async ({ setupEditor }) => {
+      const { editor } = await setupEditor({ initialContent: imageDocument });
+      editor.setTextCursorPosition("1", "end");
+      editor.focus();
 
-      await dragAndDropBlock(IMAGE_SELECTOR, H_ONE_BLOCK_SELECTOR, false);
+      const toolbarSelector = ".bn-formatting-toolbar";
+      expect(document.querySelector(toolbarSelector)).toBeNull();
 
-      await waitForSelectorDetached(".bn-formatting-toolbar");
+      // Observe the whole gesture. Waiting for the toolbar to disappear
+      // after mouseup also passes if it was visible throughout the drag.
+      let toolbarMounted = false;
+      function recordToolbar(records: MutationRecord[]) {
+        toolbarMounted ||= records.some((record) =>
+          Array.from(record.addedNodes).some(
+            (node) =>
+              node instanceof Element &&
+              (node.matches(toolbarSelector) ||
+                node.querySelector(toolbarSelector) !== null),
+          ),
+        );
+      }
+      const observer = new MutationObserver(recordToolbar);
+      observer.observe(document.body, { childList: true, subtree: true });
+      try {
+        await dragAndDropBlock(IMAGE_SELECTOR, H_ONE_BLOCK_SELECTOR, false);
+        await expect
+          .poll(() => editor.document.map((block) => block.id))
+          .toEqual(["1", "0"]);
+        recordToolbar(observer.takeRecords());
+      } finally {
+        observer.disconnect();
+      }
+
+      expect(toolbarMounted).toBe(false);
+      expect(document.querySelector(toolbarSelector)).toBeNull();
     },
   );
 
   test.skipIf(browserName === "firefox")(
-    "Should be able to drag PDF block",
+    "releases the dragged PDF block in its original position without losing or duplicating it",
     async () => {
       await render(<PdfFileApp />);
-      await waitForSelector(EDITOR_SELECTOR);
+      const editor = await waitForSelector(EDITOR_SELECTOR);
       await focusOnEditor();
       await waitForSelector(PDF_SELECTOR);
 
       const firstParagraph = document.querySelector(
         PARAGRAPH_SELECTOR,
       ) as HTMLElement;
-      await dragAndDropBlock(PDF_SELECTOR, firstParagraph, false);
-
-      await compareDocToSnapshot("dragPdf");
+      function blockIds() {
+        return [...editor.querySelectorAll(BLOCK_CONTAINER_SELECTOR)].map(
+          (block) => block.getAttribute("data-id"),
+        );
+      }
+      const idsBefore = blockIds();
+      expect(idsBefore).toHaveLength(3);
+      expect(idsBefore.every(Boolean)).toBe(true);
+      // The PDF already sits just after this paragraph. Verify that a real
+      // drop reaches the editor, then check that the PDF is neither lost
+      // nor duplicated when dropped back into the same position.
+      let dropped = false;
+      function recordDrop(event: DragEvent) {
+        dropped ||=
+          event.isTrusted &&
+          event.target instanceof Node &&
+          firstParagraph.contains(event.target);
+      }
+      editor.addEventListener("drop", recordDrop, true);
+      try {
+        await dragAndDropBlock(PDF_SELECTOR, firstParagraph, false);
+      } finally {
+        editor.removeEventListener("drop", recordDrop, true);
+      }
+      expect(dropped).toBe(true);
+      expect(blockIds()).toEqual(idsBefore);
+      const blocks = [
+        ...editor.querySelectorAll<HTMLElement>(".bn-block-content"),
+      ];
+      expect(blocks.map((block) => block.dataset.contentType)).toEqual([
+        "paragraph",
+        "pdf",
+        "paragraph",
+      ]);
+      expect(blocks[0].textContent).toBe("Welcome to this demo!");
+      expect(
+        blocks[1]
+          .querySelector('embed[type="application/pdf"]')
+          ?.getAttribute("src"),
+      ).toBe("https://pdfobject.com/pdf/sample.pdf");
+      expect(blocks[2].textContent).toBe(
+        "Press the '/' key to open the Slash Menu and add another PDF",
+      );
     },
   );
 
-  test.skipIf(browserName === "firefox")(
+  it.skipIf(browserName === "firefox")(
     "keeps the dropped block visible when the previous selection is offscreen",
-    async () => {
-      const editor = BlockNoteEditor.create({
+    async ({ setupEditor }) => {
+      const { editor, rootNode } = await setupEditor({
         initialContent: Array.from({ length: 70 }, (_, index) => ({
           id: `paragraph-${index}`,
-          type: "paragraph",
+          type: "paragraph" as const,
           content: `Paragraph ${index}`,
         })),
+        outside: ({ children }) => (
+          <div style={{ height: 300, width: 600, overflowY: "auto" }}>
+            {children}
+          </div>
+        ),
       });
-      const scrollRef = createRef<HTMLDivElement>();
-      await render(
-        <div
-          ref={scrollRef}
-          style={{ height: 300, width: 600, overflowY: "auto" }}
-        >
-          <BlockNoteView editor={editor} />
-        </div>,
-      );
-      const scroller = scrollRef.current!;
+      const scroller = rootNode.firstElementChild as HTMLElement;
       const selectedBlock = await waitForSelector('[data-id="paragraph-0"]');
       const source = await waitForSelector('[data-id="paragraph-60"]');
       const destination = await waitForSelector('[data-id="paragraph-62"]');
@@ -302,34 +379,24 @@ const schema = BlockNoteSchema.create().extend({
   },
 });
 
-const item = (id: string, text: string) => ({
-  id,
-  type: "item",
-  children: [{ type: "paragraph", content: text }],
-});
-
-const editors: BlockNoteEditor<any, any, any>[] = [];
-
-function Editor(props: { initialContent: any[] }) {
-  const editor = useCreateBlockNote({
-    schema,
-    initialContent: props.initialContent,
-  });
-  editors.push(editor as any);
-  return <BlockNoteView editor={editor} />;
+function item(id: string, text: string): typeof schema.PartialBlock {
+  return {
+    id,
+    type: "item",
+    children: [{ type: "paragraph", content: text }],
+  };
 }
 
-async function renderEditors(...documents: any[][]) {
-  editors.length = 0;
-  await render(
-    <div>
-      {documents.map((initialContent, index) => (
-        <Editor key={index} initialContent={initialContent} />
-      ))}
-    </div>,
-  );
-  await waitForSelector(EDITOR_SELECTOR);
-  await sleep(100);
+async function setupLayoutEditors(
+  setupEditor: SetupEditor,
+  ...documents: (typeof schema.PartialBlock)[][]
+) {
+  const editors: (typeof schema.BlockNoteEditor)[] = [];
+  for (const initialContent of documents) {
+    const { editor } = await setupEditor({ schema, initialContent });
+    editors.push(editor);
+  }
+  return editors;
 }
 
 /** The element of the block with the ID. */
@@ -337,19 +404,22 @@ function block(id: string) {
   return document.querySelector(`[data-id="${id}"]`)!;
 }
 
-function expectVisibleBlockSelection(blockIds: string[]) {
-  const view = editors[0].prosemirrorView;
-  const selection = view.state.selection;
-  expect(selection.toJSON().type).toBe("multiple-node");
-  const selectedIds: string[] = [];
-  selection
-    .content()
-    .content.forEach((node) => selectedIds.push(node.attrs.id));
-  expect(selectedIds).toEqual(blockIds);
-  expect(selection.visible).toBe(true);
-  expect(view.dom.classList.contains("ProseMirror-hideselection")).toBe(false);
+function expectVisibleBlockSelection(
+  editor: typeof schema.BlockNoteEditor,
+  blockIds: string[],
+) {
+  expect(editor.transact((tr) => tr.selection.toJSON().type)).toBe(
+    "multiple-node",
+  );
+  const selection = editor.getSelectionCutBlocks();
+  expect(selection.blocks.map((block) => block.id)).toEqual(blockIds);
+  expect(selection.blockCutAtStart).toBeUndefined();
+  expect(selection.blockCutAtEnd).toBeUndefined();
+  expect(
+    editor.domElement?.classList.contains("ProseMirror-hideselection"),
+  ).toBe(false);
 
-  const nativeSelection = view.dom.ownerDocument.getSelection()!;
+  const nativeSelection = document.getSelection()!;
   expect(nativeSelection.rangeCount).toBe(1);
   expect(nativeSelection.isCollapsed).toBe(false);
   const range = nativeSelection.getRangeAt(0);
@@ -368,12 +438,12 @@ function handleOf(id: string) {
 }
 
 /** The IDs of the blocks. */
-function ids(blocks: any[]) {
+function ids(blocks: { id: string }[]) {
   return blocks.map((block) => block.id);
 }
 
 /** The number of `list` blocks in a block tree. */
-function lists(blocks: any[]): number {
+function lists(blocks: (typeof schema.Block)[]): number {
   return blocks.reduce(
     (count, block) =>
       count + (block.type === "list" ? 1 : 0) + lists(block.children),
@@ -383,42 +453,45 @@ function lists(blocks: any[]): number {
 
 // Playwright doesn't correctly simulate drag events in Firefox.
 describe.skipIf(browserName === "firefox")("Dragging layout blocks", () => {
-  test.each([
+  it.for([
     { name: "a React layout block", id: "reactPanel", text: "In React" },
     {
       name: "a block in a React layout block",
       id: "inReact",
       text: "In React",
     },
-  ])("shows $name in the drag preview", async ({ id, text }) => {
-    await renderEditors([
-      {
-        id: "reactPanel",
-        type: "reactPanel",
-        children: [{ id: "inReact", type: "paragraph", content: "In React" }],
-      },
-    ]);
+  ])(
+    "shows $name in the drag preview",
+    async ({ id, text }, { setupEditor, onTestFinished }) => {
+      await setupLayoutEditors(setupEditor, [
+        {
+          id: "reactPanel",
+          type: "reactPanel",
+          children: [{ id: "inReact", type: "paragraph", content: "In React" }],
+        },
+      ]);
 
-    await startBlockDrag(handleOf(id));
-    try {
+      const drag = await startBlockDrag(handleOf(id), onTestFinished);
       const preview = await waitForSelector(".bn-drag-preview");
       expect(preview.textContent).toContain(text);
       const { width, height } = preview.getBoundingClientRect();
       expect(width).toBeGreaterThan(0);
       expect(height).toBeGreaterThan(0);
-    } finally {
-      // Releases the mouse also when a check fails, for the next tests.
-      await dropDraggedBlock(block(id), true);
-    }
-  });
+      await drag.drop(block(id), true);
+    },
+  );
 
   // The preview is outside the editor, so it copies the editor's theme,
   // classes and width, and app CSS that sizes the editor does not apply.
-  test("draws the drag preview like the editor", async () => {
+  it("draws the drag preview like the editor", async ({
+    onTestFinished,
+    setupEditor,
+  }) => {
     const appCSS = document.createElement("style");
     appCSS.textContent = ".bn-editor { min-height: 500px; }";
     document.head.appendChild(appCSS);
-    await renderEditors([
+    onTestFinished(() => appCSS.remove());
+    await setupLayoutEditors(setupEditor, [
       {
         id: "table",
         type: "table",
@@ -426,30 +499,28 @@ describe.skipIf(browserName === "firefox")("Dragging layout blocks", () => {
       },
     ]);
 
-    await startBlockDrag(handleOf("table"));
-    try {
-      const preview = await waitForSelector(".bn-drag-preview");
-      const copy = preview.querySelector('[data-id="table"]')!;
-      expect(copy.getBoundingClientRect().width).toBe(
-        block("table").getBoundingClientRect().width,
-      );
-      expect(preview.getBoundingClientRect().height).toBeLessThan(500);
-      expect(
-        getComputedStyle(preview.querySelector("td")!).borderTopStyle,
-      ).toBe("solid");
-      expect(preview.getAttribute("data-color-scheme")).toBe(
-        document
-          .querySelector(".bn-container")!
-          .getAttribute("data-color-scheme"),
-      );
-    } finally {
-      await dropDraggedBlock(block("table"), true);
-      appCSS.remove();
-    }
+    const drag = await startBlockDrag(handleOf("table"), onTestFinished);
+    const preview = await waitForSelector(".bn-drag-preview");
+    const copy = preview.querySelector('[data-id="table"]')!;
+    expect(copy.getBoundingClientRect().width).toBe(
+      block("table").getBoundingClientRect().width,
+    );
+    expect(preview.getBoundingClientRect().height).toBeLessThan(500);
+    expect(getComputedStyle(preview.querySelector("td")!).borderTopStyle).toBe(
+      "solid",
+    );
+    expect(preview.getAttribute("data-color-scheme")).toBe(
+      document
+        .querySelector(".bn-container")!
+        .getAttribute("data-color-scheme"),
+    );
+    await drag.drop(block("table"), true);
   });
 
-  test("moves a namedOnly layout block in its list, without a copy of the list", async () => {
-    await renderEditors([
+  it("moves a namedOnly layout block in its list, without a copy of the list", async ({
+    setupEditor,
+  }) => {
+    const editors = await setupLayoutEditors(setupEditor, [
       {
         id: "list",
         type: "list",
@@ -458,15 +529,19 @@ describe.skipIf(browserName === "firefox")("Dragging layout blocks", () => {
     ]);
 
     await dragAndDropBlock(handleOf("i1"), handleOf("i3"), true);
-    await sleep(100);
 
     // The item moved: the list holds the same items, and no new list.
+    await expect
+      .poll(() => ids(editors[0].document[0].children))
+      .toEqual(["i2", "i1", "i3"]);
     expect(lists(editors[0].document)).toBe(1);
-    expect(ids(editors[0].document[0].children)).toEqual(["i2", "i1", "i3"]);
   });
 
-  test("moves a namedOnly layout block into a list of another editor", async () => {
-    await renderEditors(
+  it("moves a namedOnly layout block into a list of another editor", async ({
+    setupEditor,
+  }) => {
+    const editors = await setupLayoutEditors(
+      setupEditor,
       [
         {
           id: "list",
@@ -478,15 +553,25 @@ describe.skipIf(browserName === "firefox")("Dragging layout blocks", () => {
     );
 
     await dragAndDropBlock(handleOf("i1"), handleOf("j1"), true);
-    await sleep(100);
 
-    expect(ids(editors[0].document[0].children)).toEqual(["i2"]);
+    await expect
+      .poll(() => ids(editors[0].document[0].children))
+      .toEqual(["i2"]);
     // The item moved into the other list, without a new list around it.
+    await expect
+      .poll(() =>
+        editors[1].document[0].children.map((child) => ({
+          type: child.type,
+          text: child.children[0]?.content,
+        })),
+      )
+      .toEqual(
+        ["One", "Uno"].map((text) => ({
+          type: "item",
+          text: [{ type: "text", text, styles: {} }],
+        })),
+      );
     expect(lists(editors[1].document)).toBe(1);
-    expect(editors[1].document[0].children).toHaveLength(2);
-    expect(
-      editors[1].document[0].children.map((child: any) => child.type),
-    ).toEqual(["item", "item"]);
   });
 });
 
@@ -495,13 +580,16 @@ describe.skipIf(browserName === "firefox")("Dropping into a block", () => {
   // The highlight of the toggle used to be set on its element directly, which
   // ProseMirror read back as a DOM change and drew the toggle again: the
   // browser then dropped the drag without a `drop` event.
-  test("drops a block onto a closed toggle as its first child", async () => {
-    await renderEditors([
+  it("drops a block onto a closed toggle as its first child", async ({
+    onTestFinished,
+    setupEditor,
+  }) => {
+    const editors = await setupLayoutEditors(setupEditor, [
       { id: "toggle", type: "toggleListItem", content: "Toggle" },
       { id: "dragged", type: "paragraph", content: "Dragged" },
     ]);
 
-    await startBlockDrag(block("dragged"));
+    await startBlockDrag(block("dragged"), onTestFinished);
     const target = getRect(block("toggle").querySelector(".bn-block-content")!);
     await mouseSequence([
       {
@@ -517,9 +605,8 @@ describe.skipIf(browserName === "firefox")("Dropping into a block", () => {
     // to draw the toggle again.
     await sleep(200);
     await mouseSequence([{ type: "up" }]);
-    await sleep(100);
 
-    expect(ids(editors[0].document)).toEqual(["toggle"]);
+    await expect.poll(() => ids(editors[0].document)).toEqual(["toggle"]);
     expect(ids(editors[0].document[0].children)).toEqual(["dragged"]);
   });
 });
@@ -530,14 +617,14 @@ describe.skipIf(browserName === "firefox")(
   () => {
     // The drop leaves a text cursor in the editor, so the keyboard works on it
     // right away, e.g. to undo the drop (#3165).
-    test("undoes a drop with the keyboard", async () => {
-      await renderEditors([
+    it("undoes a drop with the keyboard", async ({ setupEditor }) => {
+      const editors = await setupLayoutEditors(setupEditor, [
         { id: "a", type: "paragraph", content: "A" },
         { id: "b", type: "paragraph", content: "B" },
       ]);
 
       await dragAndDropBlock(block("a"), block("b"), false);
-      await expectElement(editors[0].prosemirrorView.dom).toHaveFocus();
+      await expectElement(editors[0].domElement ?? null).toHaveFocus();
       expect(ids(editors[0].document)).toEqual(["b", "a"]);
       await waitForSelectorDetached(".bn-side-menu");
       // A text cursor shows no formatting toolbar.
@@ -545,13 +632,15 @@ describe.skipIf(browserName === "firefox")(
 
       await userEvent.keyboard(`{${MOD}>}z{/${MOD}}`);
       expect(ids(editors[0].document)).toEqual(["a", "b"]);
-      await expectElement(editors[0].prosemirrorView.dom).toHaveFocus();
-      expectVisibleBlockSelection(["a"]);
+      await expectElement(editors[0].domElement ?? null).toHaveFocus();
+      expectVisibleBlockSelection(editors[0], ["a"]);
       await waitForSelectorDetached(".bn-formatting-toolbar");
     });
 
-    test("undoes a drop into a toggle with the keyboard", async () => {
-      await renderEditors([
+    it("undoes a drop into a toggle with the keyboard", async ({
+      setupEditor,
+    }) => {
+      const editors = await setupLayoutEditors(setupEditor, [
         { id: "toggle", type: "toggleListItem", content: "Toggle" },
         { id: "dragged", type: "paragraph", content: "Dragged" },
       ]);
@@ -561,34 +650,38 @@ describe.skipIf(browserName === "firefox")(
         block("toggle").querySelector(".bn-block-content")!,
         false,
       );
-      await expectElement(editors[0].prosemirrorView.dom).toHaveFocus();
+      await expectElement(editors[0].domElement ?? null).toHaveFocus();
       expect(ids(editors[0].document[0].children)).toEqual(["dragged"]);
 
       await userEvent.keyboard(`{${MOD}>}z{/${MOD}}`);
       expect(ids(editors[0].document)).toEqual(["toggle", "dragged"]);
-      expectVisibleBlockSelection(["dragged"]);
+      expectVisibleBlockSelection(editors[0], ["dragged"]);
     });
 
     // A dropped block without text has no place for a text cursor.
-    test("undoes a drop of an image with the keyboard", async () => {
-      await renderEditors([
+    it("undoes a drop of an image with the keyboard", async ({
+      setupEditor,
+    }) => {
+      const editors = await setupLayoutEditors(setupEditor, [
         { id: "a", type: "paragraph", content: "A" },
         { id: "image", type: "image" },
         { id: "b", type: "paragraph", content: "B" },
       ]);
 
       await dragAndDropBlock(block("image"), block("b"), false);
-      await expectElement(editors[0].prosemirrorView.dom).toHaveFocus();
+      await expectElement(editors[0].domElement ?? null).toHaveFocus();
       expect(ids(editors[0].document)).toEqual(["a", "b", "image"]);
       await waitForSelectorDetached(".bn-formatting-toolbar");
 
       await userEvent.keyboard(`{${MOD}>}z{/${MOD}}`);
       expect(ids(editors[0].document)).toEqual(["a", "image", "b"]);
-      expectVisibleBlockSelection(["image"]);
+      expectVisibleBlockSelection(editors[0], ["image"]);
     });
 
-    test("restores a visible multi-block selection after undoing a drop", async () => {
-      await renderEditors([
+    it("restores a visible multi-block selection after undoing a drop", async ({
+      setupEditor,
+    }) => {
+      const editors = await setupLayoutEditors(setupEditor, [
         { id: "a", type: "paragraph", content: "A" },
         { id: "b", type: "paragraph", content: "B" },
         { id: "c", type: "paragraph", content: "C" },
@@ -597,10 +690,10 @@ describe.skipIf(browserName === "firefox")(
 
       await dragAndDropBlock(block("a"), block("c"), false);
       expect(ids(editors[0].document)).toEqual(["c", "a", "b"]);
-      await expectElement(editors[0].prosemirrorView.dom).toHaveFocus();
+      await expectElement(editors[0].domElement ?? null).toHaveFocus();
       await userEvent.keyboard(`{${MOD}>}z{/${MOD}}`);
       expect(ids(editors[0].document)).toEqual(["a", "b", "c"]);
-      expectVisibleBlockSelection(["a", "b"]);
+      expectVisibleBlockSelection(editors[0], ["a", "b"]);
       await waitForSelectorDetached(".bn-formatting-toolbar");
     });
   },

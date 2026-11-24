@@ -3,6 +3,7 @@ import {
   getBlockInfoFromNode,
   getNodeById,
 } from "@blocknote/core";
+import { Selection } from "prosemirror-state";
 import { AIExtension } from "../../AIExtension.js";
 import { getEditorWithBlockFormatting } from "./editors/blockFormatting.js";
 import { getEditorWithFormattingAndMentions } from "./editors/formattingAndMentions.js";
@@ -116,9 +117,6 @@ export const updateOperationTestCases: DocumentOperationTestCase[] = [
       },
     ],
     userPrompt: "make the first paragraph right aligned",
-    requiredCapabilities: {
-      textAlignment: true,
-    },
   },
   {
     editor: getEditorWithFormattingAndMentions,
@@ -156,9 +154,6 @@ export const updateOperationTestCases: DocumentOperationTestCase[] = [
     ],
     userPrompt:
       "make the first paragraph right aligned and update the content to 'What's up, world!'",
-    requiredCapabilities: {
-      textAlignment: true,
-    },
   },
   {
     editor: getEditorWithFormattingAndMentions,
@@ -392,9 +387,6 @@ export const updateOperationTestCases: DocumentOperationTestCase[] = [
     ],
     userPrompt:
       "Change the first paragraph to Hello, Jane Doe! (use a mention)",
-    requiredCapabilities: {
-      mentions: true,
-    },
   },
   {
     editor: getEditorWithFormattingAndMentions,
@@ -445,9 +437,6 @@ export const updateOperationTestCases: DocumentOperationTestCase[] = [
       },
     ],
     userPrompt: "update the mention to Jane Doe",
-    requiredCapabilities: {
-      mentions: true,
-    },
   },
   {
     editor: getEditorWithFormattingAndMentions,
@@ -695,8 +684,9 @@ export const updateOperationTestCases: DocumentOperationTestCase[] = [
     userPrompt: "Remove the last row",
   },*/
   {
-    editor: () => {
-      const editor = BlockNoteEditor.create({
+    editor: async (setupEditor) => {
+      const { editor } = await setupEditor({
+        mountType: false,
         trailingBlock: false,
         initialContent: [
           {
@@ -739,20 +729,22 @@ export const updateOperationTestCases: DocumentOperationTestCase[] = [
     ],
     userPrompt: "turn into list (update existing blocks)",
     getTestSelection(editor) {
-      const posInfo = getNodeById("ref2", editor.prosemirrorState.doc)!;
+      const doc = editor.transact((tr) => tr.doc);
+      const posInfo = getNodeById("ref2", doc)!;
       const block = getBlockInfoFromNode(posInfo.node, posInfo.posBeforeNode);
       if (!block.hasContent) {
         throw new Error("Block is not a block container");
       }
       return {
         from: block.content.beforePos + 1,
-        to: editor.prosemirrorState.doc.content.size,
+        to: Selection.atEnd(doc).to,
       };
     },
   },
   {
-    editor: () => {
-      const editor = BlockNoteEditor.create({
+    editor: async (setupEditor) => {
+      const { editor } = await setupEditor({
+        mountType: false,
         trailingBlock: false,
         initialContent: [
           {
@@ -786,8 +778,9 @@ export const updateOperationTestCases: DocumentOperationTestCase[] = [
     userPrompt: "make apples uppercase",
   },
   {
-    editor: () => {
-      const editor = BlockNoteEditor.create({
+    editor: async (setupEditor) => {
+      const { editor } = await setupEditor({
+        mountType: false,
         trailingBlock: false,
         initialContent: [
           {
@@ -846,8 +839,5 @@ export const updateOperationTestCases: DocumentOperationTestCase[] = [
       },
     ],
     userPrompt: "clear the formatting (colors and alignment)",
-    requiredCapabilities: {
-      blockColor: true,
-    },
   },
 ];

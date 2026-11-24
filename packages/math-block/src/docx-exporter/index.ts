@@ -30,13 +30,21 @@ function latexToDocxEquation(
     return { error: mathML.error };
   }
 
+  // OMML uses the presentation tree, not KaTeX's trailing LaTeX source
+  // annotation, which the converter doesn't support. Keep the MathML used
+  // by the other exporters intact and don't decode any entities here.
+  const presentationMathML = mathML.mathML.replace(
+    /<annotation encoding="application\/x-tex">[^<]*<\/annotation>(?=<\/semantics><\/math>$)/,
+    "",
+  );
+
   // `fromXmlString` parses the XML *document*, returning a nameless wrapper
   // component around the `m:oMath` root element - unwrap it, or it would
   // serialize as an (invalid) `<undefined>` element.
   const imported = ImportedXmlComponent.fromXmlString(
     // The converter doesn't re-escape decoded text when serializing OMML.
     // Preserve KaTeX's XML entities so characters like < and & stay valid XML.
-    mml2omml(mathML.mathML, { disableDecode: true }),
+    mml2omml(presentationMathML, { disableDecode: true }),
   ) as any;
   return { equation: imported.root[0] as ImportedXmlComponent };
 }

@@ -1,8 +1,7 @@
-// @vitest-environment node
 import { CellSelection, TableMap } from "prosemirror-tables";
-import { afterEach, expect, it } from "vite-plus/test";
+import { expect } from "vite-plus/test";
 
-import { BlockNoteEditor } from "../../editor/BlockNoteEditor.js";
+import type { BlockNoteEditor } from "../../editor/BlockNoteEditor.js";
 import { TableHandlesExtension } from "../../extensions/TableHandles/TableHandles.js";
 import type {
   DefaultInlineContentSchema,
@@ -15,21 +14,18 @@ type TableContentInput = PartialTableContent<
   DefaultStyleSchema
 >;
 
-const editors: BlockNoteEditor[] = [];
-
-afterEach(() => {
-  for (const editor of editors.splice(0)) {
-    editor._tiptapEditor.destroy();
-  }
+const it = globalThis.it.extend<{
+  createEditor: (content: TableContentInput) => Promise<BlockNoteEditor>;
+}>({
+  createEditor: async ({ setupEditor }, use) => {
+    await use(async (content) => {
+      const { editor } = await setupEditor({
+        initialContent: [{ type: "table", content }],
+      });
+      return editor;
+    });
+  },
 });
-
-function createEditor(content: TableContentInput) {
-  const editor = BlockNoteEditor.create({
-    initialContent: [{ type: "table", content }],
-  });
-  editors.push(editor);
-  return editor;
-}
 
 function mergeAll(editor: BlockNoteEditor) {
   const positions: number[] = [];
@@ -79,14 +75,14 @@ const rectangularTable: TableContentInput = {
   rows: [{ cells: ["A", "B", "C"] }, { cells: ["D", "E", "F"] }],
 };
 
-it.each([
+it.for([
   { name: "body cells", headers: {} },
   { name: "a header row", headers: { headerRows: 1 } },
   { name: "a header column", headers: { headerCols: 1 } },
 ])(
   "merges every cell with $name without adding a column (#1993)",
-  ({ headers }) => {
-    const editor = createEditor({ ...rectangularTable, ...headers });
+  async ({ headers }, { createEditor }) => {
+    const editor = await createEditor({ ...rectangularTable, ...headers });
     mergeAll(editor);
 
     const content = tableContent(editor);
@@ -100,8 +96,10 @@ it.each([
   },
 );
 
-it("keeps multiple rows fully covered by a rowspan empty", () => {
-  const editor = createEditor({
+it("keeps multiple rows fully covered by a rowspan empty", async ({
+  createEditor,
+}) => {
+  const editor = await createEditor({
     type: "tableContent",
     rows: [{ cells: ["A", "B"] }, { cells: ["C", "D"] }, { cells: ["E", "F"] }],
   });
@@ -112,8 +110,10 @@ it("keeps multiple rows fully covered by a rowspan empty", () => {
   expectValidGrid(editor, 2, 3);
 });
 
-it("merges a table containing existing rowspans and colspans", () => {
-  const editor = createEditor({
+it("merges a table containing existing rowspans and colspans", async ({
+  createEditor,
+}) => {
+  const editor = await createEditor({
     type: "tableContent",
     columnWidths: [100, 150, 200],
     rows: [
@@ -133,8 +133,10 @@ it("merges a table containing existing rowspans and colspans", () => {
   expectValidGrid(editor, 3, 2);
 });
 
-it("preserves covered rows when saving and reloading BlockNote JSON", () => {
-  const editor = createEditor(rectangularTable);
+it("preserves covered rows when saving and reloading BlockNote JSON", async ({
+  createEditor,
+}) => {
+  const editor = await createEditor(rectangularTable);
   mergeAll(editor);
   const content = tableContent(editor);
   expect(content.rows[1].cells).toEqual([]);
@@ -144,14 +146,16 @@ it("preserves covered rows when saving and reloading BlockNote JSON", () => {
   const saved = structuredClone(editor.document);
   editor.replaceBlocks(editor.document, saved);
   expect(editor.document).toEqual(saved);
-  const reloaded = createEditor(content);
+  const reloaded = await createEditor(content);
   expect(tableContent(reloaded)).toEqual(content);
   expectValidGrid(editor, 3, 2);
   expectValidGrid(reloaded, 3, 2);
 });
 
-it("splits a merged table back into the original grid without extra columns", () => {
-  const editor = createEditor(rectangularTable);
+it("splits a merged table back into the original grid without extra columns", async ({
+  createEditor,
+}) => {
+  const editor = await createEditor(rectangularTable);
   mergeAll(editor);
   expect(tableContent(editor).rows[1].cells).toEqual([]);
   expect(editor.getExtension(TableHandlesExtension)!.splitCell()).toBe(true);

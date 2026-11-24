@@ -1,7 +1,7 @@
 import react from "@vitejs/plugin-react";
 import * as path from "path";
 import { webpackStats } from "rollup-plugin-webpack-stats";
-import { defineConfig, loadEnv, type UserConfig } from "vite-plus";
+import { configDefaults, defineConfig, type UserConfig } from "vite-plus";
 import pkg from "./package.json";
 import { buildCacheInputs } from "../../scripts/build-cache-inputs.js";
 // import eslintPlugin from "vite-plugin-eslint";
@@ -26,8 +26,7 @@ export default defineConfig(
             },
           },
           test: {
-            command:
-              'NODE_EXTRA_CA_CERTS="$(mkcert -CAROOT)/rootCA.pem" vp test --run',
+            command: "vp test --run",
             cache: {
               input: [
                 { auto: true },
@@ -42,18 +41,13 @@ export default defineConfig(
       test: {
         // Preserve Vitest 4 mock history during the toolchain upgrade.
         clearMocks: false,
-        environment: "jsdom",
+        exclude: [...configDefaults.exclude, "**/*.browser.test.*"],
+        // Reuse the editor module graph within each Node worker.
+        isolate: false,
         setupFiles: [
           "./vitestSetup.ts",
           "../../tests/vitestSetup.node-fixtures.ts",
         ],
-        // https://vitest.dev/guide/features.html#environment-variables
-        // Only tests need the full environment. Loading it during a build
-        // fingerprints unrelated per-run CI variables and prevents reuse.
-        env:
-          conf.command === "build"
-            ? undefined
-            : loadEnv(conf.mode, __dirname, ""),
       },
       plugins: [react(), webpackStats()],
       // used so that vitest resolves the core package from the sources instead of the built version

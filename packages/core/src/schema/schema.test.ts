@@ -1,7 +1,4 @@
-/**
- * @vitest-environment jsdom
- */
-import { afterEach, describe, expect, it } from "vite-plus/test";
+import { describe, expect } from "vite-plus/test";
 
 import { BlockNoteSchema } from "../blocks/BlockNoteSchema.js";
 import {
@@ -9,29 +6,10 @@ import {
   defaultInlineContentSpecs,
   defaultStyleSpecs,
 } from "../blocks/defaultBlocks.js";
-import { BlockNoteEditor } from "../editor/BlockNoteEditor.js";
 import { createExtension } from "../editor/BlockNoteExtension.js";
 import { createBlockSpec } from "./blocks/createSpec.js";
 import { createInlineContentSpec } from "./inlineContent/createSpec.js";
 import { createStyleSpec } from "./styles/createSpec.js";
-
-const editorsToCleanup: BlockNoteEditor<any, any, any>[] = [];
-
-afterEach(() => {
-  for (const editor of editorsToCleanup) {
-    editor.unmount();
-  }
-  editorsToCleanup.length = 0;
-});
-
-function createMountedEditor(
-  options: Parameters<typeof BlockNoteEditor.create>[0],
-) {
-  const editor = BlockNoteEditor.create(options);
-  editor.mount(document.createElement("div"));
-  editorsToCleanup.push(editor);
-  return editor;
-}
 
 // A block spec that registers an editor extension, like
 // `@blocknote/xl-multi-column`'s `ColumnBlock` does with its drop handler.
@@ -90,19 +68,21 @@ describe("CustomBlockNoteSchema.extend", () => {
     expect(Object.keys(blockSpecs)).toEqual(["paragraph"]);
   });
 
-  it("keeps an extended schema's blocks and their extensions out of later default-schema editors", () => {
+  it("keeps an extended schema's blocks and their extensions out of later default-schema editors", async ({
+    setupEditor,
+  }) => {
     // Regression: extending a default schema used to write the added block
     // specs into the shared default specs, so every editor created afterwards
     // without an explicit schema silently got the extra block types - and the
     // editor extensions they register (e.g. multi-column's drop handler).
-    const extendedEditor = createMountedEditor({
+    const { editor: extendedEditor } = await setupEditor({
       schema: BlockNoteSchema.create().extend({
         blockSpecs: { customBlock: createCustomBlockSpec() },
       }),
     });
     expect(extendedEditor.getExtension(CustomBlockExtension)).toBeDefined();
 
-    const defaultEditor = createMountedEditor({});
+    const { editor: defaultEditor } = await setupEditor();
     expect(defaultEditor.schema.blockSchema).not.toHaveProperty("customBlock");
     expect(defaultEditor.pmSchema.nodes).not.toHaveProperty("customBlock");
     expect(defaultEditor.getExtension(CustomBlockExtension)).toBeUndefined();

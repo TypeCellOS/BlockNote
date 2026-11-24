@@ -1,4 +1,4 @@
-import axe from "axe-core";
+import type { AxeResults } from "axe-core";
 import type { Locator } from "vite-plus/test/browser";
 
 /**
@@ -22,8 +22,10 @@ import type { Locator } from "vite-plus/test/browser";
  *   expect(violations).toEqual([]);
  * });
  */
-export async function runAxe(scope?: Locator): Promise<axe.AxeResults> {
-  return axe.run(scope ? scope.element() : document.body, {
+export async function runAxe(scope?: Locator): Promise<AxeResults> {
+  const element = scope ? scope.element() : document.body;
+  const { default: axe } = await import("axe-core");
+  return axe.run(element, {
     rules: { "target-size": { enabled: true } },
   });
 }

@@ -1,88 +1,104 @@
-import { Node } from "prosemirror-model";
+import { createChainableState } from "@tiptap/core";
 import { TextSelection } from "prosemirror-state";
-import { describe, expect, it } from "vite-plus/test";
+import { describe, expect } from "vite-plus/test";
 
-import {
-  getBlockInfoFromNode,
-  getBlockInfoFromSelection,
-  getNodeId,
-} from "../../../getBlockInfoFromPos.js";
+import type { BlockNoteEditor } from "../../../../editor/BlockNoteEditor.js";
+import { getBlockInfoFromNode } from "../../../getBlockInfoFromPos.js";
 import { getNodeById } from "../../../nodeUtil.js";
 import { layoutSchema } from "../../layoutBlocks/layoutBlocks.fixture.js";
-import { setupTestEnv } from "../../setupTestEnv.js";
+import { testDocument } from "../../setupTestEnv.js";
 import { splitBlockCommand } from "./splitBlock.js";
 
-const getEditor = setupTestEnv();
-
 function splitBlock(
+  editor: Pick<BlockNoteEditor, "exec">,
   posInBlock: number,
   keepType?: boolean,
   keepProps?: boolean,
   keepChildren?: boolean,
 ) {
-  getEditor()._tiptapEditor.commands.command(
-    splitBlockCommand(posInBlock, keepType, keepProps, keepChildren),
-  );
+  return editor.exec((state, dispatch) => {
+    // Tiptap passes a shared transaction to the command and commits it after
+    // the command returns; the dispatch argument only signals write mode.
+    const transaction = state.tr;
+    const handled = splitBlockCommand(
+      posInBlock,
+      keepType,
+      keepProps,
+      keepChildren,
+    )({
+      state: createChainableState({ state, transaction }),
+      dispatch: dispatch && (() => {}),
+    });
+    dispatch?.(transaction);
+    return handled;
+  });
 }
 
 function setSelectionWithOffset(
-  doc: Node,
+  editor: BlockNoteEditor,
   targetBlockId: string,
   offset: number,
 ) {
-  const posInfo = getNodeById(targetBlockId, doc);
-  if (!posInfo) {
-    throw new Error(`Block with ID ${targetBlockId} not found`);
-  }
-
-  const info = getBlockInfoFromNode(posInfo.node, posInfo.posBeforeNode);
-
-  if (!info.hasContent) {
-    throw new Error("Target block is not a block container");
-  }
-
-  getEditor().transact((tr) =>
-    tr.setSelection(TextSelection.create(doc, info.contentStart + offset)),
-  );
+  editor.transact((tr) => {
+    const posInfo = getNodeById(targetBlockId, tr.doc);
+    if (!posInfo) {
+      throw new Error(`Block with ID ${targetBlockId} not found`);
+    }
+    const info = getBlockInfoFromNode(posInfo.node, posInfo.posBeforeNode);
+    if (!info.hasContent) {
+      throw new Error("Target block is not a block container");
+    }
+    tr.setSelection(TextSelection.create(tr.doc, info.contentStart + offset));
+  });
 }
 
 describe("Test splitBlocks", () => {
-  it("Basic", () => {
-    getEditor().transact((tr) => {
-      setSelectionWithOffset(tr.doc, "paragraph-0", 4);
-    });
+  let editor: BlockNoteEditor;
+  it.beforeEach(async ({ setupEditor }) => {
+    ({ editor } = await setupEditor({ initialContent: testDocument }));
+  });
 
-    splitBlock(getEditor().transact((tr) => tr.selection.anchor));
+  function getEditor() {
+    return editor;
+  }
+
+  it("Basic", () => {
+    setSelectionWithOffset(getEditor(), "paragraph-0", 4);
+
+    splitBlock(
+      getEditor(),
+      getEditor().transact((tr) => tr.selection.anchor),
+    );
 
     expect(getEditor().document).toMatchSnapshot();
   });
 
   it("End of content", () => {
-    getEditor().transact((tr) => {
-      setSelectionWithOffset(tr.doc, "paragraph-0", 11);
-    });
+    setSelectionWithOffset(getEditor(), "paragraph-0", 11);
 
-    splitBlock(getEditor().transact((tr) => tr.selection.anchor));
+    splitBlock(
+      getEditor(),
+      getEditor().transact((tr) => tr.selection.anchor),
+    );
 
     expect(getEditor().document).toMatchSnapshot();
   });
 
   it("Block has children", () => {
-    getEditor().transact((tr) => {
-      setSelectionWithOffset(tr.doc, "paragraph-with-children", 4);
-    });
+    setSelectionWithOffset(getEditor(), "paragraph-with-children", 4);
 
-    splitBlock(getEditor().transact((tr) => tr.selection.anchor));
+    splitBlock(
+      getEditor(),
+      getEditor().transact((tr) => tr.selection.anchor),
+    );
 
     expect(getEditor().document).toMatchSnapshot();
   });
 
   it("Keep type", () => {
-    getEditor().transact((tr) => {
-      setSelectionWithOffset(tr.doc, "heading-0", 4);
-    });
-
+    setSelectionWithOffset(getEditor(), "heading-0", 4);
     splitBlock(
+      getEditor(),
       getEditor().transact((tr) => tr.selection.anchor),
       true,
     );
@@ -91,11 +107,9 @@ describe("Test splitBlocks", () => {
   });
 
   it("Don't keep type", () => {
-    getEditor().transact((tr) => {
-      setSelectionWithOffset(tr.doc, "heading-0", 4);
-    });
-
+    setSelectionWithOffset(getEditor(), "heading-0", 4);
     splitBlock(
+      getEditor(),
       getEditor().transact((tr) => tr.selection.anchor),
       false,
     );
@@ -104,11 +118,9 @@ describe("Test splitBlocks", () => {
   });
 
   it.skip("Keep props", () => {
-    getEditor().transact((tr) => {
-      setSelectionWithOffset(tr.doc, "paragraph-with-props", 4);
-    });
-
+    setSelectionWithOffset(getEditor(), "paragraph-with-props", 4);
     splitBlock(
+      getEditor(),
       getEditor().transact((tr) => tr.selection.anchor),
       false,
       true,
@@ -118,11 +130,9 @@ describe("Test splitBlocks", () => {
   });
 
   it("Don't keep props", () => {
-    getEditor().transact((tr) => {
-      setSelectionWithOffset(tr.doc, "paragraph-with-props", 4);
-    });
-
+    setSelectionWithOffset(getEditor(), "paragraph-with-props", 4);
     splitBlock(
+      getEditor(),
       getEditor().transact((tr) => tr.selection.anchor),
       false,
       false,
@@ -132,21 +142,18 @@ describe("Test splitBlocks", () => {
   });
 
   it("Selection is set", () => {
-    getEditor().transact((tr) => {
-      setSelectionWithOffset(tr.doc, "paragraph-0", 4);
-    });
-
-    splitBlock(getEditor().transact((tr) => tr.selection.anchor));
-
-    const blockId = getEditor().transact((tr) =>
-      getNodeId(getBlockInfoFromSelection(tr).block.node, tr.doc),
+    setSelectionWithOffset(getEditor(), "paragraph-0", 4);
+    splitBlock(
+      getEditor(),
+      getEditor().transact((tr) => tr.selection.anchor),
     );
 
-    const anchorIsAtStartOfNewBlock =
-      blockId === "0" &&
-      getEditor().transact((tr) => tr.selection.$anchor.parentOffset) === 0;
-
-    expect(anchorIsAtStartOfNewBlock).toBeTruthy();
+    const newBlock = getEditor().document[1];
+    expect(newBlock.id).toBe("0");
+    expect(getEditor().getTextCursorPosition().block.id).toBe(newBlock.id);
+    expect(
+      getEditor().transact((tr) => tr.selection.$anchor.parentOffset),
+    ).toBe(0);
   });
 });
 
@@ -156,9 +163,13 @@ describe("Test splitBlocks", () => {
 // different node type than `blockGroup`, so these pin that the split lands
 // inside the layout block rather than tearing it open.
 describe("Test splitBlocks inside layout blocks", () => {
-  const getLayoutEditor = setupTestEnv({
+  type LayoutEditor = typeof layoutSchema.BlockNoteEditor;
+  const editorOptions: {
+    schema: typeof layoutSchema;
+    initialContent: (typeof layoutSchema.PartialBlock)[];
+  } = {
     schema: layoutSchema,
-    document: [
+    initialContent: [
       { id: "before", type: "paragraph", content: "Before" },
       {
         id: "callout-0",
@@ -204,15 +215,23 @@ describe("Test splitBlocks inside layout blocks", () => {
         ],
       },
     ],
+  };
+
+  let layoutEditor: LayoutEditor;
+  it.beforeEach(async ({ setupEditor }) => {
+    ({ editor: layoutEditor } = await setupEditor(editorOptions));
   });
 
+  function getLayoutEditor() {
+    return layoutEditor;
+  }
+
   function splitLayoutBlock(
+    editor: LayoutEditor,
     blockId: string,
     offset: number,
     keepChildren = false,
   ) {
-    const editor = getLayoutEditor();
-
     const posInBlock = editor.transact((tr) => {
       const posInfo = getNodeById(blockId, tr.doc);
       if (!posInfo) {
@@ -228,9 +247,7 @@ describe("Test splitBlocks inside layout blocks", () => {
         : info.block.beforePos;
     });
 
-    return editor._tiptapEditor.commands.command(
-      splitBlockCommand(posInBlock, true, undefined, keepChildren),
-    );
+    return splitBlock(editor, posInBlock, true, undefined, keepChildren);
   }
 
   function textOf(block: { content?: any }) {
@@ -238,7 +255,9 @@ describe("Test splitBlocks inside layout blocks", () => {
   }
 
   it("Splits a block inside a layout block in place", () => {
-    expect(splitLayoutBlock("callout-child-0", 7)).toBe(true);
+    expect(splitLayoutBlock(getLayoutEditor(), "callout-child-0", 7)).toBe(
+      true,
+    );
 
     const document = getLayoutEditor().document;
 
@@ -256,11 +275,15 @@ describe("Test splitBlocks inside layout blocks", () => {
       "Callout heading",
     ]);
 
-    expect(() => getLayoutEditor().prosemirrorState.doc.check()).not.toThrow();
+    expect(() =>
+      getLayoutEditor().transact((tr) => tr.doc.check()),
+    ).not.toThrow();
   });
 
   it("Moves the block's children to the second half of the split", () => {
-    expect(splitLayoutBlock("callout-child-1", 7)).toBe(true);
+    expect(splitLayoutBlock(getLayoutEditor(), "callout-child-1", 7)).toBe(
+      true,
+    );
 
     const callout = getLayoutEditor().document[1];
 
@@ -275,11 +298,15 @@ describe("Test splitBlocks inside layout blocks", () => {
       "nested-child",
     ]);
 
-    expect(() => getLayoutEditor().prosemirrorState.doc.check()).not.toThrow();
+    expect(() =>
+      getLayoutEditor().transact((tr) => tr.doc.check()),
+    ).not.toThrow();
   });
 
   it("Keeps the block's children on the first half with `keepChildren`", () => {
-    expect(splitLayoutBlock("callout-child-1", 7, true)).toBe(true);
+    expect(
+      splitLayoutBlock(getLayoutEditor(), "callout-child-1", 7, true),
+    ).toBe(true);
 
     const callout = getLayoutEditor().document[1];
 
@@ -293,11 +320,13 @@ describe("Test splitBlocks inside layout blocks", () => {
       "nested-child",
     ]);
 
-    expect(() => getLayoutEditor().prosemirrorState.doc.check()).not.toThrow();
+    expect(() =>
+      getLayoutEditor().transact((tr) => tr.doc.check()),
+    ).not.toThrow();
   });
 
   it("Splits a block inside a nested layout block", () => {
-    expect(splitLayoutBlock("cell-0-p", 4)).toBe(true);
+    expect(splitLayoutBlock(getLayoutEditor(), "cell-0-p", 4)).toBe(true);
 
     const grid = getLayoutEditor().document[2];
 
@@ -306,13 +335,15 @@ describe("Test splitBlocks inside layout blocks", () => {
     expect(grid.children[0].children.map(textOf)).toEqual(["Cell", " zero"]);
     expect(grid.children[1].children.map(textOf)).toEqual(["Cell one"]);
 
-    expect(() => getLayoutEditor().prosemirrorState.doc.check()).not.toThrow();
+    expect(() =>
+      getLayoutEditor().transact((tr) => tr.doc.check()),
+    ).not.toThrow();
   });
 
   it("Does not split a layout block itself", () => {
     const before = getLayoutEditor().document;
 
-    expect(splitLayoutBlock("callout-0", 0)).toBe(false);
+    expect(splitLayoutBlock(getLayoutEditor(), "callout-0", 0)).toBe(false);
 
     expect(getLayoutEditor().document).toEqual(before);
   });
@@ -322,6 +353,15 @@ describe("Test splitBlocks inside layout blocks", () => {
 // block. `keepChildren` (a closed toggle) keeps them with the first half,
 // except at the start, where the whole content moves down.
 describe("split child ownership", () => {
+  let editor: BlockNoteEditor;
+  it.beforeEach(async ({ setupEditor }) => {
+    ({ editor } = await setupEditor({ initialContent: testDocument }));
+  });
+
+  function getEditor() {
+    return editor;
+  }
+
   it.each([
     ["start", false, "second"],
     ["middle", false, "second"],
@@ -335,7 +375,7 @@ describe("split child ownership", () => {
       const editor = getEditor();
       const id = "paragraph-with-children";
       const children = editor.getBlock(id)!.children;
-      const target = getNodeById(id, editor.prosemirrorState.doc)!;
+      const target = editor.transact((tr) => getNodeById(id, tr.doc))!;
       const info = getBlockInfoFromNode(target.node, target.posBeforeNode);
       if (!info.hasContent) {
         throw new Error("Expected content block");
@@ -346,9 +386,10 @@ describe("split child ownership", () => {
           : where === "end"
             ? info.contentEnd - info.contentStart
             : 4;
-      setSelectionWithOffset(editor.prosemirrorState.doc, id, offset);
+      setSelectionWithOffset(editor, id, offset);
       splitBlock(
-        editor.prosemirrorState.selection.from,
+        editor,
+        editor.transact((tr) => tr.selection.from),
         undefined,
         undefined,
         keepChildren,
@@ -358,7 +399,7 @@ describe("split child ownership", () => {
       expect((owner === "first" ? first : second).children).toEqual(children);
       expect((owner === "first" ? second : first).children).toEqual([]);
       expect(editor.getTextCursorPosition().block.id).toBe(second.id);
-      expect(() => editor.prosemirrorState.doc.check()).not.toThrow();
+      expect(() => editor.transact((tr) => tr.doc.check())).not.toThrow();
     },
   );
 });

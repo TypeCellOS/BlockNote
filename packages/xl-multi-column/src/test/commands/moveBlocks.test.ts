@@ -1,10 +1,10 @@
-import { beforeEach, describe, expect, it } from "vite-plus/test";
+import { describe, expect } from "vite-plus/test";
 
-import { setupTestEnv } from "../setupTestEnv.js";
-
-const getEditor = setupTestEnv();
+import { multiColumnTestOptions, setupTestEnv } from "../setupTestEnv.js";
 
 describe("Test moveBlocksUp", () => {
+  const getEditor = setupTestEnv(it);
+
   it("Move into column list", () => {
     getEditor().setTextCursorPosition("paragraph-2");
 
@@ -79,6 +79,8 @@ describe("Test moveBlocksUp", () => {
 });
 
 describe("Test moveBlocksDown", () => {
+  const getEditor = setupTestEnv(it);
+
   it("Move into column list", () => {
     getEditor().setTextCursorPosition("paragraph-1");
 
@@ -153,8 +155,9 @@ describe("Test moveBlocksDown", () => {
 });
 
 describe("Move past empty sibling within a column", () => {
-  beforeEach(() => {
-    getEditor().replaceBlocks(getEditor().document, [
+  const options = {
+    schema: multiColumnTestOptions.schema,
+    initialContent: [
       {
         id: "column-list-empty",
         type: "columnList",
@@ -177,23 +180,25 @@ describe("Move past empty sibling within a column", () => {
           },
         ],
       },
-    ]);
+    ],
+  } satisfies typeof multiColumnTestOptions;
+
+  it("Move up above empty sibling", async ({ setupEditor }) => {
+    const { editor } = await setupEditor(options);
+    editor.setTextCursorPosition("text-0");
+
+    expect(() => editor.moveBlocksUp()).not.toThrow();
+
+    expect(editor.document).toMatchSnapshot();
   });
 
-  it("Move up above empty sibling", () => {
-    getEditor().setTextCursorPosition("text-0");
+  it("Move down below empty sibling", async ({ setupEditor }) => {
+    const { editor } = await setupEditor(options);
+    editor.setTextCursorPosition("empty-0");
 
-    expect(() => getEditor().moveBlocksUp()).not.toThrow();
+    expect(() => editor.moveBlocksDown()).not.toThrow();
 
-    expect(getEditor().document).toMatchSnapshot();
-  });
-
-  it("Move down below empty sibling", () => {
-    getEditor().setTextCursorPosition("empty-0");
-
-    expect(() => getEditor().moveBlocksDown()).not.toThrow();
-
-    expect(getEditor().document).toMatchSnapshot();
+    expect(editor.document).toMatchSnapshot();
   });
 });
 
@@ -202,6 +207,8 @@ describe("Move past empty sibling within a column", () => {
 // The column list is left at its `min` of 2 by an empty replacement column,
 // rather than unwrapping - see the note on emptied columns below.
 describe("Move a column", () => {
+  const getEditor = setupTestEnv(it);
+
   it("Move column up", () => {
     getEditor().moveBlocksUp("column-1");
 
@@ -218,8 +225,9 @@ describe("Move a column", () => {
 // A move is a rearrangement rather than a deletion, so a column it empties out
 // is deliberately left standing instead of being collapsed (see `moveBlocks`).
 describe("Empty a column by moving out of it", () => {
-  beforeEach(() => {
-    getEditor().replaceBlocks(getEditor().document, [
+  const options = {
+    schema: multiColumnTestOptions.schema,
+    initialContent: [
       { id: "paragraph-before", type: "paragraph", content: "Before" },
       {
         id: "column-list-single",
@@ -238,22 +246,24 @@ describe("Empty a column by moving out of it", () => {
         ],
       },
       { id: "paragraph-after", type: "paragraph", content: "After" },
-    ]);
+    ],
+  } satisfies typeof multiColumnTestOptions;
+
+  it("Move the only block out of the first column", async ({ setupEditor }) => {
+    const { editor } = await setupEditor(options);
+    editor.setTextCursorPosition("only-0");
+
+    editor.moveBlocksUp();
+
+    expect(editor.document).toMatchSnapshot();
   });
 
-  it("Move the only block out of the first column", () => {
-    getEditor().setTextCursorPosition("only-0");
+  it("Move the only block out of the last column", async ({ setupEditor }) => {
+    const { editor } = await setupEditor(options);
+    editor.setTextCursorPosition("only-1");
 
-    getEditor().moveBlocksUp();
+    editor.moveBlocksDown();
 
-    expect(getEditor().document).toMatchSnapshot();
-  });
-
-  it("Move the only block out of the last column", () => {
-    getEditor().setTextCursorPosition("only-1");
-
-    getEditor().moveBlocksDown();
-
-    expect(getEditor().document).toMatchSnapshot();
+    expect(editor.document).toMatchSnapshot();
   });
 });

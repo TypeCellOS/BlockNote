@@ -17,11 +17,23 @@ import { BlockNoteView as MantineBlockNoteView } from "@blocknote/mantine";
 import "@blocknote/mantine/style.css";
 import "@blocknote/math-block/style.css";
 import { createReactBlockSpec } from "@blocknote/react";
-import { expect, test, vi } from "vite-plus/test";
-import { render } from "vitest-browser-react";
+import { aroundEach, expect, test, vi } from "vite-plus/test";
+import { cleanup, render } from "vitest-browser-react";
 
+import { withTiptapStyleCleanup } from "../../commands/browser/tiptapFixtureStyles.js";
 import { userEvent } from "../../utils/context.js";
 import { expectElement } from "../../utils/editor.js";
+
+aroundEach((runTest) =>
+  withTiptapStyleCleanup(async () => {
+    try {
+      await runTest();
+    } finally {
+      // A destroyed editor's React host can still carry the .tiptap class.
+      await cleanup();
+    }
+  }),
+);
 
 const customPreview = createReactBlockSpec(
   { type: "customPreview", propSchema: {}, content: "plain" },
@@ -43,6 +55,18 @@ const schema = BlockNoteSchema.create().extend({
   },
   inlineContentSpecs: { math: createReactInlineMathSpec() },
 });
+
+async function hoverInlineMathPreview(preview: HTMLElement) {
+  // Hover the painted formula, not the inline wrapper's font-dependent box.
+  const renderedMath = await vi.waitFor(() => {
+    const element = preview.querySelector<HTMLElement>(".katex-html");
+    if (!element) {
+      throw new Error("Visible inline math did not render");
+    }
+    return element;
+  });
+  await userEvent.hover(renderedMath);
+}
 
 test("only attributes the edited text", async () => {
   const editor = BlockNoteEditor.create({
@@ -149,7 +173,7 @@ test("anchors an inline math change tooltip to the formula, not the paragraph", 
       }
       return element;
     });
-    await userEvent.hover(formula);
+    await hoverInlineMathPreview(formula);
     expect(formula.querySelector("[data-user-ids]")).toBeNull();
     expect(
       formula.parentElement?.querySelector(
@@ -210,7 +234,7 @@ test("does not attribute unchanged content to a sibling's change", async () => {
       }
       return element;
     });
-    await userEvent.hover(formula);
+    await hoverInlineMathPreview(formula);
     expect(
       editor.domElement?.querySelector(
         '.bn-block[data-id="siblings"] [data-user-ids]',
@@ -294,7 +318,7 @@ test("shows an attribution for a partial change within inline math", async () =>
       }
       return element;
     });
-    await userEvent.hover(formula);
+    await hoverInlineMathPreview(formula);
     await vi.waitFor(() =>
       expect(
         document.querySelector(".bn-suggestion-tooltip")?.textContent,

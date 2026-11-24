@@ -1,13 +1,15 @@
-import { describe, expect, it } from "vite-plus/test";
+import { describe, expect } from "vite-plus/test";
 
-import { setupTestEnv } from "../../setupTestEnv.js";
+import {
+  multiColumnTestOptions,
+  testEditorSchema,
+} from "../../setupTestEnv.js";
 import { fixLayoutBlock, isEmptyLayoutChild } from "@blocknote/core";
 
-const getEditor = setupTestEnv();
-
 describe("Test isEmptyLayoutChild", () => {
-  it("Empty blocks", () => {
-    const schema = getEditor()._tiptapEditor.schema;
+  it("Empty blocks", async ({ setupEditor }) => {
+    const { editor } = await setupEditor({ schema: testEditorSchema });
+    const schema = editor.pmSchema;
 
     const column = schema.nodes["column"].create(undefined, [
       schema.nodes["blockContainer"].create(undefined, [
@@ -18,8 +20,9 @@ describe("Test isEmptyLayoutChild", () => {
     expect(isEmptyLayoutChild(column)).toBeTruthy();
   });
 
-  it("Multiple blocks", () => {
-    const schema = getEditor()._tiptapEditor.schema;
+  it("Multiple blocks", async ({ setupEditor }) => {
+    const { editor } = await setupEditor({ schema: testEditorSchema });
+    const schema = editor.pmSchema;
 
     const column = schema.nodes["column"].create(undefined, [
       schema.nodes["blockContainer"].create(undefined, [
@@ -33,8 +36,9 @@ describe("Test isEmptyLayoutChild", () => {
     expect(isEmptyLayoutChild(column)).toBeFalsy();
   });
 
-  it("Block with children", () => {
-    const schema = getEditor()._tiptapEditor.schema;
+  it("Block with children", async ({ setupEditor }) => {
+    const { editor } = await setupEditor({ schema: testEditorSchema });
+    const schema = editor.pmSchema;
 
     const column = schema.nodes["column"].create(undefined, [
       schema.nodes["blockContainer"].create(undefined, [
@@ -50,8 +54,9 @@ describe("Test isEmptyLayoutChild", () => {
     expect(isEmptyLayoutChild(column)).toBeFalsy();
   });
 
-  it("Block with text", () => {
-    const schema = getEditor()._tiptapEditor.schema;
+  it("Block with text", async ({ setupEditor }) => {
+    const { editor } = await setupEditor({ schema: testEditorSchema });
+    const schema = editor.pmSchema;
 
     const column = schema.nodes["column"].create(undefined, [
       schema.nodes["blockContainer"].create(undefined, [
@@ -64,8 +69,9 @@ describe("Test isEmptyLayoutChild", () => {
     expect(isEmptyLayoutChild(column)).toBeFalsy();
   });
 
-  it("Non-text block", () => {
-    const schema = getEditor()._tiptapEditor.schema;
+  it("Non-text block", async ({ setupEditor }) => {
+    const { editor } = await setupEditor({ schema: testEditorSchema });
+    const schema = editor.pmSchema;
 
     const column = schema.nodes["column"].create(undefined, [
       schema.nodes["blockContainer"].create(undefined, [
@@ -78,14 +84,14 @@ describe("Test isEmptyLayoutChild", () => {
 });
 
 describe("Test fixLayoutBlock drops emptied columns", () => {
-  it.each<[string, string[]]>([
+  it.for<[string, string[]]>([
     ["Start and end columns empty", ["", "Paragraph 1", "Paragraph 2", ""]],
     ["First of two columns empty", ["", "Paragraph 1"]],
     ["Last of two columns empty", ["Paragraph 1", ""]],
     ["Two empty columns", ["", ""]],
-  ])("%s", (_name, texts) => {
-    const editor = getEditor();
-    const schema = editor._tiptapEditor.schema;
+  ])("%s", async ([_name, texts], { setupEditor }) => {
+    const { editor } = await setupEditor(multiColumnTestOptions);
+    const schema = editor.pmSchema;
     const columnList = schema.nodes["columnList"].create(
       undefined,
       texts.map((text) =>
@@ -99,9 +105,10 @@ describe("Test fixLayoutBlock drops emptied columns", () => {
         ]),
       ),
     );
-    const tr = editor.prosemirrorState.tr;
-    tr.replaceRangeWith(1, tr.doc.firstChild!.content.size, columnList);
-    fixLayoutBlock(tr, 1);
-    expect(tr.doc).toMatchSnapshot();
+    editor.transact((tr) => {
+      tr.replaceRangeWith(1, tr.doc.firstChild!.content.size, columnList);
+      fixLayoutBlock(tr, 1);
+      expect(tr.doc).toMatchSnapshot();
+    });
   });
 });

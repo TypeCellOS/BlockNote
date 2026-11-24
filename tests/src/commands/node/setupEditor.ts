@@ -10,7 +10,6 @@ import {
   type InlineContentSchema,
   type StyleSchema,
 } from "@blocknote/core";
-import type { TestContext } from "vite-plus/test";
 
 type DefaultOptions = Omit<
   Partial<
@@ -23,8 +22,16 @@ type DefaultOptions = Omit<
   "schema"
 > & { schema?: never };
 
-/** Binds headless editor cleanup to the current Node test (not a browser RPC). */
-export function createSetupEditor(onFinished: TestContext["onTestFinished"]) {
+type EditorMount = {
+  mount: (mountEditor: (host: HTMLElement) => void) => void;
+  dispose: (destroyEditor: () => void) => void;
+};
+
+/** Binds Core editor cleanup to the current test; headless by default. */
+export function createSetupEditor(
+  onFinished: (cleanup: () => void) => void,
+  prepareMount?: () => EditorMount,
+) {
   async function setupWithSchema<
     B extends BlockSchema,
     I extends InlineContentSchema,
@@ -33,17 +40,40 @@ export function createSetupEditor(onFinished: TestContext["onTestFinished"]) {
     schema: CustomBlockNoteSchema<B, I, S>,
     options: Partial<BlockNoteEditorOptions<B, I, S>>,
   ) {
-    const editor = BlockNoteEditor.create({ ...options, schema });
-    onFinished(() => {
-      editor.unmount();
-    });
-    return { editor };
+    let mountResources: EditorMount | undefined;
+    let editor: BlockNoteEditor<B, I, S> | undefined;
+    let disposed = false;
+    function dispose() {
+      if (disposed) {
+        return;
+      }
+      disposed = true;
+      function destroyEditor() {
+        editor?._tiptapEditor.destroy();
+      }
+      if (mountResources) {
+        mountResources.dispose(destroyEditor);
+      } else {
+        destroyEditor();
+      }
+    }
+
+    onFinished(dispose);
+    try {
+      mountResources = prepareMount?.();
+      editor = BlockNoteEditor.create({ ...options, schema });
+      mountResources?.mount(editor.mount);
+      return { editor };
+    } catch (error) {
+      dispose();
+      throw error;
+    }
   }
 
   /**
-   * Creates a headless editor without accessing a DOM or requiring jsdom.
-   * Registers the public `unmount` cleanup after the test. This does not
-   * permanently destroy extensions; BlockNote has no public destroy method.
+   * Creates a Core editor, headless unless the fixture provides a mount host.
+   * Destroys the editor only during final cleanup, via TipTap because BlockNote
+   * has no public destroy method. Public `unmount` remains safe for remounting.
    *
    * Use for Node tests of editor/document logic. Use browser setupEditor for
    * component rendering and real input/focus behavior.

@@ -9,7 +9,7 @@ import {
   SideMenuExtension,
   type SideMenuOptions,
 } from "@blocknote/core/extensions";
-import "@blocknote/core/fonts/inter.css";
+import interStyles from "@blocknote/core/fonts/inter.css?inline";
 import { BlockNoteView } from "@blocknote/mantine";
 import "@blocknote/mantine/style.css";
 import { createReactBlockSpec, useCreateBlockNote } from "@blocknote/react";
@@ -21,14 +21,23 @@ import type { CSSProperties } from "react";
 import { afterEach, describe, expect, test } from "vite-plus/test";
 import { cleanup, render } from "vitest-browser-react";
 
+import { useBrowserSuiteStyles } from "../../commands/browser/useBrowserSuiteStyles.js";
 import {
   DRAG_HANDLE_ADD_SELECTOR,
-  DRAG_HANDLE_SELECTOR,
   NEST_BLOCK_BUTTON_SELECTOR,
+  SLASH_MENU_SELECTOR,
 } from "../../utils/const.js";
 import { browserName } from "../../utils/context.js";
-import { sleep, waitForSelector } from "../../utils/editor.js";
-import { getRect, mouseSequence } from "../../utils/mouse.js";
+import { waitForSelector } from "../../utils/editor.js";
+import {
+  getRect,
+  mouseSequence,
+  startBlockDrag,
+  waitForDragHandle,
+} from "../../utils/mouse.js";
+
+// Vite resolves the bundled font URLs in the inline CSS without injecting it.
+useBrowserSuiteStyles(interStyles);
 
 // How the side menu follows the pointer: which block it shows for, and
 // whether it shows at all. "works today" guards behavior that works on main;
@@ -93,28 +102,47 @@ function menuBlock(name = "main"): string | undefined {
   return state?.show ? state.block.id : undefined;
 }
 
-function blockRect(id: string, name = "main"): DOMRect {
+function blockContent(id: string, name = "main") {
   const element = document.querySelector(
     `[data-editor-name="${name}"] .bn-block[data-id="${id}"] .bn-block-content`,
   );
   if (!element) {
     throw new Error(`Block "${id}" is not rendered in editor "${name}"`);
   }
-  return element.getBoundingClientRect();
+  return element;
+}
+
+function blockRect(id: string, name = "main"): DOMRect {
+  return blockContent(id, name).getBoundingClientRect();
+}
+
+async function addButtonRect(id: string) {
+  const handle = await waitForDragHandle(blockContent(id));
+  return getRect(
+    handle.closest(".bn-side-menu")!.querySelector(DRAG_HANDLE_ADD_SELECTOR)!,
+  );
 }
 
 /** Moves the pointer through the points, one small step at a time. */
 async function walk(points: { x: number; y: number }[], steps = 8) {
+  // The extension's store updates during mousemove. Tests that use the
+  // floating UI itself also wait for its position before reading geometry.
   await mouseSequence(
     points.map(({ x, y }) => ({ type: "move", x, y, steps })),
   );
-  // The menu updates on the next frames.
-  await sleep(100);
 }
 
-async function hoverBlock(id: string, name = "main") {
+async function hoverBlock(id: string, name = "main", steps = 8) {
   const rect = blockRect(id, name);
-  await walk([{ x: rect.x + rect.width / 2, y: rect.y + rect.height / 2 }]);
+  await walk(
+    [{ x: rect.x + rect.width / 2, y: rect.y + rect.height / 2 }],
+    steps,
+  );
+}
+
+/** Establishes the starting hover without walking across unrelated blocks. */
+function pointAtBlock(id: string, name = "main") {
+  return hoverBlock(id, name, 1);
 }
 
 function paragraph(id: string, text = id): PartialBlock<any, any, any> {
@@ -168,7 +196,7 @@ describe("side menu hover: works today", () => {
     );
     await waitForSelector(".bn-editor");
 
-    await hoverBlock("a");
+    await pointAtBlock("a");
     expect(menuBlock()).toBe("a");
     await hoverBlock("b");
     expect(menuBlock()).toBe("b");
@@ -184,7 +212,7 @@ describe("side menu hover: works today", () => {
     await waitForSelector(".bn-editor");
 
     const rect = blockRect("child");
-    await walk([{ x: rect.x + 4, y: rect.y + rect.height / 2 }]);
+    await walk([{ x: rect.x + 4, y: rect.y + rect.height / 2 }], 1);
     expect(menuBlock()).toBe("child");
   });
 
@@ -199,7 +227,7 @@ describe("side menu hover: works today", () => {
     await waitForSelector(".bn-editor");
 
     const rect = blockRect("a");
-    await walk([{ x: rect.x - 30, y: rect.y + rect.height / 2 }]);
+    await walk([{ x: rect.x - 30, y: rect.y + rect.height / 2 }], 1);
     expect(menuBlock()).toBe("a");
   });
 
@@ -207,7 +235,7 @@ describe("side menu hover: works today", () => {
     await render(<Editor name="main" content={columnsDocument} />);
     await waitForSelector(".bn-editor");
 
-    await hoverBlock("c2");
+    await pointAtBlock("c2");
     expect(menuBlock()).toBe("c2");
     await hoverBlock("c1");
     expect(menuBlock()).toBe("c1");
@@ -221,8 +249,8 @@ describe("side menu hover: works today", () => {
     );
     await waitForSelector(".bn-editor");
 
-    await hoverBlock("a");
-    const add = getRect(await waitForSelector(DRAG_HANDLE_ADD_SELECTOR));
+    await pointAtBlock("a");
+    const add = await addButtonRect("a");
     await walk([{ x: add.x + add.width / 2, y: add.y + add.height / 2 }]);
     expect(menuBlock()).toBe("a");
   });
@@ -236,9 +264,9 @@ describe("side menu hover: works today", () => {
 
     // The list item sits level with column two's heading, and the button's
     // left edge overlaps that heading.
-    await hoverBlock("c3-list");
+    await pointAtBlock("c3-list");
     expect(menuBlock()).toBe("c3-list");
-    const add = getRect(await waitForSelector(DRAG_HANDLE_ADD_SELECTOR));
+    const add = await addButtonRect("c3-list");
     const y = add.y + add.height / 2;
     await walk([
       { x: add.x + add.width + 12, y },
@@ -257,9 +285,9 @@ describe("side menu hover: works today", () => {
     // From the heading's bottom left, so the path crosses column one before
     // it reaches the button.
     const block = blockRect("c2");
-    await walk([{ x: block.x + 6, y: block.bottom - 4 }]);
+    await walk([{ x: block.x + 6, y: block.bottom - 4 }], 1);
     expect(menuBlock()).toBe("c2");
-    const add = getRect(await waitForSelector(DRAG_HANDLE_ADD_SELECTOR));
+    const add = await addButtonRect("c2");
     await walk([{ x: add.x + add.width / 2, y: add.y + add.height / 2 }], 20);
     expect(menuBlock()).toBe("c2");
   });
@@ -303,19 +331,21 @@ describe("side menu hover: works today", () => {
     await mouseSequence([
       { type: "click", x: c.x + c.width / 2, y: c.y + c.height / 2 },
     ]);
-    await sleep(100);
+    await expect.poll(() => blockRect("left").height).toBeGreaterThan(0);
 
     const block = blockRect("left");
     await walk([{ x: block.x + 20, y: block.y + block.height / 2 }]);
     expect(menuBlock()).toBe("left");
-    const add = getRect(await waitForSelector(DRAG_HANDLE_ADD_SELECTOR));
+    const add = await addButtonRect("left");
     await walk([{ x: add.x + add.width / 2, y: add.y + add.height / 2 }]);
     expect(menuBlock()).toBe("left");
     // The button must also work: clicking it adds a block after "left".
     await mouseSequence([
       { type: "click", x: add.x + add.width / 2, y: add.y + add.height / 2 },
     ]);
-    await sleep(100);
+    await expect
+      .poll(() => editors.main.getParentBlock("left")?.children)
+      .toHaveLength(2);
     const column = editors.main.getParentBlock("left")!;
     expect(column.children.map((child) => child.id)[0]).toBe("left");
     expect(column.children).toHaveLength(2);
@@ -338,7 +368,7 @@ describe("side menu hover: fixed issues", () => {
     const rect = blockRect("a");
     expect(rect.left).toBeLessThan(window.innerWidth - 100);
     expect(rect.right).toBeGreaterThan(window.innerWidth);
-    await walk([{ x: rect.x + 60, y: rect.y + rect.height / 2 }]);
+    await walk([{ x: rect.x + 60, y: rect.y + rect.height / 2 }], 1);
     expect(menuBlock()).toBe("a");
   });
 
@@ -368,7 +398,7 @@ describe("side menu hover: fixed issues", () => {
     );
     await waitForSelector(".bn-editor");
 
-    await hoverBlock("o1", "over");
+    await pointAtBlock("o1", "over");
     expect(menuBlock("over")).toBe("o1");
     expect(menuBlock("under")).toBeUndefined();
   });
@@ -386,7 +416,7 @@ describe("side menu hover: fixed issues", () => {
     await waitForSelector(".bn-editor");
 
     const rect = blockRect("a");
-    await walk([{ x: rect.x - 200, y: rect.y + rect.height / 2 }]);
+    await walk([{ x: rect.x - 200, y: rect.y + rect.height / 2 }], 1);
     expect(menuBlock()).toBeUndefined();
   });
 
@@ -411,10 +441,15 @@ describe("side menu hover: fixed issues", () => {
       .getBoundingClientRect();
     const rect = blockRect("b");
     expect(rect.right).toBeGreaterThan(scroller.right);
-    await walk([{ x: rect.x + 20, y: rect.y + rect.height / 2 }]);
+    await walk([{ x: rect.x + 20, y: rect.y + rect.height / 2 }], 1);
     expect(menuBlock()).toBe("b");
-    const add = document.querySelector<HTMLElement>(DRAG_HANDLE_ADD_SELECTOR);
-    expect(add?.checkVisibility({ visibilityProperty: true })).toBe(true);
+    await expect
+      .poll(() =>
+        document
+          .querySelector(DRAG_HANDLE_ADD_SELECTOR)
+          ?.checkVisibility({ visibilityProperty: true }),
+      )
+      .toBe(true);
   });
 });
 
@@ -426,17 +461,16 @@ describe("side menu hover: heading for the menu", () => {
     await waitForSelector(".bn-editor");
 
     const block = blockRect("c2");
-    await walk([{ x: block.x + 6, y: block.bottom - 4 }]);
+    await walk([{ x: block.x + 6, y: block.bottom - 4 }], 1);
     expect(menuBlock()).toBe("c2");
-    const add = getRect(await waitForSelector(DRAG_HANDLE_ADD_SELECTOR));
+    const add = await addButtonRect("c2");
     await walk([{ x: add.x + add.width / 2, y: add.bottom + 6 }], 10);
     expect(menuBlock()).toBe("c2");
   }
 
   test("follows the pointer once it rests on its way to the menu", async () => {
     await headTowardsAddButton();
-    await sleep(500);
-    expect(menuBlock()).not.toBe("c2");
+    await expect.poll(() => menuBlock()).not.toBe("c2");
   });
 
   test("follows the pointer at once when it turns away from the menu", async () => {
@@ -453,8 +487,8 @@ describe("side menu hover: heading for the menu", () => {
     await waitForSelector(".bn-editor");
 
     const block = blockRect("c2");
-    await walk([{ x: block.x + 6, y: block.bottom - 4 }]);
-    const add = getRect(await waitForSelector(DRAG_HANDLE_ADD_SELECTOR));
+    await walk([{ x: block.x + 6, y: block.bottom - 4 }], 1);
+    const add = await addButtonRect("c2");
     await walk([{ x: add.x + add.width / 2, y: add.y + add.height / 2 }], 20);
     expect(menuBlock()).toBe("c2");
 
@@ -464,20 +498,80 @@ describe("side menu hover: heading for the menu", () => {
 });
 
 describe("side menu hover: pointer input", () => {
-  test("hides the menu when the pointer leaves the window", async () => {
+  test("hides the menu when the pointer leaves the window", async ({
+    onTestFinished,
+  }) => {
+    // Keep the exit inside the host viewport. A negative host coordinate asks
+    // the driver to leave the browser itself, which need not emit a DOM event.
+    const frame = window.frameElement;
+    if (!frame) {
+      throw new Error("Expected a tester iframe");
+    }
+    const previousStyle = frame.getAttribute("style");
+    const target = window.parent.document.createElement("div");
+    target.setAttribute(
+      "style",
+      "position:fixed;top:0;left:0;width:100%;height:32px;z-index:2147483647",
+    );
+    onTestFinished(() => {
+      target.remove();
+      if (previousStyle === null) {
+        frame.removeAttribute("style");
+      } else {
+        frame.setAttribute("style", previousStyle);
+      }
+    });
+    frame.setAttribute("style", `${previousStyle ?? ""};translate:0 40px`);
+    window.parent.document.body.append(target);
+    const controller = new AbortController();
+    onTestFinished(() => controller.abort());
     await render(
       <Editor name="main" content={[paragraph("a"), paragraph("b")]} />,
     );
     await waitForSelector(".bn-editor");
 
     const rect = blockRect("a");
-    await walk([{ x: rect.x + 6, y: rect.y + rect.height / 2 }]);
+    await walk([{ x: rect.x + 6, y: rect.y + rect.height / 2 }], 1);
     expect(menuBlock()).toBe("a");
-    // Above the test frame: the frame's document gets a `mouseout` without
-    // a `relatedTarget`.
-    // One move: no `mousemove` above the editor, only the `mouseout` when
-    // the pointer leaves the page.
+    const handle = await waitForDragHandle(
+      await waitForSelector('[data-node-type="blockContainer"][data-id="a"]'),
+    );
+    if (!(handle instanceof HTMLElement || handle instanceof SVGElement)) {
+      throw new Error("Expected an HTML or SVG drag handle");
+    }
+    await expect.element(handle).toBeVisible();
+
+    const frameRect = frame.getBoundingClientRect();
+    expect(
+      window.parent.document.elementFromPoint(
+        frameRect.x + rect.x + 6,
+        frameRect.y - 20,
+      ),
+    ).toBe(target);
+    let exited = false;
+    let movedInFrame = false;
+    document.addEventListener(
+      "mouseout",
+      (event) => {
+        if (event.isTrusted && event.relatedTarget === null) {
+          exited = true;
+        }
+      },
+      { capture: true, signal: controller.signal },
+    );
+    document.addEventListener(
+      "mousemove",
+      () => {
+        movedInFrame = true;
+      },
+      { capture: true, signal: controller.signal },
+    );
+    // One native move to the host target: no in-frame move above the editor
+    // may hide the menu through the ordinary pointer-movement path.
     await walk([{ x: rect.x + 6, y: -20 }], 1);
+    await expect.poll(() => exited).toBe(true);
+    expect(movedInFrame).toBe(false);
+    await expect.element(handle).not.toBeVisible();
     expect(menuBlock()).toBeUndefined();
   });
 
@@ -489,7 +583,7 @@ describe("side menu hover: pointer input", () => {
     );
     await waitForSelector(".bn-editor");
 
-    await hoverBlock("a");
+    await pointAtBlock("a");
     expect(menuBlock()).toBe("a");
     const target = document.querySelector('.bn-block[data-id="b"]')!;
     for (const type of ["mousemove", "mouseout"]) {
@@ -528,7 +622,7 @@ describe("side menu hover: engaging a block", () => {
     const c1 = blockRect("c1");
     const c2 = blockRect("c2");
     const y = c1.y + 6;
-    await walk([{ x: c1.x + c1.width / 2, y }]);
+    await walk([{ x: c1.x + c1.width / 2, y }], 1);
     expect(menuBlock()).toBe("c1");
 
     const samples = await walkAndSample([{ x: c2.x + 30, y }], 40);
@@ -544,7 +638,7 @@ describe("side menu hover: engaging a block", () => {
 
     const c1 = blockRect("c1");
     const y = c1.y + 6;
-    await walk([{ x: c1.x + c1.width / 2, y }]);
+    await walk([{ x: c1.x + c1.width / 2, y }], 1);
     expect(menuBlock()).toBe("c1");
     // Into the padding right of the block, where c1 still resolves, and back.
     const samples = await walkAndSample([
@@ -570,7 +664,7 @@ describe("side menu hover: engaging a block", () => {
     );
     await waitForSelector(".bn-editor");
 
-    await hoverBlock("a");
+    await pointAtBlock("a");
     expect(menuBlock()).toBe("a");
     const b = blockRect("b");
     // The menu's block on each move the pointer is over block "b".
@@ -602,7 +696,7 @@ describe("side menu hover: engaging a block", () => {
     );
     await waitForSelector(".bn-editor");
 
-    await hoverBlock("parent");
+    await pointAtBlock("parent");
     expect(menuBlock()).toBe("parent");
     await hoverBlock("child");
     expect(menuBlock()).toBe("child");
@@ -616,7 +710,75 @@ describe("side menu hover: engaging a block", () => {
 // drag image would stay in the document (it then broke the next toggle test).
 // Real mouse drags are only emulated reliably in Chromium.
 describe.skipIf(browserName !== "chromium")("side menu hover: dragging", () => {
-  test("keeps the drag handle mounted until the drag ends", async () => {
+  test("waits for the parent handle after hovering its child", async () => {
+    await render(
+      <Editor
+        name="main"
+        content={[
+          {
+            id: "parent",
+            type: "toggleListItem",
+            content: "Parent",
+            children: [paragraph("child")],
+          },
+        ]}
+      />,
+    );
+    const chevron = getRect(await waitForSelector(".bn-toggle-button"));
+    await mouseSequence([
+      {
+        type: "click",
+        x: chevron.x + chevron.width / 2,
+        y: chevron.y + chevron.height / 2,
+      },
+    ]);
+    await expect.poll(() => blockRect("child").height).toBeGreaterThan(0);
+
+    await hoverBlock("child");
+    const childHandle = await waitForDragHandle(blockContent("child"));
+    expect(childHandle.getAttribute("data-side-menu-block-id")).toBe("child");
+
+    const parent = await waitForSelector('.bn-block-outer[data-id="parent"]');
+    const child = getRect(childHandle);
+    const childY = child.y + child.height / 2;
+    expect(childY).toBeGreaterThan(getRect(parent).top);
+    expect(childY).toBeLessThan(getRect(parent).bottom);
+    expect(childY).toBeGreaterThan(blockRect("parent").bottom);
+
+    // Start waiting while the child's handle is still hit-testable inside the
+    // parent's full box. Read the identity and position at resolution: React
+    // can reuse the same handle element when the pointer moves to the parent.
+    const [ready] = await Promise.all([
+      waitForDragHandle(parent).then((handle) => ({
+        id: handle.getAttribute("data-side-menu-block-id"),
+        rect: getRect(handle),
+      })),
+      hoverBlock("parent"),
+    ]);
+    expect(ready.id).toBe("parent");
+    const x = ready.rect.x + ready.rect.width / 2;
+    const y = ready.rect.y + ready.rect.height / 2;
+    expect(y).toBeGreaterThanOrEqual(blockRect("parent").top);
+    expect(y).toBeLessThanOrEqual(blockRect("parent").bottom);
+
+    try {
+      await mouseSequence([
+        { type: "move", x, y, steps: 5 },
+        { type: "down" },
+        { type: "move", x: x + 10, y: y + 10, steps: 5 },
+      ]);
+      await waitForSelector('.bn-drag-preview .bn-block[data-id="parent"]');
+    } finally {
+      await mouseSequence([{ type: "up" }]);
+    }
+    await expect
+      .poll(() => document.querySelector(".bn-drag-preview"))
+      .toBeNull();
+  });
+
+  test("keeps the drag handle mounted until the drag ends", async ({
+    onTestFinished,
+  }) => {
     await render(
       <Editor
         name="main"
@@ -635,40 +797,37 @@ describe.skipIf(browserName !== "chromium")("side menu hover: dragging", () => {
         y: chevron.y + chevron.height / 2,
       },
     ]);
-    await sleep(100);
 
-    await hoverBlock("drag");
+    await startBlockDrag(blockContent("drag"), onTestFinished);
     expect(menuBlock()).toBe("drag");
-    const handle = getRect(await waitForSelector(DRAG_HANDLE_SELECTOR));
     const target = getRect(
       await waitForSelector(".bn-toggle-add-block-button"),
     );
-    await walk([
-      { x: handle.x + handle.width / 2, y: handle.y + handle.height / 2 },
-    ]);
-    await mouseSequence([{ type: "down" }]);
-    await sleep(100);
-    await mouseSequence([
-      {
-        type: "move",
-        x: target.x + target.width / 2,
-        y: target.y + target.height / 2,
-        steps: 5,
-      },
-    ]);
-    await sleep(100);
+    await walk(
+      [{ x: target.x + target.width / 2, y: target.y + target.height / 2 }],
+      5,
+    );
+    await expect
+      .poll(() =>
+        document.querySelector(
+          '[data-drop-target="true"] > .bn-block[data-id="t"]',
+        ),
+      )
+      .not.toBeNull();
     await mouseSequence([{ type: "up" }]);
-    await sleep(100);
-
-    expect(
-      editors.main.getBlock("t")!.children.map((child) => child.id),
-    ).toEqual(["drag"]);
-    expect(document.querySelector(".bn-drag-preview")).toBeNull();
+    await expect
+      .poll(() => editors.main.getBlock("t")!.children.map((child) => child.id))
+      .toEqual(["drag"]);
+    await expect
+      .poll(() => document.querySelector(".bn-drag-preview"))
+      .toBeNull();
   });
 
   // `dropMargin` counts from the editor element's box, like `hoverMargin`
   // (not from its blocks, 54px further in).
-  test("drops a block left of the editor within `dropMargin`", async () => {
+  test("drops a block left of the editor within `dropMargin`", async ({
+    onTestFinished,
+  }) => {
     await render(
       <Editor
         name="main"
@@ -679,31 +838,28 @@ describe.skipIf(browserName !== "chromium")("side menu hover: dragging", () => {
     );
     await waitForSelector(".bn-editor");
 
-    await hoverBlock("drag");
-    const handle = getRect(await waitForSelector(DRAG_HANDLE_SELECTOR));
     const editor = document
       .querySelector('[data-editor-name="main"] .bn-editor')!
       .getBoundingClientRect();
     const target = blockRect("a");
-    await walk([
-      { x: handle.x + handle.width / 2, y: handle.y + handle.height / 2 },
-    ]);
-    await mouseSequence([{ type: "down" }]);
-    await sleep(100);
+    const y = target.y + 2;
+    await startBlockDrag(blockContent("drag"), onTestFinished);
     // 30px left of the editor element, level with the top of "a".
-    await mouseSequence([
-      { type: "move", x: editor.left - 30, y: target.y + 2, steps: 5 },
-    ]);
-    await sleep(100);
+    await walk([{ x: editor.left - 30, y }], 5);
+    await expect
+      .poll(() => {
+        const cursor = document
+          .querySelector(".prosemirror-dropcursor-block-vertical-left")
+          ?.getBoundingClientRect();
+        return cursor !== undefined && cursor.top <= y && cursor.bottom > y;
+      })
+      .toBe(true);
     await mouseSequence([{ type: "up" }]);
-    await sleep(100);
-
     // The drop goes to the nearest position, the left edge of "a", which puts
     // the two in columns.
-    expect(editors.main.document.map((block) => block.type)).toEqual([
-      "columnList",
-      "paragraph",
-    ]);
+    await expect
+      .poll(() => editors.main.document.map((block) => block.type))
+      .toEqual(["columnList", "paragraph"]);
   });
 });
 
@@ -717,12 +873,11 @@ describe("side menu hover: the document changes under a still pointer", () => {
     );
     await waitForSelector(".bn-editor");
 
-    await hoverBlock("b");
+    await pointAtBlock("b");
     expect(menuBlock()).toBe("b");
     editors.main.removeBlocks(["a"]);
-    await sleep(100);
     // "b" moved up into "a"'s place; "c" is now under the pointer.
-    expect(menuBlock()).toBe("c");
+    await expect.poll(() => menuBlock()).toBe("c");
   });
 
   test("follows the block that moves under the pointer when a block above grows", async () => {
@@ -734,14 +889,13 @@ describe("side menu hover: the document changes under a still pointer", () => {
     );
     await waitForSelector(".bn-editor");
 
-    await hoverBlock("b");
+    await pointAtBlock("b");
     expect(menuBlock()).toBe("b");
     editors.main.updateBlock("a", {
       content: "A paragraph that wraps over many lines. ".repeat(12),
     });
-    await sleep(100);
     // "a" grew under the pointer and pushed "b" down.
-    expect(menuBlock()).toBe("a");
+    await expect.poll(() => menuBlock()).toBe("a");
   });
 
   // A side menu button that removes its block, clicked twice without moving
@@ -756,14 +910,13 @@ describe("side menu hover: the document changes under a still pointer", () => {
     );
     await waitForSelector(".bn-editor");
 
-    await hoverBlock("b");
-    const add = getRect(await waitForSelector(DRAG_HANDLE_ADD_SELECTOR));
+    await pointAtBlock("b");
+    const add = await addButtonRect("b");
     await walk([{ x: add.x + add.width / 2, y: add.y + add.height / 2 }]);
     expect(menuBlock()).toBe("b");
 
     editors.main.removeBlocks(["b"]);
-    await sleep(100);
-    expect(menuBlock()).toBe("c");
+    await expect.poll(() => menuBlock()).toBe("c");
   });
 });
 
@@ -778,7 +931,7 @@ describe("side menu hover: right padding", () => {
       .querySelector(".bn-editor")!
       .getBoundingClientRect();
     const rect = blockRect("b");
-    await walk([{ x: editor.right - 10, y: rect.y + rect.height / 2 }]);
+    await walk([{ x: editor.right - 10, y: rect.y + rect.height / 2 }], 1);
     expect(menuBlock()).toBe("b");
   });
 
@@ -807,27 +960,34 @@ describe("side menu hover: disabled toolbar buttons", () => {
   // The pointer jumps straight onto the button, as a tap does: a path through
   // the space between the block and the toolbar, outside the editor, hides
   // the menu by itself.
-  test("keeps the menu when the pointer moves onto a disabled toolbar button", async () => {
-    await render(
-      <Editor name="main" content={[paragraph("a", "First block")]} />,
-    );
-    await waitForSelector(".bn-editor");
-
-    // Select a word with the mouse: the toolbar opens, the pointer is on "a".
-    const word = getRect(
-      document.querySelector('.bn-block[data-id="a"] .bn-inline-content')!,
-    );
-    await mouseSequence([
-      {
-        type: "click",
-        x: word.x + 8,
-        y: word.y + word.height / 2,
-        clickCount: 2,
-      },
-    ]);
-    await sleep(200);
+  it("keeps the menu when the pointer moves onto a disabled toolbar button", async ({
+    setupEditor,
+    selectText,
+  }) => {
+    const { editor } = await setupEditor({
+      schema,
+      dropCursor: multiColumnDropCursor,
+      initialContent: [{ id: "a", type: "paragraph", content: "First block" }],
+      outside: ({ children }) => <div data-editor-name="main">{children}</div>,
+    });
+    editors.main = editor;
+    // Opening the toolbar is setup; only hovering its disabled button is tested.
+    editor.focus();
+    selectText(editor, "First");
+    expect(editor.getSelectedText()).toBe("First");
+    await pointAtBlock("a");
     expect(menuBlock()).toBe("a");
     const nest = await waitForSelector(NEST_BLOCK_BUTTON_SELECTOR);
+    await expect
+      .poll(() => {
+        const { x, y, width, height } = nest.getBoundingClientRect();
+        return (
+          nest.checkVisibility({ visibilityProperty: true }) &&
+          x + width / 2 > 0 &&
+          y + height / 2 > 0
+        );
+      })
+      .toBe(true);
     // The first block can't be nested.
     expect((nest as HTMLButtonElement).disabled).toBe(true);
 
@@ -851,7 +1011,7 @@ describe("side menu hover: hover margin", () => {
 
     const rect = blockRect("a");
     // Outside the editor element (its padding is 54px), within the margin.
-    await walk([{ x: rect.x - 200, y: rect.y + rect.height / 2 }]);
+    await walk([{ x: rect.x - 200, y: rect.y + rect.height / 2 }], 1);
     expect(menuBlock()).toBe("a");
   });
 
@@ -870,7 +1030,7 @@ describe("side menu hover: hover margin", () => {
       .querySelector('[data-editor-name="main"] .bn-editor')!
       .getBoundingClientRect();
     const rect = blockRect("a");
-    await walk([{ x: rect.x + 20, y: editor.top - 100 }]);
+    await walk([{ x: rect.x + 20, y: editor.top - 100 }], 1);
     expect(menuBlock()).toBeUndefined();
   });
 
@@ -886,7 +1046,7 @@ describe("side menu hover: hover margin", () => {
     await waitForSelector(".bn-editor");
 
     const rect = blockRect("a");
-    await walk([{ x: rect.x - 200, y: rect.y + rect.height / 2 }]);
+    await walk([{ x: rect.x - 200, y: rect.y + rect.height / 2 }], 1);
     expect(menuBlock()).toBeUndefined();
   });
 });
@@ -902,7 +1062,6 @@ describe("side menu hover: wide container padding", () => {
       '[data-node-type="column"][data-id="col-2"] { padding-right: 100px; }';
     document.head.append(style);
     try {
-      await sleep(50);
       const column = document
         .querySelector('[data-node-type="column"][data-id="col-2"]')!
         .getBoundingClientRect();
@@ -942,7 +1101,7 @@ describe("side menu hover: layout blocks", () => {
     await waitForSelector(".bn-editor");
 
     const panel = panelRect();
-    await walk([{ x: panel.x + panel.width / 2, y: panel.top + 6 }]);
+    await walk([{ x: panel.x + panel.width / 2, y: panel.top + 6 }], 1);
     expect(menuBlock()).toBe("panel");
   });
 
@@ -952,7 +1111,7 @@ describe("side menu hover: layout blocks", () => {
 
     const panel = panelRect();
     const child = blockRect("p1");
-    await walk([{ x: panel.left + 6, y: child.y + child.height / 2 }]);
+    await walk([{ x: panel.left + 6, y: child.y + child.height / 2 }], 1);
     expect(menuBlock()).toBe("p1");
   });
 });
@@ -1008,17 +1167,22 @@ describe("side menu hover: regressions against main", () => {
     await render(<Editor name="main" content={columnsDocument} />);
     await waitForSelector(".bn-editor");
 
-    await hoverBlock("c2");
-    const add = getRect(await waitForSelector(DRAG_HANDLE_ADD_SELECTOR));
+    await pointAtBlock("c2");
+    const add = await addButtonRect("c2");
     const point = { x: add.x + add.width / 2, y: add.y + add.height / 2 };
     await walk([point]);
     expect(menuBlock()).toBe("c2");
 
     await mouseSequence([{ type: "click", ...point }]);
-    await sleep(150);
+    await expect
+      .poll(() => editors.main.getBlock("col-2")?.children)
+      .toHaveLength(2);
+    await waitForSelector(SLASH_MENU_SELECTOR);
     expect(menuBlock()).toBe("c2");
     await mouseSequence([{ type: "click", ...point }]);
-    await sleep(150);
+    await expect
+      .poll(() => editors.main.getBlock("col-2")?.children)
+      .toHaveLength(3);
 
     const column = editors.main.getBlock("col-2")!;
     expect(column.children[0].id).toBe("c2");
@@ -1068,7 +1232,7 @@ describe("side menu hover: regressions against main", () => {
     }
     await render(<Outer />);
     await waitForSelector("[data-nested-editor] .bn-editor");
-    await sleep(100);
+    await document.fonts.ready;
 
     const outerEditor = document
       .querySelector('[data-editor-name="outer"] .bn-editor')!

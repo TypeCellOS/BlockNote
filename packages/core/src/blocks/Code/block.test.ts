@@ -1,83 +1,34 @@
+import { describe, expect } from "vite-plus/test";
+import type { BlockNoteEditor } from "../../editor/BlockNoteEditor.js";
 import {
-  afterAll,
-  beforeAll,
-  beforeEach,
-  describe,
-  expect,
-  it,
-} from "vite-plus/test";
-import { BlockNoteEditor } from "../../editor/BlockNoteEditor.js";
-import type { PartialBlock } from "../defaultBlocks.js";
-import { getLanguageId, type CodeBlockOptions } from "./CodeBlockOptions.js";
+  installHeadlessPlugins,
+  pressHeadlessKey,
+  typeText as typeString,
+} from "../../extensions/testHeadlessEditor.js";
 
-/**
- * @vitest-environment jsdom
- */
-
-/**
- * Simulate typing text into the editor at the current cursor position.
- * This triggers input rules by calling the view's handleTextInput prop,
- * which is how ProseMirror processes keyboard text input.
- */
-function simulateTextInput(editor: BlockNoteEditor, text: string) {
-  const view = editor.prosemirrorView;
-  const { from, to } = view.state.selection;
-  const deflt = () => view.state.tr.insertText(text, from, to);
-  const handled = view.someProp("handleTextInput", (f) =>
-    f(view, from, to, text, deflt),
-  );
-  if (!handled) {
-    view.dispatch(deflt());
-  }
-}
-
-function typeString(editor: BlockNoteEditor, str: string) {
-  for (const char of str) {
-    simulateTextInput(editor, char);
-  }
-}
-
-/**
- * Simulate a keyboard shortcut by invoking the view's handleKeyDown prop,
- * which is how ProseMirror routes keymap-based handlers like Enter.
- */
 function pressKey(
   editor: BlockNoteEditor,
   key: string,
   modifiers: Omit<KeyboardEventInit, "key"> = {},
 ) {
-  const view = editor.prosemirrorView;
-  const event = new KeyboardEvent("keydown", { key, ...modifiers });
-  view.someProp("handleKeyDown", (f) => f(view, event));
+  pressHeadlessKey(editor, { key, ...modifiers });
 }
 
 describe("Code block input rule", () => {
-  let editor: BlockNoteEditor;
-  const div = document.createElement("div");
-
-  beforeAll(() => {
-    editor = BlockNoteEditor.create();
-    editor.mount(div);
+  const it = globalThis.it.extend<{ editor: BlockNoteEditor }>({
+    editor: async ({ setupEditor }, use) => {
+      const { editor } = await setupEditor({
+        initialContent: [
+          { id: "test-paragraph", type: "paragraph", content: "" },
+        ],
+      });
+      installHeadlessPlugins(editor);
+      editor.setTextCursorPosition("test-paragraph", "start");
+      await use(editor);
+    },
   });
 
-  afterAll(() => {
-    editor._tiptapEditor.destroy();
-    editor = undefined as any;
-  });
-
-  beforeEach(() => {
-    const testDoc: PartialBlock[] = [
-      {
-        id: "test-paragraph",
-        type: "paragraph",
-        content: "",
-      },
-    ];
-    editor.replaceBlocks(editor.document, testDoc);
-    editor.setTextCursorPosition("test-paragraph", "start");
-  });
-
-  it("converts ```ts + space into a codeBlock", () => {
+  it("converts ```ts + space into a codeBlock", ({ editor }) => {
     typeString(editor, "```ts ");
 
     const block = editor.document[0];
@@ -86,7 +37,9 @@ describe("Code block input rule", () => {
     expect((block.props as any).language).toBe("ts");
   });
 
-  it("converts ``` + space into a codeBlock with the default language", () => {
+  it("converts ``` + space into a codeBlock with the default language", ({
+    editor,
+  }) => {
     typeString(editor, "``` ");
 
     const block = editor.document[0];
@@ -94,7 +47,7 @@ describe("Code block input rule", () => {
     expect((block.props as any).language).toBe("text");
   });
 
-  it("converts ```javascript + space into a codeBlock", () => {
+  it("converts ```javascript + space into a codeBlock", ({ editor }) => {
     typeString(editor, "```javascript ");
 
     const block = editor.document[0];
@@ -102,21 +55,23 @@ describe("Code block input rule", () => {
     expect((block.props as any).language).toBe("javascript");
   });
 
-  it("does not trigger input rule without trailing space", () => {
+  it("does not trigger input rule without trailing space", ({ editor }) => {
     typeString(editor, "```ts");
 
     const block = editor.document[0];
     expect(block.type).toBe("paragraph");
   });
 
-  it("does not trigger with only two backticks", () => {
+  it("does not trigger with only two backticks", ({ editor }) => {
     typeString(editor, "``ts ");
 
     const block = editor.document[0];
     expect(block.type).toBe("paragraph");
   });
 
-  it("does not trigger in non-empty paragraph with preceding text", () => {
+  it("does not trigger in non-empty paragraph with preceding text", ({
+    editor,
+  }) => {
     typeString(editor, "some text ```ts ");
 
     const block = editor.document[0];
@@ -124,7 +79,7 @@ describe("Code block input rule", () => {
     expect(block.type).toBe("paragraph");
   });
 
-  it("code block content is empty after conversion", () => {
+  it("code block content is empty after conversion", ({ editor }) => {
     typeString(editor, "```ts ");
 
     const block = editor.document[0];
@@ -132,7 +87,7 @@ describe("Code block input rule", () => {
     expect(block.content).toEqual([]);
   });
 
-  it("converts ```ts + Enter into a codeBlock", () => {
+  it("converts ```ts + Enter into a codeBlock", ({ editor }) => {
     typeString(editor, "```ts");
     pressKey(editor, "Enter");
 
@@ -142,7 +97,9 @@ describe("Code block input rule", () => {
     expect(block.content).toEqual([]);
   });
 
-  it("converts ``` + Enter into a codeBlock with the default language", () => {
+  it("converts ``` + Enter into a codeBlock with the default language", ({
+    editor,
+  }) => {
     typeString(editor, "```");
     pressKey(editor, "Enter");
 
@@ -151,7 +108,7 @@ describe("Code block input rule", () => {
     expect((block.props as any).language).toBe("text");
   });
 
-  it("converts ```javascript + Enter into a codeBlock", () => {
+  it("converts ```javascript + Enter into a codeBlock", ({ editor }) => {
     typeString(editor, "```javascript");
     pressKey(editor, "Enter");
 
@@ -160,7 +117,9 @@ describe("Code block input rule", () => {
     expect((block.props as any).language).toBe("javascript");
   });
 
-  it("does not trigger Enter conversion in non-empty paragraph with preceding text", () => {
+  it("does not trigger Enter conversion in non-empty paragraph with preceding text", ({
+    editor,
+  }) => {
     typeString(editor, "some text ```ts");
     pressKey(editor, "Enter");
 
@@ -168,7 +127,9 @@ describe("Code block input rule", () => {
     expect(block.type).toBe("paragraph");
   });
 
-  it("does not trigger Enter conversion with only two backticks", () => {
+  it("does not trigger Enter conversion with only two backticks", ({
+    editor,
+  }) => {
     typeString(editor, "``ts");
     pressKey(editor, "Enter");
 
@@ -176,7 +137,9 @@ describe("Code block input rule", () => {
     expect(block.type).toBe("paragraph");
   });
 
-  it("places cursor inside the new code block after space conversion", () => {
+  it("places cursor inside the new code block after space conversion", ({
+    editor,
+  }) => {
     typeString(editor, "```ts ");
 
     const block = editor.document[0];
@@ -195,7 +158,9 @@ describe("Code block input rule", () => {
     ]);
   });
 
-  it("places cursor inside the new code block after Enter conversion", () => {
+  it("places cursor inside the new code block after Enter conversion", ({
+    editor,
+  }) => {
     typeString(editor, "```ts");
     pressKey(editor, "Enter");
 
@@ -214,7 +179,9 @@ describe("Code block input rule", () => {
     ]);
   });
 
-  it("Enter inside an existing code block does not retrigger conversion", () => {
+  it("Enter inside an existing code block does not retrigger conversion", ({
+    editor,
+  }) => {
     typeString(editor, "```ts ");
 
     const block = editor.document[0];
@@ -231,40 +198,33 @@ describe("Code block input rule", () => {
 });
 
 describe("Code block keyboard shortcut", () => {
-  let editor: BlockNoteEditor;
-  const div = document.createElement("div");
+  const onMac = /Mac/.test(globalThis.navigator?.platform ?? "");
 
-  beforeAll(() => {
-    editor = BlockNoteEditor.create();
-    editor.mount(div);
-  });
-
-  afterAll(() => {
-    editor._tiptapEditor.destroy();
-    editor = undefined as any;
-  });
-
-  beforeEach(() => {
-    const testDoc: PartialBlock[] = [
-      {
-        id: "test-paragraph",
-        type: "paragraph",
-        content: [
-          { type: "text", text: "const ", styles: {} },
-          { type: "text", text: "x", styles: { bold: true } },
+  const it = globalThis.it.extend<{ editor: BlockNoteEditor }>({
+    editor: async ({ setupEditor }, use) => {
+      const { editor } = await setupEditor({
+        initialContent: [
+          {
+            id: "test-paragraph",
+            type: "paragraph",
+            content: [
+              { type: "text", text: "const ", styles: {} },
+              { type: "text", text: "x", styles: { bold: true } },
+            ],
+          },
+          { id: "test-image", type: "image" },
         ],
-      },
-      {
-        id: "test-image",
-        type: "image",
-      },
-    ];
-    editor.replaceBlocks(editor.document, testDoc);
+      });
+      installHeadlessPlugins(editor);
+      await use(editor);
+    },
   });
 
-  it("converts the current block into a codeBlock on Mod-Alt-c", () => {
+  it("converts the current block into a codeBlock on Mod-Alt-c", ({
+    editor,
+  }) => {
     editor.setTextCursorPosition("test-paragraph", "end");
-    pressKey(editor, "c", { ctrlKey: true, altKey: true });
+    pressKey(editor, "c", { ctrlKey: !onMac, metaKey: onMac, altKey: true });
 
     const block = editor.document[0];
     expect(block.type).toBe("codeBlock");
@@ -275,48 +235,10 @@ describe("Code block keyboard shortcut", () => {
     ]);
   });
 
-  it("ignores Mod-Alt-c in a block without inline content", () => {
+  it("ignores Mod-Alt-c in a block without inline content", ({ editor }) => {
     editor.setTextCursorPosition("test-image");
-    pressKey(editor, "c", { ctrlKey: true, altKey: true });
+    pressKey(editor, "c", { ctrlKey: !onMac, metaKey: onMac, altKey: true });
 
     expect(editor.document[1].type).toBe("image");
-  });
-});
-
-describe("getLanguageId", () => {
-  const options: CodeBlockOptions = {
-    supportedLanguages: {
-      typescript: {
-        name: "TypeScript",
-        aliases: ["ts", "typescript"],
-      },
-      javascript: {
-        name: "JavaScript",
-        aliases: ["js", "javascript"],
-      },
-      python: {
-        name: "Python",
-        aliases: ["py", "python"],
-      },
-    },
-  };
-
-  it("resolves alias to language id", () => {
-    expect(getLanguageId(options, "ts")).toBe("typescript");
-    expect(getLanguageId(options, "js")).toBe("javascript");
-    expect(getLanguageId(options, "py")).toBe("python");
-  });
-
-  it("resolves language id directly", () => {
-    expect(getLanguageId(options, "typescript")).toBe("typescript");
-    expect(getLanguageId(options, "javascript")).toBe("javascript");
-  });
-
-  it("returns undefined for unknown language", () => {
-    expect(getLanguageId(options, "unknown")).toBeUndefined();
-  });
-
-  it("returns undefined with no supportedLanguages", () => {
-    expect(getLanguageId({}, "ts")).toBeUndefined();
   });
 });

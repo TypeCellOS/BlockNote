@@ -41,11 +41,12 @@ import {
 import { SuggestionsExtension, withCollaboration } from "@blocknote/core/y";
 import { BlockNoteView } from "@blocknote/mantine";
 import { useCreateBlockNote } from "@blocknote/react";
-import { Awareness } from "@y/protocols/awareness";
+import type { Awareness } from "@y/protocols/awareness";
 import * as Y from "@y/y";
-import { render } from "vitest-browser-react";
+import { resizeViewportForTest } from "../../../commands/browser/screenshotFull.js";
 import { page } from "../../../utils/context.js";
 import { mouseSequence } from "../../../utils/mouse.js";
+import { createSuggestionFixtureScope } from "./suggestionFixtureScope.js";
 
 export interface ConcurrentSuggestionUser {
   editor: GalleryEditor;
@@ -60,6 +61,8 @@ export interface ConcurrentSuggestionFixture {
   suggestionDocA: Y.Doc;
   suggestionDocB: Y.Doc;
   suggestionDocMerged: Y.Doc;
+  awareness: readonly Awareness[];
+  mountedEditors: readonly GalleryEditor[];
   /**
    * The `page` locator object (vite-plus browser context). Exposes
    * `getByTestId` / `getByText` for querying the rendered editors. Named
@@ -98,14 +101,11 @@ export async function setupConcurrentSuggestionTest({
   userAAction,
   userBAction,
 }: ConcurrentSuggestionFixtureOptions): Promise<ConcurrentSuggestionFixture> {
-  const baseDoc = new Y.Doc();
-  baseDoc.clientID = 1;
-  const suggestionDocA = new Y.Doc({ isSuggestionDoc: true });
-  suggestionDocA.clientID = 2;
-  const suggestionDocB = new Y.Doc({ isSuggestionDoc: true });
-  suggestionDocB.clientID = 3;
-  const suggestionDocMerged = new Y.Doc({ isSuggestionDoc: true });
-  suggestionDocMerged.clientID = 4;
+  const scope = createSuggestionFixtureScope();
+  const baseDoc = scope.createDoc(1);
+  const suggestionDocA = scope.createDoc(2, { isSuggestionDoc: true });
+  const suggestionDocB = scope.createDoc(3, { isSuggestionDoc: true });
+  const suggestionDocMerged = scope.createDoc(4, { isSuggestionDoc: true });
 
   // `Y.Doc.clientID` is normally randomly generated, and CRDT tiebreaks
   // on it – so concurrent edits that touch the same logical position can
@@ -149,9 +149,13 @@ export async function setupConcurrentSuggestionTest({
   });
   managerMerged.suggestionMode = false;
 
-  const awarenessA = makeAwareness(baseDoc, USER_A);
-  const awarenessB = makeAwareness(baseDoc, USER_B);
-  const awarenessMerged = makeAwareness(baseDoc, USER_MERGED);
+  const awarenessA = scope.createAwareness(baseDoc);
+  awarenessA.setLocalStateField("user", USER_A);
+  const awarenessB = scope.createAwareness(baseDoc);
+  awarenessB.setLocalStateField("user", USER_B);
+  const awarenessMerged = scope.createAwareness(baseDoc);
+  awarenessMerged.setLocalStateField("user", USER_MERGED);
+  const awarenessBase = scope.createAwareness(baseDoc);
 
   let editorBase!: GalleryEditor;
   let editorA!: GalleryEditor;
@@ -164,7 +168,7 @@ export async function setupConcurrentSuggestionTest({
         schema: gallerySchema,
         collaboration: {
           fragment: baseDoc.get("doc"),
-          provider: { awareness: new Awareness(baseDoc) },
+          provider: { awareness: awarenessBase },
           user: USER_BASE,
         },
       }),
@@ -238,13 +242,13 @@ export async function setupConcurrentSuggestionTest({
 
   // Four columns at 1fr each need a wider viewport so the rightmost
   // column doesn't clip BlockNote content.
-  await page.viewport(1800, 800);
+  await resizeViewportForTest(1800, 800);
 
   // The browser reuses its pointer position between tests. Park it outside
   // the editors before mounting so suggestion marks cannot inherit a hover.
   await mouseSequence([{ type: "move", x: 0, y: 0 }]);
 
-  await render(<Editors />);
+  scope.mount(<Editors />);
 
   return {
     userA: { editor: editorA, testId: "editor-A" },
@@ -254,6 +258,8 @@ export async function setupConcurrentSuggestionTest({
     suggestionDocA,
     suggestionDocB,
     suggestionDocMerged,
+    awareness: scope.awareness,
+    mountedEditors: [editorBase, editorA, editorB, editorMerged],
     screen: page,
     seed: () => {
       const update = Y.encodeStateAsUpdate(baseDoc);
@@ -281,15 +287,6 @@ export async function setupConcurrentSuggestionTest({
       );
     },
   };
-}
-
-function makeAwareness(
-  doc: Y.Doc,
-  user: { name: string; color: string },
-): Awareness {
-  const a = new Awareness(doc);
-  a.setLocalStateField("user", user);
-  return a;
 }
 
 /**

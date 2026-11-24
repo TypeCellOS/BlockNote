@@ -24,18 +24,25 @@ it("makes the pre-load editor text closer to Inter's metrics", async () => {
   document.body.append(editor);
 
   try {
-    const fontStack = getComputedStyle(editor).fontFamily;
-    expect(fontStack).toContain('"Inter fallback"');
+    // CSSOM may serialize these family names with or without quotes.
+    const fontFamilies = getComputedStyle(editor)
+      .fontFamily.split(",")
+      .map((family) => family.trim().replace(/^(['"])(.*)\1$/, "$2"));
+    expect(fontFamilies).toContain("Inter fallback");
 
     // Explicitly select each pre-load font to keep the measurement independent
     // of network timing and font-display implementation differences.
-    const fallbackStack = fontStack.replace(/^"?Inter"?,\s*/, "");
-    editor.style.fontFamily = fallbackStack;
+    const fallbackFamilies = fontFamilies.filter(
+      (family) => family !== "Inter",
+    );
+    editor.style.fontFamily = fallbackFamilies.join(", ");
     await document.fonts.load('400 16px "Inter fallback"');
     const adjustedHeight = paragraph.getBoundingClientRect().height;
     const adjustedWidth = measure.getBoundingClientRect().width;
 
-    editor.style.fontFamily = fallbackStack.replace(/"Inter fallback",\s*/, "");
+    editor.style.fontFamily = fallbackFamilies
+      .filter((family) => family !== "Inter fallback")
+      .join(", ");
     const originalWidth = measure.getBoundingClientRect().width;
 
     editor.style.fontFamily = '"Inter"';

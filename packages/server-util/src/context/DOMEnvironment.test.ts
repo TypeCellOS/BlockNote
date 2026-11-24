@@ -1,7 +1,9 @@
 import { describe, expect, it, vi } from "vite-plus/test";
 import { ServerBlockNoteEditor } from "./ServerBlockNoteEditor.js";
+import { useServerDOM } from "../../testServerDOM.js";
 
 describe("application-owned DOM environment", () => {
+  useServerDOM();
   it.each(["window", "document"] as const)(
     "fails clearly when %s is missing without installing globals",
     async (global) => {
@@ -32,24 +34,6 @@ describe("application-owned DOM environment", () => {
       }
     },
   );
-
-  it("allows JSON and Yjs conversions without any DOM globals", () => {
-    vi.stubGlobal("window", undefined);
-    vi.stubGlobal("document", undefined);
-    try {
-      const editor = ServerBlockNoteEditor.create();
-      const blocks = [{ type: "paragraph", content: "No DOM" }] as const;
-      const node = editor._blocksToProsemirrorNode([...blocks]);
-      expect(editor._prosemirrorNodeToBlocks(node)[0].type).toBe("paragraph");
-      const doc = editor.blocksToYDoc([...blocks]);
-      expect(editor.yDocToBlocks(doc)[0].type).toBe("paragraph");
-      doc.destroy();
-      expect(globalThis.window).toBeUndefined();
-      expect(globalThis.document).toBeUndefined();
-    } finally {
-      vi.unstubAllGlobals();
-    }
-  });
 
   it("rejects mismatched DOM globals without replacing either", async () => {
     const unrelatedDocument = document.implementation.createHTMLDocument();

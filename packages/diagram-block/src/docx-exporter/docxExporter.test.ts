@@ -6,7 +6,7 @@ import {
 } from "@blocknote/xl-docx-exporter";
 import { BlobReader, ZipReader } from "@zip.js/zip.js";
 import { Packer } from "docx";
-import { beforeAll, describe, expect, it } from "vite-plus/test";
+import { describe, expect, it } from "vite-plus/test";
 
 import {
   diagramDocument,
@@ -14,11 +14,6 @@ import {
   zipEntryContent,
 } from "../exporterTestUtil.js";
 import { createDiagramBlockMapping, diagramBlockMapping } from "./index.js";
-
-beforeAll(async () => {
-  // @ts-expect-error - Blob polyfill for Node test environment
-  globalThis.Blob = (await import("node:buffer")).Blob;
-});
 
 function createExporter(
   diagram: ReturnType<typeof createDiagramBlockMapping>,

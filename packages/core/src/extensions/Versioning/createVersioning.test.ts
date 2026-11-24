@@ -1,4 +1,3 @@
-// @vitest-environment node
 import { describe, expect, it, vi } from "vite-plus/test";
 import { createVersioning } from "./createVersioning.js";
 import { reduceVersioningState } from "./versioningState.js";
@@ -1022,6 +1021,8 @@ describe("pagination", () => {
 
   it("buffers dirty pages, deduplicates them, and retries without shrinking the list", async () => {
     const page = deferred<VersionResult<VersionSnapshotPage>>();
+    const { promise: pageRequested, resolve: markPageRequested } =
+      Promise.withResolvers<void>();
     const fresh = { ...newest, name: "Fresh" };
     const list = vi
       .fn<VersionStorage<string>["list"]>()
@@ -1031,7 +1032,10 @@ describe("pagination", () => {
       .mockResolvedValueOnce(
         success({ snapshots: [fresh], nextCursor: "middle" }),
       )
-      .mockReturnValueOnce(page.promise)
+      .mockImplementationOnce(() => {
+        markPageRequested();
+        return page.promise;
+      })
       .mockResolvedValueOnce(
         success({ snapshots: [fresh], nextCursor: "middle" }),
       )
@@ -1048,7 +1052,8 @@ describe("pagination", () => {
     expect(list).toHaveBeenCalledOnce();
     const loading = mode.loadMore();
     expect(mode.loadMore()).toBe(loading);
-    await vi.waitFor(() => expect(list).toHaveBeenCalledTimes(3));
+    await pageRequested;
+    expect(list).toHaveBeenCalledTimes(3);
     expect(mode.store.state).toMatchObject({
       history: { status: "pending", data: [fresh, middle] },
       nextCursor: "old",

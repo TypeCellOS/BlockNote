@@ -1,6 +1,8 @@
 import { StrictMode, act, useEffect, useState, type ReactElement } from "react";
-import { createRoot, type Root } from "react-dom/client";
-import { BlockNoteEditor } from "@blocknote/core";
+import { createRoot } from "react-dom/client";
+import type { BlockNoteEditor } from "@blocknote/core";
+import type { SetupEditor } from "../../../../../tests/src/commands/browser/setupEditor.js";
+import { acquireTiptapFixtureStyles } from "../../../../../tests/src/commands/browser/tiptapFixtureStyles.js";
 import { de } from "@blocknote/core/locales";
 import {
   createVersioningExtension,
@@ -20,14 +22,7 @@ import {
   VersionMenu,
   VersionMenuItem,
 } from "../../versioning.js";
-import {
-  afterEach,
-  beforeEach,
-  describe,
-  expect,
-  it,
-  vi,
-} from "vite-plus/test";
+import { afterEach, beforeEach, describe, expect, vi } from "vite-plus/test";
 import { page, userEvent } from "vite-plus/test/browser";
 import { VersioningTestView } from "./VersioningTestComponents.browser.js";
 import {
@@ -35,28 +30,34 @@ import {
   type VersioningSidebarContextValue,
 } from "./VersioningSidebarContext.js";
 
-declare global {
-  // eslint-disable-next-line no-var
-  var IS_REACT_ACT_ENVIRONMENT: boolean;
-}
-globalThis.IS_REACT_ACT_ENVIRONMENT = true;
-
-const mounted: { root: Root; host: HTMLElement }[] = [];
+const mounted = new Set<() => void>();
 
 function render(element: ReactElement) {
   const host = document.createElement("div");
   document.body.append(host);
-  const root = createRoot(host);
-  act(() => root.render(element));
-  mounted.push({ root, host });
+  const styles = acquireTiptapFixtureStyles(host.ownerDocument);
+  let root: ReturnType<typeof createRoot> | undefined;
+  function unmount() {
+    if (!mounted.delete(unmount)) {
+      return;
+    }
+    styles.dispose(() => {
+      try {
+        act(() => root?.unmount());
+      } finally {
+        host.remove();
+      }
+    });
+  }
+  mounted.add(unmount);
+  const view = createRoot(host);
+  root = view;
+  styles.track(() => act(() => view.render(element)));
   return {
     rerender(next: ReactElement) {
-      act(() => root.render(next));
+      styles.track(() => act(() => view.render(next)));
     },
-    unmount() {
-      act(() => root.unmount());
-      host.remove();
-    },
+    unmount,
   };
 }
 
@@ -147,7 +148,9 @@ function createFakeEndpoints(showCurrentVersion?: boolean, withStart = false) {
   };
 }
 
-function createEditor(endpoints: VersionStorage<unknown[], unknown>) {
+let setupEditorForTest: SetupEditor;
+
+async function createEditor(endpoints: VersionStorage<unknown[], unknown>) {
   const Versions = createVersioningExtension(() => ({
     storage: endpoints,
     adapter: {
@@ -161,9 +164,11 @@ function createEditor(endpoints: VersionStorage<unknown[], unknown>) {
       },
     },
   }));
-  return BlockNoteEditor.create({
+  const { editor } = await setupEditorForTest({
+    mountType: false,
     extensions: [Versions()],
   });
+  return editor;
 }
 
 function mode(editor: BlockNoteEditor) {
@@ -187,14 +192,15 @@ function viewState(versioning: ReturnType<typeof mode>) {
       };
 }
 
-/** Render the sidebar inside a real editor and wait for its initial list. */
+/** Render the real sidebar and wait for its initial list. */
 async function setup(
   props: Parameters<typeof VersioningSidebar>[0] = {},
   fake = createFakeEndpoints(),
+  { renderEditor = true } = {},
 ) {
-  const editor = createEditor(fake.endpoints);
+  const editor = await createEditor(fake.endpoints);
   const view = render(
-    <VersioningTestView editor={editor}>
+    <VersioningTestView editor={editor} renderEditor={renderEditor}>
       <VersioningSidebar {...props} />
     </VersioningTestView>,
   );
@@ -223,8 +229,11 @@ function sidebarStatus() {
     .getByRole("status");
 }
 
-/** Capture the action runner so rejected promises can be asserted by the test. */
-async function setupWithRun(fake = createFakeEndpoints()) {
+/** Capture the sidebar action runner; runner-only tests do not need a view. */
+async function setupWithRun({
+  fake = createFakeEndpoints(),
+  renderEditor = false,
+} = {}) {
   let run!: VersioningSidebarContextValue["run"];
   let action!: VersioningSidebarContextValue["action"];
   function CaptureRun() {
@@ -249,6 +258,7 @@ async function setupWithRun(fake = createFakeEndpoints()) {
         ),
       },
       fake,
+      { renderEditor },
     )),
     run,
     get action() {
@@ -288,10 +298,8 @@ function nameText(row: HTMLElement) {
 }
 
 async function click(element: Parameters<typeof userEvent.click>[0]) {
-  await act(async () => {
-    await userEvent.click(element);
-    await new Promise((resolve) => setTimeout(resolve, 20));
-  });
+  // The fake endpoints settle in microtasks unless the test gates them.
+  await act(async () => userEvent.click(element));
 }
 
 /** Open the row's "..." menu and wait for the matching item to render. */
@@ -320,12 +328,9 @@ async function openMenuItem(row: HTMLElement, label: RegExp) {
 
 /** Type `value` into a name field and end the edit with `key`. */
 async function commit(input: HTMLInputElement, value: string, key: string) {
-  await act(async () => {
-    await userEvent.fill(input, value);
-    // Both keys leave the field, and leaving it is what commits.
-    await userEvent.keyboard(`{${key}}`);
-    await new Promise((resolve) => setTimeout(resolve, 20));
-  });
+  await act(async () => userEvent.fill(input, value));
+  // Both keys leave the field. Commit on blur after React has rendered the draft.
+  await act(async () => userEvent.keyboard(`{${key}}`));
 }
 
 // ---------------------------------------------------------------------------
@@ -333,18 +338,27 @@ async function commit(input: HTMLInputElement, value: string, key: string) {
 // ---------------------------------------------------------------------------
 
 describe("VersioningSidebar", () => {
-  beforeEach(() => {
+  beforeEach<{ setupEditor: SetupEditor }>(({ setupEditor }) => {
+    vi.stubGlobal("IS_REACT_ACT_ENVIRONMENT", true);
+    setupEditorForTest = setupEditor;
     vi.clearAllMocks();
   });
 
   afterEach(() => {
-    for (const entry of mounted.splice(0)) {
+    const errors: unknown[] = [];
+    for (const unmount of mounted) {
       try {
-        act(() => entry.root.unmount());
-      } catch {
-        // A test may already have unmounted this root explicitly.
+        unmount();
+      } catch (error) {
+        errors.push(error);
       }
-      entry.host.remove();
+    }
+    vi.unstubAllGlobals();
+    if (errors.length > 0) {
+      throw new AggregateError(
+        errors,
+        "Failed to unmount versioning test views",
+      );
     }
   });
 
@@ -425,7 +439,7 @@ describe("VersioningSidebar", () => {
           }),
         )
         .mockReturnValueOnce(olderPage.promise);
-      const editor = createEditor({ ...fake.endpoints, list });
+      const editor = await createEditor({ ...fake.endpoints, list });
       render(
         <VersioningTestView editor={editor}>
           <VersioningSidebar
@@ -500,43 +514,53 @@ describe("VersioningSidebar", () => {
       list: listSnapshots,
       getContent: async (id) => success(id),
     };
-    function PaginatedSidebar() {
-      const [preview, setPreview] = useState("Current");
-      const [editor] = useState(() =>
-        BlockNoteEditor.create({
-          dictionary: de,
-          extensions: [
-            createVersioningExtension(() => ({
-              storage,
-              adapter: {
-                supportsComparison: true,
-                open() {
-                  return {
-                    current: { content: "Current", capturedAt: 3000 },
-                    show({ content, comparison }) {
-                      setPreview(
-                        comparison
-                          ? `${content} / ${comparison.content}`
-                          : content,
-                      );
-                    },
-                    close() {},
-                  };
+    let preview: HTMLOutputElement | null = null;
+    const { editor } = await setupEditorForTest({
+      mountType: false,
+      dictionary: de,
+      extensions: [
+        createVersioningExtension(() => ({
+          storage,
+          adapter: {
+            supportsComparison: true,
+            open() {
+              return {
+                current: { content: "Current", capturedAt: 3000 },
+                show({ content, comparison }) {
+                  if (preview) {
+                    preview.value = comparison
+                      ? `${content} / ${comparison.content}`
+                      : content;
+                  }
                 },
-              },
-            }))(),
-          ],
-        }),
-      );
-      useEffect(() => () => editor._tiptapEditor.destroy(), [editor]);
-      return (
-        <VersioningTestView editor={editor}>
-          <VersioningSidebar defaultNamedOnly defaultComparisonMode />
-          <output aria-label="Preview">{preview}</output>
-        </VersioningTestView>
-      );
-    }
-    render(<PaginatedSidebar />);
+                close() {},
+              };
+            },
+          },
+        }))(),
+      ],
+    });
+    render(
+      <VersioningTestView editor={editor}>
+        <VersioningSidebar defaultNamedOnly defaultComparisonMode />
+        <output
+          aria-label="Preview"
+          ref={(element) => {
+            preview = element;
+          }}
+        >
+          Current
+        </output>
+      </VersioningTestView>,
+    );
+    await act(async () => {});
+    // The observer can run only after the list and pagination sentinel mount.
+    // Wait on the request rather than the React commit that act will flush.
+    await act(async () => {
+      await vi.waitFor(() => expect(listSnapshots).toHaveBeenCalledTimes(2), {
+        interval: 10,
+      });
+    });
     const loadMore = page.getByRole("button", {
       name: de.generic.load_more,
       exact: true,
@@ -559,6 +583,11 @@ describe("VersioningSidebar", () => {
           nextCursor: "older",
         }),
       );
+    });
+    await act(async () => {
+      await vi.waitFor(() => expect(listSnapshots).toHaveBeenCalledTimes(3), {
+        interval: 10,
+      });
     });
     await expect
       .element(page.getByRole("alert"))
@@ -625,7 +654,7 @@ describe("VersioningSidebar", () => {
   });
 
   it("opens and closes preview through Strict Mode effect cleanup", async () => {
-    const editor = createEditor(createFakeEndpoints().endpoints);
+    const editor = await createEditor(createFakeEndpoints().endpoints);
     const view = render(
       <StrictMode>
         <VersioningTestView editor={editor}>
@@ -770,7 +799,6 @@ describe("VersioningSidebar", () => {
     await click(
       page.getByRole("button", { name: "Show changes", exact: true }),
     );
-    await act(async () => {});
 
     // The current version is diffed against the newest stored version.
     expect(viewState(versioning)).toEqual({
@@ -1177,7 +1205,7 @@ describe("VersioningSidebar", () => {
     "offers Current naming and preserves custom actions: %s",
     async (custom) => {
       const fake = createFakeEndpoints();
-      const editor = createEditor(fake.endpoints);
+      const editor = await createEditor(fake.endpoints);
       render(
         <VersioningTestView editor={editor}>
           <VersioningSidebar
@@ -1327,7 +1355,6 @@ describe("VersioningSidebar", () => {
     const { editor } = await setup();
 
     await click(rows()[2]!);
-    await act(async () => {});
 
     expect(viewState(mode(editor))).toEqual({
       mode: "snapshot",
@@ -1823,6 +1850,7 @@ describe("VersioningSidebar", () => {
     "waits for older pages before scrubbing past loaded history, namedOnly=%s",
     async (namedOnly) => {
       const olderPage = deferred<VersionResult<VersionSnapshotPage>>();
+      const lastPage = deferred<VersionResult<VersionSnapshotPage>>();
       const start = { id: "first", createdAt: 0, name: "Beginning" };
       const older = { id: "older", createdAt: 500, name: "Earlier" };
       const fake = createFakeEndpoints(undefined, true);
@@ -1836,8 +1864,8 @@ describe("VersioningSidebar", () => {
           }),
         )
         .mockReturnValueOnce(olderPage.promise)
-        .mockResolvedValueOnce(success({ snapshots: [older] }));
-      const editor = createEditor({ ...fake.endpoints, list });
+        .mockReturnValueOnce(lastPage.promise);
+      const editor = await createEditor({ ...fake.endpoints, list });
       render(
         <VersioningTestView editor={editor}>
           <VersioningSidebar defaultNamedOnly={namedOnly} />
@@ -1860,9 +1888,22 @@ describe("VersioningSidebar", () => {
           success({ snapshots: [AUTOMATIC], nextCursor: "older" }),
         ),
       );
-      await vi.waitFor(() =>
-        expect(viewState(mode(editor))).toMatchObject({ snapshotId: older.id }),
-      );
+      // Give each page its own commit so the next frame can focus a mounted row.
+      await act(async () => {
+        await vi.waitFor(() => expect(list).toHaveBeenCalledTimes(3), {
+          interval: 10,
+        });
+      });
+      await act(async () => lastPage.resolve(success({ snapshots: [older] })));
+      await act(async () => {
+        await vi.waitFor(
+          () =>
+            expect(viewState(mode(editor))).toMatchObject({
+              snapshotId: older.id,
+            }),
+          { interval: 10 },
+        );
+      });
       expect(document.activeElement).toBe(rows()[index + 1]);
       await act(async () => userEvent.keyboard("{ArrowDown}"));
       expect(viewState(mode(editor))).toMatchObject({ snapshotId: start.id });
@@ -1881,7 +1922,7 @@ describe("VersioningSidebar", () => {
         success({ snapshots: [NAMED, AUTOMATIC, start], nextCursor: "older" }),
       )
       .mockReturnValueOnce(olderPage.promise);
-    const editor = createEditor({ ...fake.endpoints, list });
+    const editor = await createEditor({ ...fake.endpoints, list });
     render(
       <VersioningTestView editor={editor}>
         <VersioningSidebar />
@@ -2006,7 +2047,7 @@ describe("VersioningSidebar", () => {
   it("shows a status region while the list loads, then the rows", async () => {
     const fake = createFakeEndpoints();
     const release = fake.block();
-    const editor = createEditor(fake.endpoints);
+    const editor = await createEditor(fake.endpoints);
 
     render(
       <VersioningTestView editor={editor}>
@@ -2101,7 +2142,7 @@ describe("VersioningSidebar", () => {
   });
 
   it("clears a failed row's busy marker, restores selection, and allows retry", async () => {
-    const { editor, fake, run } = await setupWithRun();
+    const { editor, fake, run } = await setupWithRun({ renderEditor: true });
     let rejectContent!: (error: Error) => void;
     fake.endpoints.getContent.mockImplementationOnce(
       () =>
@@ -2139,7 +2180,7 @@ describe("VersioningSidebar", () => {
   describe("row actions", () => {
     it("focuses the editable editor after restoring and dismissing history", async () => {
       const fake = createFakeEndpoints();
-      const editor = createEditor(fake.endpoints);
+      const editor = await createEditor(fake.endpoints);
       function View() {
         const [open, setOpen] = useState(true);
         return (
@@ -2501,7 +2542,7 @@ describe("VersioningSidebar", () => {
       const fake = createFakeEndpoints();
       const cause = new Error("network");
       fake.endpoints.restore.mockRejectedValueOnce(cause);
-      const { editor, run } = await setupWithRun(fake);
+      const { editor, run } = await setupWithRun({ fake, renderEditor: true });
       const ext = mode(editor);
 
       await click(rows()[1]!);
@@ -2526,7 +2567,7 @@ describe("VersioningSidebar", () => {
       const fake = createFakeEndpoints();
       const cause = new Error("no activity");
       fake.endpoints.create.mockRejectedValueOnce(cause);
-      const { editor, run } = await setupWithRun(fake);
+      const { editor, run } = await setupWithRun({ fake, renderEditor: true });
       const ext = mode(editor);
       await act(async () => {
         await expect(run(() => ext.create("First draft"))).rejects.toBe(cause);
@@ -2541,7 +2582,7 @@ describe("VersioningSidebar", () => {
   // -------------------------------------------------------------------------
 
   it("propagates a superseded naming action's failure", async () => {
-    const { editor, fake, run } = await setupWithRun();
+    const { editor, fake, run } = await setupWithRun({ renderEditor: true });
     let rejectName!: (error: Error) => void;
     fake.endpoints.create.mockImplementationOnce(
       () =>
@@ -2551,8 +2592,12 @@ describe("VersioningSidebar", () => {
     );
     const ext = mode(editor);
     const cause = new Error("old naming failed");
+    let pending!: ReturnType<typeof run>;
+    act(() => {
+      pending = run(() => ext.create("Draft"));
+    });
     // oxlint-disable-next-line vitest/valid-expect -- Observe rejection before switching rows; awaited after rejectName below.
-    const rejected = expect(run(() => ext.create("Draft"))).rejects.toBe(cause);
+    const rejected = expect(pending).rejects.toBe(cause);
     await click(rows()[1]!);
     await act(async () => {
       rejectName(cause);
@@ -2619,7 +2664,7 @@ describe("VersioningSidebar", () => {
 
   it("hides the named-version filter when storage cannot rename versions", async () => {
     const { endpoints } = createFakeEndpoints();
-    const editor = createEditor({ ...endpoints, rename: undefined });
+    const editor = await createEditor({ ...endpoints, rename: undefined });
     render(
       <VersioningTestView editor={editor}>
         <VersioningSidebar />
