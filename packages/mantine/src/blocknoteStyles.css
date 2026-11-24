@@ -59,15 +59,15 @@
   color: var(--bn-menu-color);
 }
 
-.bn-menu-item.mantine-Menu-item {
+.bn-mantine .bn-menu-item.mantine-Menu-item {
   background-color: var(--bn-menu-item-background);
   border: none;
   border-radius: var(--bn-menu-item-radius);
   color: var(--bn-menu-item-color);
 }
 
-.bn-menu-item.mantine-Menu-item[aria-selected="true"],
-.bn-menu-item.mantine-Menu-item:hover {
+.bn-mantine .bn-menu-item.mantine-Menu-item[aria-selected="true"],
+.bn-mantine .bn-menu-item.mantine-Menu-item:hover {
   background-color: var(--bn-menu-item-hover-background);
   border: none;
   color: var(--bn-menu-item-hover-color);
@@ -217,7 +217,7 @@ on touch devices (e.g. the mobile formatting toolbar). */
 }
 
 /* Menu items carry their sizing independently of the dropdown that owns them. */
-.bn-menu-item.mantine-Menu-item {
+.bn-mantine .bn-menu-item.mantine-Menu-item {
   font-size: 12px;
   height: 30px;
 }
@@ -473,7 +473,7 @@ on touch devices (e.g. the mobile formatting toolbar). */
   width: 22px;
 }
 
-.bn-side-menu-button[draggable="true"] {
+.bn-mantine .bn-side-menu-button[draggable="true"] {
   display: flex;
 }
 
