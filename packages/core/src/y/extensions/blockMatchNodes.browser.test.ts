@@ -1,10 +1,14 @@
-/**
- * @vitest-environment jsdom
- */
 import * as Y from "@y/y";
-import { afterEach, describe, expect, it } from "vite-plus/test";
+import {
+  afterAll,
+  beforeAll,
+  describe,
+  expect,
+  onTestFinished,
+} from "vite-plus/test";
 
-import { BlockNoteEditor } from "../../editor/BlockNoteEditor.js";
+import type { SetupEditor } from "../../../../../tests/src/commands/browser/setupEditor.js";
+import type { BlockNoteEditor } from "../../editor/BlockNoteEditor.js";
 import { blocksToYType, yDocToBlocks } from "../utils.js";
 import { withCollaboration } from "./index.js";
 
@@ -22,33 +26,28 @@ import { withCollaboration } from "./index.js";
 
 type Editor = BlockNoteEditor<any, any, any>;
 
-const editors: Editor[] = [];
-afterEach(() => {
-  for (const editor of editors.splice(0)) {
-    editor.unmount();
-  }
-});
-
-function collaborativeEditor(doc: Y.Doc): Editor {
-  const editor = BlockNoteEditor.create(
-    withCollaboration({
+/** An editor of the fixture that is bound to the replica and mounted. */
+async function collaborativeEditor(
+  setupEditor: SetupEditor,
+  doc: Y.Doc,
+): Promise<Editor> {
+  const { editor } = await setupEditor({
+    mountType: "dom",
+    ...withCollaboration({
       trailingBlock: false,
       collaboration: {
         fragment: doc.get("doc"),
         user: { name: "Test", color: "#ff0000" },
       },
     }),
-  );
-  const element = document.createElement("div");
-  document.body.appendChild(element);
-  editor.mount(element);
-  editors.push(editor);
+  });
   return editor;
 }
 
 /** A replica of `source`, with its own client ID. */
 function replicaOf(source: Y.Doc, clientID: number): Y.Doc {
   const doc = new Y.Doc({ gc: false });
+  onTestFinished(() => doc.destroy());
   doc.clientID = clientID;
   Y.applyUpdateV2(doc, Y.encodeStateAsUpdateV2(source));
   return doc;
@@ -73,18 +72,30 @@ async function sync(docs: Y.Doc[]) {
 }
 
 /** Two users with an editor each, on replicas of a document with `blocks`. */
-function twoUsers(blocks: any[]) {
+async function twoUsers(setupEditor: SetupEditor, blocks: any[]) {
   const first = new Y.Doc({ gc: false });
+  onTestFinished(() => first.destroy());
   first.clientID = 1;
-  const seed = BlockNoteEditor.create();
+  const { editor: seed } = await setupEditor({ mountType: false });
   seed.replaceBlocks(seed.document, blocks);
   blocksToYType(seed, seed.document, first.get("doc"));
   const docs = [first, replicaOf(first, 2)];
-  const [a, b] = docs.map(collaborativeEditor);
+  const a = await collaborativeEditor(setupEditor, docs[0]);
+  const b = await collaborativeEditor(setupEditor, docs[1]);
   return { docs, a, b };
 }
 
-const reader = BlockNoteEditor.create();
+/** One editor of the fixture, without a view: the reads of the replicas. */
+let reader: Editor;
+let disposeReader = () => {};
+beforeAll(async () => {
+  const { createSetupEditor } =
+    await import("../../../../../tests/src/commands/node/setupEditor.js");
+  ({ editor: reader } = await createSetupEditor((dispose) => {
+    disposeReader = dispose;
+  })());
+});
+afterAll(() => disposeReader());
 
 /** The document of a replica, e.g. `a:paragraph:Alpha{child:paragraph:Text} | b:heading:Beta`. */
 function outline(doc: Y.Doc): string {
@@ -110,12 +121,14 @@ async function synced(docs: Y.Doc[]): Promise<string> {
 /** Types `value` after the first occurrence of `after`, as a user of the editor. */
 function typeAfter(editor: Editor, after: string, value: string) {
   let position: number | undefined;
-  editor.prosemirrorState.doc.descendants((node, pos) => {
-    const index = node.isText ? (node.text ?? "").indexOf(after) : -1;
-    if (position === undefined && index !== -1) {
-      position = pos + index + after.length;
-    }
-  });
+  editor
+    .transact((tr) => tr.doc)
+    .descendants((node, pos) => {
+      const index = node.isText ? (node.text ?? "").indexOf(after) : -1;
+      if (position === undefined && index !== -1) {
+        position = pos + index + after.length;
+      }
+    });
   if (position === undefined) {
     throw new Error(`Text ${JSON.stringify(after)} not found`);
   }
@@ -139,11 +152,12 @@ describe("a transaction of one user, while another user types in a block", () =>
    * the text `after`. Returns the document after the sync.
    */
   async function concurrent(
+    setupEditor: SetupEditor,
     blocks: any[],
     edit: (editor: Editor) => void,
     [after, typed]: [string, string],
   ) {
-    const { docs, a, b } = twoUsers(blocks);
+    const { docs, a, b } = await twoUsers(setupEditor, blocks);
     a.transact(() => edit(a));
     typeAfter(b, after, typed);
     return synced(docs);
@@ -153,9 +167,12 @@ describe("a transaction of one user, while another user types in a block", () =>
   // the binding paired "b" with the block next to it, and the typed text
   // went into that block, or was lost.
 
-  it("keeps the typed text in its block, with an insert before that block", async () => {
+  it("keeps the typed text in its block, with an insert before that block", async ({
+    setupEditor,
+  }) => {
     expect(
       await concurrent(
+        setupEditor,
         three(),
         (editor) => {
           editor.insertBlocks([paragraph("new", "New")], "a", "after");
@@ -168,9 +185,12 @@ describe("a transaction of one user, while another user types in a block", () =>
     );
   });
 
-  it("keeps the typed text in its block, with a removal before that block", async () => {
+  it("keeps the typed text in its block, with a removal before that block", async ({
+    setupEditor,
+  }) => {
     expect(
       await concurrent(
+        setupEditor,
         three(),
         (editor) => {
           editor.removeBlocks(["a"]);
@@ -181,9 +201,12 @@ describe("a transaction of one user, while another user types in a block", () =>
     ).toBe("b:paragraph:Changed Beta! | c:paragraph:Gamma");
   });
 
-  it("does not put text typed in a removed block into the new block at its place", async () => {
+  it("does not put text typed in a removed block into the new block at its place", async ({
+    setupEditor,
+  }) => {
     expect(
       await concurrent(
+        setupEditor,
         three(),
         (editor) => {
           editor.insertBlocks([paragraph("new", "New")], "b", "after");
@@ -194,9 +217,12 @@ describe("a transaction of one user, while another user types in a block", () =>
     ).toBe("a:paragraph:Alpha | new:paragraph:New | c:paragraph:Gamma");
   });
 
-  it("keeps the typed text in its block, with a type change of the block before it", async () => {
+  it("keeps the typed text in its block, with a type change of the block before it", async ({
+    setupEditor,
+  }) => {
     expect(
       await concurrent(
+        setupEditor,
         three(),
         (editor) => {
           editor.updateBlock("a", { type: "heading" });
@@ -209,9 +235,12 @@ describe("a transaction of one user, while another user types in a block", () =>
 
   // These cases also passed without the block ID.
 
-  it("keeps the typed text in its block, with inserts at the start and at the end of the list", async () => {
+  it("keeps the typed text in its block, with inserts at the start and at the end of the list", async ({
+    setupEditor,
+  }) => {
     expect(
       await concurrent(
+        setupEditor,
         three(),
         (editor) => {
           editor.insertBlocks([paragraph("first", "First")], "a", "before");
@@ -224,9 +253,12 @@ describe("a transaction of one user, while another user types in a block", () =>
     );
   });
 
-  it("keeps the typed text between two changes in one paragraph", async () => {
+  it("keeps the typed text between two changes in one paragraph", async ({
+    setupEditor,
+  }) => {
     expect(
       await concurrent(
+        setupEditor,
         [paragraph("p", "one two three")],
         (editor) => {
           editor.updateBlock("p", { content: "First one two three Last" });
@@ -236,9 +268,12 @@ describe("a transaction of one user, while another user types in a block", () =>
     ).toBe("p:paragraph:First one twXo three Last");
   });
 
-  it("keeps the typed text in its block, with text changes of two adjacent blocks", async () => {
+  it("keeps the typed text in its block, with text changes of two adjacent blocks", async ({
+    setupEditor,
+  }) => {
     expect(
       await concurrent(
+        setupEditor,
         three(),
         (editor) => {
           editor.updateBlock("a", { content: "Changed Alpha" });
@@ -251,9 +286,12 @@ describe("a transaction of one user, while another user types in a block", () =>
     );
   });
 
-  it("keeps the typed text in a block that a move passes", async () => {
+  it("keeps the typed text in a block that a move passes", async ({
+    setupEditor,
+  }) => {
     expect(
       await concurrent(
+        setupEditor,
         three(),
         (editor) => {
           const moved = editor.getBlock("c")!;
@@ -282,8 +320,8 @@ describe("a document with two blocks with one ID", () => {
   }
 
   /** Two users change the type of the block "parent" at the same time. */
-  async function typeChangedTwoTimes() {
-    const users = twoUsers([
+  async function typeChangedTwoTimes(setupEditor: SetupEditor) {
+    const users = await twoUsers(setupEditor, [
       paragraph("parent", "Parent text", [paragraph("child", "Child text")]),
       paragraph("next", "Next"),
     ]);
@@ -294,8 +332,8 @@ describe("a document with two blocks with one ID", () => {
   }
 
   /** Two users move the block "c" to different places at the same time. */
-  async function movedTwoTimes() {
-    const users = twoUsers([
+  async function movedTwoTimes(setupEditor: SetupEditor) {
+    const users = await twoUsers(setupEditor, [
       paragraph("a", "Alpha"),
       paragraph("b", "Beta"),
       paragraph("c", "Gamma"),
@@ -308,10 +346,12 @@ describe("a document with two blocks with one ID", () => {
     return { ...users, document };
   }
 
-  it("has two copies of a block after two users change its type at the same time", async () => {
+  it("has two copies of a block after two users change its type at the same time", async ({
+    setupEditor,
+  }) => {
     // A type change replaces the block (see blockMatchNodes.ts). Thus, each
     // user removes the block and inserts a copy with the same ID.
-    const { docs, a, document } = await typeChangedTwoTimes();
+    const { docs, a, document } = await typeChangedTwoTimes(setupEditor);
     expect(document).toBe(
       "parent:heading:Parent text{child:paragraph:Child text} | parent:bulletListItem:Parent text{child:paragraph:Child text} | next:paragraph:Next",
     );
@@ -324,8 +364,10 @@ describe("a document with two blocks with one ID", () => {
     );
   });
 
-  it("has two copies of a block after two users move it at the same time", async () => {
-    const { docs, b, document } = await movedTwoTimes();
+  it("has two copies of a block after two users move it at the same time", async ({
+    setupEditor,
+  }) => {
+    const { docs, b, document } = await movedTwoTimes(setupEditor);
     expect(document).toBe(
       "c:paragraph:Gamma | a:paragraph:Alpha | b:paragraph:Beta | d:paragraph:Delta | e:paragraph:Echo | c:paragraph:Gamma",
     );
@@ -346,37 +388,71 @@ describe("a document with two blocks with one ID", () => {
   // that a user types in a copy at that time is lost.
 
   /** The number of blocks at the top level, after `count` new clients load the document at the same time. */
-  async function blocksAfterLoad(docs: Y.Doc[], count: number) {
+  async function blocksAfterLoad(
+    setupEditor: SetupEditor,
+    docs: Y.Doc[],
+    count: number,
+  ) {
     const loaded = Array.from({ length: count }, (_, index) =>
       replicaOf(docs[0], 10 + index),
     );
-    loaded.forEach(collaborativeEditor);
+    for (const doc of loaded) {
+      await collaborativeEditor(setupEditor, doc);
+    }
     const all = [...docs, ...loaded];
     await synced(all);
     return yDocToBlocks(reader, all[0], "doc").length;
   }
 
-  it("keeps the number of blocks when one new client loads the document", async () => {
-    expect(await blocksAfterLoad((await typeChangedTwoTimes()).docs, 1)).toBe(
-      3,
-    );
-    expect(await blocksAfterLoad((await movedTwoTimes()).docs, 1)).toBe(6);
+  it("keeps the number of blocks when one new client loads the document", async ({
+    setupEditor,
+  }) => {
+    expect(
+      await blocksAfterLoad(
+        setupEditor,
+        (await typeChangedTwoTimes(setupEditor)).docs,
+        1,
+      ),
+    ).toBe(3);
+    expect(
+      await blocksAfterLoad(
+        setupEditor,
+        (await movedTwoTimes(setupEditor)).docs,
+        1,
+      ),
+    ).toBe(6);
   });
 
-  it("keeps the number of blocks when two new clients load a document with a type change by two users", async () => {
-    expect(await blocksAfterLoad((await typeChangedTwoTimes()).docs, 2)).toBe(
-      3,
-    );
+  it("keeps the number of blocks when two new clients load a document with a type change by two users", async ({
+    setupEditor,
+  }) => {
+    expect(
+      await blocksAfterLoad(
+        setupEditor,
+        (await typeChangedTwoTimes(setupEditor)).docs,
+        2,
+      ),
+    ).toBe(3);
   });
 
-  it("keeps the number of blocks when two new clients load a document with a move by two users", async () => {
-    expect(await blocksAfterLoad((await movedTwoTimes()).docs, 2)).toBe(6);
+  it("keeps the number of blocks when two new clients load a document with a move by two users", async ({
+    setupEditor,
+  }) => {
+    expect(
+      await blocksAfterLoad(
+        setupEditor,
+        (await movedTwoTimes(setupEditor)).docs,
+        2,
+      ),
+    ).toBe(6);
   });
 
-  it("keeps text that a user types in a copy while a new client loads the document", async () => {
-    const { docs, a } = await typeChangedTwoTimes();
+  it("keeps text that a user types in a copy while a new client loads the document", async ({
+    setupEditor,
+  }) => {
+    const { docs, a } = await typeChangedTwoTimes(setupEditor);
     const loaded = replicaOf(docs[0], 10);
-    collaborativeEditor(loaded);
+    await collaborativeEditor(setupEditor, loaded);
     typeAfter(a, "Parent text", " (edit)");
     expect(await synced([...docs, loaded])).toContain("Parent text (edit)");
   });
