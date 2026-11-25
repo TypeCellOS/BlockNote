@@ -5,12 +5,10 @@ import {
 } from "@blocknote/core";
 import { PDFDict, PDFDocument, PDFName } from "@cantoo/pdf-lib";
 import { ColumnBlock, ColumnListBlock } from "@blocknote/xl-multi-column";
-import { testDocument } from "@shared/testDocument.js";
-import { testResolveFileUrl } from "@shared/util/testFileResolver.js";
-import { compileTypstForTesting } from "@shared/util/typstTestUtil.js";
+import { testDocument } from "../../../../tests/src/fixtures/exporters/testDocument.js";
 import { readFileSync } from "node:fs";
 import { resolve } from "node:path";
-import { beforeAll, describe, expect, it } from "vite-plus/test";
+import { describe, expect } from "vite-plus/test";
 import {
   TypstExporter,
   typstDefaultSchemaMappings,
@@ -51,7 +49,7 @@ function fontBlobs(): Uint8Array[] {
 describe("pdf/ua-1: BlockNote -> Typst -> PDF", () => {
   let ua: Uint8Array;
 
-  beforeAll(async () => {
+  it.beforeAll(async ({ testResolveFileUrl, compileTypstForTesting }) => {
     const exporter = new TypstExporter(
       BlockNoteSchema.create({
         blockSpecs: {

@@ -19,6 +19,8 @@ coverage
 
 # production
 /build
+/playground/dist-vercel/
+/playground/relative-ci/
 
 # misc
 .DS_Store

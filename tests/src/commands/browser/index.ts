@@ -5,3 +5,4 @@ export { readAriaSnapshot } from "./ariaSnapshot.js";
 export { MOD, selectToLineEndKey } from "./keyboard.js";
 export { browserName } from "./environment.js";
 export { screenshotFull } from "./screenshotFull.js";
+export { decodeAndSample } from "./decodeAndSample.js";

@@ -14,7 +14,7 @@ import {
   type StyledText,
 } from "@blocknote/core";
 import { ColumnBlock, ColumnListBlock } from "@blocknote/xl-multi-column";
-import { testDocument } from "@shared/testDocument.js";
+import { testDocument } from "../../../../tests/src/fixtures/exporters/testDocument.js";
 
 // Schema including the multi-column blocks, matching the shared testDocument.
 // The columns are layout blocks, so the exporter only recognizes them as

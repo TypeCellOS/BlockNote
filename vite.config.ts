@@ -54,10 +54,8 @@ export default defineConfig({
   },
   run: {
     // Cache package.json scripts by default (off by default in vp).
-    // Vite Task automatically fingerprints each command's read file set,
-    // so cache invalidation already follows the workspace dependency graph:
-    // when `core`'s dist changes, `react`'s build cache misses because
-    // its tsc step reads `core`'s `.d.ts` files.
+    // Vite Task fingerprints files read by each build, including the upstream
+    // declarations TypeScript consumes. Exclude only task-owned outputs.
     cache: { scripts: true },
     tasks: {
       // Docker owns image reuse. Always ask the daemon and execute browser runs:

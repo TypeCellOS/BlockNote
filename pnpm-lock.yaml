@@ -4691,9 +4691,6 @@ importers:
       rimraf:
         specifier: ^5.0.10
         version: 5.0.10
-      rollup-plugin-webpack-stats:
-        specifier: ^0.2.6
-        version: 0.2.6(rollup@4.65.0)
       typescript:
         specifier: ^7.0.2
         version: 7.0.2
@@ -4722,9 +4719,6 @@ importers:
       rimraf:
         specifier: ^5.0.10
         version: 5.0.10
-      rollup-plugin-webpack-stats:
-        specifier: ^0.2.6
-        version: 0.2.6(rollup@4.65.0)
       typescript:
         specifier: ^7.0.2
         version: 7.0.2
@@ -4820,9 +4814,6 @@ importers:
       rimraf:
         specifier: ^5.0.10
         version: 5.0.10
-      rollup-plugin-webpack-stats:
-        specifier: ^0.2.6
-        version: 0.2.6(rollup@4.65.0)
       typescript:
         specifier: ^7.0.2
         version: 7.0.2
@@ -4893,9 +4884,6 @@ importers:
       '@blocknote/xl-odt-exporter':
         specifier: workspace:^
         version: link:../xl-odt-exporter
-      '@blocknote/xl-typst-compiler':
-        specifier: workspace:^
-        version: link:../xl-typst-compiler
       '@blocknote/xl-typst-exporter':
         specifier: workspace:^
         version: link:../xl-typst-exporter
@@ -4926,9 +4914,6 @@ importers:
       rimraf:
         specifier: ^5.0.10
         version: 5.0.10
-      rollup-plugin-webpack-stats:
-        specifier: ^0.2.6
-        version: 0.2.6(rollup@4.65.0)
       typescript:
         specifier: ^7.0.2
         version: 7.0.2
@@ -4972,9 +4957,6 @@ importers:
       rimraf:
         specifier: ^5.0.10
         version: 5.0.10
-      rollup-plugin-webpack-stats:
-        specifier: ^0.2.6
-        version: 0.2.6(rollup@4.65.0)
       typescript:
         specifier: ^7.0.2
         version: 7.0.2
@@ -5009,9 +4991,6 @@ importers:
       '@blocknote/xl-odt-exporter':
         specifier: workspace:^
         version: link:../xl-odt-exporter
-      '@blocknote/xl-typst-compiler':
-        specifier: workspace:^
-        version: link:../xl-typst-compiler
       '@blocknote/xl-typst-exporter':
         specifier: workspace:^
         version: link:../xl-typst-exporter
@@ -5048,9 +5027,6 @@ importers:
       rimraf:
         specifier: ^5.0.10
         version: 5.0.10
-      rollup-plugin-webpack-stats:
-        specifier: ^0.2.6
-        version: 0.2.6(rollup@4.65.0)
       tex2typst:
         specifier: ^0.6.2
         version: 0.6.2
@@ -5115,9 +5091,6 @@ importers:
       rimraf:
         specifier: ^5.0.10
         version: 5.0.10
-      rollup-plugin-webpack-stats:
-        specifier: ^0.2.6
-        version: 0.2.6(rollup@4.65.0)
       typescript:
         specifier: ^7.0.2
         version: 7.0.2
@@ -5165,9 +5138,6 @@ importers:
       rimraf:
         specifier: ^5.0.10
         version: 5.0.10
-      rollup-plugin-webpack-stats:
-        specifier: ^0.2.6
-        version: 0.2.6(rollup@4.65.0)
       typescript:
         specifier: ^7.0.2
         version: 7.0.2
@@ -5229,9 +5199,6 @@ importers:
       rimraf:
         specifier: ^5.0.10
         version: 5.0.10
-      rollup-plugin-webpack-stats:
-        specifier: ^0.2.6
-        version: 0.2.6(rollup@4.65.0)
       typescript:
         specifier: ^7.0.2
         version: 7.0.2
@@ -5332,9 +5299,6 @@ importers:
       rimraf:
         specifier: ^5.0.10
         version: 5.0.10
-      rollup-plugin-webpack-stats:
-        specifier: ^0.2.6
-        version: 0.2.6(rollup@4.65.0)
       typescript:
         specifier: ^7.0.2
         version: 7.0.2
@@ -5384,9 +5348,6 @@ importers:
       rimraf:
         specifier: ^5.0.10
         version: 5.0.10
-      rollup-plugin-webpack-stats:
-        specifier: ^0.2.6
-        version: 0.2.6(rollup@4.65.0)
       typescript:
         specifier: ^7.0.2
         version: 7.0.2
@@ -5436,9 +5397,6 @@ importers:
       rimraf:
         specifier: ^5.0.10
         version: 5.0.10
-      rollup-plugin-webpack-stats:
-        specifier: ^0.2.6
-        version: 0.2.6(rollup@4.65.0)
       typescript:
         specifier: ^7.0.2
         version: 7.0.2
@@ -5482,9 +5440,6 @@ importers:
       rimraf:
         specifier: ^5.0.10
         version: 5.0.10
-      rollup-plugin-webpack-stats:
-        specifier: ^0.2.6
-        version: 0.2.6(rollup@4.65.0)
       typescript:
         specifier: ^7.0.2
         version: 7.0.2
@@ -5534,9 +5489,6 @@ importers:
       rimraf:
         specifier: ^5.0.10
         version: 5.0.10
-      rollup-plugin-webpack-stats:
-        specifier: ^0.2.6
-        version: 0.2.6(rollup@4.65.0)
       typescript:
         specifier: ^7.0.2
         version: 7.0.2
@@ -5577,9 +5529,6 @@ importers:
       rimraf:
         specifier: ^5.0.10
         version: 5.0.10
-      rollup-plugin-webpack-stats:
-        specifier: ^0.2.6
-        version: 0.2.6(rollup@4.65.0)
       typescript:
         specifier: ^7.0.2
         version: 7.0.2
@@ -5629,9 +5578,6 @@ importers:
       rimraf:
         specifier: ^5.0.10
         version: 5.0.10
-      rollup-plugin-webpack-stats:
-        specifier: ^0.2.6
-        version: 0.2.6(rollup@4.65.0)
       typescript:
         specifier: ^7.0.2
         version: 7.0.2
@@ -5650,9 +5596,6 @@ importers:
       rimraf:
         specifier: ^5.0.10
         version: 5.0.10
-      rollup-plugin-webpack-stats:
-        specifier: ^0.2.6
-        version: 0.2.6(rollup@4.65.0)
       typescript:
         specifier: ^7.0.2
         version: 7.0.2
@@ -5672,18 +5615,12 @@ importers:
         specifier: workspace:^
         version: link:../xl-multi-column
     devDependencies:
-      '@blocknote/xl-typst-compiler':
-        specifier: workspace:^
-        version: link:../xl-typst-compiler
       '@types/node':
         specifier: 25.9.5
         version: 25.9.5
       rimraf:
         specifier: ^5.0.10
         version: 5.0.10
-      rollup-plugin-webpack-stats:
-        specifier: ^0.2.6
-        version: 0.2.6(rollup@4.65.0)
       typescript:
         specifier: ^7.0.2
         version: 7.0.2
@@ -5878,34 +5815,6 @@ importers:
         specifier: 'catalog:'
         version: 1.7.0(@opentelemetry/api@1.10.0)(@types/node@25.9.5)(@vitest/browser-playwright@5.0.5)(esbuild@0.27.5)(jiti@2.7.0)(jsdom@29.0.2(@noble/hashes@2.4.0)(canvas@3.1.0))(msw@2.11.5(@types/node@25.9.5)(typescript@7.0.2))(oxlint-tsgolint@7.0.2007)(playwright@1.65.1)(terser@5.51.2)(tsx@4.21.0)(typescript@7.0.2)(yaml@2.9.1)
 
-  shared:
-    dependencies:
-      '@blocknote/core':
-        specifier: workspace:^
-        version: link:../packages/core
-      image-meta:
-        specifier: ^0.2.1
-        version: 0.2.2
-    devDependencies:
-      '@blocknote/xl-typst-compiler':
-        specifier: workspace:^
-        version: link:../packages/xl-typst-compiler
-      '@types/node':
-        specifier: 25.9.5
-        version: 25.9.5
-      '@zip.js/zip.js':
-        specifier: ^2.8.8
-        version: 2.8.26
-      typescript:
-        specifier: ^7.0.2
-        version: 7.0.2
-      vite-plus:
-        specifier: 'catalog:'
-        version: 1.7.0(@opentelemetry/api@1.10.0)(@types/node@25.9.5)(@vitest/browser-playwright@5.0.5)(esbuild@0.27.5)(jiti@2.7.0)(jsdom@29.0.2(@noble/hashes@2.4.0)(canvas@3.1.0))(msw@2.11.5(@types/node@25.9.5)(typescript@7.0.2))(oxlint-tsgolint@7.0.2007)(playwright@1.65.1)(terser@5.51.2)(tsx@4.21.0)(typescript@7.0.2)(yaml@2.9.1)
-      xml-formatter:
-        specifier: ^3.6.7
-        version: 3.7.0
-
   tests:
     dependencies:
       '@blocknote/xl-typst-compiler':
@@ -5993,6 +5902,9 @@ importers:
       '@y/y':
         specifier: 14.0.0-rc.26
         version: 14.0.0-rc.26
+      '@zip.js/zip.js':
+        specifier: ^2.8.8
+        version: 2.8.26
       axe-core:
         specifier: 4.13.0
         version: 4.13.0
@@ -6020,6 +5932,9 @@ importers:
       vitest-browser-react:
         specifier: ^2.2.0
         version: 2.2.0(@types/react-dom@19.2.3(@types/react@19.2.14))(@types/react@19.2.14)(react-dom@19.2.5(react@19.2.5))(react@19.2.5)(vitest@5.0.5)
+      xml-formatter:
+        specifier: ^3.6.7
+        version: 3.7.0
 
 packages:
 

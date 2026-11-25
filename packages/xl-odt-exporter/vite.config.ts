@@ -1,8 +1,8 @@
 import * as path from "path";
-import { webpackStats } from "rollup-plugin-webpack-stats";
 import { configDefaults, defineConfig, type UserConfig } from "vite-plus";
 import pkg from "./package.json";
-import { buildCacheInputs } from "../../scripts/build-cache-inputs.js";
+import { libraryBuildTask } from "../../scripts/build-cache-inputs.js";
+import { typescriptBuild } from "../../scripts/vite-typescript-build.js";
 // import eslintPlugin from "vite-plugin-eslint";
 
 // https://vitejs.dev/config/
@@ -10,21 +10,7 @@ export default defineConfig(
   (conf) =>
     ({
       run: {
-        tasks: {
-          build: {
-            command:
-              "tsc --project tsconfig.json --composite false --incremental false --rootDir . && vp build",
-            cache: {
-              input: [
-                ...buildCacheInputs("packages/xl-odt-exporter"),
-                { pattern: "!**/*.tsbuildinfo", base: "workspace" },
-              ],
-              // `types/**` must be declared too: a cache replay that restores only
-              // dist/ leaves consumers without declarations (tsc is skipped).
-              output: ["dist/**", "types/**", "!dist/*.tsbuildinfo"],
-            },
-          },
-        },
+        tasks: { build: libraryBuildTask("packages/xl-odt-exporter") },
       },
       test: {
         // Preserve Vitest 4 mock history during the toolchain upgrade.
@@ -32,7 +18,7 @@ export default defineConfig(
         setupFiles: ["../../tests/vitestSetup.node-fixtures.ts"],
         exclude: [...configDefaults.exclude, "**/*.browser.test.*"],
       },
-      plugins: [webpackStats()],
+      plugins: [typescriptBuild()],
       // Vite 8 (oxc) rejects JSX namespace tags by default; ODT uses them (e.g. <office:text>)
       oxc: {
         jsx: {
@@ -42,11 +28,8 @@ export default defineConfig(
       resolve: {
         alias:
           conf.command === "build"
-            ? ({
-                "@shared": path.resolve(__dirname, "../../shared/"),
-              } as Record<string, string>)
+            ? ({} as Record<string, string>)
             : ({
-                "@shared": path.resolve(__dirname, "../../shared/"),
                 "@blocknote/core": path.resolve(__dirname, "../core/src/"),
                 "@blocknote/react": path.resolve(__dirname, "../react/src/"),
                 "@blocknote/xl-multi-column": path.resolve(

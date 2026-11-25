@@ -1,5 +1,5 @@
 // Ensures pkg/ (the wasm-pack build output) exists and matches the Rust
-// sources, building it when it doesn't. Runs as the first step of this
+// sources, building it when it doesn't. Runs as a prerequisite of this
 // package's build task, so every consumer - `vp run -r build`, CI, the
 // Vercel builds (whose `--filter '<app>...'` graphs include this package) -
 // gets a correct wasm without a separate step.

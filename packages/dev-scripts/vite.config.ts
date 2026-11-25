@@ -1,31 +1,26 @@
 import { defineConfig } from "vite-plus";
-import { buildCacheInputs } from "../../scripts/build-cache-inputs.js";
+import { declarationBuildTask } from "../../scripts/build-cache-inputs.js";
 
 export default defineConfig({
   run: {
     tasks: {
-      build: {
-        command:
-          "tsc --project tsconfig.json --composite false --incremental false --rootDir .",
-        cache: {
-          input: [
-            ...buildCacheInputs("packages/dev-scripts"),
-            { pattern: "!**/*.tsbuildinfo", base: "workspace" },
-          ],
-          output: ["dist/**", "types/**", "!dist/*.tsbuildinfo"],
-        },
-      },
+      build: declarationBuildTask("packages/dev-scripts"),
       "gen:examples": {
         command: "tsx examples/gen.ts",
         cache: {
           input: [
+            { pattern: "pnpm-workspace.yaml", base: "workspace" },
+            { pattern: "pnpm-lock.yaml", base: "workspace" },
+            { pattern: "vite.config.ts", base: "workspace" },
             { pattern: "examples/*/*/.bnexample.json", base: "workspace" },
             { pattern: "examples/*/*/README.md", base: "workspace" },
-            { pattern: "examples/*/*/src/**", base: "workspace" },
             { pattern: "packages/dev-scripts/examples/**", base: "workspace" },
             // The testDocumentBlocks template copies this file verbatim into
             // the examples - edits to it must re-run generation.
-            { pattern: "shared/testDocumentBlocks.ts", base: "workspace" },
+            {
+              pattern: "tests/src/fixtures/exporters/testDocumentBlocks.ts",
+              base: "workspace",
+            },
           ],
           output: [
             { pattern: "examples/*/*/package.json", base: "workspace" },
@@ -44,21 +39,9 @@ export default defineConfig({
       },
       "gen:docs": {
         command: "tsx examples/genDocs.ts",
-        cache: {
-          input: [
-            { pattern: "examples/*/*/.bnexample.json", base: "workspace" },
-            { pattern: "examples/*/*/README.md", base: "workspace" },
-            { pattern: "examples/*/*/src/**", base: "workspace" },
-            { pattern: "packages/dev-scripts/examples/**", base: "workspace" },
-          ],
-          output: [
-            {
-              pattern: "docs/components/example/generated/**",
-              base: "workspace",
-            },
-            { pattern: "docs/content/examples/**", base: "workspace" },
-          ],
-        },
+        // Replaying files cannot prune removed routes or merge dependencies
+        // into the current (also hand-edited) docs/package.json.
+        cache: false,
       },
     },
   },

@@ -9,7 +9,7 @@ import {
   UnreachableCaseError,
 } from "@blocknote/core";
 import { multiColumnSchema } from "@blocknote/xl-multi-column";
-import { getImageDimensions } from "@shared/util/imageUtil.js";
+import { getImageDimensions } from "../../imageDimensions.js";
 import {
   CheckBox,
   Table as DocxTable,

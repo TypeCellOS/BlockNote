@@ -1,8 +1,7 @@
-import type { TestAPI } from "vite-plus/test";
-import { test as base, type NodeContext } from "./editor.node.js";
+import { sharedTest as base, type SharedContext } from "./editor.shared.js";
 import { commands, type CommandContext } from "../commands/index.js";
 
-export type BrowserContext = Omit<NodeContext, "setupEditor"> & CommandContext;
+export type BrowserContext = Omit<SharedContext, "setupEditor"> &
+  CommandContext;
 
-export const test: TestAPI<BrowserContext> =
-  base.extend<CommandContext>(commands);
+export const test = base.extend<CommandContext>(commands);
