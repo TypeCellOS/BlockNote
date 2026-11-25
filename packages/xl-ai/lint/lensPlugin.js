@@ -39,7 +39,7 @@ function apiNames(file) {
     }
     apiCache.set(folder, byFile);
   }
-  return byFile.get(basename(file).replace(/\.ts$/, "")) ?? new Set();
+  return byFile.get(basename(file).replace(/\.tsx?$/, "")) ?? new Set();
 }
 
 /** The names that an export statement declares (`export function a`, `export const a = …`, `export { a, b }`). */
