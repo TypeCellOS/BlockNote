@@ -6,7 +6,7 @@ import { flushSync } from "react-dom";
 import { describe, expect } from "vite-plus/test";
 import { userEvent } from "vite-plus/test/browser";
 import type { SetupEditor } from "../../../../tests/src/commands/browser/setupEditor.js";
-import type { NodeContext } from "../../../../tests/src/fixtures/editor.node.js";
+import type { BrowserContext } from "../../../../tests/src/fixtures/editor.js";
 import { createReactInlineMathSpec } from "./createReactMathInlineContentSpec.js";
 
 // Inline math isn't default inline content, so register it in a custom schema.
@@ -113,7 +113,7 @@ describe("Inline math source popup", () => {
   }
 
   /** Moves the caret to the end of the inline math source (opening the popup). */
-  function selectSource(selectText: NodeContext["selectText"]) {
+  function selectSource(selectText: BrowserContext["selectText"]) {
     selectText(editor, "a^2").collapseToEnd();
   }
 
@@ -188,7 +188,7 @@ describe("Inline math source popup", () => {
   describe("committing the source", () => {
     async function openPopup(
       setupEditor: SetupEditor,
-      selectText: NodeContext["selectText"],
+      selectText: BrowserContext["selectText"],
     ) {
       await mountExample(setupEditor);
       selectSource(selectText);
