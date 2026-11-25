@@ -13,6 +13,7 @@ import type { InlineContentSchema } from "../schema/inlineContent/types.js";
 import type { StyleSchema } from "../schema/styles/types.js";
 import { getChangedRangeWithAttrs } from "./getChangedRangeWithAttrs.js";
 import { getNodeId } from "./getBlockInfoFromPos.js";
+import { getYSyncMeta } from "./getYSyncMeta.js";
 import { nodeToBlock } from "./nodeConversions/nodeToBlock.js";
 import { isNodeBlock } from "./nodeUtil.js";
 
@@ -129,8 +130,9 @@ function determineChangeSource(transaction: Transaction): BlockChangeSource {
       type: transaction.getMeta("history$").redo ? "redo" : "undo",
     };
   }
-  if (transaction.getMeta("y-sync$")) {
-    if (transaction.getMeta("y-sync$").isUndoRedoOperation) {
+  const ySyncMeta = getYSyncMeta(transaction);
+  if (ySyncMeta) {
+    if (ySyncMeta.isUndoRedoOperation) {
       return { type: "undo-redo" };
     }
     return { type: "yjs-remote" };
