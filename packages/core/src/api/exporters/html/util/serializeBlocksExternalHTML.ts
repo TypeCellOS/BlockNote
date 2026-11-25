@@ -423,8 +423,11 @@ function serializeBlock<
       options,
     );
     if (
-      fragment.lastChild?.nodeName === "UL" ||
-      fragment.lastChild?.nodeName === "OL"
+      // A block that specifies where its children go (see below) gets all of
+      // them there, nested lists too, so that the children keep their order.
+      !childrenDOM &&
+      (fragment.lastChild?.nodeName === "UL" ||
+        fragment.lastChild?.nodeName === "OL")
     ) {
       // add nested lists to the last list item
       while (

@@ -807,6 +807,20 @@ console.log("Third Line")</code></pre>`,
   </li>
 </ul>`,
   },
+  // The checkbox belongs to the child. The toggle stays a toggle list item.
+  {
+    name: "toggleListItemWithCheckListChild",
+    content: `<ul>
+  <li>
+    <details open="">
+      <summary><p>Toggle Item</p></summary>
+      <ul>
+        <li><input type="checkbox" checked=""><p>Check Child</p></li>
+      </ul>
+    </details>
+  </li>
+</ul>`,
+  },
   {
     name: "toggleHeading",
     content: `<details>
