@@ -12,7 +12,6 @@ import {
   type MergedChangeOperations,
   mergedOperationsOf,
   type MergeFromVersion,
-  requireBase,
 } from "../apiWithMerge.js";
 import { diffDocuments } from "../operations/index.js";
 import {
@@ -75,7 +74,6 @@ export function computeYDocOperationsWithMerge(
   change: (TextChange | JSONChange) & MergeFromVersion<Uint8Array>,
 ): YDocMergedOperationsResult {
   const ydoc = docOf(fragment);
-  requireBase(change.base);
   const atBase = fragmentAtBase(fragment, change.base);
   if (!hasVersion(ydoc, docOf(atBase))) {
     return { error: "unknown-base" };
@@ -128,7 +126,6 @@ export function experimental_updateYDocWithYjsMerge(
   change: (TextChange | JSONChange) & { base: Uint8Array },
 ): Exclude<YDocMergedChangeResult, ConflictError> {
   const ydoc = docOf(fragment);
-  requireBase(change.base);
   const atBase = fragmentAtBase(fragment, change.base);
   if (!hasVersion(ydoc, docOf(atBase))) {
     return { error: "unknown-base" };

@@ -153,7 +153,6 @@ export function mergedOperationsOf(
   current: readonly LensBlock[],
 ): MergedChangeResult {
   const { base } = change;
-  requireBase(base);
   assertBlockIds(current, "current document");
   assertBlockIds(base, "base");
   // 1 to 3. The target of the change, for the version `base`.
@@ -195,19 +194,4 @@ export function mergedOperationsOf(
     // client read.
     written: fitResult(rules, target.target, base),
   };
-}
-
-/**
- * Throws if a merge write has no `base`. The type requires it, but a caller
- * without types (for example JavaScript) can forget it. Without this check,
- * such a write would fail with an unclear error.
- *
- * @internal
- */
-export function requireBase(base: unknown): void {
-  if (base === undefined) {
-    throw new Error(
-      "A merge write needs the option `base`: the version that the client read.",
-    );
-  }
 }

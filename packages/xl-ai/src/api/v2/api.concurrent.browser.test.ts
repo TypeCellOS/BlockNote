@@ -61,41 +61,6 @@ function write(
   );
 }
 
-describe("a merge write without `base`", () => {
-  // The type requires `base`, but a caller without types can forget it.
-  it.for<[string, (editor: BlockNoteEditor<any, any, any>) => unknown]>([
-    [
-      "computeOperationsWithMerge",
-      (editor: BlockNoteEditor<any, any, any>) =>
-        computeOperationsWithMerge(editor, {
-          format: markdownFormat,
-          text: "Hello",
-          onConflict: "reject",
-        } as never),
-    ],
-    [
-      "updateDocumentWithMerge",
-      (editor: BlockNoteEditor<any, any, any>) =>
-        updateDocumentWithMerge(editor, {
-          document: [],
-          onConflict: "reject",
-        } as never),
-    ],
-  ])(
-    "%s throws an error, and does not change the document",
-    async ([, write], { setupEditor }) => {
-      const { editor } = await setupEditor({
-        mountType: false,
-        initialContent: richDocument,
-      });
-      const before = editor.document;
-
-      expect(() => write(editor)).toThrow(/needs the option `base`/);
-      expect(editor.document).toEqual(before);
-    },
-  );
-});
-
 describe("a write from an older version", () => {
   it("changes nothing if the client did not change the text", async ({
     setupEditor,

@@ -180,30 +180,6 @@ describe("updateYDoc", () => {
     expect(block("p")?.content).toEqual([{ type: "text", text, styles: {} }]);
   });
 
-  it.for([
-    ["updateYDocWithMerge", updateYDocWithMerge],
-    [
-      "experimental_updateYDocWithYjsMerge",
-      experimental_updateYDocWithYjsMerge,
-    ],
-  ] as const)(
-    "%s throws an error for a write without `base`, and does not change the Y.Doc",
-    async ([, write], { setupEditor }) => {
-      const { editor, ydoc, blocks } = await setup(setupEditor);
-      const before = blocks();
-      const fragment = ydoc.get("prosemirror");
-
-      // A caller without types can forget `base`.
-      expect(() =>
-        write(editor, fragment, {
-          format: markdownFormat,
-          text: "Hello",
-        } as never),
-      ).toThrow(/needs the option `base`/);
-      expect(blocks()).toEqual(before);
-    },
-  );
-
   it("writes with an editor that is not bound to the Y.Doc, and that has no view", async ({
     setupEditor,
   }) => {
