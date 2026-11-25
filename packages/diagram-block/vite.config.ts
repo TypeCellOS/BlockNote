@@ -1,29 +1,15 @@
 import * as path from "path";
-import { webpackStats } from "rollup-plugin-webpack-stats";
 import { configDefaults, defineConfig, type UserConfig } from "vite-plus";
 import pkg from "./package.json";
-import { buildCacheInputs } from "../../scripts/build-cache-inputs.js";
+import { libraryBuildTask } from "../../scripts/build-cache-inputs.js";
+import { typescriptBuild } from "../../scripts/vite-typescript-build.js";
 
 // https://vitejs.dev/config/
 export default defineConfig(
   (conf) =>
     ({
       run: {
-        tasks: {
-          build: {
-            command:
-              "tsc --project tsconfig.json --composite false --incremental false --rootDir . && vp build",
-            cache: {
-              input: [
-                ...buildCacheInputs("packages/diagram-block"),
-                { pattern: "!**/*.tsbuildinfo", base: "workspace" },
-              ],
-              // `types/**` must be declared too: a cache replay that restores only
-              // dist/ leaves consumers without declarations (tsc is skipped).
-              output: ["dist/**", "types/**", "!dist/*.tsbuildinfo"],
-            },
-          },
-        },
+        tasks: { build: libraryBuildTask("packages/diagram-block") },
       },
       test: {
         // Preserve Vitest 4 mock history during the toolchain upgrade.
@@ -44,14 +30,13 @@ export default defineConfig(
           throwIfNamespace: false,
         },
       },
-      plugins: [webpackStats() as any],
+      plugins: [typescriptBuild()],
       // used so that vitest resolves the core package from the sources instead of the built version
       resolve: {
         alias:
           conf.command === "build"
             ? ({} as Record<string, string>)
             : ({
-                "@shared": path.resolve(__dirname, "../../shared/"),
                 // load live from sources with live reload working
                 "@blocknote/core": path.resolve(__dirname, "../core/src/"),
                 "@blocknote/react": path.resolve(__dirname, "../react/src/"),

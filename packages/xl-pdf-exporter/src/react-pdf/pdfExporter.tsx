@@ -20,9 +20,9 @@ import {
   TextProps,
   View,
 } from "@react-pdf/renderer";
-import { corsProxyResolveFileUrl } from "@shared/api/corsProxy.js";
+import { corsProxyResolveFileUrl } from "../corsProxy.js";
 import { Fragment } from "react";
-import { loadFontDataUrl } from "../../../../shared/util/fileUtil.js";
+import { loadFontDataUrl } from "../fontFile.js";
 
 import { Style } from "./types.js";
 
@@ -235,7 +235,7 @@ export class PDFExporter<
       Font.registerEmojiSource(this.options.emojiSource);
     }
     let font = await loadFontDataUrl(
-      await import("@shared/assets/fonts/inter/Inter_18pt-Regular.ttf"),
+      await import("../../../../shared/assets/fonts/inter/Inter_18pt-Regular.ttf"),
     );
     Font.register({
       family: "Inter",
@@ -243,7 +243,7 @@ export class PDFExporter<
     });
 
     font = await loadFontDataUrl(
-      await import("@shared/assets/fonts/inter/Inter_18pt-Italic.ttf"),
+      await import("../../../../shared/assets/fonts/inter/Inter_18pt-Italic.ttf"),
     );
     Font.register({
       family: "Inter",
@@ -252,7 +252,7 @@ export class PDFExporter<
     });
 
     font = await loadFontDataUrl(
-      await import("@shared/assets/fonts/inter/Inter_18pt-Bold.ttf"),
+      await import("../../../../shared/assets/fonts/inter/Inter_18pt-Bold.ttf"),
     );
     Font.register({
       family: "Inter",
@@ -261,7 +261,7 @@ export class PDFExporter<
     });
 
     font = await loadFontDataUrl(
-      await import("@shared/assets/fonts/inter/Inter_18pt-BoldItalic.ttf"),
+      await import("../../../../shared/assets/fonts/inter/Inter_18pt-BoldItalic.ttf"),
     );
     Font.register({
       family: "Inter",
@@ -271,7 +271,7 @@ export class PDFExporter<
     });
 
     font = await loadFontDataUrl(
-      await import("@shared/assets/fonts/GeistMono-Regular.ttf"),
+      await import("../../../../shared/assets/fonts/GeistMono-Regular.ttf"),
     );
     Font.register({
       family: "GeistMono",

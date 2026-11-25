@@ -57,7 +57,6 @@
     "playground",
     "fumadocs",
     "docs",
-    "shared",
     "tests"
   ]
 }

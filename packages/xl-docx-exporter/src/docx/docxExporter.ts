@@ -23,8 +23,8 @@ import {
 } from "docx";
 
 import { Exporter, ExporterOptions } from "@blocknote/core";
-import { corsProxyResolveFileUrl } from "@shared/api/corsProxy.js";
-import { loadFileBuffer } from "@shared/util/fileUtil.js";
+import { corsProxyResolveFileUrl } from "../corsProxy.js";
+import { loadFileBuffer } from "../fontFile.js";
 import { docxBlockMappingForDefaultSchema } from "./defaultSchema/blocks.js";
 import {
   clampListLevel,
@@ -278,10 +278,10 @@ export class DOCXExporter<
     // "./src/fonts/Inter-VariableFont_opsz,wght.ttf",
 
     const interFont = await loadFileBuffer(
-      await import("@shared/assets/fonts/inter/Inter_18pt-Regular.ttf"),
+      await import("../../../../shared/assets/fonts/inter/Inter_18pt-Regular.ttf"),
     );
     const geistMonoFont = await loadFileBuffer(
-      await import("@shared/assets/fonts/GeistMono-Regular.ttf"),
+      await import("../../../../shared/assets/fonts/GeistMono-Regular.ttf"),
     );
 
     // `docx` requires each font's `data` to be a Node `Buffer`. We derive the

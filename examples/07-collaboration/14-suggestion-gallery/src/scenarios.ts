@@ -1,4 +1,4 @@
-import { testDocumentBlocks } from "@shared/testDocumentBlocks.js";
+import { testDocumentBlocks } from "./testDocumentBlocks.js";
 
 import type { GalleryEditor, GalleryPartialBlock } from "./gallerySchema";
 

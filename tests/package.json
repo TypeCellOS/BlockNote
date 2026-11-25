@@ -34,6 +34,7 @@
     "@vitest/ui": "5.0.5",
     "@y/protocols": "^1.0.6-rc.1",
     "@y/y": "^14.0.0-rc.26",
+    "@zip.js/zip.js": "^2.8.8",
     "axe-core": "4.13.0",
     "htmlfy": "^0.6.7",
     "pdfjs-dist": "^4.10.38",
@@ -42,7 +43,8 @@
     "react-fast-compare": "^3.2.3",
     "rimraf": "^5.0.10",
     "vite-plus": "catalog:",
-    "vitest-browser-react": "^2.2.0"
+    "vitest-browser-react": "^2.2.0",
+    "xml-formatter": "^3.6.7"
   },
   "dependencies": {
     "@blocknote/xl-typst-compiler": "workspace:^",

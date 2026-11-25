@@ -1,5 +1,5 @@
-import { isPdf, TEST_PNG_BYTES } from "@shared/util/testBytesUtil.js";
-import { describe, expect, test } from "vite-plus/test";
+import { TEST_PNG_BYTES } from "../../../../tests/src/fixtures/exporters/testPngBytes.js";
+import { describe, expect } from "vite-plus/test";
 
 import { compileTypstToPdf } from "./compileTypst.js";
 
@@ -27,20 +27,24 @@ function expectPdf(
 }
 
 describe("compileTypstToPdf", () => {
-  test("compiles markup with mapped assets", { timeout: 60000 }, async () => {
-    const pdf = expectPdf(
-      await compileTypstToPdf(
-        `#set document(title: "t")\nHello #image("/assets/a.png", width: 10pt, alt: "a")`,
-        { ...OPTIONS, assets: new Map([["/assets/a.png", TEST_PNG_BYTES]]) },
-      ),
-    );
-    expect(isPdf(pdf)).toBe(true);
-  });
+  it(
+    "compiles markup with mapped assets",
+    { timeout: 60000 },
+    async ({ isPdf }) => {
+      const pdf = expectPdf(
+        await compileTypstToPdf(
+          `#set document(title: "t")\nHello #image("/assets/a.png", width: 10pt, alt: "a")`,
+          { ...OPTIONS, assets: new Map([["/assets/a.png", TEST_PNG_BYTES]]) },
+        ),
+      );
+      expect(isPdf(pdf)).toBe(true);
+    },
+  );
 
-  test(
+  it(
     "keeps concurrent compiles with different assets independent",
     { timeout: 60000 },
-    async () => {
+    async ({ isPdf }) => {
       // Assets are per-compile inputs (not shared compiler state), so
       // overlapping exports - the debounced re-export scenario - cannot
       // read each other's files.
@@ -61,10 +65,10 @@ describe("compileTypstToPdf", () => {
     },
   );
 
-  test(
+  it(
     "accepts different fonts on later compiles",
     { timeout: 60000 },
-    async () => {
+    async ({ isPdf }) => {
       // A per-compile font set was impossible under the previous
       // page-singleton engine (fonts were fixed by the first compile);
       // compilers are now per-font-set instances, so this must just work.
@@ -81,7 +85,7 @@ describe("compileTypstToPdf", () => {
     },
   );
 
-  test(
+  it(
     "returns typed diagnostics instead of output for broken markup",
     { timeout: 60000 },
     async () => {
@@ -96,7 +100,7 @@ describe("compileTypstToPdf", () => {
     },
   );
 
-  test(
+  it(
     "produces declared PDF/UA-1 with the ua-1 standard",
     { timeout: 60000 },
     async () => {

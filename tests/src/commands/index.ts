@@ -6,7 +6,7 @@ import { MOD, selectToLineEndKey } from "./browser/keyboard.js";
 import type { SetupEditor } from "./browser/setupEditor.js";
 import { commands as nodeCommands, page, userEvent } from "./transport.js";
 
-// Browser-only fixtures extend the baseline in fixtures/editor.node.ts.
+// Browser-only fixtures extend the baseline in fixtures/editor.shared.ts.
 export type CommandContext = Pick<
   typeof nodeCommands,
   keyof typeof import("./transport/index.js")
@@ -29,6 +29,10 @@ export const commands: Required<
   screenshotFull: async ({}, use) => {
     const { screenshotFull } = await import("./browser/screenshotFull.js");
     await use(screenshotFull);
+  },
+  decodeAndSample: async ({}, use) => {
+    const { decodeAndSample } = await import("./browser/decodeAndSample.js");
+    await use(decodeAndSample);
   },
   pressKey: async ({}, use) => {
     await use(nodeCommands.pressKey);

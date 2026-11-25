@@ -7,7 +7,7 @@ import {
   ReactEmailExporter,
   reactEmailDefaultSchemaMappings,
 } from "@blocknote/xl-email-exporter";
-import { testDocumentWithSourceBlocks } from "@shared/testDocument.js";
+import { testDocumentWithSourceBlocks } from "../../fixtures/exporters/testDocument.js";
 import { afterEach, describe, expect, test } from "vite-plus/test";
 import { screenshotFull } from "../../utils/screenshotFull.js";
 import {

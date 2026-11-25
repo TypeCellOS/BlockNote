@@ -16,10 +16,7 @@
     "jsx": "react-jsx",
     "composite": true,
     "types": ["node"],
-    "rootDir": "..",
-    "paths": {
-      "@shared/*": ["../shared/*"]
-    }
+    "rootDir": ".."
   },
   "include": [
     "src",

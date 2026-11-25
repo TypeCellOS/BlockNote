@@ -4,14 +4,12 @@ import {
   defaultBlockSpecs,
 } from "@blocknote/core";
 
-import { partialBlockToBlockForTesting } from "./formatConversionTestUtil.js";
+import { partialBlockToBlockForTesting } from "../../commands/node/formatConversion.js";
 import { testDocumentBlocks } from "./testDocumentBlocks.js";
 
-// Re-exported so existing imports of `testDocumentBlocks` from this module keep
-// working. The data itself lives in the self-contained `testDocumentBlocks.ts`
-// so the example generator can copy it verbatim into the playground examples.
-export { testDocumentBlocks };
-
+// The static editor and exporter baselines deliberately use the same input
+// so a rendering difference isn't caused by different test data. Keep
+// documents that exercise only one behavior in the test that needs them.
 const testDocumentSchema = BlockNoteSchema.create({
   blockSpecs: {
     ...defaultBlockSpecs,
@@ -19,11 +17,9 @@ const testDocumentSchema = BlockNoteSchema.create({
   },
 });
 
-// The document contains multi-column blocks, but `shared` can't depend on
-// `@blocknote/xl-multi-column` for their specs — it dev-depends on `shared`,
-// which would be a workspace build cycle. The conversion below only reads each
-// block type's `content` kind and prop defaults, so the two entries are
-// declared by hand instead, typed to structurally match the configs of
+// Keep this fixture independent of the multi-column implementation. The
+// conversion below only reads each block type's `content` kind and prop
+// defaults, so the two entries are declared by hand to match the configs of
 // `ColumnBlock` / `ColumnListBlock`. Exported so xl-multi-column's tests can
 // guard against drift from the real specs (see `testDocumentSchema.test` in
 // that package).
@@ -76,17 +72,13 @@ export const testDocument = testDocumentBlocks.map((partialBlock) =>
   ),
 );
 
-// Math, inline math & diagram blocks. Their specs live in separate packages
-// (`@blocknote/math-block`, `@blocknote/diagram-block`) that `shared` doesn't
-// depend on, so they're hand-built (rather than via
-// `partialBlocksToBlocksForTesting`) — the exporters only need the block JSON.
+// The base schema lacks the math and diagram specs. The exporters only need
+// their block JSON, so these blocks are hand-built.
 //
 // These are kept OUT of the base `testDocument` and exposed via
 // `testDocumentWithSourceBlocks` below, because `testDocument` is also consumed
-// by the suggestion-gallery example / e2e tests, whose editor schema does NOT
-// register these block types — seeding them there throws "schema.nodes[...] is
-// undefined". Only the exporters (which map the raw block JSON and don't need
-// the runtime specs) opt in to the extended document.
+// by e2e tests whose editor schema does not register these block types. Only
+// exporter tests opt in to the extended document.
 const sourceBlocksForTesting = [
   {
     id: "math-block",

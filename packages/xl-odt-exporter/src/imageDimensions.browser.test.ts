@@ -1,4 +1,4 @@
-import { getImageDimensions } from "@shared/util/imageUtil.js";
+import { getImageDimensions } from "./imageDimensions.js";
 import { expect, it, vi } from "vite-plus/test";
 
 it("reads SVG dimensions without bitmap decoding", async () => {
