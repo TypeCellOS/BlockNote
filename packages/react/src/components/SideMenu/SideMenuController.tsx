@@ -74,16 +74,19 @@ export const SideMenuController = (props: {
   const direction = useEditorDirection();
   const state = useExtensionState(SideMenuExtension, {
     selector: (state) => {
-      return state !== undefined
-        ? {
-            show: state.show,
-            block: state.block,
-          }
-        : undefined;
+      if (!state) {
+        return undefined;
+      }
+      const block = editor.getBlock(state.blockId);
+      return {
+        show: state.show,
+        blockId: state.blockId,
+        blockOffset: block ? getBlockOffset(editor, block) : 0,
+      };
     },
   });
 
-  const { show, block } = state || {};
+  const { show, blockId, blockOffset = 0 } = state ?? {};
 
   // Hides the side menu on ancestor scroll so it doesn't overflow outside
   // the editor's scroll container.
@@ -134,7 +137,7 @@ export const SideMenuController = (props: {
         // left/right placements, the cross axis is the vertical one.
         middleware: [
           offset({
-            crossAxis: block ? getBlockOffset(editor, block) : 0,
+            crossAxis: blockOffset,
           }),
         ],
         whileElementsMounted,
@@ -158,8 +161,7 @@ export const SideMenuController = (props: {
     [
       props.floatingUIOptions,
       show,
-      block,
-      editor,
+      blockOffset,
       direction,
       whileElementsMounted,
     ],
@@ -169,11 +171,8 @@ export const SideMenuController = (props: {
 
   return (
     <PortalElementOverride target={props.portalElement}>
-      <BlockPopover
-        blockId={show ? block?.id : undefined}
-        {...floatingUIOptions}
-      >
-        {block?.id && <Component />}
+      <BlockPopover blockId={show ? blockId : undefined} {...floatingUIOptions}>
+        <Component />
       </BlockPopover>
     </PortalElementOverride>
   );

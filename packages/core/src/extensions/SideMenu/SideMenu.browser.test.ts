@@ -174,7 +174,7 @@ it("ends a drag through the public API without blurring the editor", async ({
 
   // Clearing the drag state allows the menu to follow another block again.
   hover("other");
-  expect(sideMenu.store.state?.block.id).toBe("other");
+  expect(sideMenu.store.state?.blockId).toBe("other");
   sideMenu.blockDragEnd();
   expect(editable.ownerDocument.activeElement).toBe(editable);
 });

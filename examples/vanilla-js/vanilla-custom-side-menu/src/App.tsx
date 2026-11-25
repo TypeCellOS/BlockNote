@@ -41,7 +41,7 @@ function initEditor(rootElement: HTMLElement) {
   let element: HTMLElement;
 
   // The Side Menu extension exposes a store which holds its state (visibility,
-  // position, and the block it's attached to). We subscribe to it to update
+  // position, and the ID of the block it's attached to). We subscribe to it to update
   // our custom element whenever the state changes.
   const unsubscribe = sideMenu.store.subscribe(() => {
     const sideMenuState = sideMenu.store.state;
@@ -54,14 +54,15 @@ function initEditor(rootElement: HTMLElement) {
 
     // We create the element the first time the side menu is shown, and reuse it
     // afterwards. Since the element is only created once, its event handlers
-    // read the block to act on from the store, so they always use the block the
-    // side menu is currently attached to.
+    // read the active block ID from the store when invoked.
     if (!element) {
       element = document.createElement("div");
       element.className = "side-menu";
       element.style.position = "fixed";
       const addBtn = createButton("+", () => {
-        const block = sideMenu.store.state?.block;
+        const blockId = sideMenu.store.state?.blockId;
+        const block =
+          blockId !== undefined ? editor.getBlock(blockId) : undefined;
         if (!block) {
           return;
         }
@@ -92,9 +93,9 @@ function initEditor(rootElement: HTMLElement) {
       });
 
       dragBtn.addEventListener("dragstart", (evt) => {
-        const block = sideMenu.store.state?.block;
-        if (block) {
-          sideMenu.blockDragStart(evt, block);
+        const blockId = sideMenu.store.state?.blockId;
+        if (blockId !== undefined) {
+          sideMenu.blockDragStart(evt, blockId);
         }
       });
       dragBtn.addEventListener("dragend", () => sideMenu.blockDragEnd());
