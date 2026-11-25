@@ -75,12 +75,12 @@
       "default": "./dist/server.js"
     },
     "./text-lens": {
-      "types": "./types/src/api/v2/index.d.ts",
+      "types": "./types/src/text-lens.d.ts",
       "import": "./dist/text-lens.js",
       "default": "./dist/text-lens.js"
     },
     "./text-lens/y": {
-      "types": "./types/src/api/v2/y/index.d.ts",
+      "types": "./types/src/text-lens/y.d.ts",
       "import": "./dist/text-lens-y.js",
       "default": "./dist/text-lens-y.js"
     }

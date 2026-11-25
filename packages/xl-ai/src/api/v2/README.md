@@ -392,6 +392,7 @@ Each folder has an `index.ts` with its API for the other folders. A file imports
 ## Changes outside this folder
 
 - `packages/xl-ai/package.json` has the subpath exports `./text-lens` and `./text-lens/y`, and `@y/y`, `@y/prosemirror` and `lib0` as optional peer dependencies (Yjs 14, the versions of `@blocknote/core`). `packages/xl-ai/vite.config.ts` has their build entries.
+- `packages/xl-ai/src/text-lens.ts` and `packages/xl-ai/src/text-lens/y.ts` are the files of the two entry points. Each file only re-exports `index.ts` or `y/index.ts` of this folder. Thus, the name of an entry point also resolves for the tests and the playground, which replace the package name with the `src/` folder. The two files go if this folder gets the name `src/text-lens`.
 - `packages/core`: the markdown and HTML round trip fixes of the branch `fix/markdown-roundtrip` (see "Problems in BlockNote").
 
 ## Warnings
