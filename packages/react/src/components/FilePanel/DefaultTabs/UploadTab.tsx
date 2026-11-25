@@ -48,29 +48,29 @@ export const UploadTab = <
       }
 
       async function upload(file: File) {
+        if (editor.uploadFile === undefined) {
+          return;
+        }
         setLoading(true);
-
-        if (editor.uploadFile !== undefined) {
-          try {
-            let updateData = await editor.uploadFile(file, props.blockId);
-            if (!editor.getBlock(props.blockId)) {
-              return;
-            }
-            if (typeof updateData === "string") {
-              // received a url
-              updateData = {
-                props: {
-                  name: file.name,
-                  url: updateData,
-                },
-              };
-            }
-            editor.updateBlock(props.blockId, updateData);
-          } catch {
-            setUploadFailed(true);
-          } finally {
-            setLoading(false);
+        try {
+          let updateData = await editor.uploadFile(file, props.blockId);
+          if (!editor.getBlock(props.blockId)) {
+            return;
           }
+          if (typeof updateData === "string") {
+            // received a url
+            updateData = {
+              props: {
+                name: file.name,
+                url: updateData,
+              },
+            };
+          }
+          editor.updateBlock(props.blockId, updateData);
+        } catch {
+          setUploadFailed(true);
+        } finally {
+          setLoading(false);
         }
       }
 
@@ -91,6 +91,7 @@ export const UploadTab = <
   return (
     <Components.FilePanel.TabPanel className={"bn-tab-panel"}>
       <Components.FilePanel.FileInput
+        autoFocus
         className="bn-file-input"
         data-test="upload-input"
         accept={accept}

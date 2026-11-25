@@ -1,14 +1,13 @@
-// @vitest-environment node
 import { Awareness } from "@y/protocols/awareness";
 import { ySyncPluginKey } from "@y/prosemirror";
 import * as Y from "@y/y";
-import { afterEach, expect, it } from "vite-plus/test";
+import { afterEach, expect } from "vite-plus/test";
 
-import { BlockNoteEditor } from "../../editor/BlockNoteEditor.js";
 import { blocksToYType } from "../utils.js";
 import { ForkYDocExtension } from "./ForkYDoc.js";
 import { withCollaboration } from "./index.js";
 import { YCursorExtension } from "./YCursorPlugin.js";
+import { YSyncExtension } from "./YSync.js";
 
 const cleanups: Array<() => void> = [];
 afterEach(() => {
@@ -17,9 +16,9 @@ afterEach(() => {
   }
 });
 
-it.each([false, true])(
+it.for([false, true])(
   "restores the original cursor and releases the fork document (keepChanges: %s)",
-  (keepChanges) => {
+  async (keepChanges, { setupEditor }) => {
     const doc = new Y.Doc();
     const fragment = doc.get("doc");
     const awareness = new Awareness(doc);
@@ -28,26 +27,25 @@ it.each([false, true])(
       provider: { awareness },
       user: { name: "Initial", color: "red" },
     };
-    const editor = BlockNoteEditor.create(
+    cleanups.push(() => doc.destroy());
+    cleanups.push(() => awareness.destroy());
+    const { editor } = await setupEditor(
       withCollaboration({
         collaboration,
         extensions: [ForkYDocExtension(collaboration)],
       }),
     );
-    cleanups.push(() => doc.destroy());
-    cleanups.push(() => awareness.destroy());
-    cleanups.push(() => editor._tiptapEditor.destroy());
     editor.replaceBlocks(editor.document, [
       { type: "paragraph", content: "Original" },
     ]);
     blocksToYType(editor, editor.document, fragment);
     // Use actual state plugins. Binding configuration and extension identity
     // do not require DOM rendering or a plugin view.
-    editor.prosemirrorView.updateState(
-      editor.prosemirrorState.reconfigure({
-        plugins: editor._tiptapEditor.extensionManager.plugins,
-      }),
-    );
+    editor.registerExtension({
+      key: "headlessYSyncState",
+      prosemirrorPlugins:
+        editor.getExtension(YSyncExtension)!.prosemirrorPlugins,
+    });
     const cursor = editor.getExtension(YCursorExtension)!;
     cursor.updateUser({ name: "Updated", color: "blue" });
     awareness.setLocalStateField("cursor", {

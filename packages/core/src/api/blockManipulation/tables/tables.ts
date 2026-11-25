@@ -257,7 +257,7 @@ export function getTableCellOccupancyGrid(
  *
  * @note This will remove duplicates from the occupancy grid. And does no bounds checking for validity of the occupancy grid.
  */
-export function getTableRowsFromOccupancyGrid(
+function getTableRowsFromOccupancyGrid(
   occupancyGrid: OccupancyGrid,
 ): TableContent<any, any>["rows"] {
   // Because a cell can have a rowspan or colspan, it can occupy multiple cells in the occupancy grid
@@ -877,10 +877,9 @@ export function canColumnBeDraggedInto(
   block: BlockFromConfigNoChildren<DefaultBlockSchema["table"], any, any>,
   draggingIndex: RelativeCellIndices["col"],
   targetColumnIndex: RelativeCellIndices["col"],
-  targetCells: ReturnType<typeof getCellsAtColumnHandle> = getCellsAtColumnHandle(
-    block,
-    targetColumnIndex,
-  ),
+  targetCells: ReturnType<
+    typeof getCellsAtColumnHandle
+  > = getCellsAtColumnHandle(block, targetColumnIndex),
 ) {
   // If no cells have colspans > 1, dragging is always allowed
   const hasMergedCells = targetCells.some((cell) => getColspan(cell.cell) > 1);

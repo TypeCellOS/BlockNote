@@ -27,4 +27,5 @@ export const parseDiagramCodeElement = (el: HTMLElement) => {
 // line breaks.
 export const parseDiagramCodeContent = (
   options: Parameters<typeof parsePreCodeContent>[0],
-) => parsePreCodeContent(options, "diagram");
+): ReturnType<typeof parsePreCodeContent> =>
+  parsePreCodeContent(options, "diagram");

@@ -1,6 +1,6 @@
-import { afterEach, describe, expect, test } from "vite-plus/test";
-import { browserName, commands, userEvent } from "../../utils/context.js";
-import type { ImeCompositionCommand } from "../../utils/imeComposition.js";
+import { describe, expect, onTestFinished, test } from "vite-plus/test";
+import { browserName } from "../../commands/browser/environment.js";
+import { commands, userEvent } from "../../commands/transport.js";
 
 /**
  * Why the popover forms need no composition guard.
@@ -22,39 +22,41 @@ import type { ImeCompositionCommand } from "../../utils/imeComposition.js";
  * triggers, or a Gboard-style single-press commit-and-submit gets swallowed.
  */
 
-const browserCommands = commands as typeof commands & {
-  imeComposition: ImeCompositionCommand;
-};
-
 // `Input.imeSetComposition` is CDP-only. Firefox and WebKit have no equivalent
 // in their automation protocols, so real composition state can't be entered
 // there at all — the behaviour is chromium-verified only.
 const describeIme = browserName === "chromium" ? describe : describe.skip;
 
-let form: HTMLFormElement | undefined;
-
-afterEach(() => {
-  form?.remove();
-  form = undefined;
-});
-
 function buildForm() {
-  form = document.createElement("form");
+  const form = document.createElement("form");
+  const listeners = new AbortController();
+  onTestFinished(() => {
+    listeners.abort();
+    form.remove();
+  });
   const submits: string[] = [];
   const compositions: string[] = [];
-  form.addEventListener("submit", (event) => {
-    event.preventDefault();
-    submits.push("submit");
-  });
+  form.addEventListener(
+    "submit",
+    (event) => {
+      event.preventDefault();
+      submits.push("submit");
+    },
+    { signal: listeners.signal },
+  );
 
   const input = document.createElement("input");
   input.type = "text";
   input.name = "url";
-  input.addEventListener("compositionstart", () =>
-    compositions.push("compositionstart"),
+  input.addEventListener(
+    "compositionstart",
+    () => compositions.push("compositionstart"),
+    { signal: listeners.signal },
   );
-  input.addEventListener("compositionend", () =>
-    compositions.push("compositionend"),
+  input.addEventListener(
+    "compositionend",
+    () => compositions.push("compositionend"),
+    { signal: listeners.signal },
   );
   form.append(input);
 
@@ -76,7 +78,7 @@ describeIme("IME composition and form submission", () => {
     const { input, submits, compositions } = buildForm();
     input.focus();
 
-    await browserCommands.imeComposition([
+    await commands.imeComposition([
       { type: "setComposition", text: "にほん" },
       { type: "commit", text: "日本" },
     ]);
@@ -95,7 +97,7 @@ describeIme("IME composition and form submission", () => {
     const { input, submits } = buildForm();
     input.focus();
 
-    await browserCommands.imeComposition([
+    await commands.imeComposition([
       { type: "setComposition", text: "にほん" },
       { type: "commit", text: "日本" },
     ]);

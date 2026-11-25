@@ -274,6 +274,19 @@ export function getNearestBlockPos(doc: Node, pos: number) {
     };
   }
 
+  // Whole-block selections end just after the last block in their group.
+  // This is a valid boundary, not an out-of-block position to warn about.
+  if (
+    !$pos.nodeAfter &&
+    $pos.parent.type.name === "blockGroup" &&
+    $pos.nodeBefore?.type.isInGroup("bnBlock")
+  ) {
+    return {
+      posBeforeNode: $pos.pos - $pos.nodeBefore.nodeSize,
+      node: $pos.nodeBefore,
+    };
+  }
+
   // Checks the node containing the position and its ancestors until a
   // block node is found and returned.
   let depth = $pos.depth;

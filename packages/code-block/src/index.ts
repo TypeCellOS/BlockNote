@@ -2,6 +2,7 @@ import type { CodeBlockOptions } from "@blocknote/core";
 import { SyntaxHighlightingExtension } from "@blocknote/core/extensions";
 import { createHighlighter } from "./shiki.bundle.js";
 
+// Keep the emitted declaration from referencing core's ProseMirror dependencies directly.
 /**
  * A ready-to-use syntax highlighting extension, pre-configured with this
  * package's bundled Shiki highlighter (the languages in `codeBlockOptions` and
@@ -14,13 +15,14 @@ import { createHighlighter } from "./shiki.bundle.js";
  * useCreateBlockNote({ extensions: [syntaxHighlighter] });
  * ```
  */
-export const syntaxHighlighter = SyntaxHighlightingExtension({
-  createHighlighter: () =>
-    createHighlighter({
-      themes: ["github-dark", "github-light"],
-      langs: [],
-    }),
-});
+export const syntaxHighlighter: ReturnType<typeof SyntaxHighlightingExtension> =
+  SyntaxHighlightingExtension({
+    createHighlighter: () =>
+      createHighlighter({
+        themes: ["github-dark", "github-light"],
+        langs: [],
+      }),
+  });
 
 export const codeBlockOptions = {
   defaultLanguage: "javascript",

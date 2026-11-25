@@ -10,10 +10,8 @@ import {
 } from "@blocknote/xl-odt-exporter";
 import { createElement } from "react";
 
-import {
-  RenderDiagram,
-  renderDiagramToImage,
-} from "../helpers/renderDiagramToImage.js";
+import type { RenderDiagram } from "../helpers/renderDiagramToImage.js";
+import { renderDiagramToSVG } from "../helpers/renderDiagramToSVG.js";
 import { getDiagramExporterDictionary } from "../i18n/dictionary.js";
 
 export type { RenderDiagram } from "../helpers/renderDiagramToImage.js";
@@ -48,6 +46,8 @@ function errorParagraph(source: string, exporter: ODTExporter<any, any, any>) {
     createElement(
       "text:span",
       { "text:style-name": styleName },
+      // Identify the diagram without inserting its entire multiline source
+      // into the exported placeholder; this matches the other exporters.
       getDiagramExporterDictionary(exporter).invalid_diagram(
         source.split("\n")[0],
       ),
@@ -57,8 +57,8 @@ function errorParagraph(source: string, exporter: ODTExporter<any, any, any>) {
 
 /**
  * Creates an ODT block mapping for `@blocknote/diagram-block` that embeds
- * diagrams as PNG images using Pele and browser canvas. When exporting
- * server-side, pass a `renderDiagram` function with a server-side rasterizer.
+ * diagrams as vector SVG images using Pele, in both the browser and on the
+ * server. Pass a custom `renderDiagram` function to use another image format.
  * Invalid sources render an error placeholder (mirroring
  * the editor):
  *
@@ -90,14 +90,7 @@ export function createDiagramBlockMapping(options?: {
       return createElement("text:p");
     }
 
-    const renderDiagram =
-      options?.renderDiagram ??
-      (typeof document !== "undefined" ? renderDiagramToImage : undefined);
-    if (!renderDiagram) {
-      throw new Error(
-        "Default PNG rasterization requires a browser. When exporting elsewhere, pass a `renderDiagram` function with a server-side rasterizer to `createDiagramBlockMapping`.",
-      );
-    }
+    const renderDiagram = options?.renderDiagram ?? renderDiagramToSVG;
 
     const result = await renderDiagram(source);
     if (result.error !== undefined) {
@@ -120,7 +113,6 @@ export function createDiagramBlockMapping(options?: {
 
 /**
  * ODT block mapping for `@blocknote/diagram-block` with the default options
- * - see {@link createDiagramBlockMapping}. Browser-only; when exporting
- * elsewhere, use the factory to pass a `renderDiagram` function.
+ * - see {@link createDiagramBlockMapping}. Works in the browser and on the server.
  */
 export const diagramBlockMapping = createDiagramBlockMapping();

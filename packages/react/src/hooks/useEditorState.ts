@@ -1,5 +1,5 @@
 import type { BlockNoteEditor } from "@blocknote/core";
-import deepEqual from "fast-deep-equal/es6/react.js";
+import deepEqual from "react-fast-compare";
 import { useDebugValue, useState } from "react";
 import { useSyncExternalStoreWithSelector } from "use-sync-external-store/shim/with-selector";
 import { useBlockNoteContext } from "../editor/BlockNoteContext.js";
@@ -36,7 +36,7 @@ export type UseEditorStateOptions<
 
   /**
    * A custom equality function to determine if the editor should re-render.
-   * @default `deepEqual` from `fast-deep-equal`
+   * @default `deepEqual` from `react-fast-compare`
    */
   equalityFn?: (a: TSelectorResult, b: TSelectorResult | null) => boolean;
 

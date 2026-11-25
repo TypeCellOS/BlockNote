@@ -10,7 +10,7 @@ import {
   tableEditing,
 } from "prosemirror-tables";
 
-export const RESIZE_MIN_WIDTH = 35;
+const RESIZE_MIN_WIDTH = 35;
 export const EMPTY_CELL_WIDTH = 120;
 export const EMPTY_CELL_HEIGHT = 31;
 

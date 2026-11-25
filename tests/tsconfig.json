@@ -24,7 +24,8 @@
       "@shared/*": ["../shared/*"]
     }
   },
-  "include": ["src"],
+  "include": ["src", "vitestSetup.browser-fixtures.ts"],
+  "exclude": ["src/integration/**/*.test.*"],
   "references": [
     {
       "path": "../packages/core"

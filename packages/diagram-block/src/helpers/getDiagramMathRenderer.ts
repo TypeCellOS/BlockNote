@@ -1,6 +1,8 @@
 import type { BlockNoteEditor } from "@blocknote/core";
-import type { DiagramMathRenderer } from "./DiagramMathRenderer.js";
-import type { MathRenderer } from "./MathRenderer.js";
+import type {
+  DiagramMathRenderer,
+  MathRenderer,
+} from "./DiagramMathRenderer.js";
 
 /** No runtime import of a typesetter: the editor supplies this capability. */
 export function getDiagramMathRenderer(

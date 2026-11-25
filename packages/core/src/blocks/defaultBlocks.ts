@@ -1,9 +1,9 @@
-import { InputRule, markInputRule } from "@tiptap/core";
 import Bold from "@tiptap/extension-bold";
 import Code from "@tiptap/extension-code";
 import Italic from "@tiptap/extension-italic";
 import Strike from "@tiptap/extension-strike";
 import Underline from "@tiptap/extension-underline";
+import { createExtension } from "../editor/BlockNoteExtension.js";
 import { COLORS_DEFAULT } from "../editor/defaultColors.js";
 import {
   BlockNoDefaults,
@@ -136,48 +136,107 @@ const BackgroundColor = createStyleSpec(
 );
 
 export const defaultStyleSpecs = {
-  bold: createStyleSpecFromTipTapMark(Bold, "boolean"),
-  italic: createStyleSpecFromTipTapMark(Italic, "boolean"),
+  bold: createStyleSpecFromTipTapMark(
+    Bold.extend({ addInputRules: () => [] }),
+    "boolean",
+    [
+      createExtension({
+        key: "bold-input-rules",
+        inputRules: [
+          {
+            find: /(?:^|\s)(\*\*(?!\s+\*\*)((?:[^*]+))\*\*(?!\s+\*\*))$/,
+            replace: ({ match }) => ({
+              text: match[2],
+              styles: { bold: true },
+            }),
+          },
+          {
+            find: /(?:^|\s)(__(?!\s+__)((?:[^_]+))__(?!\s+__))$/,
+            replace: ({ match }) => ({
+              text: match[2],
+              styles: { bold: true },
+            }),
+          },
+        ],
+      }),
+    ],
+  ),
+  italic: createStyleSpecFromTipTapMark(
+    Italic.extend({ addInputRules: () => [] }),
+    "boolean",
+    [
+      createExtension({
+        key: "italic-input-rules",
+        inputRules: [
+          {
+            find: /(?:^|\s)(\*(?!\s+\*)((?:[^*]+))\*(?!\s+\*))$/,
+            replace: ({ match }) => ({
+              text: match[2],
+              styles: { italic: true },
+            }),
+          },
+          {
+            find: /(?:^|\s)(_(?!\s+_)((?:[^_]+))_(?!\s+_))$/,
+            replace: ({ match }) => ({
+              text: match[2],
+              styles: { italic: true },
+            }),
+          },
+        ],
+      }),
+    ],
+  ),
   underline: createStyleSpecFromTipTapMark(Underline, "boolean"),
-  strike: createStyleSpecFromTipTapMark(Strike, "boolean"),
+  strike: createStyleSpecFromTipTapMark(
+    Strike.extend({ addInputRules: () => [] }),
+    "boolean",
+    [
+      createExtension({
+        key: "strike-input-rules",
+        inputRules: [
+          {
+            find: /(?:^|\s)(~~(?!\s+~~)((?:[^~]+))~~(?!\s+~~))$/,
+            replace: ({ match }) => ({
+              text: match[2],
+              styles: { strike: true },
+            }),
+          },
+        ],
+      }),
+    ],
+  ),
   code: createStyleSpecFromTipTapMark(
     Code.extend({
+      // Built-in shortcuts use BlockNote's shared input-rule engine instead.
+      addInputRules: () => [],
       excludes() {
         return marksExcludingNonFormattingMarks(this.editor);
       },
-      addInputRules() {
-        return [
-          // Matches any string that starts with a backtick, ends with a
-          // backtick, and has any non-backtick characters in between. Adapted
-          // from the original input rule:
-          // https://github.com/ueberdosis/tiptap/blob/c27661c148cdbea9e1c80107e10d0a9d1775c4ec/packages/extension-code/src/code.ts#L116
-          // The original matches the character before the opening backtick,
-          // which `markInputRule` then deletes, so a lookbehind checks it
-          // instead.
-          markInputRule({
-            find: /(?<!`)`([^`]+)`(?!`)$/,
-            type: this.type,
-          }),
-          // Extends the Code mark with an extra input rule that fires when a space is
-          // typed after the closing backtick. The default rule only fires when typing
-          // the closing backtick itself, so it misses the case where the user adds
-          // both backticks first, then writes content between them.
-          new InputRule({
-            find: /(^|[^`])`([^`]+)`(?!`) $/,
-            handler: ({ state, range, match }) => {
-              const { tr, schema } = state;
-              const leadingChar = match[1];
-              const content = match[2];
-              tr.replaceWith(range.from + leadingChar.length, range.to, [
-                schema.text(content, [this.type.create()]),
-                schema.text(" "),
-              ]);
-            },
-          }),
-        ];
-      },
     }),
     "boolean",
+    [
+      createExtension({
+        key: "code-input-rules",
+        inputRules: [
+          // Look behind the opening delimiter to preserve the preceding character.
+          {
+            find: /(?<!`)`([^`]+)`(?!`)$/,
+            replace: ({ match }) => ({
+              text: match[1],
+              styles: { code: true },
+            }),
+          },
+          // Also convert pre-existing delimiters when a space follows them.
+          {
+            find: /(?<!`)`([^`]+)`(?!`) $/,
+            replace: ({ match }) => ({
+              text: match[1],
+              styles: { code: true },
+            }),
+          },
+        ],
+      }),
+    ],
   ),
   textColor: TextColor,
   backgroundColor: BackgroundColor,

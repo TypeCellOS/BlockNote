@@ -1,9 +1,5 @@
-import { BlockNoteView } from "@blocknote/mantine";
-import "@blocknote/mantine/style.css";
-import { EmojiPickerController, useCreateBlockNote } from "@blocknote/react";
-import type { ComponentProps } from "react";
-import { expect, test, vi } from "vite-plus/test";
-import { render } from "vitest-browser-react";
+import { EmojiPickerController } from "@blocknote/react";
+import { expect, vi } from "vite-plus/test";
 import { userEvent } from "../../utils/context.js";
 import { EDITOR_SELECTOR, EMOJI_PICKER_SELECTOR } from "../../utils/const.js";
 import {
@@ -13,42 +9,42 @@ import {
 } from "../../utils/editor.js";
 import { waitForSelectedEmoji } from "../../utils/emojipicker.js";
 
-function ConfiguredEditor(props: ComponentProps<typeof EmojiPickerController>) {
-  const editor = useCreateBlockNote();
-  return (
-    <BlockNoteView editor={editor} emojiPicker={false}>
-      <EmojiPickerController {...props} />
-    </BlockNoteView>
-  );
-}
-
-test("forwards floating configuration and nested overrides", async () => {
+it("forwards floating configuration and nested overrides", async ({
+  setupEditor,
+}) => {
   const placement = vi.fn();
-  await render(
-    <ConfiguredEditor
-      triggerCharacter=":"
-      floatingUIOptions={{
-        useDismissProps: { escapeKey: false },
-        useFloatingOptions: {
-          placement: "top-end",
-          middleware: [
-            {
-              name: "configuration",
-              fn(state) {
-                placement(state.placement);
-                return {};
+  await setupEditor({
+    props: { emojiPicker: false },
+    children: (
+      <EmojiPickerController
+        triggerCharacter=":"
+        floatingUIOptions={{
+          useDismissProps: { escapeKey: false },
+          useFloatingOptions: {
+            placement: "top-end",
+            middleware: [
+              {
+                name: "configuration",
+                fn(state) {
+                  placement(state.placement);
+                  return {};
+                },
               },
-            },
-          ],
-        },
-        focusManagerProps: { disabled: false, initialFocus: -1, modal: false },
-        elementProps: {
-          className: "configured-emoji-popover",
-          style: { zIndex: 123 },
-        },
-      }}
-    />,
-  );
+            ],
+          },
+          focusManagerProps: {
+            disabled: false,
+            initialFocus: -1,
+            modal: false,
+          },
+          elementProps: {
+            className: "configured-emoji-popover",
+            style: { zIndex: 123 },
+          },
+        }}
+      />
+    ),
+  });
   await focusOnEditor();
   await userEvent.keyboard(":sm");
   await waitForSelector(EMOJI_PICKER_SELECTOR);
@@ -64,8 +60,11 @@ test("forwards floating configuration and nested overrides", async () => {
   expect(document.querySelector(EMOJI_PICKER_SELECTOR)).not.toBeNull();
 });
 
-test("supports a custom minimum query length", async () => {
-  await render(<ConfiguredEditor triggerCharacter=":" minQueryLength={3} />);
+it("supports a custom minimum query length", async ({ setupEditor }) => {
+  await setupEditor({
+    props: { emojiPicker: false },
+    children: <EmojiPickerController triggerCharacter=":" minQueryLength={3} />,
+  });
   await focusOnEditor();
   await userEvent.keyboard(":sm");
   expect(document.querySelector(EMOJI_PICKER_SELECTOR)).toBeNull();
@@ -73,8 +72,13 @@ test("supports a custom minimum query length", async () => {
   await waitForSelector(EMOJI_PICKER_SELECTOR);
 });
 
-test("allows explicitly disabling the minimum query length", async () => {
-  await render(<ConfiguredEditor triggerCharacter=":" minQueryLength={0} />);
+it("allows explicitly disabling the minimum query length", async ({
+  setupEditor,
+}) => {
+  await setupEditor({
+    props: { emojiPicker: false },
+    children: <EmojiPickerController triggerCharacter=":" minQueryLength={0} />,
+  });
   await focusOnEditor();
   await userEvent.keyboard(":");
   const selected = await waitForSelectedEmoji();
@@ -90,11 +94,14 @@ test("allows explicitly disabling the minimum query length", async () => {
   );
 });
 
-test("respects shouldOpen", async () => {
+it("respects shouldOpen", async ({ setupEditor }) => {
   const shouldOpen = vi.fn(() => false);
-  await render(
-    <ConfiguredEditor triggerCharacter=":" shouldOpen={shouldOpen} />,
-  );
+  await setupEditor({
+    props: { emojiPicker: false },
+    children: (
+      <EmojiPickerController triggerCharacter=":" shouldOpen={shouldOpen} />
+    ),
+  });
   await focusOnEditor();
   await userEvent.keyboard(":sm");
   expect(shouldOpen).toHaveBeenCalled();

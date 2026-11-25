@@ -206,6 +206,10 @@ export const vi: Dictionary = {
     add_block_button: "Toggle trống. Nhấp để thêm khối.",
     toggle_button: "Mở rộng hoặc thu gọn",
   },
+  block_nesting: {
+    indented: (level: number) => `Đã tăng thụt lề, cấp ${level}`,
+    outdented: (level: number) => `Đã giảm thụt lề, cấp ${level}`,
+  },
   code_block: {
     add_source_button_text: "Thêm mã nguồn",
     ok_button_text: "OK",

@@ -40,25 +40,25 @@
 ]
 ]
 
-#block(width: 100%, fill: rgb("#fbe4e4"), inset: (x: 6pt, top: 6.9pt, bottom: 6.9pt))[#strong("This paragraph has a background color")]
+#block(width: 100%, fill: rgb("#ffdfd6"), inset: (x: 6pt, top: 6.9pt, bottom: 6.9pt))[#strong("This paragraph has a background color")]
 
 #block(width: 100%, inset: (top: 6.9pt, bottom: 6.9pt))[#"Paragraph"]
 
 #block(width: 100%, inset: (top: 6.9pt, bottom: 6.9pt))[#""]
 
-#block(width: 100%, inset: (top: (8pt + 6.9pt), bottom: 6.9pt))[#heading(level: 1, outlined: true)[#"Heading"]]
+#block(width: 100%, sticky: true, inset: (top: (8pt + 6.9pt), bottom: 6.9pt))[#heading(level: 1, outlined: true)[#"Heading"]]
 
-#align(right)[#block(width: 100%, inset: (top: (8pt + 6.9pt), bottom: 6.9pt))[#heading(level: 1, outlined: true)[#"Heading right"]]]
+#align(right)[#block(width: 100%, sticky: true, inset: (top: (8pt + 6.9pt), bottom: 6.9pt))[#heading(level: 1, outlined: true)[#"Heading right"]]]
 
-#block(width: 100%, inset: (top: (8pt + 6.9pt), bottom: 6.9pt))[#heading(level: 2, outlined: true)[#"Heading 2"]]
+#block(width: 100%, sticky: true, inset: (top: (8pt + 6.9pt), bottom: 6.9pt))[#heading(level: 2, outlined: true)[#"Heading 2"]]
 
-#block(width: 100%, inset: (top: (8pt + 6.9pt), bottom: 6.9pt))[#heading(level: 3, outlined: true)[#"Heading 3"]]
+#block(width: 100%, sticky: true, inset: (top: (8pt + 6.9pt), bottom: 6.9pt))[#heading(level: 3, outlined: true)[#"Heading 3"]]
 
-#block(width: 100%, inset: (top: (8pt + 6.9pt), bottom: 6.9pt))[#heading(level: 4, outlined: true)[#"Heading 4"]]
+#block(width: 100%, sticky: true, inset: (top: (8pt + 6.9pt), bottom: 6.9pt))[#heading(level: 4, outlined: true)[#"Heading 4"]]
 
-#block(width: 100%, inset: (top: (8pt + 6.9pt), bottom: 6.9pt))[#heading(level: 5, outlined: true)[#"Heading 5"]]
+#block(width: 100%, sticky: true, inset: (top: (8pt + 6.9pt), bottom: 6.9pt))[#heading(level: 5, outlined: true)[#"Heading 5"]]
 
-#block(width: 100%, inset: (top: (8pt + 6.9pt), bottom: 6.9pt))[#heading(level: 6, outlined: true)[#"Heading 6"]]
+#block(width: 100%, sticky: true, inset: (top: (8pt + 6.9pt), bottom: 6.9pt))[#heading(level: 6, outlined: true)[#"Heading 6"]]
 
 #block(width: 100%, inset: (top: 6.9pt, bottom: 6.9pt))[#"Emojis: 😀 🎉 🚀 👍 👍🏽 🌍 🚶‍♀️"]
 
@@ -83,8 +83,8 @@
 #enum(
   [#block(width: 100%, inset: (top: 6.9pt, bottom: 6.9pt))[#"Numbered List Item Nested 1"]],
   [#block(width: 100%, inset: (top: 6.9pt, bottom: 6.9pt))[#"Numbered List Item Nested 2"]],
-  [#align(right)[#block(width: 100%, fill: rgb("#fbe4e4"), inset: (x: 6pt, top: 6.9pt, bottom: 6.9pt))[#text(fill: rgb("#0b6e99"))[#"Numbered List Item Nested funky right"]]]],
-  [#align(center)[#block(width: 100%, fill: rgb("#fbe4e4"), inset: (x: 6pt, top: 6.9pt, bottom: 6.9pt))[#text(fill: rgb("#0b6e99"))[#"Numbered List Item Nested funky center"]]]]
+  [#align(right)[#block(width: 100%, fill: rgb("#ffdfd6"), inset: (x: 6pt, top: 6.9pt, bottom: 6.9pt))[#text(fill: rgb("#006d9a"))[#"Numbered List Item Nested funky right"]]]],
+  [#align(center)[#block(width: 100%, fill: rgb("#ffdfd6"), inset: (x: 6pt, top: 6.9pt, bottom: 6.9pt))[#text(fill: rgb("#006d9a"))[#"Numbered List Item Nested funky center"]]]]
 )]
 )]
 )
@@ -113,7 +113,7 @@
 )
 ]
 
-#block(width: 100%, inset: (top: (8pt + 6.9pt), bottom: 6.9pt))[#heading(level: 2, outlined: true)[#"Toggle Heading"]]
+#block(width: 100%, sticky: true, inset: (top: (8pt + 6.9pt), bottom: 6.9pt))[#heading(level: 2, outlined: true)[#"Toggle Heading"]]
 #pad(left: 1.5em)[
 #block(width: 100%, inset: (top: 6.9pt, bottom: 6.9pt))[#"Content nested inside the toggle heading."]
 ]
@@ -143,14 +143,14 @@
 
 #block(width: 100%, inset: (top: 6.9pt, bottom: 6.9pt))[#strong("Inline Content:")]
 
-#block(width: 100%, inset: (top: 6.9pt, bottom: 6.9pt))[#highlight(fill: rgb("#ddebf1"), text(fill: rgb("#e03e3e"), emph(strong("Styled Text"))))#" "#underline("underlined")#" "#strike("strikethrough")#" "#link("https://www.blocknotejs.org")[#"Link"]]
+#block(width: 100%, inset: (top: 6.9pt, bottom: 6.9pt))[#highlight(fill: rgb("#cfedff"), text(fill: rgb("#994a37"), emph(strong("Styled Text"))))#" "#underline("underlined")#" "#strike("strikethrough")#" "#link("https://www.blocknotejs.org")[#"Link"]]
 
 #block(width: 100%, inset: (top: 6.9pt, bottom: 6.9pt))[#table(
   columns: (auto, auto, auto),
   stroke: 0.5pt + luma(200),
   inset: 6pt,
   table.header([#strong[#"Table Header 1"]], [#strong[#"Table Header 2"]], [#strong[#"Table Header 3"]]),
-  [#"Table Cell 4"], [#highlight(fill: rgb("#ddebf1"), text(fill: rgb("#e03e3e"), strong("Table Cell Bold Colored 5")))], [#"Table Cell 6"],
+  [#"Table Cell 4"], [#highlight(fill: rgb("#cfedff"), text(fill: rgb("#994a37"), strong("Table Cell Bold Colored 5")))], [#"Table Cell 6"],
   [#"Table Cell 7"], [#"Table Cell 8"], [#"Table Cell 9"],
 )]
 
@@ -172,7 +172,7 @@
 #{
   let cols = (
     (width: 0.8, body: [#block(width: 100%, inset: (top: 6.9pt, bottom: 6.9pt))[#"This paragraph is in a column!"]]),
-    (width: 1.4, body: [#block(width: 100%, inset: (top: (8pt + 6.9pt), bottom: 6.9pt))[#heading(level: 1, outlined: true)[#"So is this heading!"]]]),
+    (width: 1.4, body: [#block(width: 100%, sticky: true, inset: (top: (8pt + 6.9pt), bottom: 6.9pt))[#heading(level: 1, outlined: true)[#"So is this heading!"]]]),
     (width: 0.8, body: [#block(width: 100%, inset: (top: 6.9pt, bottom: 6.9pt))[#"You can have multiple blocks in a column too"]
 
 #list(

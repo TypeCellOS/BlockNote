@@ -224,12 +224,48 @@ describe("TypstExporter", () => {
     // The parent's own padded block is aligned, and the align scope closes
     // before the children's `#pad` begins...
     expect(typ).toContain(
-      '#align(right)[#block(width: 100%, inset: (top: (8pt + 6.9pt), bottom: 6.9pt))[#heading(level: 1, outlined: true)[#"Heading right"]]]\n#pad(left: 1.5em)[',
+      '#align(right)[#block(width: 100%, sticky: true, inset: (top: (8pt + 6.9pt), bottom: 6.9pt))[#heading(level: 1, outlined: true)[#"Heading right"]]]\n#pad(left: 1.5em)[',
     );
     // ...so the indented child sits outside that scope, unaligned.
     const child = '#heading(level: 2, outlined: true)[#"Heading 2"]';
     expect(typ).toContain(child);
     expect(typ.indexOf("#pad(left: 1.5em)")).toBeLessThan(typ.indexOf(child));
+  });
+
+  it("keeps every heading with the block that follows it", async () => {
+    // Typst headings are sticky, but stickiness doesn't carry out of the
+    // spacing block they're wrapped in - a heading could be left alone at the
+    // bottom of a page. So the wrapping block is made sticky, in every path a
+    // heading can take: plain, with children, and with a background fill.
+    const exporter = new TypstExporter(schema, typstDefaultSchemaMappings);
+    const typ = await exporter.toTypst(
+      partialBlocksToBlocksForTesting(schema, [
+        { type: "heading", content: "Plain" },
+        {
+          type: "heading",
+          content: "With children",
+          children: [{ type: "paragraph", content: "Child" }],
+        },
+        {
+          type: "heading",
+          props: { backgroundColor: "red" },
+          content: "Filled",
+        },
+        {
+          type: "heading",
+          props: { backgroundColor: "red" },
+          content: "Filled with children",
+          children: [{ type: "paragraph", content: "Child" }],
+        },
+        { type: "paragraph", content: "Not a heading" },
+      ]),
+    );
+
+    // Every heading sits directly in a sticky block (wrapped exactly once)...
+    expect(typ.match(/#heading\(/g)).toHaveLength(4);
+    expect(typ.match(/sticky: true, [^\n]*?\[#heading\(/g)).toHaveLength(4);
+    // ...and nothing else is: a paragraph may be split from its successor.
+    expect(typ.match(/sticky: true/g)).toHaveLength(4);
   });
 
   it("fails the export when an image can't be resolved", async () => {
@@ -373,7 +409,7 @@ describe("TypstExporter", () => {
     );
 
     // Colored through the default palette (COLORS_DEFAULT.red.text).
-    expect(typ).toContain('rgb("#e03e3e")');
+    expect(typ).toContain('rgb("#994a37")');
   });
 
   it("renders header-column cells with the header treatment", async () => {

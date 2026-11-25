@@ -37,6 +37,7 @@ import {
 } from "react";
 import { renderToDOMSpec } from "./@util/ReactRenderUtil.js";
 import { useNodeViewBlock } from "./useNodeViewBlock.js";
+import { useNodeViewEditability } from "./useNodeViewEditability.js";
 
 // this file is mostly analogoues to `customBlocks.ts`, but for React blocks
 
@@ -415,6 +416,7 @@ export function createReactBlockSpec<
     }
 
     function FrameNodeView(props: NodeViewProps) {
+      useNodeViewEditability(props.extension.options.editor);
       // This view belongs to the block's own node (the blockContainer, or the
       // layout block node), so its node is the block.
       const block = nodeToBlock(props.node, props.view.state.doc);
@@ -543,6 +545,7 @@ export function createReactBlockSpec<
                   this.blockContentDOMAttributes;
 
                 function BlockNodeView(props: NodeViewProps) {
+                  useNodeViewEditability(editor);
                   const block = useNodeViewBlock(props, initialBlock);
                   const ref = useReactNodeView().nodeViewContentRef;
                   if (!ref) {
@@ -579,9 +582,46 @@ export function createReactBlockSpec<
                   );
                 }
 
-                return ReactNodeViewRenderer(BlockNodeView, {
+                const nodeView = ReactNodeViewRenderer(BlockNodeView, {
                   className: "bn-react-node-view-renderer",
-                })(this.props!) as ReturnType<
+                })(this.props!);
+                // Before React mounts, TipTap returns a placeholder with no
+                // contentDOM. Only the live ReactNodeView needs this workaround.
+                if (nodeView instanceof ReactNodeView) {
+                  const ignoreMutation = nodeView.ignoreMutation.bind(nodeView);
+                  Object.assign(nodeView, {
+                    ignoreMutation(mutation) {
+                      const contentDOM = nodeView.contentDOM;
+                      if (
+                        contentDOM &&
+                        mutation.type === "childList" &&
+                        mutation.target === contentDOM.parentElement &&
+                        ![
+                          ...mutation.addedNodes,
+                          ...mutation.removedNodes,
+                        ].includes(contentDOM) &&
+                        [...mutation.addedNodes, ...mutation.removedNodes].some(
+                          (node) =>
+                            node.nodeType === 1 &&
+                            (node as Element).hasAttribute(
+                              "data-node-view-content-react",
+                            ),
+                        )
+                      ) {
+                        // TipTap's contentDOM.contains check misses native mobile
+                        // Enter cloning contentDOM into a sibling. Observe that
+                        // boundary only for cloned content containers, not React
+                        // chrome or attaching/detaching the real contentDOM.
+                        // Open upstream PR (currently insufficient for this
+                        // nested wrapper): https://github.com/ueberdosis/tiptap/pull/8355
+                        // Recheck this workaround when that behavior changes.
+                        return false;
+                      }
+                      return ignoreMutation(mutation);
+                    },
+                  } satisfies Pick<ReactNodeView, "ignoreMutation">);
+                }
+                return nodeView as ReturnType<
                   NonNullable<BlockImplementation["render"]>
                 >;
               } else {

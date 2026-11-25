@@ -26,17 +26,6 @@ export const HomeContent: React.FC<HomeContentProps> = ({ code }) => {
       <Hero />
       <Sponsors />
       <div className="w-full bg-[#fdfbf7]"></div>
-      {/* Tech Stack Marquee */}
-      {/* <section className="border-y border-stone-100 bg-stone-50/50 py-10">
-        <div className="mx-auto max-w-7xl overflow-hidden">
-          <div className="mb-6 text-center">
-            <span className="text-xs font-bold uppercase tracking-widest text-stone-400">
-              Integrates with your stack (TBD)
-            </span>
-          </div>
-          <Marquee />
-        </div>
-      </section> */}
 
       {/* Feature Grid with Spotlight Effect */}
       <USP />
@@ -65,19 +54,12 @@ export const HomeContent: React.FC<HomeContentProps> = ({ code }) => {
           <FeatureAI />
         </div>
       </div>
-      {/* Testimonials */}
-      {/* <Testimonials /> */}
       {/* Open Source */}
       <OpenSource />
       {/* Pricing */}
       <Pricing />
       {/* Blocks Catalog */}
       <BlockCatalog />
-      {/* Letter from Creators */}
-      {/* <Letter /> */}
-
-      {/* FAQ */}
-      {/* <FAQ /> */}
     </div>
   );
 };

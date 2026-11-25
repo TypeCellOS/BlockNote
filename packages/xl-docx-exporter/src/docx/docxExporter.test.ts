@@ -30,29 +30,41 @@ import { createDOCXParagraph } from "./mapping.js";
 import { ColumnBlock, ColumnListBlock } from "@blocknote/xl-multi-column";
 import { partialBlocksToBlocksForTesting } from "@shared/formatConversionTestUtil.js";
 import { testResolveFileUrl } from "@shared/util/testFileResolver.js";
+import { readDocumentImages } from "./imageRelationships.testUtil.js";
 
-const getZIPEntryContent = (entries: Entry[], fileName: string) => {
-  const entry = entries.find((entry) => {
-    return entry.filename === fileName && !entry.directory;
-  }) as FileEntry | undefined;
+const schema = BlockNoteSchema.create();
+const fullDocumentSchema = BlockNoteSchema.create({
+  blockSpecs: {
+    ...defaultBlockSpecs,
+    pageBreak: createPageBreakBlockSpec(),
+    column: ColumnBlock,
+    columnList: ColumnListBlock,
+  },
+});
 
-  if (!entry) {
-    return "";
+// The full-document snapshots still use the default embedded fonts. For
+// focused XML assertions, don't repeatedly compress those unrelated binaries.
+const xmlOnlyOptions = {
+  sectionOptions: {},
+  documentOptions: { fonts: [] },
+};
+
+function getZIPEntryContent(entries: Entry[], fileName: string) {
+  const entry = entries.find(
+    (entry): entry is FileEntry =>
+      entry.filename === fileName && !entry.directory,
+  );
+  if (!entry?.getData) {
+    throw new Error(`Missing DOCX entry: ${fileName}`);
   }
 
-  return entry.getData!(new TextWriter());
-};
+  return entry.getData(new TextWriter());
+}
+
 describe("exporter", () => {
   it("should export a document", { timeout: 10000 }, async () => {
     const exporter = new DOCXExporter(
-      BlockNoteSchema.create({
-        blockSpecs: {
-          ...defaultBlockSpecs,
-          pageBreak: createPageBreakBlockSpec(),
-          column: ColumnBlock,
-          columnList: ColumnListBlock,
-        },
-      }),
+      fullDocumentSchema,
       docxDefaultSchemaMappings,
       { resolveFileUrl: testResolveFileUrl },
     );
@@ -74,19 +86,44 @@ describe("exporter", () => {
     ).toMatchFileSnapshot(await stylesSnapshotPath("basic"));
   });
 
+  it("should resolve distinct and repeated images to their original bytes in drawing order", async () => {
+    const first = Uint8Array.from(
+      Buffer.from(
+        "R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7",
+        "base64",
+      ),
+    );
+    const second = first.slice();
+    second[13] = 255; // Different palette, still a complete 1x1 GIF.
+    const exporter = new DOCXExporter(schema, docxDefaultSchemaMappings, {
+      resolveFileUrl: async (url) =>
+        new Blob([url === "first.gif" ? first : second], { type: "image/gif" }),
+    });
+    const doc = await exporter.toDocxJsDocument(
+      partialBlocksToBlocksForTesting(schema, [
+        { type: "image", props: { url: "first.gif" } },
+        { type: "image", props: { url: "second.gif" } },
+        { type: "image", props: { url: "first.gif" } },
+      ]),
+    );
+    const entries = await new ZipReader(
+      new BlobReader(await Packer.toBlob(doc)),
+    ).getEntries();
+    const { images } = await readDocumentImages(entries);
+    expect(images).toEqual([first, second, first]);
+    expect(
+      entries.filter(
+        (entry) => !entry.directory && entry.filename.startsWith("word/media/"),
+      ),
+    ).toHaveLength(2);
+  });
+
   it(
     "should export a document with custom document options",
     { timeout: 10000 },
     async () => {
       const exporter = new DOCXExporter(
-        BlockNoteSchema.create({
-          blockSpecs: {
-            ...defaultBlockSpecs,
-            pageBreak: createPageBreakBlockSpec(),
-            column: ColumnBlock,
-            columnList: ColumnListBlock,
-          },
-        }),
+        fullDocumentSchema,
         docxDefaultSchemaMappings,
         { resolveFileUrl: testResolveFileUrl },
       );
@@ -125,9 +162,7 @@ describe("exporter", () => {
 
       // files related to header / footer
       await expect(
-        prettify(
-          await getZIPEntryContent(entries, "word/_rels/document.xml.rels"),
-        ),
+        prettify((await readDocumentImages(entries)).relationships),
       ).toMatchFileSnapshot(
         "__snapshots__/withCustomOptions/document.xml.rels",
       );
@@ -148,7 +183,6 @@ describe("exporter", () => {
   );
 
   it("should indent nested paragraphs but not list items", async () => {
-    const schema = BlockNoteSchema.create();
     const exporter = new DOCXExporter(schema, docxDefaultSchemaMappings, {
       resolveFileUrl: testResolveFileUrl,
     });
@@ -177,7 +211,7 @@ describe("exporter", () => {
           ],
         },
       ]),
-      { sectionOptions: {}, documentOptions: {}, locale: "en-US" },
+      { ...xmlOnlyOptions, locale: "en-US" },
     );
     const zip = new ZipReader(new BlobReader(await Packer.toBlob(doc)));
     const xml = await getZIPEntryContent(
@@ -205,7 +239,6 @@ describe("exporter", () => {
   });
 
   it("should use mapping-declared indentation instead of block names", async () => {
-    const schema = BlockNoteSchema.create();
     const exporter = new DOCXExporter(schema, {
       ...docxDefaultSchemaMappings,
       blockMapping: {
@@ -240,6 +273,7 @@ describe("exporter", () => {
           ],
         },
       ]),
+      xmlOnlyOptions,
     );
     const zip = new ZipReader(new BlobReader(await Packer.toBlob(doc)));
     const xml = await getZIPEntryContent(
@@ -261,7 +295,6 @@ describe("exporter", () => {
   });
 
   it("should pass real paragraphs to custom child-placement mappings", async () => {
-    const schema = BlockNoteSchema.create();
     const exporter = new DOCXExporter(schema, {
       ...docxDefaultSchemaMappings,
       blockMapping: {
@@ -298,6 +331,7 @@ describe("exporter", () => {
           ],
         },
       ]),
+      xmlOnlyOptions,
     );
     const zip = new ZipReader(new BlobReader(await Packer.toBlob(doc)));
     const xml = await getZIPEntryContent(
@@ -310,18 +344,14 @@ describe("exporter", () => {
   it.each(["document", "columnList", "column"] as const)(
     "should reject invalid layout results in a %s",
     async (context) => {
-      const schema = BlockNoteSchema.create({
-        blockSpecs: {
-          ...defaultBlockSpecs,
-          column: ColumnBlock,
-          columnList: ColumnListBlock,
-        },
-      });
-      const exporter = new DOCXExporter(schema, docxDefaultSchemaMappings);
+      const exporter = new DOCXExporter(
+        fullDocumentSchema,
+        docxDefaultSchemaMappings,
+      );
       const blocks: PartialBlock<
-        typeof schema.blockSchema,
-        typeof schema.inlineContentSchema,
-        typeof schema.styleSchema
+        typeof fullDocumentSchema.blockSchema,
+        typeof fullDocumentSchema.inlineContentSchema,
+        typeof fullDocumentSchema.styleSchema
       >[] =
         context === "document"
           ? [{ type: "column", children: [{ type: "paragraph" }] }]
@@ -341,7 +371,7 @@ describe("exporter", () => {
           : `DOCX ${context} cannot contain a column directly`;
       await expect(
         exporter.transformBlocks(
-          partialBlocksToBlocksForTesting(schema, blocks),
+          partialBlocksToBlocksForTesting(fullDocumentSchema, blocks),
         ),
       ).rejects.toThrow(error);
     },
@@ -351,10 +381,6 @@ describe("exporter", () => {
     "should clamp list nesting deeper than DOCX supports",
     { timeout: 10000 },
     async () => {
-      const schema = BlockNoteSchema.create({
-        blockSpecs: { ...defaultBlockSpecs },
-      });
-
       // A list nested `depth` items deep, i.e. nesting levels 0..depth-1.
       const nestedList = (depth: number) => {
         type SchemaPartialBlock = PartialBlock<
@@ -385,7 +411,7 @@ describe("exporter", () => {
       // export fails.
       const doc = await exporter.toDocxJsDocument(
         partialBlocksToBlocksForTesting(schema, nestedList(12)),
-        { sectionOptions: {}, documentOptions: {}, locale: "en-US" },
+        { ...xmlOnlyOptions, locale: "en-US" },
       );
 
       const blob = await Packer.toBlob(doc);
@@ -411,10 +437,6 @@ describe("exporter", () => {
     "should use distinct bullet symbols per nesting level",
     { timeout: 10000 },
     async () => {
-      const schema = BlockNoteSchema.create({
-        blockSpecs: { ...defaultBlockSpecs },
-      });
-
       const exporter = new DOCXExporter(schema, docxDefaultSchemaMappings, {
         resolveFileUrl: testResolveFileUrl,
       });
@@ -423,7 +445,7 @@ describe("exporter", () => {
         partialBlocksToBlocksForTesting(schema, [
           { type: "bulletListItem", content: "level 0" },
         ]),
-        { sectionOptions: {}, documentOptions: {}, locale: "en-US" },
+        { ...xmlOnlyOptions, locale: "en-US" },
       );
 
       const numberingXml = await getZIPEntryContent(
@@ -460,14 +482,276 @@ describe("exporter", () => {
     },
   );
 
+  it.each(["plain parent", "legacy parent", "legacy child"] as const)(
+    "should restart nested lists with a custom %s mapping",
+    async (variant) => {
+      const exporter = new DOCXExporter(schema, {
+        ...docxDefaultSchemaMappings,
+        blockMapping: {
+          ...docxDefaultSchemaMappings.blockMapping,
+          ...(variant === "legacy child"
+            ? {
+                numberedListItem: (block, exporter, level, instance) =>
+                  createDOCXParagraph({
+                    children: exporter.transformInlineContent(block.content),
+                    numbering: {
+                      reference: "blocknote-numbered-list",
+                      level,
+                      instance,
+                    },
+                  }),
+              }
+            : {
+                bulletListItem: (block, exporter, level, instance) =>
+                  variant === "plain parent"
+                    ? new Paragraph("plain parent")
+                    : createDOCXParagraph({
+                        children: exporter.transformInlineContent(
+                          block.content,
+                        ),
+                        numbering: {
+                          reference: "blocknote-bullet-list",
+                          level,
+                          instance,
+                        },
+                      }),
+              }),
+        },
+      });
+      const blocks = partialBlocksToBlocksForTesting(schema, [
+        {
+          type: "bulletListItem",
+          content: "parent one",
+          children: [
+            { type: "numberedListItem", content: "child one" },
+            { type: "numberedListItem", content: "child two" },
+          ],
+        },
+        {
+          type: "bulletListItem",
+          content: "parent two",
+          children: [
+            { type: "numberedListItem", content: "child three" },
+            { type: "numberedListItem", content: "child four" },
+          ],
+        },
+      ]);
+      const entries = await new ZipReader(
+        new BlobReader(await exporter.toBlob(blocks, xmlOnlyOptions)),
+      ).getEntries();
+      const xml = await getZIPEntryContent(entries, "word/document.xml");
+      const childIds = [...xml.matchAll(/<w:p[ >][\s\S]*?<\/w:p>/g)]
+        .filter((match) => match[0].includes("child "))
+        .map((match) => match[0].match(/<w:numId w:val="(\d+)"\/>/)?.[1]);
+      expect(childIds).toHaveLength(4);
+      expect(childIds[0]).toBeDefined();
+      expect(childIds[2]).toBeDefined();
+      expect(childIds[0]).toBe(childIds[1]);
+      expect(childIds[2]).toBe(childIds[3]);
+      // Neither custom boundary guarantees that a parent paragraph uses the
+      // children's numbering reference, so each child run needs its own reset.
+      expect(childIds[0]).not.toBe(childIds[2]);
+    },
+  );
+
+  it("should keep concurrent exports' numbering definitions independent", async () => {
+    const exporter = new DOCXExporter(schema, docxDefaultSchemaMappings);
+    const documents = (["bulletListItem", "numberedListItem"] as const).map(
+      (type) =>
+        partialBlocksToBlocksForTesting(schema, [{ type, content: "item" }]),
+    );
+    async function numberingXml(doc: Document) {
+      const entries = await new ZipReader(
+        new BlobReader(await Packer.toBlob(doc)),
+      ).getEntries();
+      return getZIPEntryContent(entries, "word/numbering.xml");
+    }
+    const expected = [];
+    for (const blocks of documents) {
+      expected.push(
+        await numberingXml(
+          await exporter.toDocxJsDocument(blocks, xmlOnlyOptions),
+        ),
+      );
+    }
+    const concurrent = await Promise.all(
+      documents.map((blocks) =>
+        exporter.toDocxJsDocument(blocks, xmlOnlyOptions),
+      ),
+    );
+    expect(await Promise.all(concurrent.map(numberingXml))).toEqual(expected);
+  });
+
+  it.each(["bulletListItem", "numberedListItem"] as const)(
+    "should keep mixed descendants in the %s parent's numbering instance",
+    async (type) => {
+      const childType =
+        type === "bulletListItem" ? "numberedListItem" : "bulletListItem";
+      const exporter = new DOCXExporter(schema, docxDefaultSchemaMappings);
+      const blocks = partialBlocksToBlocksForTesting(schema, [
+        {
+          type,
+          content: "parent one",
+          children: [
+            {
+              type: childType,
+              content: "child one",
+              children: [{ type, content: "grandchild" }],
+            },
+            { type: childType, content: "child two" },
+          ],
+        },
+        {
+          type,
+          content: "parent two",
+          children: [{ type: childType, content: "restarted child" }],
+        },
+        { type: "paragraph", content: "break" },
+        { type, content: "separate list" },
+      ]);
+      // Reusing an exporter must not retain a previous document's definitions.
+      for (let attempt = 0; attempt < 2; attempt++) {
+        const doc = await exporter.toDocxJsDocument(blocks, xmlOnlyOptions);
+        const entries = await new ZipReader(
+          new BlobReader(await Packer.toBlob(doc)),
+        ).getEntries();
+        const xml = await getZIPEntryContent(entries, "word/document.xml");
+        const ids = [...xml.matchAll(/<w:numId w:val="(\d+)"\/>/g)].map(
+          (match) => match[1],
+        );
+        expect(ids).toHaveLength(7);
+        expect(
+          [...xml.matchAll(/<w:ilvl w:val="(\d+)"\/>/g)].map((match) =>
+            Number(match[1]),
+          ),
+        ).toEqual([0, 1, 2, 1, 0, 1, 0]);
+        expect(new Set(ids.slice(0, 6)).size).toBe(1);
+        expect(ids[6]).not.toBe(ids[0]);
+        const numbering = await getZIPEntryContent(
+          entries,
+          "word/numbering.xml",
+        );
+        const concrete = [
+          ...numbering.matchAll(/<w:num w:numId="(\d+)">([\s\S]*?)<\/w:num>/g),
+        ].find((match) => match[1] === ids[0]);
+        const abstractId = concrete?.[2].match(
+          /<w:abstractNumId w:val="(\d+)"/,
+        )?.[1];
+        const abstract = [
+          ...numbering.matchAll(
+            /<w:abstractNum\b[^>]*w:abstractNumId="(\d+)"[^>]*>([\s\S]*?)<\/w:abstractNum>/g,
+          ),
+        ].find((match) => match[1] === abstractId);
+        const levels = [
+          ...(abstract?.[2] ?? "").matchAll(
+            /<w:lvl\b[^>]*w:ilvl="(\d+)"[^>]*>([\s\S]*?)<\/w:lvl>/g,
+          ),
+        ];
+        expect(
+          levels.slice(0, 3).map((level) => ({
+            format: level[2].match(/<w:numFmt w:val="([^"]+)"/)?.[1],
+            text: level[2].match(/<w:lvlText w:val="([^"]+)"/)?.[1],
+          })),
+        ).toEqual(
+          type === "bulletListItem"
+            ? [
+                { format: "bullet", text: "•" },
+                { format: "decimal", text: "%2." },
+                { format: "bullet", text: "▪" },
+              ]
+            : [
+                { format: "decimal", text: "%1." },
+                { format: "bullet", text: "○" },
+                { format: "decimal", text: "%3." },
+              ],
+        );
+      }
+    },
+  );
+
+  it("should isolate incompatible child runs without restarting their parent", async () => {
+    const exporter = new DOCXExporter(schema, docxDefaultSchemaMappings);
+    const doc = await exporter.toDocxJsDocument(
+      partialBlocksToBlocksForTesting(schema, [
+        {
+          type: "numberedListItem",
+          content: "parent one",
+          children: [
+            { type: "bulletListItem", content: "bullet one" },
+            { type: "bulletListItem", content: "bullet two" },
+            { type: "paragraph", content: "break" },
+            { type: "bulletListItem", content: "restarted bullet" },
+            { type: "numberedListItem", content: "switched number" },
+            { type: "bulletListItem", content: "switched back bullet" },
+          ],
+        },
+        {
+          type: "numberedListItem",
+          content: "parent two",
+          children: [
+            { type: "numberedListItem", content: "incompatible child one" },
+            { type: "numberedListItem", content: "incompatible child two" },
+          ],
+        },
+        {
+          type: "numberedListItem",
+          content: "parent three",
+          children: [{ type: "bulletListItem", content: "compatible child" }],
+        },
+      ]),
+      xmlOnlyOptions,
+    );
+    const entries = await new ZipReader(
+      new BlobReader(await Packer.toBlob(doc)),
+    ).getEntries();
+    const xml = await getZIPEntryContent(entries, "word/document.xml");
+    const ids = [...xml.matchAll(/<w:numId w:val="(\d+)"\/>/g)].map(
+      (match) => match[1],
+    );
+    expect(ids).toHaveLength(11);
+    expect([ids[1], ids[2], ids[6], ids[9], ids[10]]).toEqual(
+      Array(5).fill(ids[0]),
+    );
+    expect(ids[7]).toBe(ids[8]);
+    expect(new Set([ids[0], ids[3], ids[4], ids[5], ids[7]]).size).toBe(5);
+    const numbering = await getZIPEntryContent(entries, "word/numbering.xml");
+    const definitions = new Map(
+      [
+        ...numbering.matchAll(
+          /<w:abstractNum\b[^>]*w:abstractNumId="(\d+)"[^>]*>([\s\S]*?)<\/w:abstractNum>/g,
+        ),
+      ].map((match) => [match[1], match[2]]),
+    );
+    const instances = new Map(
+      [
+        ...numbering.matchAll(/<w:num w:numId="(\d+)">([\s\S]*?)<\/w:num>/g),
+      ].map((match) => [
+        match[1],
+        match[2].match(/<w:abstractNumId w:val="(\d+)"/)?.[1],
+      ]),
+    );
+    const formats = ids.map((id) => {
+      const definition = definitions.get(instances.get(id) ?? "") ?? "";
+      return [
+        ...definition.matchAll(
+          /<w:lvl\b[^>]*w:ilvl="1"[^>]*>([\s\S]*?)<\/w:lvl>/g,
+        ),
+      ][0]?.[1].match(/<w:numFmt w:val="([^"]+)"/)?.[1];
+    });
+    expect([
+      formats[1],
+      formats[3],
+      formats[4],
+      formats[5],
+      formats[7],
+      formats[10],
+    ]).toEqual(["bullet", "bullet", "decimal", "bullet", "decimal", "bullet"]);
+  });
+
   it(
     "should give each list its own numbering instance",
     { timeout: 10000 },
     async () => {
-      const schema = BlockNoteSchema.create({
-        blockSpecs: { ...defaultBlockSpecs },
-      });
-
       // Two separate numbered lists split by a paragraph, then a bullet list.
       // Each is a distinct list and must not continue the previous one, so each
       // needs its own `w:numId`. A nested item stays part of its parent list.
@@ -494,7 +778,7 @@ describe("exporter", () => {
 
       const doc = await exporter.toDocxJsDocument(
         partialBlocksToBlocksForTesting(schema, blocks),
-        { sectionOptions: {}, documentOptions: {}, locale: "en-US" },
+        { ...xmlOnlyOptions, locale: "en-US" },
       );
 
       const documentXml = await getZIPEntryContent(
@@ -519,9 +803,9 @@ describe("exporter", () => {
       expect(listOneB).toBe(listOneA);
       expect(listTwoB).toBe(listTwoA);
 
-      // A nested sub-list is its own list: it gets its own numId and restarts,
-      // rather than continuing its parent's numbering.
-      expect(listOneNested).not.toBe(listOneA);
+      // Nested levels share the parent instance; OOXML restarts a deeper
+      // level when its parent level occurs, without continuing the parent's count.
+      expect(listOneNested).toBe(listOneA);
 
       // Separate lists get separate numIds so they don't continue each other -
       // this is the actual bug (#2225): before the fix every numbered list
@@ -536,28 +820,106 @@ describe("exporter", () => {
     },
   );
 
-  async function exportAndGetStylesEntries(locale?: string) {
-    const exporter = new DOCXExporter(
-      BlockNoteSchema.create({
-        blockSpecs: {
-          ...defaultBlockSpecs,
-          pageBreak: createPageBreakBlockSpec(),
-          column: ColumnBlock,
-          columnList: ColumnListBlock,
+  it(
+    "should start each numbered list at its start number",
+    { timeout: 10000 },
+    async () => {
+      // Like in the editor, the first item of a list sets the number it starts
+      // at; a start number on a later item is ignored. Two lists that start at
+      // the same number each start there, and so does each nested list, also
+      // when another nested list in the same list starts elsewhere.
+      const blocks: PartialBlock<
+        typeof schema.blockSchema,
+        typeof schema.inlineContentSchema,
+        typeof schema.styleSchema
+      >[] = [
+        {
+          type: "numberedListItem",
+          content: "five",
+          props: { start: 5 },
+          children: [
+            { type: "numberedListItem", content: "ten", props: { start: 10 } },
+            { type: "numberedListItem", content: "eleven" },
+          ],
         },
-      }),
-      docxDefaultSchemaMappings,
-      { resolveFileUrl: testResolveFileUrl },
-    );
-    const doc = await exporter.toDocxJsDocument(testDocument, {
-      sectionOptions: {},
-      documentOptions: {},
-      ...(locale && { locale }),
-    });
+        {
+          type: "numberedListItem",
+          content: "six",
+          children: [{ type: "numberedListItem", content: "nested one" }],
+        },
+        {
+          type: "numberedListItem",
+          content: "seven",
+          props: { start: 2 },
+          children: [
+            {
+              type: "numberedListItem",
+              content: "ten again",
+              props: { start: 10 },
+            },
+          ],
+        },
+        { type: "paragraph", content: "a paragraph breaks the list" },
+        { type: "numberedListItem", content: "three", props: { start: 3 } },
+        { type: "numberedListItem", content: "four" },
+        { type: "paragraph", content: "a paragraph breaks the list" },
+        { type: "numberedListItem", content: "one" },
+        { type: "paragraph", content: "a paragraph breaks the list" },
+        {
+          type: "numberedListItem",
+          content: "five again",
+          props: { start: 5 },
+        },
+        { type: "numberedListItem", content: "six again" },
+        { type: "paragraph", content: "a paragraph breaks the list" },
+        { type: "numberedListItem", content: "zero", props: { start: 0 } },
+        { type: "numberedListItem", content: "two" },
+      ];
 
-    const blob = await Packer.toBlob(doc);
-    const zip = new ZipReader(new BlobReader(blob));
-    return zip.getEntries();
+      const exporter = new DOCXExporter(schema, docxDefaultSchemaMappings, {
+        resolveFileUrl: testResolveFileUrl,
+      });
+
+      const doc = await exporter.toDocxJsDocument(
+        partialBlocksToBlocksForTesting(schema, blocks),
+        { ...xmlOnlyOptions, locale: "en-US" },
+      );
+
+      const entries = await new ZipReader(
+        new BlobReader(await Packer.toBlob(doc)),
+      ).getEntries();
+
+      expect(
+        renderListNumbers(
+          await getZIPEntryContent(entries, "word/document.xml"),
+          await getZIPEntryContent(entries, "word/numbering.xml"),
+        ),
+      ).toEqual([
+        "5. five",
+        "10. ten",
+        "11. eleven",
+        "6. six",
+        "1. nested one",
+        "7. seven",
+        "10. ten again",
+        "3. three",
+        "4. four",
+        "1. one",
+        "5. five again",
+        "6. six again",
+        "1. zero",
+        "2. two",
+      ]);
+    },
+  );
+
+  async function exportAndGetStylesEntries(locale?: string) {
+    const exporter = new DOCXExporter(schema, docxDefaultSchemaMappings);
+    const doc = await exporter.toDocxJsDocument(
+      partialBlocksToBlocksForTesting(schema, [{ type: "paragraph" }]),
+      { ...xmlOnlyOptions, locale },
+    );
+    return new ZipReader(new BlobReader(await Packer.toBlob(doc))).getEntries();
   }
 
   it(
@@ -567,23 +929,16 @@ describe("exporter", () => {
       // Exporter strings are never hardcoded - the file link text comes
       // from the `exporter` section of the configured dictionary (English
       // when not configured).
-      const exporter = new DOCXExporter(
-        BlockNoteSchema.create({
-          blockSpecs: {
-            ...defaultBlockSpecs,
-            pageBreak: createPageBreakBlockSpec(),
-            column: ColumnBlock,
-            columnList: ColumnListBlock,
-          },
-        }),
-        docxDefaultSchemaMappings,
-        { resolveFileUrl: testResolveFileUrl, dictionary: de },
-      );
-      const doc = await exporter.toDocxJsDocument(testDocument, {
-        sectionOptions: {},
-        documentOptions: {},
-        locale: "de-DE",
+      const exporter = new DOCXExporter(schema, docxDefaultSchemaMappings, {
+        dictionary: de,
       });
+      const doc = await exporter.toDocxJsDocument(
+        partialBlocksToBlocksForTesting(schema, [
+          { type: "video", props: { url: "https://example.com/video.webm" } },
+          { type: "audio", props: { url: "https://example.com/audio.mp3" } },
+        ]),
+        { ...xmlOnlyOptions, locale: "de-DE" },
+      );
 
       const zip = new ZipReader(new BlobReader(await Packer.toBlob(doc)));
       const documentXML = await getZIPEntryContent(
@@ -591,9 +946,6 @@ describe("exporter", () => {
         "word/document.xml",
       );
 
-      // The document's empty file block exports as nothing (placeholder,
-      // not content), so the dictionary wiring shows through the video /
-      // audio links instead.
       expect(documentXML).toContain("Video öffnen");
       expect(documentXML).toContain("Audio öffnen");
       expect(documentXML).not.toContain("Open video file");
@@ -629,9 +981,9 @@ describe("exporter", () => {
   );
 });
 
-async function stylesSnapshotPath(
-  scenario: "basic" | "noLocale" | "withLocale",
-) {
+let stylesSnapshotFile: Promise<string> | undefined;
+
+async function detectStylesSnapshotFile() {
   // docx 9.14 adds Bibliography, TOC1-9 and LineNumber defaults. Keep full
   // reviewed snapshots for both default sets, rather than stripping styles or
   // making the locked 9.9 output adopt newer defaults. Probe a separate plain
@@ -642,10 +994,80 @@ async function stylesSnapshotPath(
     new BlobReader(await Packer.toBlob(control)),
   ).getEntries();
   const styles = await getZIPEntryContent(entries, "word/styles.xml");
-  const file = styles.includes('w:styleId="TOC1"')
+  return styles.includes('w:styleId="TOC1"')
     ? "styles-docx-9.14.xml"
     : "styles.xml";
+}
+
+async function stylesSnapshotPath(
+  scenario: "basic" | "noLocale" | "withLocale",
+) {
+  const file = await (stylesSnapshotFile ??= detectStylesSnapshotFile());
   return `__snapshots__/${scenario}/${file}`;
+}
+
+/**
+ * Renders each numbered paragraph as Word numbers it: "<number>. <text>". A
+ * paragraph continues the numbering of its list (`w:numId`) at its level
+ * (`w:ilvl`), and restarts the list's deeper levels. A level starts at the
+ * list's `w:startOverride` for that level, or else at the level's `w:start` in
+ * the list's `w:abstractNum`.
+ */
+function renderListNumbers(documentXml: string, numberingXml: string) {
+  function startNumber(numId: string, level: string) {
+    const list = numberingXml.match(
+      new RegExp(`<w:num\\b[^>]*w:numId="${numId}"[^>]*>([\\s\\S]*?)</w:num>`),
+    )?.[1];
+    if (list === undefined) {
+      throw new Error(`numbering.xml has no list with w:numId ${numId}`);
+    }
+    const startOverride = list.match(
+      new RegExp(
+        `<w:lvlOverride w:ilvl="${level}">\\s*<w:startOverride w:val="(-?\\d+)"/>`,
+      ),
+    )?.[1];
+    if (startOverride !== undefined) {
+      return Number(startOverride);
+    }
+    const abstractNumId = list.match(/<w:abstractNumId w:val="(\d+)"\/>/)?.[1];
+    const abstractList = numberingXml.match(
+      new RegExp(
+        `<w:abstractNum\\b[^>]*w:abstractNumId="${abstractNumId}"[^>]*>([\\s\\S]*?)</w:abstractNum>`,
+      ),
+    )?.[1];
+    const start = abstractList
+      ?.match(
+        new RegExp(`<w:lvl\\b[^>]*w:ilvl="${level}"[^>]*>([\\s\\S]*?)</w:lvl>`),
+      )?.[1]
+      .match(/<w:start w:val="(-?\d+)"\/>/)?.[1];
+    return start === undefined ? 1 : Number(start);
+  }
+
+  const lastNumbers = new Map<string, number>();
+  const rendered: string[] = [];
+  for (const [paragraph] of documentXml.matchAll(/<w:p[ >][\s\S]*?<\/w:p>/g)) {
+    const numId = paragraph.match(/<w:numId w:val="(\d+)"\/>/)?.[1];
+    if (numId === undefined) {
+      continue;
+    }
+    const level = paragraph.match(/<w:ilvl w:val="(\d+)"\/>/)?.[1] ?? "0";
+    for (const other of lastNumbers.keys()) {
+      const [otherNumId, otherLevel] = other.split(":");
+      if (otherNumId === numId && Number(otherLevel) > Number(level)) {
+        lastNumbers.delete(other);
+      }
+    }
+    const key = `${numId}:${level}`;
+    const lastNumber = lastNumbers.get(key);
+    const number =
+      lastNumber === undefined ? startNumber(numId, level) : lastNumber + 1;
+    lastNumbers.set(key, number);
+    const text = [...paragraph.matchAll(/<w:t(?: [^>]*)?>(.*?)<\/w:t>/g)]
+      .map((match) => match[1])
+      .join("");
+    rendered.push(`${number}. ${text}`);
+  }
+  return rendered;
 }
 
 function prettify(sourceXml: string) {

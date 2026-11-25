@@ -49,10 +49,6 @@ export const HARDCODED_USERS = [
   },
 ];
 
-export const getRandomUser = () => {
-  return HARDCODED_USERS[Math.floor(Math.random() * HARDCODED_USERS.length)];
-};
-
 // The resolveUsers function fetches information about your users
 // (e.g. their name, avatar, etc.). Usually, you'd fetch this from your
 // own database or user management system.

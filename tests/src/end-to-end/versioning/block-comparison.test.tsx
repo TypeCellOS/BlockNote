@@ -17,11 +17,10 @@ import { createBundledHighlighter } from "@shikijs/core";
 import { createJavaScriptRegexEngine } from "@shikijs/engine-javascript";
 import { testDocument } from "@shared/testDocument.js";
 import * as Y from "@y/y";
-import { expect, test } from "vite-plus/test";
-import { render } from "vitest-browser-react";
-import { browserName, page, userEvent } from "../../utils/context.js";
-import { sleep } from "../../utils/editor.js";
-import { screenshotFull } from "../../utils/screenshotFull.js";
+import { expect, onTestFinished, test } from "vite-plus/test";
+import { cleanup, render } from "vitest-browser-react";
+import { browserName, commands, page, userEvent } from "../../utils/context.js";
+import { expectElement } from "../../utils/editor.js";
 
 const createHighlighter = createBundledHighlighter({
   langs: { javascript: () => import("@shikijs/langs-precompiled/javascript") },
@@ -81,19 +80,48 @@ const showcase: PartialBlock[] = [
   },
 ];
 
+function prepareToggleState(blocks: IdentifiedBlock[]) {
+  for (const block of blocks) {
+    if (
+      block.type === "toggleListItem" ||
+      (block.type === "heading" && block.props?.isToggleable)
+    ) {
+      const key = `toggle-${block.id}`;
+      const previous = localStorage.getItem(key);
+      onTestFinished(() => {
+        if (previous === null) {
+          localStorage.removeItem(key);
+        } else {
+          localStorage.setItem(key, previous);
+        }
+      });
+      localStorage.removeItem(key);
+    }
+    prepareToggleState(block.children);
+  }
+}
+
 for (const theme of ["light", "dark"] as const) {
-  // Match the static all-blocks test's browser and full-resolution capture setup.
+  // Match the static all-blocks test's browser and full-resolution capture.
   // The comparison styling is browser-independent; iframe captures are not.
   test.skipIf(browserName !== "chromium")(
     `default schema comparison in ${theme}`,
     { timeout: 90000 },
     async () => {
+      onTestFinished(() => commands.mockCustomBlockImages("remove"));
+      onTestFinished(() => commands.mockVersioningMedia("remove"));
+      await commands.mockCustomBlockImages("install");
+      await commands.mockVersioningMedia("install");
+
       expect(new Set(blockTypes(showcase))).toEqual(
         new Set(Object.keys(defaultBlockSpecs)),
       );
       const removed = identify(showcase, "removed");
       const added = identify(showcase, "added");
+      // Retries and the other theme reuse these IDs; start only these toggles closed.
+      prepareToggleState([...removed, ...added]);
       const schemaEditor = BlockNoteEditor.create();
+      onTestFinished(() => schemaEditor._tiptapEditor.destroy());
       const doc = blocksToYDoc(
         schemaEditor,
         [
@@ -110,6 +138,7 @@ for (const theme of ["light", "dark"] as const) {
         ],
         "doc",
       );
+      onTestFinished(() => doc.destroy());
       doc.clientID = 1;
       const before = Y.encodeStateAsUpdateV2(doc);
       const editor = BlockNoteEditor.create(
@@ -130,6 +159,10 @@ for (const theme of ["light", "dark"] as const) {
           },
         }),
       );
+      // Finish hooks unwind in reverse order: host, editor, doc, then routes.
+      onTestFinished(() => editor._tiptapEditor.destroy());
+      // The attempt renderer owns the root even if render rejects before returning it.
+      onTestFinished(cleanup);
       const screen = await render(
         <section
           style={{
@@ -145,11 +178,15 @@ for (const theme of ["light", "dark"] as const) {
         | ReturnType<ReturnType<typeof createYVersionView>["open"]>
         | undefined;
       try {
-        editor.removeBlocks(removed.map((block) => block.id));
-        editor.insertBlocks(added, "after-label", "after");
-        editor.updateBlock("inline-code", {
-          content:
-            'const value = "new";\nconsole.log(value);\n// inserted line',
+        // Only the final state is compared. Publish the fixture edits together
+        // instead of rendering and syncing each intermediate document.
+        editor.transact(() => {
+          editor.removeBlocks(removed.map((block) => block.id));
+          editor.insertBlocks(added, "after-label", "after");
+          editor.updateBlock("inline-code", {
+            content:
+              'const value = "new";\nconsole.log(value);\n// inserted line',
+          });
         });
         view = createYVersionView(editor, doc.get("doc")).open();
         editor.isEditable = false;
@@ -159,12 +196,8 @@ for (const theme of ["light", "dark"] as const) {
           target: { type: "current" },
         });
         const root = screen.container.querySelector("section")!;
-        await expect
-          .poll(() => root.querySelectorAll("ins").length)
-          .toBeGreaterThan(0);
-        await expect
-          .poll(() => root.querySelectorAll("del").length)
-          .toBeGreaterThan(0);
+        await expect.poll(() => root.querySelector("ins")).not.toBeNull();
+        expect(root.querySelector("del")).not.toBeNull();
         // A preceding test can leave the pointer over the diff, whose changes
         // show a tooltip on hover. Park it on the padding, outside the editor.
         await userEvent.hover(root, { position: { x: 2, y: 2 } });
@@ -180,14 +213,33 @@ for (const theme of ["light", "dark"] as const) {
           button.click();
           expect(button.getAttribute("aria-expanded")).toBe("true");
         }
+        await Promise.all([
+          ...Array.from(root.querySelectorAll("img"), (img) => img.decode()),
+          ...Array.from(
+            root.querySelectorAll<HTMLMediaElement>("video[src], audio[src]"),
+            (media) =>
+              expect
+                .poll(
+                  () =>
+                    media.readyState >= HTMLMediaElement.HAVE_METADATA ||
+                    media.error !== null,
+                )
+                .toBe(true),
+          ),
+          expect
+            .poll(() =>
+              root.querySelector(
+                '[data-id="inline-code"] .bn-suggestion-mark .shiki',
+              ),
+            )
+            .not.toBeNull(),
+        ]);
         await document.fonts.ready;
-        await Promise.all(
-          Array.from(root.querySelectorAll("img"), (img) => img.decode()),
-        );
-        // Restore the runner's scroll position after the preceding tall capture.
+        // Size the iframe once for the full-resolution capture, then restore
+        // the runner's scroll position after the preceding tall capture.
         await page.viewport(
           1280,
-          Math.ceil(root.getBoundingClientRect().bottom) + 40,
+          Math.max(720, Math.ceil(root.getBoundingClientRect().bottom) + 40),
         );
         window.scrollTo(0, 0);
         for (
@@ -211,9 +263,6 @@ for (const theme of ["light", "dark"] as const) {
             "rgb(22, 22, 22)",
           );
         }
-        await expect
-          .poll(() => root.querySelectorAll(".shiki").length)
-          .toBeGreaterThan(0);
         for (const token of root.querySelectorAll<HTMLElement>(
           '[data-content-type="codeBlock"] > pre .bn-suggestion-mark .shiki',
         )) {
@@ -221,30 +270,31 @@ for (const theme of ["light", "dark"] as const) {
             getComputedStyle(token.closest(".bn-suggestion-mark")!).color,
           );
         }
-        // Match the shared document's render-settling step in static.test.tsx.
-        await sleep(500);
-        await screenshotFull(root, `comparison-default-schema-${theme}`, {
-          comparatorOptions: { allowedMismatchedPixelRatio: 0.0001 },
-          // Match static.test.tsx: native players vary as media loads. Mask only
-          // the players, retaining the diff cards, captions, and other widgets.
-          screenshotOptions: {
-            scale: "css",
-            mask: Array.from(root.querySelectorAll("video, audio"), (element) =>
-              page.elementLocator(element),
-            ),
+        await expectElement(root).toMatchScreenshot(
+          `comparison-default-schema-${theme}`,
+          {
+            comparatorOptions: { allowedMismatchedPixelRatio: 0.0001 },
+            // Match static.test.tsx: native players vary as media loads. Mask only
+            // the players, retaining the diff cards, captions, and other widgets.
+            screenshotOptions: {
+              scale: "css",
+              mask: Array.from(
+                root.querySelectorAll("video, audio"),
+                (element) => page.elementLocator(element),
+              ),
+            },
           },
-        });
+        );
       } finally {
-        await page.viewport(1280, 720);
-        view?.close();
-        await screen.unmount();
-        doc.destroy();
-        for (const key of Object.keys(localStorage)) {
-          if (
-            key.startsWith("toggle-removed-") ||
-            key.startsWith("toggle-added-")
-          ) {
-            localStorage.removeItem(key);
+        try {
+          await page.viewport(1280, 720);
+        } finally {
+          try {
+            // Closing restores live blocks. Unmount first so that can't start
+            // new media requests; the route leases still cover this teardown.
+            await screen.unmount();
+          } finally {
+            view?.close();
           }
         }
       }

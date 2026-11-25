@@ -329,7 +329,7 @@ export class ReactEmailExporter<
       // https://github.com/resend/react-email/blob/f02e21e998d507aa3fdfbb7b8639f915b8df6cb5/apps/docs/utilities/render.mdx#3-convert-to-html
       (globalThis as any).ReadableByteStreamController = (
         await import("web-streams-polyfill")
-      ).default.ReadableByteStreamController;
+      ).ReadableByteStreamController;
     }
     const ret = await renderEmail(
       <Html>

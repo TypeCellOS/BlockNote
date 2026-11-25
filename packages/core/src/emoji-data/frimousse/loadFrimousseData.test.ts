@@ -1,4 +1,3 @@
-// @vitest-environment node
 import { describe, expect, it } from "vite-plus/test";
 
 import { searchEmojis } from "../searchEmojis.js";
@@ -43,20 +42,22 @@ describe("localized emoji data", () => {
       ["shit", "💩"],
       ["staff_of_aesculapius", "⚕"],
     ]) {
-      const matches = emojis.filter((emoji) =>
-        [emoji.label, ...emoji.tags].some((value) =>
-          value.toLowerCase().includes(query),
-        ),
+      const found = emojis.some(
+        ({ emoji, label, tags }) =>
+          emoji.replaceAll("\uFE0F", "") === identity &&
+          (label.toLowerCase().includes(query) ||
+            tags.some((tag) => tag.toLowerCase().includes(query))),
       );
-      expect(
-        matches.map(({ emoji }) => emoji.replaceAll("\uFE0F", "")),
-      ).toContain(identity);
+      expect(found, `${query} should find ${identity}`).toBe(true);
     }
-    for (const { tags } of emojis) {
-      expect(new Set(tags.map((tag) => tag.toLowerCase())).size).toBe(
-        tags.length,
-      );
-    }
+    const duplicate = emojis.find(
+      ({ tags }) =>
+        new Set(tags.map((tag) => tag.toLowerCase())).size !== tags.length,
+    );
+    expect(
+      duplicate,
+      "emoji with duplicate case-insensitive tags",
+    ).toBeUndefined();
   });
 
   it("reuses decoded data for concurrent loads, aliases, and fallbacks", async () => {

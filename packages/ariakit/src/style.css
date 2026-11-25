@@ -662,7 +662,7 @@
 }
 
 .bn-ariakit .bn-combobox .bn-combobox-error {
-  color: var(--bn-colors-highlights-red-background);
+  color: var(--bn-combobox-error-color);
 }
 
 .bn-ariakit .bn-comment-actions-wrapper {
@@ -700,5 +700,5 @@
 .bn-ariakit .bn-thread.selected .bn-resolved-text,
 .bn-ariakit .bn-thread.selected .bn-ak-author-info,
 .bn-ariakit .bn-thread.selected .bn-ak-expand-sections-prompt {
-  color: var(--bn-colors-selected-text);
+  color: var(--bn-thread-selected-color);
 }

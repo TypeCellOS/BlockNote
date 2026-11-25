@@ -11,7 +11,7 @@ BlockNote is a block-based rich text editor for the web. It's designed as a batt
 
 # Common Commands
 
-All commands below are listed under `package.json` in the project root. See `vite.config.ts` for relevant configuration settings.
+Workspace tasks are defined in the root `package.json` and `vite.config.ts`.
 
 - `vp install`: Installs dependencies.
 - `vp run dev`: Starts the dev server on port 5173.
@@ -20,10 +20,11 @@ All commands below are listed under `package.json` in the project root. See `vit
 - `vp run format`: Checks for formatting issues across the project and attempt resolve issues automatically. DO NOT USE `tsc`, or `pretter`, only format
 - `vp run build`: Builds the project.
 - `vp run preview`: Previews the build on port 3000.
-- `vp run test`: Runs unit tests. Append with `-u` to update snapshots. Append with a file name to target only that file.
-  - To run individual unit tests, use `vp run test <file>`. For example, `vp run test packages/core/src/extensions/Versioning/inMemoryVersioning.test.ts`.
-- `vp run e2e`: Runs end-to-end tests (always in Docker - NEVER run the browser suite natively; it seeds bogus per-platform snapshots). Append with a file name to target only that file.
-- `vp run e2e:updateSnaps`: Runs end-to-end tests & updates snapshots. Append with a file name to target only that file.
+- `vp run test`: Runs the workspace unit-test tasks.
+  - To run an individual unit test file, run `vp test --run <file>` from its package, using a package-relative path. For example, `cd packages/core && vp test --run src/editor/inputRules.test.ts`. Append `-u` to update Node snapshots.
+- `vp run e2e`: Runs the full browser matrix in Docker. For a targeted Docker run, use `bash tests/docker-run.sh -e CI=1 -- --run <file> --retry=0`. Never run the full browser suite or update browser snapshots natively.
+- `vp run e2e:local <file>`: Runs an allowlisted, snapshot-read-only subset in local Chromium for fast feedback. See the testing skill for which tests belong here.
+- `vp run e2e:updateSnaps`: Runs end-to-end tests and updates snapshots in Docker. For a targeted update, use `bash tests/docker-run.sh -e CI=1 -- --run <file> --update=true`.
 - `vp help`: Prints a list of all available commands.
 
 ONLY USE `vp` or `pnpm`, never `npm` or `yarn`. `vpx` can do what `pnpx` does

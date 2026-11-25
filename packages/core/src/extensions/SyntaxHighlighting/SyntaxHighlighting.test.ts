@@ -1,53 +1,40 @@
-import { describe, expect, it } from "vite-plus/test";
+import { describe, expect, vi } from "vite-plus/test";
 import {
   collectHighlightNodeTypes,
   SyntaxHighlightingExtension,
 } from "./SyntaxHighlighting.js";
 
-/**
- * @vitest-environment jsdom
- */
-
 describe("SyntaxHighlightingExtension", () => {
-  // The extension only reads `editor.schema.blockSpecs` and
-  // `inlineContentSpecs`, so a minimal stub is enough. A spec in a schema
-  // always carries its resolved `meta`.
-  const fakeEditor = () =>
-    ({
-      schema: {
-        blockSpecs: {
-          paragraph: {
-            config: { type: "paragraph", content: "inline" },
-            implementation: { meta: {} },
-          },
-          codeBlock: {
-            config: { type: "codeBlock", content: "plain" },
-            implementation: { meta: {} },
-          },
-          image: {
-            config: { type: "image", content: "none" },
-            implementation: { meta: {} },
-          },
-        },
-        inlineContentSpecs: {},
-      },
-    }) as any;
-
-  const pluginsFor = (options: any) =>
-    SyntaxHighlightingExtension(options)({ editor: fakeEditor() })
-      .prosemirrorPlugins;
-
   // Whether highlighting is enabled at all is decided by the user (they choose
   // to add this extension to the editor's `extensions`), so the extension
   // itself always installs the plugin once created.
-  it("installs a highlight plugin when a highlighter is configured", () => {
-    const plugins = pluginsFor({ createHighlighter: async () => ({}) as any });
+  it("installs a highlight plugin when a highlighter is configured", async ({
+    setupEditor,
+  }) => {
+    const createHighlighter = vi.fn(async () => {
+      throw new Error(
+        "Installing the plugin should not invoke the highlighter",
+      );
+    });
+    const extension = SyntaxHighlightingExtension({ createHighlighter });
+    const { editor } = await setupEditor({ extensions: [extension] });
 
-    expect(plugins).toHaveLength(1);
+    expect(
+      editor.getExtension(SyntaxHighlightingExtension)?.prosemirrorPlugins,
+    ).toHaveLength(1);
+    expect(createHighlighter).not.toHaveBeenCalled();
   });
 
-  it("installs the plugin even without a highlighter (it no-ops at parse time)", () => {
-    expect(pluginsFor({})).toHaveLength(1);
+  it("installs the plugin even without a highlighter (it no-ops at parse time)", async ({
+    setupEditor,
+  }) => {
+    // @ts-expect-error Unconfigured JavaScript consumers may omit the highlighter.
+    const extension = SyntaxHighlightingExtension({});
+    const { editor } = await setupEditor({ extensions: [extension] });
+
+    expect(
+      editor.getExtension(SyntaxHighlightingExtension)?.prosemirrorPlugins,
+    ).toHaveLength(1);
   });
 });
 

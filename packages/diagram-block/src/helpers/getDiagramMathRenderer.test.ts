@@ -1,27 +1,15 @@
-import { BlockNoteEditor, createExtension } from "@blocknote/core";
-import { afterEach, expect, test, vi } from "vite-plus/test";
+import { createExtension } from "@blocknote/core";
+import { expect, test, vi } from "vite-plus/test";
 
 import { getDiagramMathRenderer } from "./getDiagramMathRenderer.js";
 import { renderDiagram } from "./renderDiagram.js";
-import type { MathRenderer } from "./MathRenderer.js";
+import type { MathRenderer } from "./DiagramMathRenderer.js";
 
-const editors: BlockNoteEditor[] = [];
-afterEach(() => {
-  for (const editor of editors.splice(0)) {
-    editor._tiptapEditor.destroy();
-  }
-});
-
-function editorWith(renderer?: MathRenderer) {
-  const editor = BlockNoteEditor.create({
-    extensions: renderer ? [createExtension(renderer)] : [],
-  });
-  editors.push(editor);
-  return editor;
-}
-
-test("without a math extension, diagram labels retain TeX", async () => {
-  const math = getDiagramMathRenderer(editorWith());
+it("without a math extension, diagram labels retain TeX", async ({
+  setupEditor,
+}) => {
+  const { editor } = await setupEditor();
+  const math = getDiagramMathRenderer(editor);
   expect(math).toBeUndefined();
   const result = await renderDiagram('graph LR\n A["$$x^2$$"]', { math });
   if (result.error !== undefined) {
@@ -30,14 +18,17 @@ test("without a math extension, diagram labels retain TeX", async () => {
   expect(result.svg).toContain("x^2");
 });
 
-test("headless rendering keeps TeX instead of returning browser-only markup", async () => {
+it("headless rendering keeps TeX instead of returning browser-only markup", async ({
+  setupEditor,
+}) => {
   const render = vi.fn<MathRenderer["render"]>(() => ({
     htmlString: '<span class="katex">formula</span>',
     error: undefined,
   }));
-  const math = getDiagramMathRenderer(
-    editorWith({ key: "math-render", render }),
-  );
+  const { editor } = await setupEditor({
+    extensions: [createExtension({ key: "math-render", render })],
+  });
+  const math = getDiagramMathRenderer(editor);
   const result = await renderDiagram('graph LR\n A["$$x^2$$"]', { math });
   if (result.error !== undefined) {
     throw new Error(result.error);
@@ -45,17 +36,21 @@ test("headless rendering keeps TeX instead of returning browser-only markup", as
   expect(render).toHaveBeenCalledWith("x^2", false);
   expect(result.svg).toContain("x^2");
   expect(result.svg).not.toContain("<foreignObject");
-  expect(getDiagramMathRenderer(editorWith())).toBeUndefined();
+  const { editor: editorWithoutMath } = await setupEditor();
+  expect(getDiagramMathRenderer(editorWithoutMath)).toBeUndefined();
 });
 
-test("invalid math falls back to TeX, but unexpected failures propagate", () => {
+it("invalid math falls back to TeX, but unexpected failures propagate", async ({
+  setupEditor,
+}) => {
   const render = vi.fn<MathRenderer["render"]>(() => ({
     htmlString: "invalid",
     error: "Invalid formula",
   }));
-  const math = getDiagramMathRenderer(
-    editorWith({ key: "math-render", render }),
-  );
+  const { editor } = await setupEditor({
+    extensions: [createExtension({ key: "math-render", render })],
+  });
+  const math = getDiagramMathRenderer(editor);
   expect(math?.("\\frac{", { fontSize: 18 })).toBeNull();
   const failure = new Error("Infrastructure failure");
   render.mockImplementation(() => {

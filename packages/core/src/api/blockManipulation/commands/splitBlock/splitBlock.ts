@@ -63,6 +63,15 @@ export const splitBlockTr = (
     },
   ];
 
+  // Split editable inline ancestors too. Omitted type overrides let ProseMirror
+  // copy them, preserving their attributes and marks on both sides.
+  const $pos = tr.doc.resolve(posInBlock);
+  // Measure from the block's content node, not the document root: nesting blocks
+  // adds unrelated depth. Only inline ancestors below it extend the usual
+  // two-level split (blockContainer + block content).
+  const contentDepth = tr.doc.resolve(info.contentStart).depth;
+  const splitDepth = 2 + $pos.depth - contentDepth;
+
   // The children follow the text after the caret into the second block, as
   // `tr.split` leaves them. With `keepChildren` they move back to the first
   // half, within the same undo step. At the start, the whole content goes to
@@ -74,7 +83,7 @@ export const splitBlockTr = (
   if (children) {
     tr.delete(children.beforePos, children.afterPos);
   }
-  tr.split(posInBlock, 2, types);
+  tr.split(posInBlock, splitDepth, types);
   if (children) {
     const original = tr.doc.nodeAt(info.block.beforePos);
     if (!original?.firstChild) {

@@ -17,14 +17,20 @@
 # editing package source never invalidates a cached layer; only a dependency
 # change (a package.json / the lockfile) forces a rebuild.
 #
-#   Build:  pnpm e2e:image           (rebuild only after dependency changes)
-#   Run:    pnpm e2e / e2e:ui / e2e:updateSnaps   (bind-mount live source)
-FROM mcr.microsoft.com/playwright:v1.60.0-noble
+#   Build:  vp run e2e:image           (rebuild only after dependency changes)
+#   Run:    vp run e2e / vp run e2e:updateSnaps   (bind-mount live source)
+FROM mcr.microsoft.com/playwright:v1.65.1-noble
 
 WORKDIR /work
 
-# pnpm matching the repo's packageManager.
-RUN corepack enable && corepack prepare pnpm@11.8.0 --activate
+# Node 26 no longer bundles Corepack. Install the pinned workspace pnpm.
+ADD --checksum=sha256:1e963a5c4ca5168550ba03fc4ee8d873a772b072b7fce63b48fff27d720e2e98 \
+    https://registry.npmjs.org/pnpm/-/pnpm-11.8.0.tgz /tmp/pnpm.tgz
+RUN mkdir -p /usr/local/lib/pnpm \
+    && tar -xzf /tmp/pnpm.tgz --strip-components=1 -C /usr/local/lib/pnpm \
+    && chmod +x /usr/local/lib/pnpm/bin/pnpm.cjs \
+    && ln -s /usr/local/lib/pnpm/bin/pnpm.cjs /usr/local/bin/pnpm \
+    && rm /tmp/pnpm.tgz
 
 # Copy ONLY the dependency manifests — every workspace member's package.json plus
 # the lockfile/workspace file — preserving their paths with --parents. These are

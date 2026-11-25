@@ -73,55 +73,55 @@
 }
 
 .text-default {
-  color: var(--bn-colors-editor-text);
+  color: var(--bn-text-color-primary);
 }
 
 .text-red {
-  color: var(--bn-colors-highlights-red-text);
+  color: var(--bn-text-color-red);
 }
 
 .text-orange {
-  color: var(--bn-colors-highlights-orange-text);
+  color: var(--bn-text-color-orange);
 }
 
 .text-yellow {
-  color: var(--bn-colors-highlights-yellow-text);
+  color: var(--bn-text-color-yellow);
 }
 
 .text-green {
-  color: var(--bn-colors-highlights-green-text);
+  color: var(--bn-text-color-green);
 }
 
 .text-blue {
-  color: var(--bn-colors-highlights-blue-text);
+  color: var(--bn-text-color-blue);
 }
 
 .text-purple {
-  color: var(--bn-colors-highlights-purple-text);
+  color: var(--bn-text-color-purple);
 }
 
 .background-red {
-  background-color: var(--bn-colors-highlights-red-background);
+  background-color: var(--bn-background-color-red);
 }
 
 .background-orange {
-  background-color: var(--bn-colors-highlights-orange-background);
+  background-color: var(--bn-background-color-orange);
 }
 
 .background-yellow {
-  background-color: var(--bn-colors-highlights-yellow-background);
+  background-color: var(--bn-background-color-yellow);
 }
 
 .background-green {
-  background-color: var(--bn-colors-highlights-green-background);
+  background-color: var(--bn-background-color-green);
 }
 
 .background-blue {
-  background-color: var(--bn-colors-highlights-blue-background);
+  background-color: var(--bn-background-color-blue);
 }
 
 .background-purple {
-  background-color: var(--bn-colors-highlights-purple-background);
+  background-color: var(--bn-background-color-purple);
 }
 
 /* Positions the formatting toolbar above the editor. */

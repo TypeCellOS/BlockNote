@@ -1,16 +1,12 @@
-import { BlockNoteView } from "@blocknote/mantine";
-import "@blocknote/mantine/style.css";
-import { useCreateBlockNote } from "@blocknote/react";
-import App from "@examples/01-basic/testing/src/App";
-import { beforeEach, describe, expect, test } from "vite-plus/test";
-import { render } from "vitest-browser-react";
+import type { PartialBlock } from "@blocknote/core";
+import "@blocknote/core/fonts/inter.css";
+import { describe, expect } from "vite-plus/test";
 import { MOD, page, userEvent } from "../../utils/context.js";
 import {
   BULLET_LIST_SELECTOR,
   DRAG_HANDLE_ADD_SELECTOR,
   DRAG_HANDLE_MENU_SELECTOR,
   DRAG_HANDLE_SELECTOR,
-  EDITOR_SELECTOR,
   H_ONE_BLOCK_SELECTOR,
   H_THREE_BLOCK_SELECTOR,
   H_TWO_BLOCK_SELECTOR,
@@ -18,43 +14,41 @@ import {
   SLASH_MENU_SELECTOR,
   TEXT_COLOR_SELECTOR,
 } from "../../utils/const.js";
-import { insertHeading } from "../../utils/copypaste.js";
 import {
   getDragHandleYCoord,
   hoverAndAddBlockFromDragHandle,
 } from "../../utils/draghandle.js";
 import {
-  compareDocToSnapshot,
-  focusOnEditor,
   expectElement,
-  sleep,
   waitForSelector,
   waitForSelectorDetached,
 } from "../../utils/editor.js";
-import { clickAt, getRect, moveMouseOverElement } from "../../utils/mouse.js";
-import { executeSlashCommand } from "../../utils/slashmenu.js";
+import { moveMouseOverElement } from "../../utils/mouse.js";
+
+function heading(
+  level: 1 | 2 | 3,
+  content = `Heading ${level}`,
+  children?: PartialBlock[],
+): PartialBlock {
+  return { type: "heading", props: { level }, content, children };
+}
+
+const hoverHeading = heading(1, "Hover over this text");
 
 describe("Check Draghandle functionality", () => {
-  beforeEach(async () => {
-    await render(<App />);
-    await waitForSelector(EDITOR_SELECTOR);
-    await focusOnEditor();
-  });
-
-  test("Should show draghandle when hovering over block", async () => {
-    await executeSlashCommand("h1");
-    await userEvent.keyboard("Hover over this text");
+  it("Should show draghandle when hovering over block", async ({
+    setupEditor,
+  }) => {
+    await setupEditor({ initialContent: [hoverHeading] });
     await moveMouseOverElement(H_ONE_BLOCK_SELECTOR);
 
     await waitForSelector(DRAG_HANDLE_SELECTOR);
   });
 
-  test("Draghandle should display next to correct block", async () => {
-    await insertHeading(1);
-    await userEvent.keyboard("{Enter}");
-    await insertHeading(2);
-    await userEvent.keyboard("{Enter}");
-    await insertHeading(3);
+  it("Draghandle should display next to correct block", async ({
+    setupEditor,
+  }) => {
+    await setupEditor({ initialContent: [heading(1), heading(2), heading(3)] });
 
     const h1y = await getDragHandleYCoord(H_ONE_BLOCK_SELECTOR);
     const h2y = await getDragHandleYCoord(H_TWO_BLOCK_SELECTOR);
@@ -64,14 +58,14 @@ describe("Check Draghandle functionality", () => {
     expect(h2y < h3y).toBeTruthy();
   });
 
-  test("Draghandle should display next to correct nested block", async () => {
-    await insertHeading(1);
-    await userEvent.keyboard("{Enter}");
-    await userEvent.keyboard("{Tab}");
-    await insertHeading(2);
-    await userEvent.keyboard("{Enter}");
-    await userEvent.keyboard("{Tab}");
-    await insertHeading(3);
+  it("Draghandle should display next to correct nested block", async ({
+    setupEditor,
+  }) => {
+    await setupEditor({
+      initialContent: [
+        heading(1, undefined, [heading(2, undefined, [heading(3)])]),
+      ],
+    });
 
     const h1y = await getDragHandleYCoord(H_ONE_BLOCK_SELECTOR);
     const h2y = await getDragHandleYCoord(H_TWO_BLOCK_SELECTOR);
@@ -81,61 +75,93 @@ describe("Check Draghandle functionality", () => {
     expect(h2y < h3y).toBeTruthy();
   });
 
-  test("Clicking draghandle should open menu", async () => {
-    await executeSlashCommand("h1");
-    await userEvent.keyboard("Hover over this text");
+  it("Clicking draghandle should open menu", async ({ setupEditor }) => {
+    const { editor } = await setupEditor({ initialContent: [hoverHeading] });
+    editor.setTextCursorPosition(editor.document[0], "end");
+    editor.focus();
     await moveMouseOverElement(H_ONE_BLOCK_SELECTOR);
     await userEvent.click(await waitForSelector(DRAG_HANDLE_SELECTOR));
-    await waitForSelector(DRAG_HANDLE_MENU_SELECTOR);
-    // Compare editor screenshot
-
-    await sleep(1000);
+    const menu = await waitForSelector(DRAG_HANDLE_MENU_SELECTOR);
+    await expectElement(menu).toBeVisible();
+    await expect.poll(() => getComputedStyle(menu).opacity).toBe("1");
     await expectElement(document.body).toMatchScreenshot("draghandlemenu");
   });
 
-  test("Clicking add button should create new block", async () => {
-    await executeSlashCommand("h1");
-    await userEvent.keyboard("Hover over this text");
-    await hoverAndAddBlockFromDragHandle(H_ONE_BLOCK_SELECTOR, "h2");
-    await userEvent.keyboard("This is an h2");
+  it("Clicking add button should create new block", async ({ setupEditor }) => {
+    const { editor } = await setupEditor({ initialContent: [hoverHeading] });
+    const [original] = editor.document;
+    await hoverAndAddBlockFromDragHandle(H_ONE_BLOCK_SELECTOR, 2);
     await waitForSelector(H_TWO_BLOCK_SELECTOR);
+    await waitForSelectorDetached(DRAG_HANDLE_SELECTOR);
+    await waitForSelectorDetached(DRAG_HANDLE_ADD_SELECTOR);
+    await userEvent.keyboard("This is an h2");
 
-    await sleep(1000);
-    await compareDocToSnapshot("draghandleadd");
+    expect(editor.document).toMatchObject([
+      original,
+      {
+        type: "heading",
+        props: { level: 2 },
+        content: [{ type: "text", text: "This is an h2", styles: {} }],
+        children: [],
+      },
+    ]);
+    expect(editor.document[1].id).not.toBe(original.id);
   });
 
-  test("Clicking add button should open menu", async () => {
-    await executeSlashCommand("h1");
-    await userEvent.keyboard("Hover over this text");
+  it("Clicking add button should open menu", async ({ setupEditor }) => {
+    await setupEditor({ initialContent: [hoverHeading] });
     await moveMouseOverElement(H_ONE_BLOCK_SELECTOR);
     await userEvent.click(await waitForSelector(DRAG_HANDLE_ADD_SELECTOR));
 
     await waitForSelector(SLASH_MENU_SELECTOR);
   });
 
-  test("Click add button hides drag handle", async () => {
-    await executeSlashCommand("h1");
-    await userEvent.keyboard("Hover over this text");
-    await hoverAndAddBlockFromDragHandle(H_ONE_BLOCK_SELECTOR, "h2");
+  it("Typing in the add-block menu hides the drag handle", async ({
+    setupEditor,
+  }) => {
+    await setupEditor({ initialContent: [hoverHeading] });
+    await moveMouseOverElement(H_ONE_BLOCK_SELECTOR);
+    await userEvent.click(await waitForSelector(DRAG_HANDLE_ADD_SELECTOR));
+    await waitForSelector(SLASH_MENU_SELECTOR);
+    await expectElement(
+      await waitForSelector(DRAG_HANDLE_SELECTOR),
+    ).toBeVisible();
+
+    // Keydown should hide the side menu before the command is submitted.
+    await userEvent.keyboard("h2");
     await waitForSelectorDetached(DRAG_HANDLE_SELECTOR);
-
     await waitForSelectorDetached(DRAG_HANDLE_ADD_SELECTOR);
+    await expectElement(
+      await waitForSelector(SLASH_MENU_SELECTOR),
+    ).toBeVisible();
   });
 
-  test("Click add button for non-selected empty block", async () => {
-    await executeSlashCommand("h1");
-    await userEvent.keyboard("Heading 1");
-    // Wait for animation to finish
-    await sleep(350);
-    await userEvent.keyboard("{Enter}");
-    await hoverAndAddBlockFromDragHandle(PARAGRAPH_SELECTOR, "h1");
+  it("Click add button for non-selected empty block", async ({
+    setupEditor,
+  }) => {
+    const { editor } = await setupEditor({
+      initialContent: [heading(1), { type: "paragraph" }],
+    });
+    const [original, empty] = editor.document;
+    editor.focus();
+    expect(editor.getTextCursorPosition().block.id).toBe(editor.document[0].id);
+    await hoverAndAddBlockFromDragHandle(PARAGRAPH_SELECTOR, 1);
 
-    await compareDocToSnapshot("addnonselectedemptyblock");
+    expect(editor.document).toMatchObject([
+      original,
+      {
+        id: empty.id,
+        type: "heading",
+        props: { level: 1 },
+        content: [],
+        children: [],
+      },
+    ]);
   });
 
-  test("Clicking delete button should delete block", async () => {
-    await executeSlashCommand("h1");
-    await userEvent.keyboard("Hover over this text");
+  it("Clicking delete button should delete block", async ({ setupEditor }) => {
+    const { editor } = await setupEditor({ initialContent: [hoverHeading] });
+    const [deleted] = editor.document;
 
     await moveMouseOverElement(H_ONE_BLOCK_SELECTOR);
     await userEvent.click(await waitForSelector(DRAG_HANDLE_SELECTOR));
@@ -143,16 +169,21 @@ describe("Check Draghandle functionality", () => {
     await page.getByText("Delete").click();
     await waitForSelectorDetached(H_ONE_BLOCK_SELECTOR);
 
-    await compareDocToSnapshot("draghandledelete");
+    expect(editor.document).toMatchObject([
+      { type: "paragraph", content: [], children: [] },
+    ]);
+    expect(editor.getBlock(deleted.id)).toBeUndefined();
   });
 
-  test("Delete button should delete correct block", async () => {
-    await executeSlashCommand("h1");
-    await userEvent.keyboard("This is h1");
-    await executeSlashCommand("h2");
-    await userEvent.keyboard("This is h2");
-    await executeSlashCommand("h3");
-    await userEvent.keyboard("This is h3");
+  it("Delete button should delete correct block", async ({ setupEditor }) => {
+    const { editor } = await setupEditor({
+      initialContent: [
+        heading(1, "This is h1"),
+        heading(2, "This is h2"),
+        heading(3, "This is h3"),
+      ],
+    });
+    const [h1, , h3] = editor.document;
 
     await moveMouseOverElement(H_TWO_BLOCK_SELECTOR);
     await userEvent.click(await waitForSelector(DRAG_HANDLE_SELECTOR));
@@ -161,25 +192,25 @@ describe("Check Draghandle functionality", () => {
     await waitForSelectorDetached(H_TWO_BLOCK_SELECTOR);
     await waitForSelector(H_THREE_BLOCK_SELECTOR);
 
-    await compareDocToSnapshot("dragHandleDocStructure");
+    expect(editor.document).toEqual([h1, h3]);
   });
 
-  test("Delete button should delete all blocks in multi-block selection when hovered block is in selection", async () => {
-    await executeSlashCommand("h1");
-    await userEvent.keyboard("Heading 1");
-    await userEvent.keyboard("{Enter}");
-    await executeSlashCommand("h2");
-    await userEvent.keyboard("Heading 2");
-    await userEvent.keyboard("{Enter}");
-    await executeSlashCommand("h3");
-    await userEvent.keyboard("Heading 3");
-    await userEvent.keyboard("{Enter}");
-    await executeSlashCommand("bullet");
-    await userEvent.keyboard("Bullet List");
+  const multiSelectionDocument: PartialBlock[] = [
+    heading(1),
+    heading(2),
+    heading(3),
+    { type: "bulletListItem", content: "Bullet List" },
+  ];
 
-    await userEvent.keyboard(
-      `{Shift>}{ArrowUp}{${MOD}>}{ArrowLeft}{/${MOD}}{/Shift}`,
-    );
+  it("Delete button should delete all blocks in multi-block selection when hovered block is in selection", async ({
+    setupEditor,
+  }) => {
+    const { editor } = await setupEditor({
+      initialContent: multiSelectionDocument,
+    });
+    const before = editor.document;
+    editor.focus();
+    editor.setSelection(editor.document[2], editor.document[3]);
 
     await moveMouseOverElement(H_THREE_BLOCK_SELECTOR);
     await userEvent.click(await waitForSelector(DRAG_HANDLE_SELECTOR));
@@ -189,25 +220,18 @@ describe("Check Draghandle functionality", () => {
     await waitForSelectorDetached(H_THREE_BLOCK_SELECTOR);
     await waitForSelectorDetached(BULLET_LIST_SELECTOR);
 
-    await compareDocToSnapshot("draghandledeletemultiselection");
+    expect(editor.document).toEqual(before.slice(0, 2));
   });
 
-  test("Delete button should delete only hovered block when it is outside multi-block selection", async () => {
-    await executeSlashCommand("h1");
-    await userEvent.keyboard("Heading 1");
-    await userEvent.keyboard("{Enter}");
-    await executeSlashCommand("h2");
-    await userEvent.keyboard("Heading 2");
-    await userEvent.keyboard("{Enter}");
-    await executeSlashCommand("h3");
-    await userEvent.keyboard("Heading 3");
-    await userEvent.keyboard("{Enter}");
-    await executeSlashCommand("bullet");
-    await userEvent.keyboard("Bullet List");
-
-    await userEvent.keyboard(
-      `{Shift>}{ArrowUp}{${MOD}>}{ArrowLeft}{/${MOD}}{/Shift}`,
-    );
+  it("Delete button should delete only hovered block when it is outside multi-block selection", async ({
+    setupEditor,
+  }) => {
+    const { editor } = await setupEditor({
+      initialContent: multiSelectionDocument,
+    });
+    const before = editor.document;
+    editor.focus();
+    editor.setSelection(editor.document[2], editor.document[3]);
 
     await moveMouseOverElement(H_ONE_BLOCK_SELECTOR);
     await userEvent.click(await waitForSelector(DRAG_HANDLE_SELECTOR));
@@ -217,20 +241,20 @@ describe("Check Draghandle functionality", () => {
     await waitForSelector(H_THREE_BLOCK_SELECTOR);
     await waitForSelector(BULLET_LIST_SELECTOR);
 
-    await compareDocToSnapshot("draghandledeletehoveroutsideselection");
+    expect(editor.document).toEqual(before.slice(1));
   });
 
-  test("Deleting block with children should delete all children", async () => {
-    await executeSlashCommand("h1");
-    await userEvent.keyboard("This is h1");
-    await userEvent.keyboard("{Enter}");
-    await userEvent.keyboard("{Tab}");
-    await executeSlashCommand("h2");
-    await userEvent.keyboard("This is h2");
-    await userEvent.keyboard("{Enter}");
-    await userEvent.keyboard("{Tab}");
-    await executeSlashCommand("h3");
-    await userEvent.keyboard("This is h3");
+  it("Deleting block with children should delete all children", async ({
+    setupEditor,
+  }) => {
+    const { editor } = await setupEditor({
+      initialContent: [
+        heading(1, "This is h1", [
+          heading(2, "This is h2", [heading(3, "This is h3")]),
+        ]),
+      ],
+    });
+    const [parent] = editor.document;
 
     await moveMouseOverElement(H_TWO_BLOCK_SELECTOR);
     await userEvent.click(await waitForSelector(DRAG_HANDLE_SELECTOR));
@@ -239,20 +263,30 @@ describe("Check Draghandle functionality", () => {
     await waitForSelectorDetached(H_TWO_BLOCK_SELECTOR);
     await waitForSelectorDetached(H_THREE_BLOCK_SELECTOR);
 
-    await compareDocToSnapshot("draghandlenesteddelete");
+    expect(editor.document).toEqual([{ ...parent, children: [] }]);
   });
 
   // #3186: the selection survives a blur, so focus coming back into the
   // editor's UI (the drag handle) must not show the toolbar over the menu.
-  test("Clicking the drag handle while the editor is blurred keeps the formatting toolbar hidden", async () => {
-    await userEvent.keyboard("First paragraph");
-    await userEvent.keyboard("{Enter}");
-    await userEvent.keyboard("Second paragraph");
+  it("Clicking the drag handle while the editor is blurred keeps the formatting toolbar hidden", async ({
+    setupEditor,
+    selectText,
+  }) => {
+    const { editor } = await setupEditor({
+      initialContent: [
+        { type: "paragraph", content: "First paragraph" },
+        { type: "paragraph", content: "Second paragraph" },
+      ],
+    });
 
-    // Select a word: the formatting toolbar shows.
-    const word = getRect(page.getByText("First paragraph").element());
-    await clickAt(word.x + 10, word.y + word.height / 2, 2);
-    await waitForSelector(".bn-formatting-toolbar");
+    // Seed the selection directly: the interaction under test starts at blur.
+    editor.focus();
+    await window.__blockNoteWaitForEditorFocus();
+    selectText(editor, "First");
+    await expect.poll(() => document.getSelection()?.toString()).toBe("First");
+    await expectElement(
+      await waitForSelector(".bn-formatting-toolbar"),
+    ).toBeVisible();
 
     // Focus something outside the editor: the toolbar hides.
     const outside = document.createElement("button");
@@ -261,12 +295,15 @@ describe("Check Draghandle functionality", () => {
     try {
       await userEvent.click(outside);
       await waitForSelectorDetached(".bn-formatting-toolbar");
+      expect(editor.isFocused()).toBe(false);
+      expect(editor.getSelectedText()).toBe("First");
 
       const second = page.getByText("Second paragraph").element();
       await moveMouseOverElement(second);
       await userEvent.click(await waitForSelector(DRAG_HANDLE_SELECTOR));
-      await waitForSelector(DRAG_HANDLE_MENU_SELECTOR);
-      await sleep(100);
+      await expectElement(
+        await waitForSelector(DRAG_HANDLE_MENU_SELECTOR),
+      ).toBeVisible();
       expect(document.querySelector(".bn-formatting-toolbar")).toBeNull();
     } finally {
       outside.remove();
@@ -279,14 +316,12 @@ describe("Focus after the drag handle menu", () => {
   // works on it right away, e.g. to undo the change (#3165). Nothing is typed
   // first: the browser would otherwise undo through its own undo stack, even
   // without focus.
-  test("undoes a block color set in the drag handle menu with the keyboard", async () => {
-    function Editor() {
-      const editor = useCreateBlockNote({
-        initialContent: [{ type: "paragraph", content: "Paragraph" }],
-      });
-      return <BlockNoteView editor={editor} />;
-    }
-    await render(<Editor />);
+  it("undoes a block color set in the drag handle menu with the keyboard", async ({
+    setupEditor,
+  }) => {
+    await setupEditor({
+      initialContent: [{ type: "paragraph", content: "Paragraph" }],
+    });
     // The block is drawn again when its color changes.
     const textColor = () =>
       document
@@ -298,12 +333,8 @@ describe("Focus after the drag handle menu", () => {
     await userEvent.click(await waitForSelector(DRAG_HANDLE_SELECTOR));
     await waitForSelector(DRAG_HANDLE_MENU_SELECTOR);
     await moveMouseOverElement(page.getByText("Colors").element());
-    // WebKit needs the submenu's open animation to settle before its
-    // children have non-zero bounding boxes.
-    await waitForSelector(TEXT_COLOR_SELECTOR("red"));
-    await sleep(200);
-    const { x, y } = getRect(TEXT_COLOR_SELECTOR("red"));
-    await clickAt(x + 10, y + 10);
+    // Locator actionability waits for the submenu control to be hit-testable.
+    await userEvent.click(await waitForSelector(TEXT_COLOR_SELECTOR("red")));
     await waitForSelectorDetached(DRAG_HANDLE_MENU_SELECTOR);
     expect(textColor()).toBe("red");
 

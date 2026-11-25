@@ -1,16 +1,11 @@
-import App from "@examples/01-basic/testing/src/App";
-import { beforeEach, describe, expect, test, vi } from "vite-plus/test";
-import { render } from "vitest-browser-react";
+import type { BlockNoteEditor, PartialBlock } from "@blocknote/core";
+import "@blocknote/core/fonts/inter.css";
+import { describe, expect, vi } from "vite-plus/test";
 import { browserName, userEvent } from "../../utils/context.js";
-import { EDITOR_SELECTOR, TABLE_SELECTOR } from "../../utils/const.js";
-import {
-  compareDocToSnapshot,
-  focusOnEditor,
-  waitForSelector,
-} from "../../utils/editor.js";
+import { TABLE_SELECTOR } from "../../utils/const.js";
+import { focusOnEditor, waitForSelector } from "../../utils/editor.js";
 import { mouseSequence, moveMouseOverElement } from "../../utils/mouse.js";
 import { executeSlashCommand } from "../../utils/slashmenu.js";
-import { insertParagraph } from "../../utils/copypaste.js";
 
 // Hovers `cell` to reveal the table handles, then returns the row or
 // column handle. The column handle is rendered with a
@@ -65,96 +60,103 @@ async function clickTableHandleMenuItem(
   await userEvent.click(item);
 }
 
-beforeEach(async () => {
-  await render(<App />);
-  await waitForSelector(EDITOR_SELECTOR);
-});
+function expectTable(editor: BlockNoteEditor, rows: string[][]) {
+  expect(editor.document).toMatchObject([
+    {
+      type: "table",
+      children: [],
+      content: {
+        type: "tableContent",
+        columnWidths: rows[0].map(() => undefined),
+        headerRows: undefined,
+        headerCols: undefined,
+        rows: rows.map((row) => ({
+          cells: row.map((text) => ({
+            type: "tableCell",
+            props: { colspan: 1, rowspan: 1 },
+            content: text ? [{ type: "text", text, styles: {} }] : [],
+          })),
+        })),
+      },
+    },
+  ]);
+}
 
 describe("Check Table interactions", () => {
-  test("Should be able to type in cell", async () => {
+  it("Should be able to type in cell", async ({ setupEditor }) => {
+    const { editor } = await setupEditor();
     await focusOnEditor();
     await executeSlashCommand("table");
     await userEvent.keyboard("Table Cell");
 
-    await compareDocToSnapshot("cellTyping");
+    expectTable(editor, [
+      ["Table Cell", "", ""],
+      ["", "", ""],
+    ]);
   });
-  test("Tab should cycle cells", async () => {
+  it("Tab should cycle cells", async ({ setupEditor }) => {
+    const { editor } = await setupEditor();
     await focusOnEditor();
     await executeSlashCommand("table");
     // Cycle to sixth (last) cell.
-    for (let i = 0; i < 5; i++) {
-      await userEvent.keyboard("{Tab}");
-    }
-    await userEvent.keyboard("Table Cell");
+    await userEvent.keyboard("{Tab}".repeat(5) + "Table Cell");
     // Cycle back to first cell.
-    for (let i = 0; i < 5; i++) {
-      await userEvent.keyboard("{Shift>}{Tab}{/Shift}");
-    }
-    await userEvent.keyboard("Table Cell");
+    await userEvent.keyboard("{Shift>}{Tab}{/Shift}".repeat(5) + "Table Cell");
 
-    await compareDocToSnapshot("tabCells");
+    expectTable(editor, [
+      ["Table Cell", "", ""],
+      ["", "", "Table Cell"],
+    ]);
   });
-  test("Tab in last cell should be a no-op", async () => {
-    await focusOnEditor();
+  it.for([
+    { boundary: "last", text: "Last cell", keys: "{Tab}" },
+    { boundary: "first", text: "First cell", keys: "{Shift>}{Tab}{/Shift}" },
+  ] as const)(
+    "keeps the caret in the $boundary cell at the table boundary",
+    async ({ boundary, text, keys }, { setupEditor, selectText }) => {
+      const table = makeTable([["First cell", "Last cell"]]);
+      const paragraph = { id: "paragraph", content: "Sibling" };
+      const { editor, rootNode } = await setupEditor({
+        initialContent:
+          boundary === "last"
+            ? [paragraph, table]
+            : [{ ...paragraph, children: [table] }],
+      });
+      const before = editor.document;
+      const cell = rootNode.querySelectorAll(`${TABLE_SELECTOR} td`)[
+        boundary === "last" ? 1 : 0
+      ];
+      selectText(editor, text).collapseToStart();
+      editor.focus();
+      function caretInCell() {
+        const selection = document.getSelection();
+        return (
+          editor.isFocused() &&
+          selection?.isCollapsed === true &&
+          cell.contains(selection.anchorNode)
+        );
+      }
+      await expect.poll(caretInCell).toBe(true);
 
-    await insertParagraph();
-    await executeSlashCommand("table");
+      await userEvent.keyboard(keys);
 
-    for (let i = 0; i < 6; i++) {
-      await userEvent.keyboard("{Tab}");
-    }
-
-    // Only top level block group should exist.
-    expect(document.querySelectorAll(".bn-block-group").length).toBe(1);
-  });
-  test("Shift+Tab in first should be a no-op", async () => {
-    await focusOnEditor();
-
-    await insertParagraph();
-    await userEvent.keyboard("{Enter}");
-    await userEvent.keyboard("{Tab}");
-    await executeSlashCommand("table");
-
-    await userEvent.keyboard("{Shift>}{Tab}{/Shift}");
-
-    // Block group containing table should exist as well as top level group.
-    expect(document.querySelectorAll(".bn-block-group").length).toBe(2);
-  });
-  test("Arrow keys should move cells", async () => {
+      expect(caretInCell()).toBe(true);
+      expect(editor.document).toEqual(before);
+    },
+  );
+  it("Arrow keys should move cells", async ({ setupEditor }) => {
+    const { editor } = await setupEditor();
     await focusOnEditor();
     await executeSlashCommand("table");
     // Move down to second (last) cell in column and third (last) cell in row.
-    await userEvent.keyboard("{ArrowDown}");
-    for (let i = 0; i < 2; i++) {
-      await userEvent.keyboard("{ArrowRight}");
-    }
-    await userEvent.keyboard("Table Cell");
+    await userEvent.keyboard("{ArrowDown}{ArrowRight}{ArrowRight}Table Cell");
     // Cycle back to first cell.
-    await userEvent.keyboard("{ArrowUp}");
-    for (let i = 0; i < 2; i++) {
-      await userEvent.keyboard("{ArrowLeft}");
-    }
-    await userEvent.keyboard("Table Cell");
+    await userEvent.keyboard("{ArrowUp}{ArrowLeft}{ArrowLeft}Table Cell");
 
-    await compareDocToSnapshot("arrowKeyCells");
-  });
-  test("Enter should move to cell below", async () => {
-    await focusOnEditor();
-    await executeSlashCommand("table");
-    await userEvent.keyboard("Top");
-    await userEvent.keyboard("{Enter}");
-    await userEvent.keyboard("Bottom");
-
-    await compareDocToSnapshot("enterMovesToCellBelow");
-  });
-  test("Shift+Enter should create a new line within cell", async () => {
-    await focusOnEditor();
-    await executeSlashCommand("table");
-    await userEvent.keyboard("Line 1");
-    await userEvent.keyboard("{Shift>}{Enter}{/Shift}");
-    await userEvent.keyboard("Line 2");
-
-    await compareDocToSnapshot("shiftEnterNewLineInCell");
+    expectTable(editor, [
+      ["Table Cell", "", ""],
+      ["", "", "Table Cell"],
+    ]);
   });
   // Regression test for https://github.com/TypeCellOS/BlockNote/issues/2691.
   // Drops the dragged row to the LEFT of `.bn-block-group` (where the side
@@ -163,60 +165,20 @@ describe("Check Table interactions", () => {
   // TableHandles.dropHandler, the synthetic drop AND the original drop both
   // run the row-move logic, dragging an adjacent row along with the target.
   // Playwright doesn't correctly simulate drag events in Firefox.
-  test.skipIf(browserName === "firefox")(
+  it.skipIf(browserName === "firefox")(
     "Row drag should move only the dragged row",
-    async () => {
-      await focusOnEditor();
-      await executeSlashCommand("table");
-
-      // Replace the default table with a deterministic 5-row × 1-col table.
-      const cellAttrs = {
-        textColor: "default",
-        backgroundColor: "default",
-        textAlignment: "left",
-        colspan: 1,
-        rowspan: 1,
-        colwidth: null,
-      };
-      const rowsContent = ["R1", "R2", "R3", "R4", "R5"].map((label) => ({
-        type: "tableRow",
-        content: [
+    async ({ setupEditor, onTestFinished }) => {
+      // Seed a deterministic 5-row × 1-col table for the drag.
+      await setupEditor({
+        initialContent: [
           {
-            type: "tableCell",
-            attrs: cellAttrs,
-            content: [
-              {
-                type: "tableParagraph",
-                content: [{ type: "text", text: label }],
-              },
-            ],
-          },
-        ],
-      }));
-      (
-        window as unknown as {
-          ProseMirror: {
-            commands: { setContent: (doc: unknown) => void };
-          };
-        }
-      ).ProseMirror.commands.setContent({
-        type: "doc",
-        content: [
-          {
-            type: "blockGroup",
-            content: [
-              {
-                type: "blockContainer",
-                attrs: { id: "0" },
-                content: [
-                  {
-                    type: "table",
-                    attrs: { textColor: "default" },
-                    content: rowsContent,
-                  },
-                ],
-              },
-            ],
+            type: "table",
+            content: {
+              type: "tableContent",
+              rows: ["R1", "R2", "R3", "R4", "R5"].map((label) => ({
+                cells: [label],
+              })),
+            },
           },
         ],
       });
@@ -256,6 +218,8 @@ describe("Check Table interactions", () => {
       const dropX = blockGroup.x - 50;
       const dropY = lastRowBox.y + lastRowBox.height / 2;
 
+      const owner = crypto.randomUUID();
+      onTestFinished(() => mouseSequence([{ type: "cancel", owner }]));
       await mouseSequence([
         {
           type: "move",
@@ -263,9 +227,9 @@ describe("Check Table interactions", () => {
           y: handleBox.y + handleBox.height / 2,
           steps: 5,
         },
-        { type: "down" },
-        { type: "move", x: dropX, y: dropY, steps: 10 },
-        { type: "up" },
+        { type: "down", owner },
+        { type: "move", x: dropX, y: dropY, steps: 10, owner },
+        { type: "up", owner },
       ]);
 
       const order = Array.from(
@@ -279,26 +243,96 @@ describe("Check Table interactions", () => {
   // column to the right, then add a row below. Playwright doesn't
   // correctly simulate the hover/drag interactions for table handles
   // in Firefox.
-  test.skipIf(browserName === "firefox")(
+  it.skipIf(browserName === "firefox")(
     "Add column then add row via table handle menus",
-    async () => {
-      await focusOnEditor();
-      await executeSlashCommand("table");
-      await waitForSelector(TABLE_SELECTOR);
-
-      const firstCell = document.querySelector(
-        `${TABLE_SELECTOR} tbody tr td`,
-      ) as HTMLElement;
+    async ({ setupEditor }) => {
+      const { editor } = await setupEditor({
+        initialContent: [
+          makeTable([
+            ["A", "B"],
+            ["C", "D"],
+          ]),
+        ],
+      });
+      function firstCell() {
+        return waitForSelector(`${TABLE_SELECTOR} tbody tr td`);
+      }
 
       // Add a column to the right of the first column.
-      const columnHandle = await getTableHandle(firstCell, "column");
+      const columnHandle = await getTableHandle(await firstCell(), "column");
       await clickTableHandleMenuItem(columnHandle, "Add column right");
+      expectTable(editor, [
+        ["A", "", "B"],
+        ["C", "", "D"],
+      ]);
 
       // Add a row below the first row.
-      const rowHandle = await getTableHandle(firstCell, "row");
+      const rowHandle = await getTableHandle(await firstCell(), "row");
       await clickTableHandleMenuItem(rowHandle, "Add row below");
 
-      await compareDocToSnapshot("addColumnThenRow");
+      expectTable(editor, [
+        ["A", "", "B"],
+        ["", "", ""],
+        ["C", "", "D"],
+      ]);
     },
   );
+});
+
+function makeTable(rows: string[][]): PartialBlock {
+  return {
+    id: "table",
+    type: "table",
+    content: {
+      type: "tableContent",
+      rows: rows.map((cells) => ({ cells })),
+    },
+  };
+}
+
+it("Enter should move to cell below", async ({ setupEditor, selectText }) => {
+  const { editor } = await setupEditor({
+    initialContent: [
+      makeTable([
+        ["Top", "", ""],
+        ["", "", ""],
+      ]),
+    ],
+  });
+  selectText(editor, "Top").collapseToEnd();
+  editor.focus();
+
+  await userEvent.keyboard("{Enter}Bottom");
+
+  expectTable(editor, [
+    ["Top", "", ""],
+    ["Bottom", "", ""],
+  ]);
+});
+
+it("Shift+Enter should create a new line within cell", async ({
+  setupEditor,
+  selectText,
+}) => {
+  const { editor } = await setupEditor({
+    initialContent: [
+      makeTable([
+        ["Line 1", "", ""],
+        ["", "", ""],
+      ]),
+    ],
+  });
+  const cell = await waitForSelector(`${TABLE_SELECTOR} td`);
+  selectText(editor, "Line 1").collapseToEnd();
+  editor.focus();
+
+  await userEvent.keyboard("{Shift>}{Enter}{/Shift}Line 2");
+
+  expectTable(editor, [
+    ["Line 1\nLine 2", "", ""],
+    ["", "", ""],
+  ]);
+  // A line break and a second paragraph serialize to the same public text.
+  expect(cell.querySelector("p")?.innerText).toBe("Line 1\nLine 2");
+  expect(cell.querySelectorAll("p")).toHaveLength(1);
 });

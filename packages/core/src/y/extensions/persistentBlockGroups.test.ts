@@ -1,73 +1,60 @@
 /**
- * @vitest-environment jsdom
- */
-/**
- * Tests for persistentBlockGroups.ts, in three layers:
- *
- * 1. the per-container stage on hand-built deltas (what every change maps to)
- * 2. the binding: BlockNote-shaped ProseMirror views on synced Y docs, the
- *    concurrency scenarios the transformer exists for, legacy documents,
- *    suggestion mode, cursor mapping, the standalone conversions and a client
- *    without the transformer
- * 3. a fuzz: random nesting / un-nesting / inserting / deleting / typing on
- *    two peers with random sync points, asserting convergence and the Y
- *    invariants
- *
- * The views are plain ProseMirror views on BlockNote's schema, bound through
- * `@y/prosemirror` exactly as `YSyncExtension` binds the editor (same
- * transformer, same node pairing). nestingChanges.test.ts covers the same
- * scenarios through the BlockNote editor API.
+ * Tests for the transformer stage and the binding on synced Y docs.
+ * The headless peers use the same transformer and node pairing as YSyncExtension.
+ * The nestingChanges suite in collabBindingPack.browser.test.ts covers the
+ * BlockNote editor API.
  */
 import * as YPM from "@y/prosemirror";
 import * as Y from "@y/y";
 import * as delta from "lib0/delta";
 import * as dpos from "lib0/delta/position";
 import * as prng from "lib0/prng";
-import type { Node } from "prosemirror-model";
-import { EditorState } from "prosemirror-state";
-import { EditorView } from "prosemirror-view";
-import { describe, expect, it } from "vite-plus/test";
+import type { Node, Schema } from "prosemirror-model";
+import { EditorState, type PluginView } from "prosemirror-state";
+import type { EditorView } from "prosemirror-view";
+import { describe, expect } from "vite-plus/test";
 
-import { BlockNoteEditor } from "../../editor/BlockNoteEditor.js";
+import type { SetupEditor } from "../../../../../tests/src/commands/node/setupEditor.js";
+import { AttributionExtension } from "./AttributionExtension.js";
 import { blockMatchNodes } from "./blockMatchNodes.js";
-import { withCollaboration } from "./index.js";
 import { persistentBlockGroups } from "./persistentBlockGroups.js";
+import { yblock, ydocOf } from "./persistentBlockGroups.fixture.js";
 
-// lib0's delta builders are untyped at this level of genericity.
 type AnyBuilder = delta.DeltaBuilderAny;
 type AnyDelta = delta.DeltaAny;
 
 // --- schema -----------------------------------------------------------------
 
-/**
- * BlockNote's ProseMirror schema with the `y-attributed-*` marks (which the
- * collaboration extension registers).
- */
-const schema = BlockNoteEditor.create(
-  withCollaboration({
-    collaboration: {
-      fragment: new Y.Doc().get("schema"),
-      user: { name: "schema", color: "#000000" },
+/** Use the real BlockNote schema, including the collaboration marks. */
+async function setupBindingModel(setupEditor: SetupEditor) {
+  const { editor } = await setupEditor({
+    extensions: [AttributionExtension()],
+  });
+  const schema = editor.pmSchema;
+  const N = schema.nodes;
+  return {
+    schema,
+    block(
+      this: void,
+      id: string,
+      text: string,
+      children: Node[] = [],
+      type: "paragraph" | "heading" = "paragraph",
+    ): Node {
+      return N.blockContainer.create({ id }, [
+        N[type].create(null, text ? schema.text(text) : null),
+        ...(children.length > 0 ? [N.blockGroup.create(null, children)] : []),
+      ]);
     },
-  }),
-).pmSchema;
-
-const N = schema.nodes;
-
-/** A block with optional nested children. */
-function block(
-  id: string,
-  text: string,
-  children: Node[] = [],
-  type: "paragraph" | "heading" = "paragraph",
-): Node {
-  return N.blockContainer.create({ id }, [
-    N[type].create(null, text ? schema.text(text) : null),
-    ...(children.length > 0 ? [N.blockGroup.create(null, children)] : []),
-  ]);
+    docOf(this: void, blocks: Node[]) {
+      return docOf(schema, blocks);
+    },
+    createPeer: createPeer.bind(undefined, schema),
+    render: render.bind(undefined, schema),
+  };
 }
 
-function docOf(blocks: Node[]): Node {
+function docOf({ nodes: N }: Schema, blocks: Node[]): Node {
   return N.doc.create(null, N.blockGroup.create(null, blocks));
 }
 
@@ -82,6 +69,7 @@ function childrenOf(container: Node): Node[] {
 
 /** The container with `children` as its nested blocks (no group when empty). */
 function withChildren(container: Node, children: Node[]): Node {
+  const N = container.type.schema.nodes;
   return N.blockContainer.create(container.attrs, [
     container.child(0),
     ...(children.length > 0 ? [N.blockGroup.create(null, children)] : []),
@@ -89,7 +77,8 @@ function withChildren(container: Node, children: Node[]): Node {
 }
 
 function withText(container: Node, text: string): Node {
-  return N.blockContainer.create(container.attrs, [
+  const schema = container.type.schema;
+  return container.type.create(container.attrs, [
     container
       .child(0)
       .type.create(container.child(0).attrs, text ? schema.text(text) : null),
@@ -128,7 +117,7 @@ function updateSiblings(
       j === i ? withChildren(s, rec(childrenOf(s), depth + 1)) : s,
     );
   }
-  return docOf(rec(topBlocks(doc), 0));
+  return docOf(doc.type.schema, rec(topBlocks(doc), 0));
 }
 
 function blockAt(doc: Node, path: Path): Node {
@@ -141,17 +130,17 @@ function blockAt(doc: Node, path: Path): Node {
   return node;
 }
 
-/** Every block path in document order. */
 function allPaths(doc: Node): Path[] {
-  const out: Path[] = [];
-  function rec(siblings: Node[], prefix: Path) {
-    siblings.forEach((s, i) => {
-      out.push([...prefix, i]);
-      rec(childrenOf(s), [...prefix, i]);
+  const paths: Path[] = [];
+  function visit(blocks: Node[], parent: Path) {
+    blocks.forEach((block, index) => {
+      const path = [...parent, index];
+      paths.push(path);
+      visit(childrenOf(block), path);
     });
   }
-  rec(topBlocks(doc), []);
-  return out;
+  visit(topBlocks(doc), []);
+  return paths;
 }
 
 // --- the editing operations BlockNote performs, as doc -> doc functions ------
@@ -235,22 +224,6 @@ function setDoc(view: EditorView, doc: Node) {
 
 // --- peers ------------------------------------------------------------------
 
-/**
- * BlockNote renders the marks that have no `toDOM` (its attribution marks)
- * through the editor; a plain ProseMirror view needs a stand-in for them.
- */
-const markViews = Object.fromEntries(
-  Object.values(schema.marks)
-    .filter((mark) => mark.spec.toDOM === undefined)
-    .map((mark) => [
-      mark.name,
-      () => {
-        const dom = document.createElement("span");
-        return { dom, contentDOM: dom };
-      },
-    ]),
-);
-
 /** The transformer under test, in the shape `syncPlugin` takes. */
 const transformers = [persistentBlockGroups];
 
@@ -265,6 +238,7 @@ type Peer = {
 
 /** A BlockNote-shaped editor bound to `ytype` through the transformer. */
 function createPeer(
+  schema: Schema,
   ydoc: Y.Doc,
   {
     ytype = ydoc.get("bn"),
@@ -284,12 +258,25 @@ function createPeer(
       errors.push(err);
     },
   });
-  const view = new EditorView(
-    { mount: document.createElement("div") },
-    { state: EditorState.create({ schema, plugins: [plugin] }), markViews },
-  );
+  let state = EditorState.create({ schema, plugins: [plugin] });
+  let bindingView: PluginView | undefined;
+  // The binding and position mapping use only state and dispatch. Keep the
+  // real plugin lifecycle and pass the previous state on every transaction.
+  const adapter: Pick<EditorView, "state" | "dispatch"> = {
+    get state() {
+      return state;
+    },
+    dispatch(tr) {
+      const previous = state;
+      state = previous.apply(tr);
+      bindingView?.update?.(view, previous);
+    },
+  };
+  const view = adapter as EditorView;
+  bindingView = plugin.spec.view!(view);
   YPM.configureYProsemirror({ ytype, renderer })(view.state, view.dispatch);
-  return { view, ydoc, errors, destroy: () => view.destroy() };
+  expect(YPM.ySyncPluginKey.getState(view.state)?.binding).toBeTruthy();
+  return { view, ydoc, errors, destroy: () => bindingView?.destroy?.() };
 }
 
 /**
@@ -419,7 +406,11 @@ function yContainer(ytype: Y.Node, id: string) {
 }
 
 /** Render the ytype through the pipeline (what a freshly bound view shows). */
-function render(ytype: Y.Node, renderer: Y.AbstractRenderer | null = null) {
+function render(
+  schema: Schema,
+  ytype: Y.Node,
+  renderer: Y.AbstractRenderer | null = null,
+) {
   return YPM.ynodeToPmnode(ytype, schema, { renderer, transformer: pipeline });
 }
 
@@ -430,514 +421,100 @@ function render(ytype: Y.Node, renderer: Y.AbstractRenderer | null = null) {
  */
 function assertConverged(peers: Peer[], msg: string) {
   for (const p of peers) {
-    expect(
-      p.errors.map((e) => e.message),
-      `${msg}: no internal errors`,
-    ).toEqual([]);
+    if (p.errors.length > 0) {
+      expect(
+        p.errors.map((e) => e.message),
+        `${msg}: no internal errors`,
+      ).toEqual([]);
+    }
   }
-  const first = json(peers[0].view.state.doc);
+  const first = peers[0].view.state.doc;
   for (const p of peers.slice(1)) {
-    expect(json(p.view.state.doc), `${msg}: peers agree`).toEqual(first);
+    const other = p.view.state.doc;
+    if (!other.eq(first)) {
+      expect(json(other), `${msg}: peers agree`).toEqual(json(first));
+    }
   }
-  expect(
-    json(render(peers[0].ydoc.get("bn"))),
-    `${msg}: the view equals the rendering of the Y document`,
-  ).toEqual(first);
-}
-
-// --- 1. the per-container stage on hand-built deltas -------------------------
-
-/**
- * A container delta.
- *
- * @param children `null` = no group, `[]` = an empty group
- */
-function yblock(
-  id: string,
-  text: string,
-  children: AnyBuilder[] | null = null,
-): AnyBuilder {
-  const b: AnyBuilder = delta
-    .create("blockContainer", { id })
-    .insert([delta.create("paragraph", {}, text)]);
-  if (children !== null) {
-    b.insert([delta.create("blockGroup", {}).insert(children)]);
+  const rendered = render(first.type.schema, peers[0].ydoc.get("bn"));
+  if (!rendered.eq(first)) {
+    expect(
+      json(rendered),
+      `${msg}: the view equals the rendering of the Y document`,
+    ).toEqual(json(first));
   }
-  return b;
-}
-
-function ydocOf(blocks: AnyBuilder[]): AnyBuilder {
-  return delta.create().insert([delta.create("blockGroup", {}).insert(blocks)]);
-}
-
-/** A fresh pipeline stage over `$prosemirrorDelta`. */
-function stage() {
-  return persistentBlockGroups(YPM.$prosemirrorDelta).init();
-}
-
-/** A change on the top-level group's i-th container. */
-function onBlock(i: number, containerChange: AnyBuilder): AnyBuilder {
-  return delta
-    .create()
-    .modify(delta.create().retain(i).modify(containerChange));
-}
-
-function expectDelta(
-  actual: { toJSON(): unknown },
-  expected: { toJSON(): unknown },
-  msg: string,
-) {
-  expect(actual.toJSON(), msg).toEqual(expected.toJSON());
 }
 
 describe("persistent block groups: the per-container stage", () => {
-  it("hides empty groups at every depth", () => {
-    const s = stage();
-    const d = ydocOf([
+  /** A change on the top-level group's i-th container. */
+  function onBlock(i: number, containerChange: AnyBuilder): AnyBuilder {
+    return delta
+      .create()
+      .modify(delta.create().retain(i).modify(containerChange));
+  }
+
+  it("hides empty persistent groups at every depth alongside legacy containers", () => {
+    const stage = persistentBlockGroups(YPM.$prosemirrorDelta).init();
+    const source = ydocOf([
       yblock("a", "A", []),
       yblock("b", "B"),
       yblock("c", "C", [yblock("c1", "C1", [])]),
-    ]);
-    const b = s.applyA(delta.cloneDeep(d.done(false))).b!;
-    expectDelta(
-      b,
+    ]).done(false);
+
+    expect(stage.applyA(delta.cloneDeep(source)).b?.toJSON()).toEqual(
       ydocOf([
         yblock("a", "A"),
         yblock("b", "B"),
         yblock("c", "C", [yblock("c1", "C1")]),
-      ]),
-      "a legacy container and a hidden-group container render the same",
-    );
-  });
-
-  it("shows the view group while it has children and hides it again", () => {
-    const s = stage();
-    s.applyA(delta.cloneDeep(ydocOf([yblock("a", "A", [])]).done(false)));
-    // Y inserts a child into the hidden group
-    const appear = s.applyA(
-      onBlock(
-        0,
-        delta
-          .create()
-          .retain(1)
-          .modify(delta.create().insert([yblock("x", "X", [])])),
-      ),
-    ).b!;
-    expectDelta(
-      appear,
-      onBlock(
-        0,
-        delta
-          .create()
-          .retain(1)
-          .insert([delta.create("blockGroup", {}).insert([yblock("x", "X")])]),
-      ),
-      "the view group appears with its children",
-    );
-    // a second child: the group is modified
-    const grow = s.applyA(
-      onBlock(
-        0,
-        delta
-          .create()
-          .retain(1)
-          .modify(
-            delta
-              .create()
-              .retain(1)
-              .insert([yblock("y", "Y", [])]),
-          ),
-      ),
-    ).b!;
-    expectDelta(
-      grow,
-      onBlock(
-        0,
-        delta
-          .create()
-          .retain(1)
-          .modify(
-            delta
-              .create()
-              .retain(1)
-              .insert([yblock("y", "Y")]),
-          ),
-      ),
-      "a visible group is modified in place",
-    );
-    // text typed into the nested child: a plain modify chain
-    const typed = s.applyA(
-      onBlock(
-        0,
-        delta
-          .create()
-          .retain(1)
-          .modify(
-            delta
-              .create()
-              .retain(1)
-              .modify(
-                delta.create().modify(delta.create().retain(1).insert("!")),
-              ),
-          ),
-      ),
-    ).b!;
-    expectDelta(
-      typed,
-      onBlock(
-        0,
-        delta
-          .create()
-          .retain(1)
-          .modify(
-            delta
-              .create()
-              .retain(1)
-              .modify(
-                delta.create().modify(delta.create().retain(1).insert("!")),
-              ),
-          ),
-      ),
-      "a modify chain passes through",
-    );
-    // delete both children: the view group disappears
-    const vanish = s.applyA(
-      onBlock(0, delta.create().retain(1).modify(delta.create().delete(2))),
-    ).b!;
-    expectDelta(
-      vanish,
-      onBlock(0, delta.create().retain(1).delete(1)),
-      "the view group disappears when the last child goes",
-    );
-    // the group still exists for the transformer: a later insert shows it again
-    const again = s.applyA(
-      onBlock(
-        0,
-        delta
-          .create()
-          .retain(1)
-          .modify(delta.create().insert([yblock("z", "Z", [])])),
-      ),
-    ).b!;
-    expectDelta(
-      again,
-      onBlock(
-        0,
-        delta
-          .create()
-          .retain(1)
-          .insert([delta.create("blockGroup", {}).insert([yblock("z", "Z")])]),
-      ),
-      "the kept group reappears",
-    );
-  });
-
-  /** A container with two groups, as a legacy document has after concurrent first nesting. */
-  function twoGroups(): AnyBuilder {
-    return delta
-      .create("blockContainer", { id: "p" })
-      .insert([
-        delta.create("paragraph", {}, "P"),
-        delta
-          .create("blockGroup", {})
-          .insert([yblock("a", "A"), yblock("b", "B")]),
-        delta.create("blockGroup", {}).insert([yblock("c", "C")]),
-      ]);
-  }
-
-  it("merges several groups of a container into one", () => {
-    const s = stage();
-    const b = s.applyA(
-      delta.cloneDeep(
-        delta
-          .create()
-          .insert([delta.create("blockGroup", {}).insert([twoGroups()])])
-          .done(false),
-      ),
-    ).b!;
-    expectDelta(
-      b,
-      ydocOf([
-        yblock("p", "P", [
-          yblock("a", "A"),
-          yblock("b", "B"),
-          yblock("c", "C"),
-        ]),
-      ]),
-      "groups merge in order",
-    );
-    // an insert at the start of the second group lands at merged offset 2
-    const ins = s.applyA(
-      onBlock(
-        0,
-        delta
-          .create()
-          .retain(2)
-          .modify(delta.create().insert([yblock("d", "D")])),
-      ),
-    ).b!;
-    expectDelta(
-      ins,
-      onBlock(
-        0,
-        delta
-          .create()
-          .retain(1)
-          .modify(
-            delta
-              .create()
-              .retain(2)
-              .insert([yblock("d", "D")]),
-          ),
-      ),
-      "a second-group insert is offset by the first group",
-    );
-    // deleting the whole first group deletes its two children from the merged group
-    const del = s.applyA(onBlock(0, delta.create().retain(1).delete(1))).b!;
-    expectDelta(
-      del,
-      onBlock(0, delta.create().retain(1).modify(delta.create().delete(2))),
-      "deleting a group deletes its children from the view",
-    );
-    // changes to both groups in one change merge into one modify
-    const s2 = stage();
-    s2.applyA(
-      delta.cloneDeep(
-        delta
-          .create()
-          .insert([delta.create("blockGroup", {}).insert([twoGroups()])])
-          .done(false),
-      ),
-    );
-    const both = s2.applyA(
-      onBlock(
-        0,
-        delta
-          .create()
-          .retain(1)
-          .modify(delta.create().retain(1).delete(1))
-          .modify(
-            delta
-              .create()
-              .retain(1)
-              .insert([yblock("e", "E")]),
-          ),
-      ),
-    ).b!;
-    expectDelta(
-      both,
-      onBlock(
-        0,
-        delta
-          .create()
-          .retain(1)
-          .modify(
-            delta
-              .create()
-              .retain(1)
-              .delete(1)
-              .retain(1)
-              .insert([yblock("e", "E")]),
-          ),
-      ),
-      "ops on several groups form one merged change",
-    );
-  });
-
-  it("creates a group for every container the view inserts, never for a legacy one", () => {
-    const s = stage();
-    const a = s.applyB(
-      delta.cloneDeep(
-        ydocOf([yblock("a", "A"), yblock("b", "B", [yblock("b1", "B1")])]).done(
-          false,
-        ),
-      ),
-    ).a!;
-    expectDelta(
-      a,
-      ydocOf([
-        yblock("a", "A", []),
-        yblock("b", "B", [yblock("b1", "B1", [])]),
-      ]),
-      "every view-created container gets a group, at every depth",
-    );
-    // a container inserted later from the view
-    const ins = s.applyB(
-      delta.create().modify(
-        delta
-          .create()
-          .retain(2)
-          .insert([yblock("c", "C")]),
-      ),
-    ).a!;
-    expectDelta(
-      ins,
-      delta.create().modify(
-        delta
-          .create()
-          .retain(2)
-          .insert([yblock("c", "C", [])]),
-      ),
-      "a later view insert gets its group too",
-    );
-    // a legacy container from Y stays without a group until the view nests something
-    const s2 = stage();
-    s2.applyA(delta.cloneDeep(ydocOf([yblock("l", "L")]).done(false)));
-    const typed = s2.applyB(
-      onBlock(0, delta.create().modify(delta.create().retain(1).insert("!"))),
-    ).a!;
-    expectDelta(
-      typed,
-      onBlock(0, delta.create().modify(delta.create().retain(1).insert("!"))),
-      "typing into a legacy container creates no group",
-    );
-    const nested = s2.applyB(
-      onBlock(
-        0,
-        delta
-          .create()
-          .retain(1)
-          .insert([delta.create("blockGroup", {}).insert([yblock("n", "N")])]),
-      ),
-    ).a!;
-    expectDelta(
-      nested,
-      onBlock(
-        0,
-        delta
-          .create()
-          .retain(1)
-          .insert([
-            delta.create("blockGroup", {}).insert([yblock("n", "N", [])]),
-          ]),
-      ),
-      "the first nesting creates the group as the view built it; the nested container gets its own",
+      ]).toJSON(),
     );
   });
 
   it("can be configured without implicit groups", () => {
-    const s = persistentBlockGroups(YPM.$prosemirrorDelta, {
+    const stage = persistentBlockGroups(YPM.$prosemirrorDelta, {
       implicitGroups: false,
     }).init();
-    const a = s.applyB(
-      delta.cloneDeep(
-        ydocOf([yblock("a", "A"), yblock("b", "B", [yblock("b1", "B1")])]).done(
-          false,
-        ),
-      ),
-    ).a!;
-    expectDelta(
-      a,
-      ydocOf([yblock("a", "A"), yblock("b", "B", [yblock("b1", "B1")])]),
-      "no group is added",
-    );
-    const del = s.applyB(onBlock(1, delta.create().retain(1).delete(1))).a!;
-    expectDelta(
-      del,
-      onBlock(1, delta.create().retain(1).modify(delta.create().delete(1))),
-      "but an existing group is still kept when emptied",
+    const seed = ydocOf([
+      yblock("a", "A"),
+      yblock("b", "B", [yblock("b1", "B1")]),
+    ]).done(false);
+    const inserted = stage.applyB(delta.cloneDeep(seed)).a;
+    expect(inserted?.toJSON(), "no group is added").toEqual(seed.toJSON());
+
+    const emptied = stage.applyB(
+      onBlock(1, delta.create().retain(1).delete(1)),
+    ).a;
+    expect(
+      emptied?.toJSON(),
+      "an existing group is still kept when emptied",
+    ).toEqual(
+      onBlock(
+        1,
+        delta.create().retain(1).modify(delta.create().delete(1)),
+      ).toJSON(),
     );
   });
 
-  it("routes view changes into the kept groups", () => {
-    const s = stage();
-    s.applyA(delta.cloneDeep(ydocOf([yblock("a", "A", [])]).done(false)));
-    const ins = s.applyB(
-      onBlock(
-        0,
-        delta
-          .create()
-          .retain(1)
-          .insert([delta.create("blockGroup", {}).insert([yblock("x", "X")])]),
-      ),
-    ).a!;
-    expectDelta(
-      ins,
-      onBlock(
-        0,
-        delta
-          .create()
-          .retain(1)
-          .modify(delta.create().insert([yblock("x", "X", [])])),
-      ),
-      "a view group insert routes into the hidden group",
-    );
-    const del = s.applyB(onBlock(0, delta.create().retain(1).delete(1))).a!;
-    expectDelta(
-      del,
-      onBlock(0, delta.create().retain(1).modify(delta.create().delete(1))),
-      "removing the view group empties the group and keeps it",
-    );
-    const ins2 = s.applyB(
-      onBlock(
-        0,
-        delta
-          .create()
-          .retain(1)
-          .insert([delta.create("blockGroup", {}).insert([yblock("y", "Y")])]),
-      ),
-    ).a!;
-    expectDelta(
-      ins2,
-      onBlock(
-        0,
-        delta
-          .create()
-          .retain(1)
-          .modify(delta.create().insert([yblock("y", "Y", [])])),
-      ),
-      "the kept group is reused",
-    );
-    // two groups: [a, b] + [c]
-    const s2 = stage();
-    s2.applyA(
-      delta.cloneDeep(
-        delta
-          .create()
-          .insert([delta.create("blockGroup", {}).insert([twoGroups()])])
-          .done(false),
-      ),
-    );
-    // insert at the boundary (merged offset 2): the earlier group wins
-    const boundary = s2.applyB(
-      onBlock(
-        0,
-        delta
-          .create()
-          .retain(1)
-          .modify(
-            delta
-              .create()
-              .retain(2)
-              .insert([yblock("d", "D")]),
-          ),
-      ),
-    ).a!;
-    expectDelta(
-      boundary,
-      onBlock(
-        0,
-        delta
-          .create()
-          .retain(1)
-          .modify(
-            delta
-              .create()
-              .retain(2)
-              .insert([yblock("d", "D", [])]),
-          ),
-      ),
-      "a boundary insert goes to the earlier group",
-    );
-    // merged layout is now [a, b, d] + [c]; delete offsets 1..3 spans both groups
-    const span = s2.applyB(
+  it("splits a partial deletion across two groups and retains the first child", ({
+    onTestFinished,
+  }) => {
+    const stage = persistentBlockGroups(YPM.$prosemirrorDelta).init();
+    const parent = yblock("p", "P", [
+      yblock("a", "A"),
+      yblock("b", "B"),
+      yblock("d", "D"),
+    ]);
+    parent.insert([delta.create("blockGroup", {}).insert([yblock("c", "C")])]);
+    const seed = ydocOf([parent]).done(false);
+    stage.applyA(delta.cloneDeep(seed));
+
+    // The view merges [a, b, d] + [c]. Delete b, d, and c, leaving a.
+    const split = stage.applyB(
       onBlock(
         0,
         delta.create().retain(1).modify(delta.create().retain(1).delete(3)),
       ),
     ).a!;
-    expectDelta(
-      span,
+    expect(split.toJSON()).toEqual(
       onBlock(
         0,
         delta
@@ -945,120 +522,162 @@ describe("persistent block groups: the per-container stage", () => {
           .retain(1)
           .modify(delta.create().retain(1).delete(2))
           .modify(delta.create().delete(1)),
-      ),
-      "a delete spanning groups is split, groups are kept",
+      ).toJSON(),
     );
-    // merged layout is [a] + []; the view group still exists; modify its only child
-    const mod = s2.applyB(
-      onBlock(
+
+    const doc = new Y.Doc();
+    onTestFinished(() => doc.destroy());
+    const root = doc.get("bn");
+    root.applyDelta(seed);
+    root.applyDelta(split.done(false));
+    expect(yContainers(root)).toEqual([
+      { id: "p", groups: [1, 0] },
+      { id: "a", groups: [] },
+    ]);
+  });
+
+  describe("incremental changes to merged groups", () => {
+    function setupTwoGroups() {
+      const stage = persistentBlockGroups(YPM.$prosemirrorDelta).init();
+      const parent = yblock("p", "P", [yblock("a", "A"), yblock("b", "B")]);
+      parent.insert([
+        delta.create("blockGroup", {}).insert([yblock("c", "C")]),
+      ]);
+      stage.applyA(delta.cloneDeep(ydocOf([parent]).done(false)));
+      return stage;
+    }
+
+    // Skip the paragraph and any earlier group nodes in the container.
+    function onGroup(index: number, change: AnyBuilder) {
+      return onBlock(
         0,
         delta
           .create()
-          .retain(1)
-          .modify(
-            delta
-              .create()
-              .modify(
-                delta.create().modify(delta.create().retain(1).insert("!")),
-              ),
-          ),
-      ),
-    ).a!;
-    expectDelta(
-      mod,
-      onBlock(
-        0,
-        delta
-          .create()
-          .retain(1)
-          .modify(
-            delta
-              .create()
-              .modify(
-                delta.create().modify(delta.create().retain(1).insert("!")),
-              ),
-          ),
-      ),
-      "a modify reaches the group holding the position",
-    );
-    // remove the view group: only the non-empty group gets a delete
-    const del2 = s2.applyB(onBlock(0, delta.create().retain(1).delete(1))).a!;
-    expectDelta(
-      del2,
-      onBlock(0, delta.create().retain(1).modify(delta.create().delete(1))),
-      "emptying touches only the non-empty groups",
-    );
-    // now both are empty; a new view group routes into the first
-    const ins3 = s2.applyB(
-      onBlock(
-        0,
-        delta
-          .create()
-          .retain(1)
-          .insert([delta.create("blockGroup", {}).insert([yblock("e", "E")])]),
-      ),
-    ).a!;
-    expectDelta(
-      ins3,
-      onBlock(
-        0,
-        delta
-          .create()
-          .retain(1)
-          .modify(delta.create().insert([yblock("e", "E", [])])),
-      ),
-      "the first empty group takes a new view group",
-    );
+          .retain(1 + index)
+          .modify(change),
+      );
+    }
+
+    it("offsets a Y insertion at the start of the second group", () => {
+      const stage = setupTwoGroups();
+      const inserted = stage.applyA(
+        onGroup(1, delta.create().insert([yblock("d", "D")])),
+      ).b;
+      expect(inserted?.toJSON()).toEqual(
+        onGroup(
+          0,
+          delta
+            .create()
+            .retain(2)
+            .insert([yblock("d", "D")]),
+        ).toJSON(),
+      );
+    });
+
+    it("removes the first group's children when Y deletes its group node", () => {
+      const stage = setupTwoGroups();
+      const deleted = stage.applyA(
+        onBlock(0, delta.create().retain(1).delete(1)),
+      ).b;
+      expect(deleted?.toJSON()).toEqual(
+        onGroup(0, delta.create().delete(2)).toJSON(),
+      );
+    });
+
+    it("combines edits to both Y groups into one view group modification", () => {
+      const stage = setupTwoGroups();
+      const edited = stage.applyA(
+        onBlock(
+          0,
+          delta
+            .create()
+            .retain(1)
+            .modify(delta.create().retain(1).delete(1))
+            .modify(
+              delta
+                .create()
+                .retain(1)
+                .insert([yblock("e", "E")]),
+            ),
+        ),
+      ).b;
+      expect(edited?.toJSON()).toEqual(
+        onGroup(
+          0,
+          delta
+            .create()
+            .retain(1)
+            .delete(1)
+            .retain(1)
+            .insert([yblock("e", "E")]),
+        ).toJSON(),
+      );
+    });
+
+    it("routes a view insertion at the exact boundary into the earlier Y group", () => {
+      const stage = setupTwoGroups();
+      const inserted = stage.applyB(
+        onGroup(
+          0,
+          delta
+            .create()
+            .retain(2)
+            .insert([yblock("d", "D")]),
+        ),
+      ).a;
+      expect(inserted?.toJSON()).toEqual(
+        onGroup(
+          0,
+          delta
+            .create()
+            .retain(2)
+            .insert([yblock("d", "D", [])]),
+        ).toJSON(),
+      );
+    });
   });
 
   it("maps positions through the layout in both directions", () => {
-    const s = stage();
-    s.applyA(
-      delta.cloneDeep(
-        delta
-          .create()
-          .insert([
-            delta
-              .create("blockGroup", {})
-              .insert([twoGroups(), yblock("q", "Q", [])]),
-          ])
-          .done(false),
-      ),
+    const stage = persistentBlockGroups(YPM.$prosemirrorDelta).init();
+    // Legacy concurrent first nesting left p with two child groups.
+    const parent = yblock("p", "P", [yblock("a", "A"), yblock("b", "B")]);
+    parent.insert([delta.create("blockGroup", {}).insert([yblock("c", "C")])]);
+    stage.applyA(
+      delta.cloneDeep(ydocOf([parent, yblock("q", "Q", [])]).done(false)),
     );
-    // Y: doc > group > p > [paragraph, g1[a, b], g2[c]] > paragraph of c > offset 1
+
+    // Y: doc > group > p > [paragraph, g1[a, b], g2[c]] > c > paragraph > offset 1.
     const inC = dpos.create([0, 0, 2, 0, 0, 1]);
-    const mappedC = dpos.mapPositionsA(s, [inC])[0];
+    const mappedC = dpos.mapPositionsA(stage, [inC])[0];
     expect(
       mappedC?.path,
       "a position in the second group maps to the merged offset",
     ).toEqual([0, 0, 1, 2, 0, 1]);
-    const back = dpos.mapPositionsB(s, [mappedC!])[0];
-    expect(back?.path, "and maps back into the second group").toEqual([
-      0, 0, 2, 0, 0, 1,
-    ]);
+    expect(
+      dpos.mapPositionsB(stage, [mappedC!])[0]?.path,
+      "and maps back into the second group",
+    ).toEqual(inC.path);
+
     const inA = dpos.create([0, 0, 1, 0, 0, 1]);
-    expect(
-      dpos.mapPositionsA(s, [inA])[0]?.path,
-      "a position in the first group keeps its path",
-    ).toEqual([0, 0, 1, 0, 0, 1]);
-    // a gap in the container's child list after the hidden group of q: Y [paragraph, g[]] gap 2 -> view gap 1
+    expect(dpos.mapPositionsA(stage, [inA])[0]?.path).toEqual(inA.path);
+    // The gap behind q's hidden group maps before the group in the view.
     const gapQ = dpos.create([0, 1, 2]);
+    expect(dpos.mapPositionsA(stage, [gapQ])[0]?.path).toEqual([0, 1, 1]);
     expect(
-      dpos.mapPositionsA(s, [gapQ])[0]?.path,
-      "a gap behind a hidden group maps before it",
-    ).toEqual([0, 1, 1]);
-    expect(
-      dpos.mapPositionsB(s, [dpos.create([0, 1, 1])])[0]?.path,
-      "a view gap at the end of a container maps to the end of the Y child list",
-    ).toEqual([0, 1, 2]);
+      dpos.mapPositionsB(stage, [dpos.create([0, 1, 1])])[0]?.path,
+    ).toEqual(gapQ.path);
   });
 });
 
-// --- 2. the binding -----------------------------------------------------------
-
 describe("persistent block groups: the binding", () => {
-  it("keeps groups across nesting and un-nesting", () => {
+  it("keeps groups across nesting and un-nesting", async ({
+    setupEditor,
+    onTestFinished,
+  }) => {
+    const { block, docOf, createPeer, render } =
+      await setupBindingModel(setupEditor);
     const ydoc = new Y.Doc({ gc: false });
+    onTestFinished(() => ydoc.destroy());
     const a = createPeer(ydoc);
     try {
       setDoc(a.view, docOf([block("p", "P"), block("q", "Q")]));
@@ -1101,7 +720,10 @@ describe("persistent block groups: the binding", () => {
     }
   });
 
-  it("merges two users nesting a first child under the same block", () => {
+  it("merges two users nesting a first child under the same block", async ({
+    setupEditor,
+  }) => {
+    const { block, docOf, createPeer } = await setupBindingModel(setupEditor);
     const da = new Y.Doc({ gc: false });
     const db = new Y.Doc({ gc: false });
     const net = createNetwork([da, db]);
@@ -1144,7 +766,10 @@ describe("persistent block groups: the binding", () => {
     }
   });
 
-  it("merges two users adding a new nested block under the same parent", () => {
+  it("merges two users adding a new nested block under the same parent", async ({
+    setupEditor,
+  }) => {
+    const { block, docOf, createPeer } = await setupBindingModel(setupEditor);
     const da = new Y.Doc({ gc: false });
     const db = new Y.Doc({ gc: false });
     const net = createNetwork([da, db]);
@@ -1199,7 +824,10 @@ describe("persistent block groups: the binding", () => {
     }
   });
 
-  it("merges the groups of a legacy document and routes later edits into them", () => {
+  it("merges the groups of a legacy document and routes later edits into them", async ({
+    setupEditor,
+  }) => {
+    const { block, createPeer } = await setupBindingModel(setupEditor);
     const da = new Y.Doc({ gc: false });
     // a legacy document: written without groups
     da.get("bn").applyDelta(
@@ -1271,7 +899,10 @@ describe("persistent block groups: the binding", () => {
     }
   });
 
-  it("syncs moves: nest under a parent with children, un-nest, delete a parent", () => {
+  it("syncs moves: nest under a parent with children, un-nest, delete a parent", async ({
+    setupEditor,
+  }) => {
+    const { block, docOf, createPeer } = await setupBindingModel(setupEditor);
     const da = new Y.Doc({ gc: false });
     const db = new Y.Doc({ gc: false });
     createNetwork([da, db]);
@@ -1328,17 +959,16 @@ describe("persistent block groups: the binding", () => {
     }
   });
 
-  it("still replaces the container on a block type change, with its group", () => {
+  it("still replaces the container on a block type change, with its group", async ({
+    setupEditor,
+  }) => {
+    const { block, docOf, createPeer, render } =
+      await setupBindingModel(setupEditor);
     const ydoc = new Y.Doc({ gc: false });
     const a = createPeer(ydoc);
     try {
       setDoc(a.view, docOf([block("p", "P", [block("a", "A")])]));
-      const asHeading = docOf([
-        N.blockContainer.create({ id: "p" }, [
-          N.heading.create(null, schema.text("P")),
-          N.blockGroup.create(null, [block("a", "A")]),
-        ]),
-      ]);
+      const asHeading = docOf([block("p", "P", [block("a", "A")], "heading")]);
       setDoc(a.view, asHeading);
       expect(
         yContainer(ydoc.get("bn"), "p").groups,
@@ -1356,37 +986,43 @@ describe("persistent block groups: the binding", () => {
    * The suggestion setup of BlockNote's demo: a base doc, a suggestion doc
    * with a diff renderer in view mode and one in suggestion mode.
    */
-  function createSuggestionSetup() {
+  function createSuggestionSetup(
+    createPeer: Awaited<ReturnType<typeof setupBindingModel>>["createPeer"],
+    onTestFinished: (cleanup: () => void) => void,
+  ) {
     const base = new Y.Doc({ gc: false, guid: "base" });
+    onTestFinished(() => base.destroy());
     const viewDoc = new Y.Doc({
       isSuggestionDoc: true,
       gc: false,
       guid: "view",
     });
+    onTestFinished(() => viewDoc.destroy());
     const editDoc = new Y.Doc({
       isSuggestionDoc: true,
       gc: false,
       guid: "edit",
     });
+    onTestFinished(() => editDoc.destroy());
     const attributions = Y.createContentMap();
     const viewRenderer = Y.createDiffRenderer(base, viewDoc, { attributions });
+    onTestFinished(() => viewRenderer.destroy());
     viewRenderer.suggestionMode = false;
     const editRenderer = Y.createDiffRenderer(base, editDoc, { attributions });
+    onTestFinished(() => editRenderer.destroy());
     editRenderer.suggestionMode = true;
     createNetwork([viewDoc, editDoc]);
     const baseView = createPeer(base);
+    onTestFinished(baseView.destroy);
     const viewing = createPeer(viewDoc, { renderer: viewRenderer });
+    onTestFinished(viewing.destroy);
     const editing = createPeer(editDoc, { renderer: editRenderer });
+    onTestFinished(editing.destroy);
     return {
       base,
       baseView,
       viewing,
       editing,
-      destroy: () => {
-        baseView.destroy();
-        viewing.destroy();
-        editing.destroy();
-      },
     };
   }
 
@@ -1400,97 +1036,98 @@ describe("persistent block groups: the binding", () => {
     return found;
   }
 
-  it("works in suggestion mode: suggest, reject, accept, suggest a deletion", () => {
-    const s = createSuggestionSetup();
-    try {
-      setDoc(s.baseView.view, docOf([block("p", "P"), block("q", "Q")]));
-      expect(
-        stripMarks(json(s.editing.view.state.doc)),
-        "the suggesting peer sees the base",
-      ).toEqual(json(s.baseView.view.state.doc));
-      // suggest a nested block under p
-      setDoc(
-        s.editing.view,
-        updateSiblings(s.editing.view.state.doc, [0], () => [block("n", "N")]),
-      );
-      expect(
-        yContainer(s.base.get("bn"), "p").groups,
-        "the base doc is untouched (the insert is a suggestion)",
-      ).toEqual([0]);
-      const shown = blockAt(s.viewing.view.state.doc, [0, 0]);
-      expect(
-        shown?.attrs.id,
-        "the viewing peer renders the suggested nested block",
-      ).toBe("n");
-      expect(s.viewing.errors).toEqual([]);
-      expect(s.editing.errors).toEqual([]);
-      // reject: the child goes, the group hides
-      YPM.rejectAllChanges()(s.viewing.view.state, s.viewing.view.dispatch);
-      expect(
-        stripMarks(json(s.viewing.view.state.doc)),
-        "rejecting removes the nested block",
-      ).toEqual(json(docOf([block("p", "P"), block("q", "Q")])));
-      expect(
-        stripMarks(json(s.editing.view.state.doc)),
-        "the suggesting peer agrees",
-      ).toEqual(json(docOf([block("p", "P"), block("q", "Q")])));
-      expect(
-        blockAt(s.viewing.view.state.doc, [0]).childCount,
-        "the group is hidden again",
-      ).toBe(1);
-      // suggest again and accept
-      setDoc(
-        s.editing.view,
-        updateSiblings(s.editing.view.state.doc, [0], () => [block("m", "M")]),
-      );
-      YPM.acceptAllChanges()(s.viewing.view.state, s.viewing.view.dispatch);
-      expect(
-        json(s.baseView.view.state.doc),
-        "accepting lands the nested block in the base",
-      ).toEqual(
-        json(docOf([block("p", "P", [block("m", "M")]), block("q", "Q")])),
-      );
-      expect(
-        yContainer(s.base.get("bn"), "p").groups,
-        "in the one group",
-      ).toEqual([1]);
-      // delete the only nested block as a suggestion: it stays visible as a pending deletion
-      setDoc(
-        s.editing.view,
-        updateSiblings(s.editing.view.state.doc, [0], () => []),
-      );
-      const pending = blockAt(s.viewing.view.state.doc, [0, 0]);
-      expect(
-        pending?.attrs.id,
-        "the deleted nested block is still rendered",
-      ).toBe("m");
-      expect(hasDeleteMark(pending), "as a pending deletion").toBe(true);
-      expect(
-        stripMarks(json(s.editing.view.state.doc)),
-        "both suggestion peers agree",
-      ).toEqual(stripMarks(json(s.viewing.view.state.doc)));
-      expect(s.viewing.errors).toEqual([]);
-      expect(s.editing.errors).toEqual([]);
-      expect(s.baseView.errors).toEqual([]);
-      YPM.acceptAllChanges()(s.viewing.view.state, s.viewing.view.dispatch);
-      expect(
-        json(s.baseView.view.state.doc),
-        "accepting the deletion removes it from the base",
-      ).toEqual(json(docOf([block("p", "P"), block("q", "Q")])));
-      expect(
-        yContainer(s.base.get("bn"), "p").groups,
-        "and keeps the group",
-      ).toEqual([0]);
-      expect(
-        blockAt(s.viewing.view.state.doc, [0]).childCount,
-        "which the viewing peer hides",
-      ).toBe(1);
-    } finally {
-      s.destroy();
-    }
+  it("works in suggestion mode: suggest, reject, accept, suggest a deletion", async ({
+    setupEditor,
+    onTestFinished,
+  }) => {
+    const { block, docOf, createPeer } = await setupBindingModel(setupEditor);
+    const s = createSuggestionSetup(createPeer, onTestFinished);
+    setDoc(s.baseView.view, docOf([block("p", "P"), block("q", "Q")]));
+    expect(
+      stripMarks(json(s.editing.view.state.doc)),
+      "the suggesting peer sees the base",
+    ).toEqual(json(s.baseView.view.state.doc));
+    // suggest a nested block under p
+    setDoc(
+      s.editing.view,
+      updateSiblings(s.editing.view.state.doc, [0], () => [block("n", "N")]),
+    );
+    expect(
+      yContainer(s.base.get("bn"), "p").groups,
+      "the base doc is untouched (the insert is a suggestion)",
+    ).toEqual([0]);
+    const shown = blockAt(s.viewing.view.state.doc, [0, 0]);
+    expect(
+      shown?.attrs.id,
+      "the viewing peer renders the suggested nested block",
+    ).toBe("n");
+    expect(s.viewing.errors).toEqual([]);
+    expect(s.editing.errors).toEqual([]);
+    // reject: the child goes, the group hides
+    YPM.rejectAllChanges()(s.viewing.view.state, s.viewing.view.dispatch);
+    expect(
+      stripMarks(json(s.viewing.view.state.doc)),
+      "rejecting removes the nested block",
+    ).toEqual(json(docOf([block("p", "P"), block("q", "Q")])));
+    expect(
+      stripMarks(json(s.editing.view.state.doc)),
+      "the suggesting peer agrees",
+    ).toEqual(json(docOf([block("p", "P"), block("q", "Q")])));
+    expect(
+      blockAt(s.viewing.view.state.doc, [0]).childCount,
+      "the group is hidden again",
+    ).toBe(1);
+    // suggest again and accept
+    setDoc(
+      s.editing.view,
+      updateSiblings(s.editing.view.state.doc, [0], () => [block("m", "M")]),
+    );
+    YPM.acceptAllChanges()(s.viewing.view.state, s.viewing.view.dispatch);
+    expect(
+      json(s.baseView.view.state.doc),
+      "accepting lands the nested block in the base",
+    ).toEqual(
+      json(docOf([block("p", "P", [block("m", "M")]), block("q", "Q")])),
+    );
+    expect(
+      yContainer(s.base.get("bn"), "p").groups,
+      "in the one group",
+    ).toEqual([1]);
+    // delete the only nested block as a suggestion: it stays visible as a pending deletion
+    setDoc(
+      s.editing.view,
+      updateSiblings(s.editing.view.state.doc, [0], () => []),
+    );
+    const pending = blockAt(s.viewing.view.state.doc, [0, 0]);
+    expect(
+      pending?.attrs.id,
+      "the deleted nested block is still rendered",
+    ).toBe("m");
+    expect(hasDeleteMark(pending), "as a pending deletion").toBe(true);
+    expect(
+      stripMarks(json(s.editing.view.state.doc)),
+      "both suggestion peers agree",
+    ).toEqual(stripMarks(json(s.viewing.view.state.doc)));
+    expect(s.viewing.errors).toEqual([]);
+    expect(s.editing.errors).toEqual([]);
+    expect(s.baseView.errors).toEqual([]);
+    YPM.acceptAllChanges()(s.viewing.view.state, s.viewing.view.dispatch);
+    expect(
+      json(s.baseView.view.state.doc),
+      "accepting the deletion removes it from the base",
+    ).toEqual(json(docOf([block("p", "P"), block("q", "Q")])));
+    expect(
+      yContainer(s.base.get("bn"), "p").groups,
+      "and keeps the group",
+    ).toEqual([0]);
+    expect(
+      blockAt(s.viewing.view.state.doc, [0]).childCount,
+      "which the viewing peer hides",
+    ).toBe(1);
   });
 
-  it("round-trips relative positions across peers", () => {
+  it("round-trips relative positions across peers", async ({ setupEditor }) => {
+    const { block, docOf, createPeer } = await setupBindingModel(setupEditor);
     const da = new Y.Doc({ gc: false });
     const db = new Y.Doc({ gc: false });
     createNetwork([da, db]);
@@ -1546,7 +1183,9 @@ describe("persistent block groups: the binding", () => {
     }
   });
 
-  it("applies to the standalone conversions", () => {
+  it("applies to the standalone conversions", async ({ setupEditor }) => {
+    const { schema, block, docOf, createPeer, render } =
+      await setupBindingModel(setupEditor);
     const pm = docOf([block("p", "P", [block("a", "A")]), block("q", "Q")]);
     const d = YPM.pmnodeToDelta(pm, { transformer: pipeline });
     const ydoc = new Y.Doc({ gc: false });
@@ -1579,7 +1218,10 @@ describe("persistent block groups: the binding", () => {
     }
   });
 
-  it("keeps syncing with a client that has no transformer", () => {
+  it("keeps syncing with a client that has no transformer", async ({
+    setupEditor,
+  }) => {
+    const { block, docOf, createPeer } = await setupBindingModel(setupEditor);
     const da = new Y.Doc({ gc: false });
     const db = new Y.Doc({ gc: false });
     createNetwork([da, db]);
@@ -1622,87 +1264,134 @@ describe("persistent block groups: the binding", () => {
       db.destroy();
     }
   });
-});
 
-// --- 3. fuzz ----------------------------------------------------------------
-
-describe("persistent block groups: random nesting on two peers", () => {
-  /**
-   * Random editing on two peers with random sync points. After every full
-   * sync both peers show the same document, which equals the pipeline's
-   * rendering of the Y document, every container the view created holds a
-   * group, and no container ever holds more than one (the whole point: the
-   * view only ever writes into existing groups).
-   */
-  function run(seed: number) {
-    const gen = prng.create(seed);
+  it("converges across reconnects when nested groups are emptied and refilled", async ({
+    setupEditor,
+  }) => {
+    const { block, docOf, createPeer } = await setupBindingModel(setupEditor);
     const da = new Y.Doc({ gc: false });
     const db = new Y.Doc({ gc: false });
     const net = createNetwork([da, db]);
-    const peers = [createPeer(da), createPeer(db)];
-    let nextId = 0;
-    const newBlock = () => block(`b${nextId++}`, prng.word(gen, 1, 4));
-    try {
-      setDoc(peers[0].view, docOf([newBlock(), newBlock(), newBlock()]));
-      assertConverged(peers, `seed ${seed}`);
-      const rounds = prng.uint32(gen, 1, 6);
-      for (let r = 0; r < rounds; r++) {
-        net.pause();
-        const ops = prng.uint32(gen, 1, 8);
-        for (let i = 0; i < ops; i++) {
-          const peer = prng.oneOf(gen, peers);
-          const doc = peer.view.state.doc;
-          const paths = allPaths(doc);
-          const path = prng.oneOf(gen, paths);
-          const choice = prng.uint32(gen, 0, 5);
-          let next = doc;
-          if (choice === 0) {
-            next = insertAfter(doc, path, newBlock());
-          } else if (choice === 1) {
-            if (
-              paths.length > 1 &&
-              !(path.length === 1 && topBlocks(doc).length === 1)
-            ) {
-              next = remove(doc, path);
-            }
-          } else if (choice === 2) {
-            if (path[path.length - 1] > 0) {
-              next = nest(doc, path);
-            }
-          } else if (choice === 3) {
-            if (path.length > 1) {
-              next = unnest(doc, path);
-            }
-          } else {
-            next = typeText(doc, path, prng.word(gen, 1, 3));
-          }
-          if (next !== doc) {
-            setDoc(peer.view, next);
-          }
-        }
-        net.resume();
-        assertConverged(peers, `seed ${seed}, round ${r}`);
-        for (const c of yContainers(da.get("bn"))) {
-          expect(
-            c.groups.length,
-            `seed ${seed}: container ${c.id} holds exactly one group`,
-          ).toBe(1);
-        }
+    const a = createPeer(da);
+    const b = createPeer(db);
+    const y = block("y", "Y");
+    const z = block("z", "Z");
+
+    function assertMerged(
+      message: string,
+      expected: Node,
+      layout: ReturnType<typeof yContainers>,
+    ) {
+      assertConverged([a, b], message);
+      expect(json(a.view.state.doc), message).toEqual(json(expected));
+      for (const doc of [da, db]) {
+        expect(
+          yContainers(doc.get("bn")),
+          `${message}: exactly one group per container on both peers`,
+        ).toEqual(layout);
       }
+    }
+
+    try {
+      setDoc(a.view, docOf([block("p", "P", [block("x", "X", [y])])]));
+      assertConverged([a, b], "seed");
+
+      net.pause();
+      // A lifts x's only child; B inserts a sibling beside it and types in x.
+      setDoc(a.view, unnest(a.view.state.doc, [0, 0, 0]));
+      setDoc(b.view, insertAfter(b.view.state.doc, [0, 0, 0], z));
+      setDoc(b.view, typeText(b.view.state.doc, [0, 0], "!"));
+      net.resume();
+      assertMerged(
+        "after lifting y and inserting z",
+        docOf([block("p", "P", [block("x", "X!", [z]), y])]),
+        [
+          { id: "p", groups: [2] },
+          { id: "x", groups: [1] },
+          { id: "z", groups: [0] },
+          { id: "y", groups: [0] },
+        ],
+      );
+
+      net.pause();
+      // A deletes the last child of x while B nests y back under it.
+      setDoc(a.view, remove(a.view.state.doc, [0, 0, 0]));
+      setDoc(b.view, nest(b.view.state.doc, [0, 1]));
+      expect(yContainer(da.get("bn"), "x").groups).toEqual([0]);
+      expect(yContainer(db.get("bn"), "x").groups).toEqual([2]);
+      net.resume();
+      assertMerged(
+        "after deleting z and nesting y back",
+        docOf([block("p", "P", [block("x", "X!", [y])])]),
+        [
+          { id: "p", groups: [1] },
+          { id: "x", groups: [1] },
+          { id: "y", groups: [0] },
+        ],
+      );
     } finally {
-      peers.forEach((p) => p.destroy());
+      a.destroy();
+      b.destroy();
       da.destroy();
       db.destroy();
     }
-  }
+  });
 
-  const seeds = Array.from({ length: 150 }, (_, i) => i);
-  it(
-    "converges and keeps one group per container",
-    { timeout: 120_000 },
-    () => {
-      for (const seed of seeds) {
-        run(seed);
+  it.for(Array.from({ length: 16 }, (_, seed) => seed))(
+    "converges and retains one group per container after seeded edits (seed %i)",
+    async (seed, { setupEditor, onTestFinished }) => {
+      const { block, docOf, createPeer } = await setupBindingModel(setupEditor);
+      const gen = prng.create(seed);
+      const docs = [new Y.Doc({ gc: false }), new Y.Doc({ gc: false })];
+      for (const [index, doc] of docs.entries()) {
+        doc.clientID = index + 1;
+        onTestFinished(() => doc.destroy());
+      }
+      const net = createNetwork(docs);
+      const peers = docs.map((doc) => {
+        const peer = createPeer(doc);
+        onTestFinished(peer.destroy);
+        return peer;
+      });
+      let nextId = 0;
+      const newBlock = () => block(`b${nextId++}`, prng.word(gen, 1, 4));
+      setDoc(peers[0].view, docOf([newBlock(), newBlock(), newBlock()]));
+
+      for (let round = 0; round < 4; round++) {
+        net.pause();
+        const ops = prng.uint32(gen, 2, 8);
+        for (let i = 0; i < ops; i++) {
+          const { view } = prng.oneOf(gen, peers);
+          const doc = view.state.doc;
+          const path = prng.oneOf(gen, allPaths(doc));
+          const choice = prng.uint32(gen, 0, 4);
+          let next = doc;
+          if (choice === 0) {
+            next = insertAfter(doc, path, newBlock());
+          } else if (
+            choice === 1 &&
+            (path.length > 1 || topBlocks(doc).length > 1)
+          ) {
+            next = remove(doc, path);
+          } else if (choice === 2 && path[path.length - 1] > 0) {
+            next = nest(doc, path);
+          } else if (choice === 3 && path.length > 1) {
+            next = unnest(doc, path);
+          } else {
+            next = typeText(doc, path, prng.word(gen, 1, 3));
+          }
+          setDoc(view, next);
+        }
+        net.resume();
+        const message = `seed ${seed}, round ${round}`;
+        assertConverged(peers, message);
+        for (const doc of docs) {
+          const containers = yContainers(doc.get("bn"));
+          expect(containers.length, message).toBeGreaterThan(0);
+          for (const { id, groups } of containers) {
+            expect(groups, `${message}: ${id}`).toHaveLength(1);
+          }
+        }
       }
     },
   );

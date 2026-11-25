@@ -1,6 +1,6 @@
 .comments-main-container.bn-container {
   align-items: center;
-  background-color: var(--bn-colors-disabled-background);
+  background-color: var(--bn-background-color-disabled);
   display: flex;
   flex-direction: column-reverse;
   gap: 10px;
@@ -34,7 +34,7 @@
 }
 
 .comments-main-container .settings-select h2 {
-  color: var(--bn-colors-menu-text);
+  color: var(--bn-text-color-menu);
   margin: 0;
   font-size: 12px;
   line-height: 12px;

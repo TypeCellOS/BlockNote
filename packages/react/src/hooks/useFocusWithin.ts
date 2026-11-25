@@ -37,10 +37,10 @@ export function useFocusWithin<T extends HTMLElement = any>({
   const [focused, setFocused] = useState(false);
   const focusedRef = useRef(false);
 
-  const _setFocused = (value: boolean) => {
+  const _setFocused = useCallback((value: boolean) => {
     setFocused(value);
     focusedRef.current = value;
-  };
+  }, []);
 
   const handleFocusIn = useCallback(
     (event: FocusEvent) => {
@@ -49,7 +49,7 @@ export function useFocusWithin<T extends HTMLElement = any>({
         onFocus?.(event);
       }
     },
-    [onFocus],
+    [onFocus, _setFocused],
   );
 
   const handleFocusOut = useCallback(
@@ -59,7 +59,7 @@ export function useFocusWithin<T extends HTMLElement = any>({
         onBlur?.(event);
       }
     },
-    [onBlur],
+    [onBlur, _setFocused],
   );
 
   useEffect(() => {

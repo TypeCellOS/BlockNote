@@ -1,6 +1,6 @@
 import * as path from "path";
 import { webpackStats } from "rollup-plugin-webpack-stats";
-import { defineConfig, type UserConfig } from "vite-plus";
+import { configDefaults, defineConfig, type UserConfig } from "vite-plus";
 import { buildCacheInputs } from "../../scripts/build-cache-inputs.js";
 
 // https://vitejs.dev/config/
@@ -48,7 +48,8 @@ export default defineConfig(
       test: {
         // Preserve Vitest 4 mock history during the toolchain upgrade.
         clearMocks: false,
-        environment: "node",
+        exclude: [...configDefaults.exclude, "**/*.browser.test.*"],
+        setupFiles: ["../../tests/vitestSetup.node-fixtures.ts"],
         testTimeout: 30000,
       },
       plugins: [webpackStats() as any],

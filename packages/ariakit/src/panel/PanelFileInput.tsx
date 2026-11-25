@@ -4,22 +4,33 @@ import {
 } from "@ariakit/react";
 
 import { assertEmpty } from "@blocknote/core";
-import { ComponentProps } from "@blocknote/react";
+import { ComponentProps, useAutoFocus, useMergeRefs } from "@blocknote/react";
 import { forwardRef, type ChangeEvent } from "react";
 
 export const PanelFileInput = forwardRef<
   HTMLInputElement,
   ComponentProps["FilePanel"]["FileInput"]
 >((props, ref) => {
-  const { className, accept, value, placeholder, onChange, ...rest } = props;
+  const {
+    autoFocus,
+    className,
+    accept,
+    value,
+    placeholder,
+    onChange,
+    ...rest
+  } = props;
 
   assertEmpty(rest);
+
+  const inputRef = useAutoFocus<HTMLInputElement>(autoFocus);
+  const mergedRef = useMergeRefs([ref, inputRef]);
 
   return (
     <AriakitFormProvider>
       <AriakitFormInput
         className={className}
-        ref={ref}
+        ref={mergedRef}
         name={"panel-input"}
         type={"file"}
         accept={accept}

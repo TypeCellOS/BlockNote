@@ -30,11 +30,14 @@ export default defineConfig(
       test: {
         // Preserve Vitest 4 mock history during the toolchain upgrade.
         clearMocks: false,
-        environment: "jsdom",
-        setupFiles: ["./vitestSetup.ts"],
+        setupFiles: ["../../tests/vitestSetup.node-fixtures.ts"],
         // `.browser.test` files need a real browser; the tests package's
         // browser suite runs them.
-        exclude: [...configDefaults.exclude, "**/*.browser.test.*"],
+        exclude: [
+          ...configDefaults.exclude,
+          "**/*.browser.test.*",
+          "**/*.screen-reader.test.ts",
+        ],
       },
       plugins: [react(), webpackStats()],
       // used so that vitest resolves the core package from the sources instead of the built version

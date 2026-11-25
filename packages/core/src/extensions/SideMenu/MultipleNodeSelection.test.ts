@@ -1,4 +1,3 @@
-// @vitest-environment node
 import { history, redo, undo } from "@tiptap/pm/history";
 import { Schema } from "prosemirror-model";
 import { EditorState, Selection, TextSelection } from "prosemirror-state";

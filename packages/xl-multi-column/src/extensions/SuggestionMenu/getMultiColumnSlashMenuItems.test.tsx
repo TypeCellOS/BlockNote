@@ -1,23 +1,22 @@
-import { beforeAll, describe, expect, it } from "vite-plus/test";
+import { en as coreDictionary } from "@blocknote/core/locales";
+import { describe, expect } from "vite-plus/test";
 
 import { en } from "../../i18n/locales/index.js";
-import { setupTestEnv } from "../../test/setupTestEnv.js";
+import { multiColumnTestOptions } from "../../test/setupTestEnv.js";
 import {
   getMultiColumnSlashMenuItems,
   insertColumnList,
 } from "./getMultiColumnSlashMenuItems.js";
 
-const getEditor = setupTestEnv();
-
-beforeAll(() => {
-  // The slash menu items read their labels from the multi-column dictionary,
-  // which isn't included in the base test editor's dictionary.
-  (getEditor().dictionary as any).multi_column = en;
-});
+const options = {
+  ...multiColumnTestOptions,
+  dictionary: { ...coreDictionary, multi_column: en },
+};
 
 describe("Test getMultiColumnSlashMenuItems", () => {
-  it("Returns two & three column items", () => {
-    const items = getMultiColumnSlashMenuItems(getEditor());
+  it("Returns two & three column items", async ({ setupEditor }) => {
+    const { editor } = await setupEditor(options);
+    const items = getMultiColumnSlashMenuItems(editor);
 
     expect(items.length).toBe(2);
     expect(items.map((item) => item.title)).toStrictEqual([
@@ -27,87 +26,105 @@ describe("Test getMultiColumnSlashMenuItems", () => {
   });
 
   describe("Text cursor not in a column", () => {
-    it("Inserts two columns below current block", () => {
-      getEditor().setTextCursorPosition("paragraph-1");
+    it("Inserts two columns below current block", async ({ setupEditor }) => {
+      const { editor } = await setupEditor(options);
+      editor.setTextCursorPosition("paragraph-1");
 
-      insertColumnList(getEditor(), 2);
+      insertColumnList(editor, 2);
 
-      expect(getEditor().document).toMatchSnapshot();
+      expect(editor.document).toMatchSnapshot();
     });
 
-    it("Inserts three columns below current block", () => {
-      getEditor().setTextCursorPosition("paragraph-1");
+    it("Inserts three columns below current block", async ({ setupEditor }) => {
+      const { editor } = await setupEditor(options);
+      editor.setTextCursorPosition("paragraph-1");
 
-      insertColumnList(getEditor(), 3);
+      insertColumnList(editor, 3);
 
-      expect(getEditor().document).toMatchSnapshot();
+      expect(editor.document).toMatchSnapshot();
     });
 
-    it("Replaces current block when empty", () => {
-      getEditor().insertBlocks(
+    it("Replaces current block when empty", async ({ setupEditor }) => {
+      const { editor } = await setupEditor(options);
+      editor.insertBlocks(
         [{ id: "empty-paragraph", type: "paragraph" }],
         "paragraph-1",
         "after",
       );
-      getEditor().setTextCursorPosition("empty-paragraph");
+      editor.setTextCursorPosition("empty-paragraph");
 
-      insertColumnList(getEditor(), 2);
+      insertColumnList(editor, 2);
 
       // The empty paragraph becomes the column list, and keeps its id.
-      expect(getEditor().getBlock("empty-paragraph")?.type).toBe("columnList");
-      expect(getEditor().document).toMatchSnapshot();
+      expect(editor.getBlock("empty-paragraph")?.type).toBe("columnList");
+      const cursorBlock = editor.getTextCursorPosition().block;
+      const column = editor.getParentBlock(cursorBlock);
+      expect(cursorBlock.type).toBe("paragraph");
+      expect(column?.type).toBe("column");
+      expect(editor.getParentBlock(column!)?.id).toBe("empty-paragraph");
+      expect(editor.document).toMatchSnapshot();
     });
   });
 
   describe("Text cursor in a column", () => {
-    it("Does not throw", () => {
-      getEditor().setTextCursorPosition("column-paragraph-0");
+    it("Does not throw", async ({ setupEditor }) => {
+      const { editor } = await setupEditor(options);
+      editor.setTextCursorPosition("column-paragraph-0");
 
-      expect(() => insertColumnList(getEditor(), 2)).not.toThrow();
+      expect(() => insertColumnList(editor, 2)).not.toThrow();
     });
 
-    it("Inserts two columns below the column list, not nested", () => {
-      getEditor().setTextCursorPosition("column-paragraph-0");
+    it("Inserts two columns below the column list, not nested", async ({
+      setupEditor,
+    }) => {
+      const { editor } = await setupEditor(options);
+      editor.setTextCursorPosition("column-paragraph-0");
 
-      insertColumnList(getEditor(), 2);
+      insertColumnList(editor, 2);
 
       // The new column list should be a top-level sibling inserted right after
       // the existing column list, rather than nested inside a column.
-      const topLevelTypes = getEditor().document.map((block) => block.type);
+      const topLevelTypes = editor.document.map((block) => block.type);
       const columnListIndex = topLevelTypes.indexOf("columnList");
       expect(topLevelTypes[columnListIndex + 1]).toBe("columnList");
 
       // The original column list should still contain exactly its two columns.
-      expect(getEditor().getBlock("column-list-0")!.children.length).toBe(2);
+      expect(editor.getBlock("column-list-0")!.children.length).toBe(2);
 
-      expect(getEditor().document).toMatchSnapshot();
+      expect(editor.document).toMatchSnapshot();
     });
 
-    it("Inserts three columns below the column list, not nested", () => {
-      getEditor().setTextCursorPosition("column-paragraph-0");
+    it("Inserts three columns below the column list, not nested", async ({
+      setupEditor,
+    }) => {
+      const { editor } = await setupEditor(options);
+      editor.setTextCursorPosition("column-paragraph-0");
 
-      insertColumnList(getEditor(), 3);
+      insertColumnList(editor, 3);
 
-      expect(getEditor().document).toMatchSnapshot();
+      expect(editor.document).toMatchSnapshot();
     });
 
-    it("Places the text cursor in the new column list", () => {
-      getEditor().setTextCursorPosition("column-paragraph-0");
+    it("Places the text cursor in the new column list", async ({
+      setupEditor,
+    }) => {
+      const { editor } = await setupEditor(options);
+      editor.setTextCursorPosition("column-paragraph-0");
 
-      insertColumnList(getEditor(), 2);
+      insertColumnList(editor, 2);
 
       // The cursor should be in a paragraph nested in the newly inserted
       // top-level column list, not in the original one.
-      const cursorBlock = getEditor().getTextCursorPosition().block;
-      const column = getEditor().getParentBlock(cursorBlock);
-      const columnList = getEditor().getParentBlock(column!);
+      const cursorBlock = editor.getTextCursorPosition().block;
+      const column = editor.getParentBlock(cursorBlock);
+      const columnList = editor.getParentBlock(column!);
 
       expect(cursorBlock.type).toBe("paragraph");
       expect(column!.type).toBe("column");
       expect(columnList!.type).toBe("columnList");
       expect(columnList!.id).not.toBe("column-list-0");
       // The new column list is top-level, so it has no parent.
-      expect(getEditor().getParentBlock(columnList!)).toBeUndefined();
+      expect(editor.getParentBlock(columnList!)).toBeUndefined();
     });
   });
 });

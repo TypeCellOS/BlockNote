@@ -1,8 +1,8 @@
-import { describe, expect, it } from "vite-plus/test";
+import { describe, expect } from "vite-plus/test";
 
 import { setupTestEnv } from "../setupTestEnv.js";
 
-const getEditor = setupTestEnv();
+const getEditor = setupTestEnv(it);
 
 describe("Test replaceBlocks", () => {
   it("Replace paragraph with column list above column list", () => {

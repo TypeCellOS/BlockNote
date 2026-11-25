@@ -1,10 +1,17 @@
-import { describe, it, expect } from "vite-plus/test";
+import { afterEach, describe, it, expect, vi } from "vite-plus/test";
+import { ReadableByteStreamController as PolyfillController } from "web-streams-polyfill";
 import { ReactEmailExporter } from "./reactEmailExporter.jsx";
 import { reactEmailDefaultSchemaMappings } from "./defaultSchema/index.js";
 import {
   BlockNoteSchema,
   createPageBreakBlockSpec,
   defaultBlockSpecs,
+  type DefaultBlockSchema,
+  type DefaultStyleSchema,
+  type Link,
+  type PartialBlock,
+  type Props,
+  type StyledText,
 } from "@blocknote/core";
 import { ColumnBlock, ColumnListBlock } from "@blocknote/xl-multi-column";
 import { testDocument } from "@shared/testDocument.js";
@@ -21,6 +28,42 @@ const fullSchema = BlockNoteSchema.create({
     columnList: ColumnListBlock,
   },
 });
+
+type InlineBlockType = Extract<
+  DefaultBlockSchema[keyof DefaultBlockSchema],
+  { content: "inline" }
+>["type"];
+type Text = StyledText<DefaultStyleSchema>;
+type TextLink = Link<DefaultStyleSchema>;
+
+function text(text: string, styles: Text["styles"] = {}): Text {
+  return { type: "text", text, styles };
+}
+
+function link(href: string, label: string): TextLink {
+  return { type: "link", href, content: [text(label)] };
+}
+
+function inlineBlock<T extends InlineBlockType>(
+  id: string,
+  type: T,
+  content: string | (Text | TextLink)[],
+  {
+    props = {},
+    children = [],
+  }: {
+    props?: Partial<Props<DefaultBlockSchema[NoInfer<T>]["propSchema"]>>;
+    children?: PartialBlock[];
+  } = {},
+) {
+  return {
+    id,
+    type,
+    content: typeof content === "string" ? [text(content)] : content,
+    children,
+    props,
+  };
+}
 
 describe("react email exporter", () => {
   it("should export a document (HTML snapshot)", async () => {
@@ -76,19 +119,7 @@ describe("react email exporter", () => {
     );
 
     const simpleDocument = [
-      {
-        id: "1",
-        type: "paragraph",
-        content: [
-          {
-            type: "text",
-            text: "Simple text content",
-            styles: {},
-          },
-        ],
-        children: [],
-        props: {},
-      },
+      inlineBlock("1", "paragraph", "Simple text content"),
     ];
 
     const html = await exporter.toReactEmailDocument(simpleDocument as any);
@@ -102,22 +133,9 @@ describe("react email exporter", () => {
     );
 
     const styledDocument = [
-      {
-        id: "1",
-        type: "paragraph",
-        content: [
-          {
-            type: "text",
-            text: "Bold and italic text",
-            styles: {
-              bold: true,
-              italic: true,
-            },
-          },
-        ],
-        children: [],
-        props: {},
-      },
+      inlineBlock("1", "paragraph", [
+        text("Bold and italic text", { bold: true, italic: true }),
+      ]),
     ];
 
     const html = await exporter.toReactEmailDocument(styledDocument as any);
@@ -131,19 +149,11 @@ describe("react email exporter", () => {
     );
 
     const untrustedDocument = [
-      {
-        id: "1",
-        type: "paragraph",
-        content: [
-          {
-            type: "text",
-            text: "x < 10 & y > 20\n<script>alert(1)</script>",
-            styles: {},
-          },
-        ],
-        children: [],
-        props: {},
-      },
+      inlineBlock(
+        "1",
+        "paragraph",
+        "x < 10 & y > 20\n<script>alert(1)</script>",
+      ),
     ];
 
     const html = await exporter.toReactEmailDocument(untrustedDocument as any);
@@ -162,25 +172,9 @@ describe("react email exporter", () => {
     );
 
     const linkDocument = [
-      {
-        id: "1",
-        type: "paragraph",
-        content: [
-          {
-            type: "link",
-            href: "https://example.com",
-            content: [
-              {
-                type: "text",
-                text: "Click here",
-                styles: {},
-              },
-            ],
-          },
-        ],
-        children: [],
-        props: {},
-      },
+      inlineBlock("1", "paragraph", [
+        link("https://example.com", "Click here"),
+      ]),
     ];
 
     const html = await exporter.toReactEmailDocument(linkDocument as any);
@@ -194,33 +188,9 @@ describe("react email exporter", () => {
     );
 
     const nestedListDocument = [
-      {
-        id: "1",
-        type: "bulletListItem",
-        content: [
-          {
-            type: "text",
-            text: "Parent item",
-            styles: {},
-          },
-        ],
-        children: [
-          {
-            id: "2",
-            type: "bulletListItem",
-            content: [
-              {
-                type: "text",
-                text: "Child item",
-                styles: {},
-              },
-            ],
-            children: [],
-            props: {},
-          },
-        ],
-        props: {},
-      },
+      inlineBlock("1", "bulletListItem", "Parent item", {
+        children: [inlineBlock("2", "bulletListItem", "Child item")],
+      }),
     ];
 
     const html = await exporter.toReactEmailDocument(nestedListDocument as any);
@@ -234,50 +204,12 @@ describe("react email exporter", () => {
     );
 
     const mixedDocument = [
-      {
-        id: "1",
-        type: "heading",
-        content: [
-          {
-            type: "text",
-            text: "Main Heading",
-            styles: {},
-          },
-        ],
-        children: [],
-        props: { level: 1 },
-      },
-      {
-        id: "2",
-        type: "paragraph",
-        content: [
-          {
-            type: "text",
-            text: "Regular paragraph with ",
-            styles: {},
-          },
-          {
-            type: "text",
-            text: "bold text",
-            styles: { bold: true },
-          },
-        ],
-        children: [],
-        props: {},
-      },
-      {
-        id: "3",
-        type: "numberedListItem",
-        content: [
-          {
-            type: "text",
-            text: "Numbered list item",
-            styles: {},
-          },
-        ],
-        children: [],
-        props: {},
-      },
+      inlineBlock("1", "heading", "Main Heading", { props: { level: 1 } }),
+      inlineBlock("2", "paragraph", [
+        text("Regular paragraph with "),
+        text("bold text", { bold: true }),
+      ]),
+      inlineBlock("3", "numberedListItem", "Numbered list item"),
     ];
 
     const html = await exporter.toReactEmailDocument(mixedDocument as any);
@@ -293,32 +225,12 @@ describe("react email exporter", () => {
     );
 
     const alignedDocument = [
-      {
-        id: "1",
-        type: "paragraph",
-        content: [
-          {
-            type: "text",
-            text: "Center aligned text",
-            styles: {},
-          },
-        ],
-        children: [],
+      inlineBlock("1", "paragraph", "Center aligned text", {
         props: { textAlignment: "center" },
-      },
-      {
-        id: "2",
-        type: "paragraph",
-        content: [
-          {
-            type: "text",
-            text: "Right aligned text",
-            styles: {},
-          },
-        ],
-        children: [],
+      }),
+      inlineBlock("2", "paragraph", "Right aligned text", {
         props: { textAlignment: "right" },
-      },
+      }),
     ];
 
     const html = await exporter.toReactEmailDocument(alignedDocument as any);
@@ -334,19 +246,9 @@ describe("react email exporter", () => {
     );
 
     const coloredDocument = [
-      {
-        id: "1",
-        type: "paragraph",
-        content: [
-          {
-            type: "text",
-            text: "Text with background color",
-            styles: {},
-          },
-        ],
-        children: [],
+      inlineBlock("1", "paragraph", "Text with background color", {
         props: { backgroundColor: "blue" },
-      },
+      }),
     ];
 
     const html = await exporter.toReactEmailDocument(coloredDocument as any);
@@ -363,19 +265,9 @@ describe("react email exporter", () => {
     );
 
     const coloredDocument = [
-      {
-        id: "1",
-        type: "paragraph",
-        content: [
-          {
-            type: "text",
-            text: "Colored text",
-            styles: {},
-          },
-        ],
-        children: [],
+      inlineBlock("1", "paragraph", "Colored text", {
         props: { textColor: "red" },
-      },
+      }),
     ];
 
     const html = await exporter.toReactEmailDocument(coloredDocument as any);
@@ -418,32 +310,12 @@ describe("react email exporter", () => {
     );
 
     const checkListDocument = [
-      {
-        id: "1",
-        type: "checkListItem",
-        content: [
-          {
-            type: "text",
-            text: "Checked item",
-            styles: {},
-          },
-        ],
-        children: [],
+      inlineBlock("1", "checkListItem", "Checked item", {
         props: { checked: true },
-      },
-      {
-        id: "2",
-        type: "checkListItem",
-        content: [
-          {
-            type: "text",
-            text: "Unchecked item",
-            styles: {},
-          },
-        ],
-        children: [],
+      }),
+      inlineBlock("2", "checkListItem", "Unchecked item", {
         props: { checked: false },
-      },
+      }),
     ];
 
     const html = await exporter.toReactEmailDocument(checkListDocument as any);
@@ -458,45 +330,9 @@ describe("react email exporter", () => {
     );
 
     const headingDocument = [
-      {
-        id: "1",
-        type: "heading",
-        content: [
-          {
-            type: "text",
-            text: "Heading 1",
-            styles: {},
-          },
-        ],
-        children: [],
-        props: { level: 1 },
-      },
-      {
-        id: "2",
-        type: "heading",
-        content: [
-          {
-            type: "text",
-            text: "Heading 2",
-            styles: {},
-          },
-        ],
-        children: [],
-        props: { level: 2 },
-      },
-      {
-        id: "3",
-        type: "heading",
-        content: [
-          {
-            type: "text",
-            text: "Heading 3",
-            styles: {},
-          },
-        ],
-        children: [],
-        props: { level: 3 },
-      },
+      inlineBlock("1", "heading", "Heading 1", { props: { level: 1 } }),
+      inlineBlock("2", "heading", "Heading 2", { props: { level: 2 } }),
+      inlineBlock("3", "heading", "Heading 3", { props: { level: 3 } }),
     ];
 
     const html = await exporter.toReactEmailDocument(headingDocument as any);
@@ -511,108 +347,29 @@ describe("react email exporter", () => {
     );
 
     const complexDocument = [
-      {
-        id: "1",
-        type: "heading",
-        content: [
-          {
-            type: "text",
-            text: "Complex Document",
-            styles: { bold: true },
-          },
-        ],
-        children: [],
+      inlineBlock("1", "heading", [text("Complex Document", { bold: true })], {
         props: { level: 1 },
-      },
-      {
-        id: "2",
-        type: "paragraph",
-        content: [
-          {
-            type: "text",
-            text: "This is a paragraph with ",
-            styles: {},
-          },
-          {
-            type: "text",
-            text: "bold",
-            styles: { bold: true },
-          },
-          {
-            type: "text",
-            text: " and ",
-            styles: {},
-          },
-          {
-            type: "text",
-            text: "italic",
-            styles: { italic: true },
-          },
-          {
-            type: "text",
-            text: " text, plus a ",
-            styles: {},
-          },
-          {
-            type: "link",
-            href: "https://example.com",
-            content: [
-              {
-                type: "text",
-                text: "link",
-                styles: {},
-              },
-            ],
-          },
-          {
-            type: "text",
-            text: ".",
-            styles: {},
-          },
+      }),
+      inlineBlock(
+        "2",
+        "paragraph",
+        [
+          text("This is a paragraph with "),
+          text("bold", { bold: true }),
+          text(" and "),
+          text("italic", { italic: true }),
+          text(" text, plus a "),
+          link("https://example.com", "link"),
+          text("."),
         ],
-        children: [],
-        props: { textAlignment: "center" },
-      },
-      {
-        id: "3",
-        type: "bulletListItem",
-        content: [
-          {
-            type: "text",
-            text: "List item with nested content",
-            styles: {},
-          },
-        ],
+        { props: { textAlignment: "center" } },
+      ),
+      inlineBlock("3", "bulletListItem", "List item with nested content", {
         children: [
-          {
-            id: "4",
-            type: "paragraph",
-            content: [
-              {
-                type: "text",
-                text: "Nested paragraph",
-                styles: {},
-              },
-            ],
-            children: [],
-            props: {},
-          },
-          {
-            id: "5",
-            type: "numberedListItem",
-            content: [
-              {
-                type: "text",
-                text: "Nested numbered item",
-                styles: {},
-              },
-            ],
-            children: [],
-            props: {},
-          },
+          inlineBlock("4", "paragraph", "Nested paragraph"),
+          inlineBlock("5", "numberedListItem", "Nested numbered item"),
         ],
-        props: {},
-      },
+      }),
     ];
 
     const html = await exporter.toReactEmailDocument(complexDocument as any);
@@ -629,58 +386,10 @@ describe("react email exporter", () => {
     );
 
     const mixedListDocument = [
-      {
-        id: "1",
-        type: "bulletListItem",
-        content: [
-          {
-            type: "text",
-            text: "Bullet item 1",
-            styles: {},
-          },
-        ],
-        children: [],
-        props: {},
-      },
-      {
-        id: "2",
-        type: "bulletListItem",
-        content: [
-          {
-            type: "text",
-            text: "Bullet item 2",
-            styles: {},
-          },
-        ],
-        children: [],
-        props: {},
-      },
-      {
-        id: "3",
-        type: "numberedListItem",
-        content: [
-          {
-            type: "text",
-            text: "Numbered item 1",
-            styles: {},
-          },
-        ],
-        children: [],
-        props: {},
-      },
-      {
-        id: "4",
-        type: "numberedListItem",
-        content: [
-          {
-            type: "text",
-            text: "Numbered item 2",
-            styles: {},
-          },
-        ],
-        children: [],
-        props: {},
-      },
+      inlineBlock("1", "bulletListItem", "Bullet item 1"),
+      inlineBlock("2", "bulletListItem", "Bullet item 2"),
+      inlineBlock("3", "numberedListItem", "Numbered item 1"),
+      inlineBlock("4", "numberedListItem", "Numbered item 2"),
     ];
 
     const html = await exporter.toReactEmailDocument(mixedListDocument as any);
@@ -701,5 +410,52 @@ describe("react email exporter", () => {
     expect(html).toMatchSnapshot(
       "__snapshots__/reactEmailExporterCustomBodyStyles",
     );
+  });
+
+  describe("byte stream controller", () => {
+    const nativeController = globalThis.ReadableByteStreamController;
+
+    afterEach(() => {
+      vi.unstubAllGlobals();
+    });
+
+    it("installs the ponyfill's named export while rendering without a native byte stream controller", async () => {
+      vi.stubGlobal("ReadableByteStreamController", undefined);
+      const exporter = new ReactEmailExporter(
+        BlockNoteSchema.create(),
+        reactEmailDefaultSchemaMappings,
+      );
+      const container = vi.fn(function Container() {
+        expect(globalThis.ReadableByteStreamController).toBe(
+          PolyfillController,
+        );
+        return <p>Safari polyfill render</p>;
+      });
+
+      const html = await exporter.toReactEmailDocument([], { container });
+
+      expect(container).toHaveBeenCalled();
+      expect(html).toContain("Safari polyfill render");
+      expect(globalThis.ReadableByteStreamController).toBeUndefined();
+    });
+
+    it("preserves an existing native byte stream controller during and after rendering", async () => {
+      expect(typeof nativeController).toBe("function");
+      vi.stubGlobal("ReadableByteStreamController", nativeController);
+      const exporter = new ReactEmailExporter(
+        BlockNoteSchema.create(),
+        reactEmailDefaultSchemaMappings,
+      );
+      const container = vi.fn(function Container() {
+        expect(globalThis.ReadableByteStreamController).toBe(nativeController);
+        return <p>Native stream render</p>;
+      });
+
+      const html = await exporter.toReactEmailDocument([], { container });
+
+      expect(container).toHaveBeenCalled();
+      expect(html).toContain("Native stream render");
+      expect(globalThis.ReadableByteStreamController).toBe(nativeController);
+    });
   });
 });

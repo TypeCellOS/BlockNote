@@ -1,8 +1,6 @@
-import { BlockNoteEditor } from "@blocknote/core";
-import { beforeEach, describe, expect, it } from "vite-plus/test";
+import { describe, expect } from "vite-plus/test";
 
 import { tools } from "../api/formats/json/tools/index.js";
-import { StreamTool } from "./streamTool.js";
 import { toValidatedOperations } from "./toValidatedOperations.js";
 
 const addOperationValid = {
@@ -50,10 +48,10 @@ async function collectStreamToArray<T>(stream: AsyncIterable<T>): Promise<T[]> {
 }
 
 describe("toValidatedOperations", () => {
-  let editor: BlockNoteEditor;
-  let streamTools: StreamTool<any>[];
-  beforeEach(() => {
-    editor = BlockNoteEditor.create({
+  it("should keep mark mark valid / invalid operations", async ({
+    setupEditor,
+  }) => {
+    const { editor } = await setupEditor({
       initialContent: [
         {
           type: "paragraph",
@@ -62,14 +60,12 @@ describe("toValidatedOperations", () => {
         },
       ],
     });
-    streamTools = [
+    const streamTools = [
       tools.add(editor, { idsSuffixed: true, withDelays: false }),
       tools.update(editor, { idsSuffixed: true, withDelays: false }),
       tools.delete(editor, { idsSuffixed: true, withDelays: false }),
     ];
-  });
 
-  it("should keep mark mark valid / invalid operations", async () => {
     // Create a mock stream
     async function* mockStream() {
       for (const operation of [

@@ -1,18 +1,30 @@
 import { Chat } from "@ai-sdk/react";
-import { BlockNoteEditor } from "@blocknote/core";
-import { UIMessage } from "ai";
-import { afterEach, describe, expect, it, vi } from "vite-plus/test";
+import type { UIMessage, UIMessageChunk } from "ai";
+import { afterEach, describe, expect, vi } from "vite-plus/test";
 import { sendMessageWithAIRequest } from "./sendMessageWithAIRequest.js";
 import { AIRequest } from "./types.js";
 
-vi.mock("../../streamTool/index.js", async (importOriginal) => ({
-  ...(await importOriginal<typeof import("../../streamTool/index.js")>()),
-  setupToolCallStreaming: vi.fn(async () => ({ ok: true, value: undefined })),
-}));
+function createChat(messages: UIMessage[] = []) {
+  return new Chat<UIMessage>({
+    messages,
+    transport: {
+      async sendMessages() {
+        return new ReadableStream<UIMessageChunk>({
+          start(controller) {
+            controller.close();
+          },
+        });
+      },
+      async reconnectToStream() {
+        return null;
+      },
+    },
+  });
+}
 
-function createRequest(): AIRequest {
+function createRequest(editor: AIRequest["editor"]): AIRequest {
   return {
-    editor: BlockNoteEditor.create(),
+    editor,
     streamTools: [],
     onStart: vi.fn(),
     documentState: { selection: false, blocks: [], isEmptyDocument: true },
@@ -22,10 +34,13 @@ function createRequest(): AIRequest {
 afterEach(() => vi.restoreAllMocks());
 
 describe("sendMessageWithAIRequest", () => {
-  it("replaces stale document state and tool definitions while preserving custom options", async () => {
-    const chat = new Chat<UIMessage>({});
-    const send = vi.spyOn(chat, "sendMessage").mockResolvedValue(undefined);
-    const request = createRequest();
+  it("replaces stale document state and tool definitions while preserving custom options", async ({
+    setupEditor,
+  }) => {
+    const chat = createChat();
+    const send = vi.spyOn(chat, "sendMessage");
+    const { editor } = await setupEditor();
+    const request = createRequest(editor);
     const oldMetadata = {
       custom: { nested: [1, 2] },
       documentState: {
@@ -66,12 +81,13 @@ describe("sendMessageWithAIRequest", () => {
     expect(options).toEqual(originalOptions);
   });
 
-  it.each([undefined, null, "custom", 42])(
+  it.for([undefined, null, "custom", 42])(
     "accepts absent or non-object metadata (%s)",
-    async (metadata) => {
-      const chat = new Chat<UIMessage>({});
-      const send = vi.spyOn(chat, "sendMessage").mockResolvedValue(undefined);
-      const request = createRequest();
+    async (metadata, { setupEditor }) => {
+      const chat = createChat();
+      const send = vi.spyOn(chat, "sendMessage");
+      const { editor } = await setupEditor();
+      const request = createRequest(editor);
       const message = { text: "Update", metadata };
 
       await sendMessageWithAIRequest(chat, request, message, { metadata });
@@ -88,12 +104,13 @@ describe("sendMessageWithAIRequest", () => {
     },
   );
 
-  it("updates the last message when no message or options are supplied", async () => {
-    const chat = new Chat<UIMessage>({
-      messages: [{ id: "last", role: "user", parts: [] }],
-    });
-    const send = vi.spyOn(chat, "sendMessage").mockResolvedValue(undefined);
-    const request = createRequest();
+  it("updates the last message when no message or options are supplied", async ({
+    setupEditor,
+  }) => {
+    const chat = createChat([{ id: "last", role: "user", parts: [] }]);
+    const send = vi.spyOn(chat, "sendMessage");
+    const { editor } = await setupEditor();
+    const request = createRequest(editor);
 
     await sendMessageWithAIRequest(chat, request);
 

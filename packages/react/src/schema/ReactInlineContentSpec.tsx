@@ -31,6 +31,7 @@ import {
 // import { useReactNodeView } from "@tiptap/react/dist/packages/react/src/useReactNodeView";
 import { FC, JSX } from "react";
 import { renderToDOMSpec } from "./@util/ReactRenderUtil.js";
+import { useNodeViewEditability } from "./useNodeViewEditability.js";
 // this file is mostly analogoues to `customBlocks.ts`, but for React blocks
 
 export type ReactCustomInlineContentRenderProps<
@@ -209,6 +210,7 @@ export function createReactInlineContentSpec<
       return (props) =>
         ReactNodeViewRenderer(
           (props: NodeViewProps) => {
+            useNodeViewEditability(editor);
             const ref = useReactNodeView().nodeViewContentRef;
 
             if (!ref) {

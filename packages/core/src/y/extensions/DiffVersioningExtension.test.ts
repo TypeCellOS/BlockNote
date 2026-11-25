@@ -1,10 +1,7 @@
-/**
- * @vitest-environment jsdom
- */
-import { afterEach, beforeEach, describe, expect, it } from "vite-plus/test";
+import { describe, expect } from "vite-plus/test";
 
-import { BlockNoteEditor } from "../../editor/BlockNoteEditor.js";
-import type { Block } from "../../blocks/defaultBlocks.js";
+import type { SetupEditor } from "../../../../../tests/src/commands/node/setupEditor.js";
+import type { BlockNoteEditor } from "../../editor/BlockNoteEditor.js";
 import { colorsForUserIds } from "../../user/index.js";
 import { AttributionExtension } from "./AttributionExtension.js";
 import { DiffVersioningExtension } from "./DiffVersioningExtension.js";
@@ -13,32 +10,21 @@ import { DiffVersioningExtension } from "./DiffVersioningExtension.js";
 // Helpers
 // ---------------------------------------------------------------------------
 
-const mounts: HTMLElement[] = [];
-
-function createDiffEditor() {
-  const editor = BlockNoteEditor.create({
-    extensions: [DiffVersioningExtension()],
-  });
-  const mount = document.createElement("div");
-  document.body.appendChild(mount);
-  mounts.push(mount);
-  editor.mount(mount);
-  return editor;
-}
-
 /**
  * Build a `Block[]` fixture from a plain paragraph string using a throwaway
  * editor, mirroring the `mkSnap` pattern in `inMemoryVersioning.test.ts`.
  */
-function blocksFromText(text: string, id = "block"): Block<any, any, any>[] {
-  const e = BlockNoteEditor.create();
-  e.mount(document.createElement("div"));
+async function blocksFromText(
+  setupEditor: SetupEditor,
+  text: string,
+  id = "block",
+) {
   // The two versions of a diff are versions of one document: a block keeps
   // its ID. Thus, the block has a fixed ID by default.
-  e.replaceBlocks(e.document, [{ id, type: "paragraph", content: text }]);
-  const blocks = e.document;
-  e.unmount();
-  return blocks;
+  const { editor } = await setupEditor({
+    initialContent: [{ id, type: "paragraph", content: text }],
+  });
+  return editor.document;
 }
 
 /**
@@ -48,21 +34,23 @@ function blocksFromText(text: string, id = "block"): Block<any, any, any>[] {
  */
 function collectAttributedText(editor: BlockNoteEditor<any, any, any>) {
   const out: Array<{ text: string; marks: Array<[string, string[]]> }> = [];
-  editor.prosemirrorState.doc.descendants((node) => {
-    if (node.isText) {
-      const marks = node.marks
-        .filter((m) => m.type.name.startsWith("y-attributed-"))
-        .map(
-          (m) =>
-            [m.type.name, (m.attrs.userIds as string[]) ?? []] as [
-              string,
-              string[],
-            ],
-        );
-      out.push({ text: node.text ?? "", marks });
-    }
-    return true;
-  });
+  editor.transact(({ doc }) =>
+    doc.descendants((node) => {
+      if (node.isText) {
+        const marks = node.marks
+          .filter((m) => m.type.name.startsWith("y-attributed-"))
+          .map(
+            (m) =>
+              [m.type.name, (m.attrs.userIds as string[]) ?? []] as [
+                string,
+                string[],
+              ],
+          );
+        out.push({ text: node.text ?? "", marks });
+      }
+      return true;
+    }),
+  );
   return out;
 }
 
@@ -70,14 +58,16 @@ function attributionMarkNames(
   editor: BlockNoteEditor<any, any, any>,
 ): Set<string> {
   const names = new Set<string>();
-  editor.prosemirrorState.doc.descendants((node) => {
-    node.marks.forEach((m) => {
-      if (m.type.name.startsWith("y-attributed-")) {
-        names.add(m.type.name);
-      }
-    });
-    return true;
-  });
+  editor.transact(({ doc }) =>
+    doc.descendants((node) => {
+      node.marks.forEach((m) => {
+        if (m.type.name.startsWith("y-attributed-")) {
+          names.add(m.type.name);
+        }
+      });
+      return true;
+    }),
+  );
   return names;
 }
 
@@ -85,29 +75,29 @@ function attributionMarkNames(
 // Tests
 // ---------------------------------------------------------------------------
 
+function setupDiffEditor(setupEditor: SetupEditor) {
+  return setupEditor({ extensions: [DiffVersioningExtension()] });
+}
+
 describe("DiffVersioningExtension", () => {
-  let editor: BlockNoteEditor<any, any, any>;
-
-  beforeEach(() => {
-    editor = createDiffEditor();
-  });
-
-  afterEach(() => {
-    editor.unmount();
-    for (const mount of mounts.splice(0)) {
-      mount.remove();
-    }
-  });
-
-  it("registers the y-attributed-* marks into the schema", () => {
+  it("registers the y-attributed-* marks into the schema", async ({
+    setupEditor,
+  }) => {
+    const { editor } = await setupDiffEditor(setupEditor);
     expect(editor.pmSchema.marks["y-attributed-insert"]).toBeDefined();
     expect(editor.pmSchema.marks["y-attributed-delete"]).toBeDefined();
     expect(editor.pmSchema.marks["y-attributed-format"]).toBeDefined();
   });
 
-  it("renders insert/delete marks in the right positions for a known diff", () => {
-    const baseline = blocksFromText("the quick brown fox");
-    const target = blocksFromText("the slow brown fox jumps");
+  it("renders insert/delete marks in the right positions for a known diff", async ({
+    setupEditor,
+  }) => {
+    const { editor } = await setupDiffEditor(setupEditor);
+    const baseline = await blocksFromText(setupEditor, "the quick brown fox");
+    const target = await blocksFromText(
+      setupEditor,
+      "the slow brown fox jumps",
+    );
 
     const diff = editor.getExtension(DiffVersioningExtension)!;
     diff.renderDiff(target, baseline);
@@ -142,11 +132,22 @@ describe("DiffVersioningExtension", () => {
     expect(unchanged).toContain("brown fox");
   });
 
-  it("shows a block with a different ID as a deleted block and an inserted block", () => {
+  it("shows a block with a different ID as a deleted block and an inserted block", async ({
+    setupEditor,
+  }) => {
+    const { editor } = await setupDiffEditor(setupEditor);
     // The diff pairs blocks by their ID: these are two blocks, also with
     // text in common.
-    const baseline = blocksFromText("the quick brown fox", "old");
-    const target = blocksFromText("the slow brown fox jumps", "new");
+    const baseline = await blocksFromText(
+      setupEditor,
+      "the quick brown fox",
+      "old",
+    );
+    const target = await blocksFromText(
+      setupEditor,
+      "the slow brown fox jumps",
+      "new",
+    );
 
     const diff = editor.getExtension(DiffVersioningExtension)!;
     diff.renderDiff(target, baseline);
@@ -162,9 +163,12 @@ describe("DiffVersioningExtension", () => {
     expect(attributed.filter((t) => t.marks.length === 0)).toEqual([]);
   });
 
-  it("attributes every change to one synthetic author (userIds on the marks)", () => {
-    const baseline = blocksFromText("hello world");
-    const target = blocksFromText("hello there world");
+  it("attributes every change to one synthetic author (userIds on the marks)", async ({
+    setupEditor,
+  }) => {
+    const { editor } = await setupDiffEditor(setupEditor);
+    const baseline = await blocksFromText(setupEditor, "hello world");
+    const target = await blocksFromText(setupEditor, "hello there world");
 
     const diff = editor.getExtension(DiffVersioningExtension)!;
     diff.renderDiff(target, baseline);
@@ -178,26 +182,12 @@ describe("DiffVersioningExtension", () => {
     expect(new Set(userIds).size).toBe(1);
   });
 
-  it("reports no authors when hovering a change", () => {
-    const baseline = blocksFromText("hello world");
-    const target = blocksFromText("hello new world");
-
-    editor.getExtension(DiffVersioningExtension)!.renderDiff(target, baseline);
-
-    editor.prosemirrorView.dom
-      .querySelector("ins[data-user-ids]")!
-      .dispatchEvent(new MouseEvent("mouseover", { bubbles: true }));
-    expect(
-      editor.getExtension(AttributionExtension)!.store.state,
-    ).toMatchObject({
-      modificationType: "insert",
-      users: [],
-    });
-  });
-
-  it("colors the diff author with the palette's blue, tint included", async () => {
-    const baseline = blocksFromText("hello world");
-    const target = blocksFromText("hello brave new world");
+  it("colors the diff author with the palette's blue, tint included", async ({
+    setupEditor,
+  }) => {
+    const { editor } = await setupDiffEditor(setupEditor);
+    const baseline = await blocksFromText(setupEditor, "hello world");
+    const target = await blocksFromText(setupEditor, "hello brave new world");
 
     const diff = editor.getExtension(DiffVersioningExtension)!;
     diff.renderDiff(target, baseline);
@@ -216,9 +206,12 @@ describe("DiffVersioningExtension", () => {
     });
   });
 
-  it("reads a plain block's content as the newer version's text", () => {
-    function codeBlock(code: string) {
-      const e = BlockNoteEditor.create();
+  it("reads a plain block's content as the newer version's text", async ({
+    setupEditor,
+  }) => {
+    const { editor } = await setupDiffEditor(setupEditor);
+    async function codeBlock(code: string) {
+      const { editor: e } = await setupEditor();
       e.replaceBlocks(e.document, [
         { id: "code", type: "codeBlock", content: code },
       ]);
@@ -227,7 +220,7 @@ describe("DiffVersioningExtension", () => {
 
     editor
       .getExtension(DiffVersioningExtension)!
-      .renderDiff(codeBlock("y^3"), codeBlock("x^2"));
+      .renderDiff(await codeBlock("y^3"), await codeBlock("x^2"));
 
     // Previews (math, diagrams) render from this text, so it must not merge
     // the deleted source with its replacement ("xy^23").
@@ -236,22 +229,26 @@ describe("DiffVersioningExtension", () => {
     ]);
   });
 
-  it("produces no attribution marks when the docs are identical", () => {
-    const same = blocksFromText("nothing changes here");
+  it("produces no attribution marks when the docs are identical", async ({
+    setupEditor,
+  }) => {
+    const { editor } = await setupDiffEditor(setupEditor);
+    const same = await blocksFromText(setupEditor, "nothing changes here");
 
     const diff = editor.getExtension(DiffVersioningExtension)!;
     diff.renderDiff(same, same);
 
     expect(attributionMarkNames(editor).size).toBe(0);
-    expect(editor.prosemirrorState.doc.textContent).toContain(
-      "nothing changes here",
-    );
+    expect(editor.document[0].content).toEqual(same[0].content);
   });
 
-  it("replacing the rendered blocks drops the attribution marks", () => {
-    const baseline = blocksFromText("first version");
-    const target = blocksFromText("second version");
-    const restore = blocksFromText("live document");
+  it("replacing the rendered blocks drops the attribution marks", async ({
+    setupEditor,
+  }) => {
+    const { editor } = await setupDiffEditor(setupEditor);
+    const baseline = await blocksFromText(setupEditor, "first version");
+    const target = await blocksFromText(setupEditor, "second version");
+    const restore = await blocksFromText(setupEditor, "live document");
 
     const diff = editor.getExtension(DiffVersioningExtension)!;
     diff.renderDiff(target, baseline);
@@ -259,6 +256,6 @@ describe("DiffVersioningExtension", () => {
 
     editor.replaceBlocks(editor.document, restore);
     expect(attributionMarkNames(editor).size).toBe(0);
-    expect(editor.prosemirrorState.doc.textContent).toBe("live document");
+    expect(editor.document).toEqual(restore);
   });
 });

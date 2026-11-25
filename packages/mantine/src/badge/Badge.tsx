@@ -6,13 +6,14 @@ import {
 
 import { assertEmpty } from "@blocknote/core";
 import { ComponentProps } from "@blocknote/react";
-import { MouseEvent, forwardRef, useState } from "react";
+import { HTMLAttributes, MouseEvent, forwardRef, useState } from "react";
 
 import { TooltipContent } from "../toolbar/ToolbarButton.js";
 
 export const Badge = forwardRef<
-  HTMLInputElement,
-  ComponentProps["Generic"]["Badge"]["Root"]
+  HTMLDivElement,
+  ComponentProps["Generic"]["Badge"]["Root"] &
+    Omit<HTMLAttributes<HTMLInputElement>, "onChange">
 >((props, ref) => {
   const {
     className,
@@ -20,15 +21,12 @@ export const Badge = forwardRef<
     icon,
     isSelected,
     mainTooltip,
+    label,
     secondaryTooltip,
     onClick,
     onMouseEnter,
     ...rest
   } = props;
-
-  // false, because rest props can be added by mantine when chip is used as a trigger
-  // assertEmpty in this case is only used at typescript level, not runtime level
-  assertEmpty(rest, false);
 
   const [hideTooltip, setHideTooltip] = useState(false);
 
@@ -46,7 +44,10 @@ export const Badge = forwardRef<
       }}
       variant={"light"}
       icon={null}
-      ref={ref}
+      // The popover target must include the visible label, not just the input.
+      rootRef={ref}
+      aria-label={label}
+      {...rest}
     >
       <span>{icon}</span>
       <span>{text}</span>

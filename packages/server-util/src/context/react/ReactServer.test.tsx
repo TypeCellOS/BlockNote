@@ -7,6 +7,7 @@ import {
 import { createReactBlockSpec } from "@blocknote/react";
 import { createContext, useContext, useEffect } from "react";
 import { describe, expect, it } from "vite-plus/test";
+import { useReactServerDOM } from "../../../testServerDOM.js";
 import { ServerBlockNoteEditor } from "../ServerBlockNoteEditor.js";
 
 const SimpleReactCustomParagraph = createReactBlockSpec(
@@ -53,6 +54,7 @@ const schema = BlockNoteSchema.create({
 });
 
 describe("Test ServerBlockNoteEditor with React blocks", () => {
+  useReactServerDOM();
   it("works for simple blocks", async () => {
     const editor = ServerBlockNoteEditor.create({
       schema,
@@ -124,18 +126,20 @@ describe("Test ServerBlockNoteEditor with React blocks", () => {
         },
       }),
     });
-    expect(
-      await editor.blocksToMarkdownLossy([
-        { type: "deferredParagraph", content: "Hello" },
-      ]),
-    ).toContain("Hello");
-    expect(globalThis.window).toBe(testWindow);
-    expect(globalThis.document).toBe(testDocument);
-    // Explicitly release component-owned work only after the export resolves.
-    expect(deferredWork).toBeDefined();
-    releaseDeferredWork();
-    const observed = await deferredWork;
-    // Identity comparisons avoid traversing JSDOM objects in failure diagnostics.
+    let observed: Awaited<typeof deferredWork>;
+    try {
+      expect(
+        await editor.blocksToMarkdownLossy([
+          { type: "deferredParagraph", content: "Hello" },
+        ]),
+      ).toContain("Hello");
+      expect(globalThis.window).toBe(testWindow);
+      expect(globalThis.document).toBe(testDocument);
+      expect(deferredWork).toBeDefined();
+    } finally {
+      releaseDeferredWork();
+      observed = await deferredWork;
+    }
     expect(observed?.renderDocument === testDocument).toBe(true);
     expect(observed?.currentDocument === testDocument).toBe(true);
   });
@@ -156,7 +160,6 @@ describe("Test ServerBlockNoteEditor with React blocks", () => {
     results.forEach((result, index) => {
       expect(result).toContain(`Paragraph ${index}`);
     });
-    await new Promise<void>((resolve) => setTimeout(resolve, 0));
     expect(globalThis.window === testWindow).toBe(true);
     expect(globalThis.document === testDocument).toBe(true);
   });

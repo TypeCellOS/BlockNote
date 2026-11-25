@@ -22,20 +22,18 @@ import compilerWasmUrl from "@blocknote/xl-typst-compiler/wasm?url";
 import { testDocumentWithSourceBlocks } from "@shared/testDocument.js";
 import { isPdf } from "@shared/util/testBytesUtil.js";
 import { testResolveFileUrl } from "@shared/util/testFileResolver.js";
-import { afterEach, describe, expect, test } from "vite-plus/test";
+import { describe, expect, test } from "vite-plus/test";
+import { resizeViewportForTest } from "../../commands/browser/screenshotFull.js";
 import { browserName } from "../../utils/context.js";
 import {
   invalidDiagramBlock,
   invalidMathBlock,
-  removeExportFrame,
   schema,
   screenshotPdfPages,
 } from "./exporterTestUtil.js";
 
 // See exporterTestUtil.tsx for why the complete-export browser tests live
 // here rather than in the exporter packages.
-
-afterEach(removeExportFrame);
 
 // Builds the exporter, converts the shared document (plus invalid math /
 // diagram placeholders), and compiles it natively as PDF/UA-1 through the
@@ -70,20 +68,24 @@ async function compileTypstUaPdf() {
     },
   );
 
-  const typ = await exporter.toTypst(
-    typstDocument as any,
-    {
-      title: "BlockNote Export",
-      lang: "en",
-      // Fixed timestamp: the visual baselines rely on deterministic bytes.
-      creationTimestamp: 1_700_000_000,
-    } as any,
-  );
+  const [typ, fonts, emojiFont] = await Promise.all([
+    exporter.toTypst(
+      typstDocument as any,
+      {
+        title: "BlockNote Export",
+        lang: "en",
+        // Fixed timestamp: the visual baselines rely on deterministic bytes.
+        creationTimestamp: 1_700_000_000,
+      } as any,
+    ),
+    loadDefaultBodyFonts(),
+    loadDefaultEmojiFont(),
+  ]);
 
   const result = await compileTypstToPdf(typ, {
     wasm: new URL(compilerWasmUrl, document.baseURI),
-    fonts: await loadDefaultBodyFonts(),
-    emojiFont: await loadDefaultEmojiFont(),
+    fonts,
+    emojiFont,
     assets: exporter.assetFiles,
     pdfStandard: "ua-1",
     creationTimestamp: 1_700_000_000,
@@ -94,6 +96,17 @@ async function compileTypstUaPdf() {
   return { typ, exporter, pdf: result.pdf };
 }
 
+// The two cases assert different properties of the same deterministic export.
+// Initialize lazily so either case still exercises the full pipeline when run alone.
+let compiled: ReturnType<typeof compileTypstUaPdf> | undefined;
+function getTypstUaPdf() {
+  return (compiled ??= compileTypstUaPdf().catch((error: unknown) => {
+    // The next test or retry must be able to compile again after a failure.
+    compiled = undefined;
+    throw error;
+  }));
+}
+
 describe("pdf/ua export through the complete typst pipeline in the browser", () => {
   test(
     "exports the shared document with math and diagrams",
@@ -102,7 +115,7 @@ describe("pdf/ua export through the complete typst pipeline in the browser", () 
       // Compiling through the real wasm pipeline is what only the browser
       // suite covers: bundler-served wasm loading (the node unit suites
       // drive the same wasm from bytes).
-      const { typ, exporter, pdf } = await compileTypstUaPdf();
+      const { typ, exporter, pdf } = await getTypstUaPdf();
 
       // Native equations with the LaTeX source as alt text, the diagram as a
       // figure with the Mermaid source as alt text - and the invalid sources
@@ -142,7 +155,11 @@ describe("pdf/ua export through the complete typst pipeline in the browser", () 
     // than the other tests on shared CI runners.
     { timeout: 120000 },
     async () => {
-      const { pdf } = await compileTypstUaPdf();
+      const { pdf } = await getTypstUaPdf();
+      const { GlobalWorkerOptions } = await import("pdfjs-dist");
+      const workerSrc = GlobalWorkerOptions.workerSrc;
+      const callerViewport = [1100, 700] as const;
+      await resizeViewportForTest(...callerViewport);
 
       // Deterministic input (fixed creationTimestamp) + a pinned renderer
       // make these pages byte-stable, so the comparison can be much tighter
@@ -151,6 +168,8 @@ describe("pdf/ua export through the complete typst pipeline in the browser", () 
       await screenshotPdfPages(pdf, "typst-pdf-page", {
         comparatorOptions: { allowedMismatchedPixelRatio: 0.002 },
       });
+      expect([window.innerWidth, window.innerHeight]).toEqual(callerViewport);
+      expect(GlobalWorkerOptions.workerSrc).toBe(workerSrc);
     },
   );
 });

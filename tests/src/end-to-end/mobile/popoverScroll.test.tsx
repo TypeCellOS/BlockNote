@@ -64,13 +64,10 @@ describe("Opening a toolbar popover", () => {
         `${MOBILE_TOOLBAR_SELECTOR} ${LINK_BUTTON_SELECTOR}`,
       ),
     );
-    await vi.waitFor(() => {
-      if (!document.querySelector('input[name="url"]')) {
-        throw new Error("link popover did not open");
-      }
-    });
-    // Let any scroll-into-view settle before measuring.
-    await new Promise((resolve) => setTimeout(resolve, 400));
+    await waitForSelector('input[name="url"]:focus');
+    // The regression is triggered by autofocus; sample after the next paint.
+    await new Promise(requestAnimationFrame);
+    await new Promise(requestAnimationFrame);
 
     expect(
       Math.abs(scroller.scrollTop - scrollBefore),

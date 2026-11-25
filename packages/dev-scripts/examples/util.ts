@@ -163,7 +163,7 @@ export function getCatalogVersion(name: string): string {
   );
 }
 
-export function groupBy<T>(arr: T[], key: (el: T) => string) {
+function groupBy<T>(arr: T[], key: (el: T) => string) {
   const groups: Record<string, T[]> = {};
   arr.forEach((val) => {
     const k = key(val);
@@ -248,7 +248,7 @@ const BINARY_EXTENSIONS = new Set([
   ".woff2",
 ]);
 
-export type ProjectFile =
+type ProjectFile =
   | { filename: string; kind: "text"; code: string }
   | { filename: string; kind: "binary"; sourcePath: string };
 
@@ -316,12 +316,12 @@ export function getExampleProjects(): Project[] {
       }
 
       const [groupDir, exampleDir] = path
-        .relative(path.resolve("../../examples"), directory)
+        .relative(path.join(workspaceRoot, "examples"), directory)
         .split(path.sep);
 
       const group = {
         pathFromRoot: replacePathSepToSlash(
-          path.relative(path.resolve("../../"), path.join(directory, "..")),
+          path.relative(workspaceRoot, path.join(directory, "..")),
         ),
         // remove optional 01- prefix
         slug: groupDir.replace(/^\d{2}-/, ""),
@@ -332,7 +332,7 @@ export function getExampleProjects(): Project[] {
         projectSlug,
         fullSlug: `${group.slug}/${projectSlug}`,
         pathFromRoot: replacePathSepToSlash(
-          path.relative(path.resolve("../../"), directory),
+          path.relative(workspaceRoot, directory),
         ),
         config,
         title,

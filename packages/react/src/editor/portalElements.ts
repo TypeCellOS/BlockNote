@@ -13,6 +13,8 @@ export type PortalElement = HTMLElement | string;
  * `default` is the fallback used for any element whose key is omitted. If
  * `default` is also omitted, floating UI portals into the element wrapping the
  * editor: its `bn-container`, or what `BlockNoteViewEditor` was rendered into.
+ * The mobile formatting toolbar instead escapes to the editor's shadow root
+ * (preserving shadow-scoped styles), or its document body.
  */
 export type PortalElementsMap = {
   default?: PortalElement;
@@ -26,8 +28,6 @@ export type PortalElementsMap = {
   comments?: PortalElement;
   attributionTooltip?: PortalElement;
 };
-
-export type PortalElementKey = Exclude<keyof PortalElementsMap, "default">;
 
 export function resolvePortalElement(
   target: PortalElement | undefined,

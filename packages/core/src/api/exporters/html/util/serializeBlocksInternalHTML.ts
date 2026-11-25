@@ -20,7 +20,7 @@ import {
   markFrameSlot,
   renderFrameDOM,
 } from "../../../../schema/blocks/frame.js";
-export function serializeInlineContentInternalHTML<
+function serializeInlineContentInternalHTML<
   BSchema extends BlockSchema,
   I extends InlineContentSchema,
   S extends StyleSchema,

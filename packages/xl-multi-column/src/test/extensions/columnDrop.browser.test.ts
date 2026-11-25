@@ -1,8 +1,11 @@
-import { BlockNoteEditor, BlockNoteSchema, getNodeById } from "@blocknote/core";
+import {
+  BlockNoteSchema,
+  type BlockNoteEditor,
+  type BlockNoteEditorOptions,
+} from "@blocknote/core";
 import type { SideMenuExtension } from "@blocknote/core/extensions";
 import "@blocknote/core/style.css";
-import { TextSelection } from "prosemirror-state";
-import { afterEach, describe, expect, it } from "vite-plus/test";
+import { describe, expect } from "vite-plus/test";
 
 import { withMultiColumn } from "../../blocks/schema.js";
 import { multiColumnDropCursor } from "../../extensions/DropCursor/multiColumnDropCursor.js";
@@ -13,60 +16,54 @@ import { multiColumnDropCursor } from "../../extensions/DropCursor/multiColumnDr
 
 const schema = withMultiColumn(BlockNoteSchema.create());
 
-let editor: BlockNoteEditor<
+type Editor = BlockNoteEditor<
   typeof schema.blockSchema,
   typeof schema.inlineContentSchema,
   typeof schema.styleSchema
 >;
-let root: HTMLElement;
 
-function mount() {
-  root = document.createElement("div");
-  document.body.appendChild(root);
-  editor = BlockNoteEditor.create({
-    schema,
-    dropCursor: multiColumnDropCursor,
-    initialContent: [
-      { id: "before", type: "paragraph", content: "Before" },
-      {
-        id: "list",
-        type: "columnList",
-        children: [
-          {
-            id: "col-a",
-            type: "column",
-            children: [{ id: "a", type: "paragraph", content: "A" }],
-          },
-          {
-            id: "col-b",
-            type: "column",
-            children: [{ id: "b", type: "paragraph", content: "B" }],
-          },
-          {
-            id: "col-c",
-            type: "column",
-            children: [{ id: "c", type: "paragraph", content: "C" }],
-          },
-        ],
-      },
-      { id: "after", type: "paragraph", content: "After" },
-    ],
-  });
-  editor.mount(root);
-}
+const editorOptions = {
+  schema,
+  dropCursor: multiColumnDropCursor,
+  initialContent: [
+    { id: "before", type: "paragraph", content: "Before" },
+    {
+      id: "list",
+      type: "columnList",
+      children: [
+        {
+          id: "col-a",
+          type: "column",
+          children: [{ id: "a", type: "paragraph", content: "A" }],
+        },
+        {
+          id: "col-b",
+          type: "column",
+          children: [{ id: "b", type: "paragraph", content: "B" }],
+        },
+        {
+          id: "col-c",
+          type: "column",
+          children: [{ id: "c", type: "paragraph", content: "C" }],
+        },
+      ],
+    },
+    { id: "after", type: "paragraph", content: "After" },
+  ],
+} satisfies Partial<
+  BlockNoteEditorOptions<
+    typeof schema.blockSchema,
+    typeof schema.inlineContentSchema,
+    typeof schema.styleSchema
+  >
+>;
 
-afterEach(() => {
-  sideMenu().blockDragEnd();
-  editor._tiptapEditor.destroy();
-  root.remove();
-});
-
-function sideMenu() {
+function sideMenu(editor: Editor) {
   return editor.getExtension<typeof SideMenuExtension>("sideMenu")!;
 }
 
-function columnElement(id: string): HTMLElement {
-  const element = root.querySelector<HTMLElement>(
+function columnElement(editor: Editor, id: string): HTMLElement {
+  const element = editor.domElement!.querySelector<HTMLElement>(
     `[data-node-type="column"][data-id="${id}"]`,
   );
   if (!element) {
@@ -83,30 +80,34 @@ function columnElement(id: string): HTMLElement {
  * ids of blocks dragged from there, and regenerates them for drops from
  * elsewhere.
  */
-function startBlockDrag(id: string) {
+function startBlockDrag(editor: Editor, id: string) {
   const dataTransfer = new DataTransfer();
-  sideMenu().blockDragStart({ dataTransfer, clientY: 0 }, editor.getBlock(id)!);
-  editor.prosemirrorView.dom.parentElement!.dispatchEvent(
+  sideMenu(editor).blockDragStart(
+    { dataTransfer, clientY: 0 },
+    editor.getBlock(id)!,
+  );
+  editor.domElement!.parentElement!.dispatchEvent(
     new DragEvent("dragstart", { bubbles: true, dataTransfer }),
   );
   return dataTransfer;
 }
 
-/** Drops the drag at the point: on the element there, as the browser does. */
-function dropAt(dataTransfer: DataTransfer, clientX: number, clientY: number) {
-  const init: DragEventInit = {
-    bubbles: true,
-    cancelable: true,
-    clientX,
-    clientY,
-    dataTransfer,
-  };
-  const element = document.elementFromPoint(clientX, clientY)!;
-  element.dispatchEvent(new DragEvent("dragenter", init));
-  element.dispatchEvent(new DragEvent("dragover", init));
-  document
-    .elementFromPoint(clientX, clientY)!
-    .dispatchEvent(new DragEvent("drop", init));
+/** Dispatches to the hit-tested element, rather than assuming the target. */
+function dispatchDragAt(
+  type: "dragenter" | "dragover" | "drop",
+  dataTransfer: DataTransfer,
+  clientX: number,
+  clientY: number,
+) {
+  document.elementFromPoint(clientX, clientY)!.dispatchEvent(
+    new DragEvent(type, {
+      bubbles: true,
+      cancelable: true,
+      clientX,
+      clientY,
+      dataTransfer,
+    }),
+  );
 }
 
 describe("dragging a block selection that spans the column list", () => {
@@ -115,25 +116,52 @@ describe("dragging a block selection that spans the column list", () => {
   // extended into a column, so the drag took the paragraph and the whole
   // list. Dropping on a column's edge removed the list before updating it,
   // which threw `Block with ID 1 not found` out of the drop handler.
-  it("drops it as usual, without throwing", () => {
-    mount();
-    const doc = editor.prosemirrorState.doc;
+  it("leaves the document unchanged when dropped on its own column edge", async ({
+    setupEditor,
+  }) => {
+    const { editor } = await setupEditor({
+      mountType: "dom",
+      ...editorOptions,
+    });
     // From inside the paragraph above the list to inside a column's block.
-    const anchor = getNodeById("before", doc)!.posBeforeNode + 2;
-    const head = getNodeById("a", doc)!.posBeforeNode + 2;
-    editor.transact((tr) =>
-      tr.setSelection(TextSelection.create(tr.doc, anchor, head)),
-    );
+    editor.setSelection("before", "a");
     const before = editor.document;
 
-    const dataTransfer = startBlockDrag("a");
-    // The paragraph and the whole column list.
-    expect(editor.prosemirrorView.dragging!.slice.content.childCount).toBe(2);
+    try {
+      const dataTransfer = startBlockDrag(editor, "a");
+      // The drag payload contains the preceding paragraph and every column,
+      // not just the column in which the text selection ends.
+      const payload = document.createElement("template");
+      payload.innerHTML = dataTransfer.getData("blocknote/html");
+      for (const id of ["before", "list", "col-a", "col-b", "col-c"]) {
+        expect(
+          payload.content.querySelector(`[data-id="${id}"]`),
+        ).not.toBeNull();
+      }
+      expect(payload.content.querySelector('[data-id="after"]')).toBeNull();
 
-    const rect = columnElement("col-c").getBoundingClientRect();
-    dropAt(dataTransfer, rect.right - 1, rect.top + rect.height / 2);
+      const rect = columnElement(editor, "col-c").getBoundingClientRect();
+      const x = rect.right - 1;
+      const y = rect.top + rect.height / 2;
+      dispatchDragAt("dragenter", dataTransfer, x, y);
+      dispatchDragAt("dragover", dataTransfer, x, y);
+      const cursor = editor.domElement?.offsetParent?.querySelector(
+        ".prosemirror-dropcursor-block-vertical-right",
+      );
+      if (!cursor) {
+        throw new Error("The drag did not reach a right-edge drop zone");
+      }
+      const cursorRect = cursor.getBoundingClientRect();
+      expect(
+        Math.abs(cursorRect.left + cursorRect.width / 2 - rect.right),
+      ).toBeLessThanOrEqual(1);
+      expect(Math.abs(cursorRect.top - rect.top)).toBeLessThanOrEqual(1);
+      expect(Math.abs(cursorRect.bottom - rect.bottom)).toBeLessThanOrEqual(1);
 
-    expect(editor.document).toEqual(before);
-    expect(() => editor.prosemirrorState.doc.check()).not.toThrow();
+      dispatchDragAt("drop", dataTransfer, x, y);
+      expect(editor.document).toEqual(before);
+    } finally {
+      sideMenu(editor).blockDragEnd();
+    }
   });
 });

@@ -1,11 +1,10 @@
-// @vitest-environment node
-import { afterEach, expect, it, vi } from "vite-plus/test";
-import { BlockNoteEditor } from "../../editor/BlockNoteEditor.js";
+import { afterEach, expect, vi } from "vite-plus/test";
+import type { SetupEditor } from "../../../../../tests/src/commands/node/setupEditor.js";
+import type { BlockNoteEditor } from "../../editor/BlockNoteEditor.js";
 import {
   createVersioningExtension,
   type VersioningController,
 } from "./Versioning.js";
-import { ReadOnlyExtension } from "../ReadOnly/ReadOnly.js";
 import { success } from "./__test__/result.js";
 import type { VersionDisplay } from "./types.js";
 
@@ -13,7 +12,9 @@ afterEach(() => {
   vi.useRealTimers();
 });
 
-it("does not publish binding changes while opening, switching or closing a preview", async () => {
+it("does not publish binding changes while opening, switching or closing a preview", async ({
+  setupEditor,
+}) => {
   const Versions = createVersioningExtension((editor: BlockNoteEditor) => {
     let live = "live";
     function show(content: string) {
@@ -23,6 +24,7 @@ it("does not publish binding changes while opening, switching or closing a previ
       adapter: {
         supportsComparison: true,
         open() {
+          expect(editor.isEditable).toBe(false);
           show("opening");
           return {
             current: { content: "live", capturedAt: 1 },
@@ -45,6 +47,7 @@ it("does not publish binding changes while opening, switching or closing a previ
         async restore() {
           // Like local storage, restore the live view before editing it.
           editor.getExtension<VersioningController>("versioning")!.close();
+          expect(editor.isEditable).toBe(false);
           live = "restored";
           show(live);
           return success(undefined);
@@ -52,7 +55,7 @@ it("does not publish binding changes while opening, switching or closing a previ
       },
     };
   });
-  const editor = BlockNoteEditor.create({
+  const { editor } = await setupEditor({
     initialContent: [{ id: "paragraph", content: "live" }],
     extensions: [Versions()],
   });
@@ -68,19 +71,22 @@ it("does not publish binding changes while opening, switching or closing a previ
     await mode.select({ type: "current" }, { compareTo: "old" });
     await mode.select({ type: "current" });
     mode.close();
+    expect(editor.isEditable).toBe(true);
     expect(changes).toEqual([]);
     editor.updateBlock("paragraph", { content: "edited" });
     expect(changes).toEqual(["edited"]);
     mode.open();
     await mode.restore("old");
+    expect(editor.isEditable).toBe(true);
     expect(changes).toEqual(["edited", "restored"]);
   } finally {
     mode.dispose();
-    editor._tiptapEditor.destroy();
   }
 });
 
-it("resumes change notifications if acquiring a preview throws", () => {
+it("resumes change notifications if acquiring a preview throws", async ({
+  setupEditor,
+}) => {
   const Versions = createVersioningExtension((editor: BlockNoteEditor) => ({
     adapter: {
       supportsComparison: false,
@@ -98,25 +104,24 @@ it("resumes change notifications if acquiring a preview throws", () => {
       },
     },
   }));
-  const editor = BlockNoteEditor.create({
+  const { editor } = await setupEditor({
     initialContent: [{ id: "paragraph", content: "live" }],
     extensions: [Versions()],
   });
   const changes: string[] = [];
   editor.onChange(() => changes.push(editor.prosemirrorState.doc.textContent));
-  try {
-    expect(() => editor.getExtension(Versions)!.open()).toThrow(
-      "Cannot open preview",
-    );
-    expect(changes).toEqual([]);
-    editor.updateBlock("paragraph", { content: "edited" });
-    expect(changes).toEqual(["edited"]);
-  } finally {
-    editor._tiptapEditor.destroy();
-  }
+  expect(() => editor.getExtension(Versions)!.open()).toThrow(
+    "Cannot open preview",
+  );
+  expect(editor.isEditable).toBe(true);
+  expect(changes).toEqual([]);
+  editor.updateBlock("paragraph", { content: "edited" });
+  expect(changes).toEqual(["edited"]);
 });
 
-it("publishes restored live content when reconnecting a detached binding", async () => {
+it("publishes restored live content when reconnecting a detached binding", async ({
+  setupEditor,
+}) => {
   const Versions = createVersioningExtension((editor: BlockNoteEditor) => {
     let live = "live";
     return {
@@ -148,7 +153,7 @@ it("publishes restored live content when reconnecting a detached binding", async
       },
     };
   });
-  const editor = BlockNoteEditor.create({
+  const { editor } = await setupEditor({
     initialContent: [{ id: "paragraph", content: "live" }],
     extensions: [Versions()],
   });
@@ -162,13 +167,14 @@ it("publishes restored live content when reconnecting a detached binding", async
     expect(changes).toEqual(["restored"]);
   } finally {
     mode.dispose();
-    editor._tiptapEditor.destroy();
   }
 });
 
-it("configures once per editor during construction", async () => {
+it("configures once per editor during construction", async ({
+  setupEditor,
+}) => {
   const configure = vi.fn((editor: BlockNoteEditor) => {
-    expect(editor.getExtension(ReadOnlyExtension)).toBeDefined();
+    expect(editor.isEditable).toBe(true);
     expect(editor.document).toHaveLength(1);
     expect(
       editor.getExtension<VersioningController>("versioning")?.store.state,
@@ -198,8 +204,8 @@ it("configures once per editor during construction", async () => {
   const Versions = createVersioningExtension(configure);
   const extension = Versions();
   const editors = [
-    BlockNoteEditor.create({ extensions: [extension] }),
-    BlockNoteEditor.create({ extensions: [extension] }),
+    (await setupEditor({ extensions: [extension] })).editor,
+    (await setupEditor({ extensions: [extension] })).editor,
   ];
   try {
     expect(configure).toHaveBeenCalledTimes(editors.length);
@@ -219,10 +225,17 @@ it("configures once per editor during construction", async () => {
       expect(mode.canRename).toBe(false);
       expect(await mode.rename("missing")).toEqual({ status: "unavailable" });
       mode.open();
+      mode.open();
+      expect(editor.isEditable).toBe(false);
       expect(await mode.list()).toEqual({ status: "done" });
       mode.close();
+      expect(editor.isEditable).toBe(true);
+      const releaseOther = editor.acquireEditingLock();
       mode.open();
       mode.close();
+      expect(editor.isEditable).toBe(false);
+      releaseOther();
+      expect(editor.isEditable).toBe(true);
       expect(configure).toHaveBeenCalledTimes(editors.length);
     }
     expect(editors[0].getExtension(Versions)!.userStore).not.toBe(
@@ -231,35 +244,32 @@ it("configures once per editor during construction", async () => {
   } finally {
     for (const editor of editors) {
       editor.getExtension(Versions)!.close();
-      editor._tiptapEditor.destroy();
     }
   }
 });
 
-it("does not lazily initialize a versioning extension registered after creation", () => {
+it("does not lazily initialize a versioning extension registered after creation", async ({
+  setupEditor,
+}) => {
   const configure = vi.fn(() => {
     throw new Error("Late registration must not configure versioning");
   });
   const Versions = createVersioningExtension(configure);
-  const editor = BlockNoteEditor.create();
-  try {
-    editor.registerExtension(Versions());
-    const mode = editor.getExtension(Versions)!;
-    expect(mode.store.state).toEqual({ mode: "live" });
-    mode.close();
-    expect(() => mode.userStore).toThrow(
-      "Versioning must be installed during editor construction",
-    );
-    expect(() => mode.canCreate).toThrow(
-      "Versioning must be installed during editor construction",
-    );
-    expect(configure).not.toHaveBeenCalled();
-  } finally {
-    editor._tiptapEditor.destroy();
-  }
+  const { editor } = await setupEditor();
+  editor.registerExtension(Versions());
+  const mode = editor.getExtension(Versions)!;
+  expect(mode.store.state).toEqual({ mode: "live" });
+  mode.close();
+  expect(() => mode.userStore).toThrow(
+    "Versioning must be installed during editor construction",
+  );
+  expect(() => mode.canCreate).toThrow(
+    "Versioning must be installed during editor construction",
+  );
+  expect(configure).not.toHaveBeenCalled();
 });
 
-function setup() {
+async function setup(setupEditor: SetupEditor) {
   const show = vi.fn();
   const Versions = createVersioningExtension(() => ({
     adapter: {
@@ -281,17 +291,17 @@ function setup() {
       },
     },
   }));
-  const editor = BlockNoteEditor.create({ extensions: [Versions()] });
+  const { editor } = await setupEditor({ extensions: [Versions()] });
   const mode = editor.getExtension(Versions)!;
   vi.useFakeTimers();
   mode.open();
-  return { editor, mode, show };
+  return { mode, show };
 }
 
-it.each(["close", "select"] as const)(
+it.for(["close", "select"] as const)(
   "clears the owned scroll timer on %s",
-  async (action) => {
-    const { editor, mode } = setup();
+  async (action, { setupEditor }) => {
+    const { mode } = await setup(setupEditor);
     try {
       await mode.select({ type: "current" }, { compareTo: "old" });
       expect(vi.getTimerCount()).toBe(1);
@@ -303,13 +313,14 @@ it.each(["close", "select"] as const)(
       expect(vi.getTimerCount()).toBe(0);
     } finally {
       mode.dispose();
-      editor._tiptapEditor.destroy();
     }
   },
 );
 
-it("clears an old view's scroll when a callback defers closing and reopening", async () => {
-  const { editor, mode, show } = setup();
+it("clears an old view's scroll when a callback defers closing and reopening", async ({
+  setupEditor,
+}) => {
+  const { mode, show } = await setup(setupEditor);
   try {
     show.mockImplementationOnce(() => {
       queueMicrotask(() => {
@@ -326,6 +337,5 @@ it("clears an old view's scroll when a callback defers closing and reopening", a
     expect(vi.getTimerCount()).toBe(0);
   } finally {
     mode.dispose();
-    editor._tiptapEditor.destroy();
   }
 });

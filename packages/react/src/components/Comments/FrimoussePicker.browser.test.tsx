@@ -3,8 +3,11 @@ import { flushSync } from "react-dom";
 import { createRoot, type Root } from "react-dom/client";
 import { afterEach, expect, it, vi } from "vite-plus/test";
 
-import "../../editor/styles.css";
+import { useBrowserSuiteStyles } from "../../../../../tests/src/commands/browser/useBrowserSuiteStyles.js";
+import pickerStyles from "../../editor/styles.css?inline";
 import FrimoussePicker from "./FrimoussePicker.js";
+
+useBrowserSuiteStyles(pickerStyles);
 
 let host: HTMLFormElement;
 let root: Root;
@@ -22,14 +25,14 @@ function renderPicker(
   host = document.createElement("form");
   host.className = "bn-root";
   if (customTheme) {
-    host.style.setProperty("--bn-colors-menu-background", "#182030");
-    host.style.setProperty("--bn-colors-menu-text", "#ffffff");
-    host.style.setProperty("--bn-colors-editor-text", "#000000");
-    host.style.setProperty("--bn-colors-hovered-background", "#273244");
-    host.style.setProperty("--bn-colors-hovered-text", "#eeeeee");
-    host.style.setProperty("--bn-colors-side-menu", "#8899aa");
+    host.style.setProperty("--bn-background-color-menu", "#182030");
+    host.style.setProperty("--bn-text-color-menu", "#ffffff");
+    host.style.setProperty("--bn-text-color-primary", "#000000");
+    host.style.setProperty("--bn-background-color-hovered", "#273244");
+    host.style.setProperty("--bn-text-color-hovered", "#eeeeee");
+    host.style.setProperty("--bn-focus-ring-color", "#8899aa");
   }
-  host.style.color = "var(--bn-colors-menu-text)";
+  host.style.color = "var(--bn-text-color-menu)";
   document.body.append(host);
   root = createRoot(host);
   flushSync(() => {

@@ -56,16 +56,18 @@ export function addInlineContentKeyboardShortcuts<
 ): {
   [p: string]: KeyboardShortcutCommand;
 } {
-  return {
-    Backspace: ({ editor }) => {
-      const resolvedPos = editor.state.selection.$from;
+  function handleBackspace({ editor }: Parameters<KeyboardShortcutCommand>[0]) {
+    const resolvedPos = editor.state.selection.$from;
 
-      return (
-        editor.state.selection.empty &&
-        resolvedPos.node().type.name === config.type &&
-        resolvedPos.parentOffset === 0
-      );
-    },
+    return (
+      editor.state.selection.empty &&
+      resolvedPos.node().type.name === config.type &&
+      resolvedPos.parentOffset === 0
+    );
+  }
+  return {
+    Backspace: handleBackspace,
+    "Shift-Backspace": handleBackspace,
   };
 }
 

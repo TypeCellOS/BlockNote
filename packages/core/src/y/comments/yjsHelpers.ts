@@ -39,7 +39,8 @@ export function threadToYType(thread: ThreadData) {
   yType.setAttr("updatedAt", thread.updatedAt.getTime());
   const commentsType = new Y.Node();
 
-  commentsType.push(thread.comments.map((comment) => commentToYType(comment)));
+  // The new node is detached; push would read its length before integration.
+  commentsType.insert(0, thread.comments.map(commentToYType));
 
   yType.setAttr("comments", commentsType);
   yType.setAttr("resolved", thread.resolved);
@@ -55,7 +56,7 @@ type SingleUserCommentReactionData = {
   userId: string;
 };
 
-export function yTypeToReaction(yType: Y.Node): SingleUserCommentReactionData {
+function yTypeToReaction(yType: Y.Node): SingleUserCommentReactionData {
   return {
     emoji: yType.getAttr("emoji"),
     createdAt: new Date(yType.getAttr("createdAt")),

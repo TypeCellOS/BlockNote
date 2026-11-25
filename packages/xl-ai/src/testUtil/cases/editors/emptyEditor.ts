@@ -1,8 +1,9 @@
-import { BlockNoteEditor } from "@blocknote/core";
+import type { SetupTestEditor } from "../index.js";
 import { AIExtension } from "../../../AIExtension.js";
 
-export function getEmptyEditor() {
-  const editor = BlockNoteEditor.create({
+export async function getEmptyEditor(setupEditor: SetupTestEditor) {
+  const { editor } = await setupEditor({
+    mountType: false,
     initialContent: [
       {
         id: "ref1",
