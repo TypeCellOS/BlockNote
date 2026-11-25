@@ -785,7 +785,7 @@ exports[`versioning diff: Merge blocks vs edit block B 1`] = `
 
 exports[`versioning diff: Merge cells 1`] = `
 [
-  "attrs <tableCell> colspan:A colwidth:A",
+  "attrs <tableCell> colspan:A",
   "insert "+B1" A",
   "delete <tableCell> A",
   "insert <tableCell>",
@@ -931,7 +931,7 @@ exports[`versioning diff: Split a block vs type at end 1`] = `
 
 exports[`versioning diff: Split a merged cell 1`] = `
 [
-  "attrs <tableCell> colspan:A colwidth:A",
+  "attrs <tableCell> colspan:A",
   "delete "+B1" A",
   "insert <tableCell> A",
   "insert <tableParagraph> A",
