@@ -43,6 +43,8 @@ export type BlockOperation =
 /**
  * An operation that changes the structure of the document: an insert, a
  * move or a removal.
+ *
+ * @internal
  */
 export type StructureOperation = Exclude<BlockOperation, { type: "update" }>;
 

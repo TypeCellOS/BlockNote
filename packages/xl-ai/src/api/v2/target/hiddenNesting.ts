@@ -18,10 +18,8 @@ export const TOP_LEVEL_PLACE: unique symbol = Symbol("top level");
  * target. That block is the block of a row of the text (a new or a kept
  * block), or an invisible ancestor (a source block without a view block,
  * for example a column, that a kept block keeps as its ancestor).
- *
- * @internal
  */
-export type Place = string | typeof TOP_LEVEL_PLACE;
+type Place = string | typeof TOP_LEVEL_PLACE;
 
 /**
  * One step of the build: block `block` goes into `parent`, after its last

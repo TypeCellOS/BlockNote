@@ -31,7 +31,7 @@ export type Codec = {
 };
 
 /** Markdown and plain text: a blank line separates the parts. */
-export const blankLineCodec: Codec = {
+const blankLineCodec: Codec = {
   split: (text) => text.split("\n\n"),
   join: (parts) => parts.join("\n\n"),
   paragraph: (text) => text,
@@ -41,7 +41,7 @@ export const blankLineCodec: Codec = {
 };
 
 /** HTML: the parts are the top-level elements. */
-export const htmlCodec: Codec = {
+const htmlCodec: Codec = {
   split: (html) => [...parseHTML(html).children].map((e) => e.outerHTML),
   join: (parts) => parts.join(""),
   paragraph: (text) => `<p>${text}</p>`,

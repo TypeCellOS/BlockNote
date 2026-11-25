@@ -45,7 +45,7 @@ export function words(random: Random, count: number) {
 }
 
 /** Returns a sentence, for example to add to a paragraph. */
-export function randomSentence(random: Random) {
+function randomSentence(random: Random) {
   const text = words(random, 3 + random.int(6));
   return text[0].toUpperCase() + text.slice(1) + ".";
 }
