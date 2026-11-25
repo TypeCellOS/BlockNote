@@ -124,6 +124,58 @@ describe("plain content parsing", () => {
   });
 });
 
+describe("block content element parsing", () => {
+  // HTML with the block type marker (`data-content-type`) and without the
+  // `.bn-inline-content` element that BlockNote's own HTML has, for example
+  // hand-written HTML.
+  it.for([
+    {
+      name: "an inline content block",
+      html: `<div data-content-type="checkListItem" data-checked="true">x</div>`,
+      expected: { type: "checkListItem", props: { checked: true } },
+    },
+    {
+      name: "a list item in a list",
+      html: `<ul><li data-content-type="bulletListItem">x</li></ul>`,
+      expected: { type: "bulletListItem" },
+    },
+    {
+      name: "a plain content block",
+      html: `<div data-content-type="customPlain">x</div>`,
+      expected: { type: "customPlain" },
+    },
+  ])(
+    "reads the whole element of $name without a content element",
+    async ({ html, expected }, { setupEditor }) => {
+      const { editor } = await setupEditor({
+        mountType: false,
+        schema: createPlainSchema(),
+      });
+
+      expect(editor.tryParseHTMLToBlocks(html)).toMatchObject([
+        { ...expected, content: [{ type: "text", text: "x", styles: {} }] },
+      ]);
+    },
+  );
+
+  it("reads only the content element when the block has one", async ({
+    setupEditor,
+  }) => {
+    const { editor } = await setupEditor({
+      mountType: false,
+      schema: createPlainSchema(),
+    });
+
+    const blocks = editor.tryParseHTMLToBlocks(
+      `<div data-content-type="paragraph"><span>chrome</span><p class="bn-inline-content">x</p></div>`,
+    );
+
+    expect(blocks).toMatchObject([
+      { type: "paragraph", content: [{ type: "text", text: "x", styles: {} }] },
+    ]);
+  });
+});
+
 describe("layout block children parsing", () => {
   const frameDiv = () => {
     const dom = document.createElement("div");

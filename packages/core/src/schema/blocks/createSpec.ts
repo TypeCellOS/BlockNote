@@ -167,7 +167,10 @@ export function getParseRules<
         }
       : {
           tag: `[data-content-type="${config.type}"]`,
-          contentElement: ".bn-inline-content",
+          // The content is in the `.bn-inline-content` element. HTML without
+          // that element (for example hand-written) uses the whole element.
+          contentElement: (el) =>
+            el.querySelector<HTMLElement>(".bn-inline-content") ?? el,
           preserveWhitespace: config.content === "plain" ? "full" : undefined,
         },
   ];
