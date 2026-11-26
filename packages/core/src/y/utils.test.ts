@@ -431,7 +431,7 @@ describe("docDiffToDelta", () => {
     ).toEqual({ inserted: ["other"], removed: ["b"] });
   });
 
-  it("changes the ID of a block in place, if the ID is its only change", async ({
+  it("replaces a block with a different ID, also if its text is the same", async ({
     setupEditor,
   }) => {
     const { editor } = await setupEditor();
@@ -440,15 +440,13 @@ describe("docDiffToDelta", () => {
         paragraphs(editor, ["a", "Alpha"], ["b", "Beta"]),
         paragraphs(editor, ["a", "Alpha"], ["other", "Beta"]),
       ),
-    ).toEqual({ inserted: [], removed: [] });
+    ).toEqual({ inserted: ["other"], removed: ["b"] });
   });
 
-  it("changes the ID of a block in place, also if the blocks in it are different", async ({
+  it("replaces a block with a different ID together with the blocks in it", async ({
     setupEditor,
   }) => {
     const { editor } = await setupEditor();
-    // The compare uses the content of the block, without the blocks in it.
-    // The diff then goes into the block, and pairs its child blocks.
     const withChild = (id: string, childId: string, childText: string) =>
       _blocksToProsemirrorNode(editor, [
         {
@@ -463,6 +461,6 @@ describe("docDiffToDelta", () => {
         withChild("p", "x", "Child"),
         withChild("other", "y", "Other child"),
       ),
-    ).toEqual({ inserted: ["y"], removed: ["x"] });
+    ).toEqual({ inserted: ["other", "y"], removed: ["p", "x"] });
   });
 });

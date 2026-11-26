@@ -717,12 +717,12 @@ exports[`versioning diff: Fix typo vs delete word 1`] = `
 exports[`versioning diff: Heading vs list item 1`] = `
 [
   "delete block "hello world" A,B",
-  "insert block "hello world" A",
-  "insert <heading> A",
-  "insert "hello world" A",
-  "insert block "hello world" B",
-  "insert <bulletListItem> B",
-  "insert "hello world" B",
+  "insert block "hello world"",
+  "insert <heading>",
+  "insert "hello world"",
+  "insert block "hello world"",
+  "insert <bulletListItem>",
+  "insert "hello world"",
 ]
 `;
 
