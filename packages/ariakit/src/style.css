@@ -74,6 +74,15 @@
   display: flex;
 }
 
+.bn-ak-menu-item:where(button) {
+  background: transparent;
+  border: 0;
+  color: inherit;
+  font: inherit;
+  text-align: inherit;
+  width: 100%;
+}
+
 .bn-ariakit .bn-dropdown {
   overflow: visible;
 }
@@ -95,6 +104,11 @@
 
 .bn-suggestion-menu-item-small .bn-ak-suggestion-menu-item-title {
   font-size: 0.875rem;
+}
+
+.bn-ak-suggestion-menu-item-title,
+.bn-ak-suggestion-menu-item-subtitle {
+  display: block;
 }
 
 .bn-ak-suggestion-menu-item-subtitle {
@@ -314,12 +328,12 @@
   background-color: hsl(204 4% 22%);
 }
 
-.bn-ariakit .bn-snapshot:focus-visible {
+.bn-ariakit .bn-snapshot:has(> .bn-snapshot-preview:focus-visible) {
   outline: 2px solid hsl(204 100% 40%);
   outline-offset: 2px;
 }
 
-.bn-ariakit .bn-snapshot.selected:focus-visible {
+.bn-ariakit .bn-snapshot.selected:has(> .bn-snapshot-preview:focus-visible) {
   outline-color: white;
   outline-offset: -4px;
 }
@@ -456,7 +470,9 @@
 }
 
 .bn-ariakit .bn-snapshot:hover .bn-snapshot-menu,
-.bn-ariakit .bn-snapshot:focus-visible .bn-snapshot-menu,
+.bn-ariakit
+  .bn-snapshot:has(> .bn-snapshot-preview:focus-visible)
+  .bn-snapshot-menu,
 .bn-ariakit .bn-snapshot:focus-within .bn-snapshot-menu {
   opacity: 1;
 }
@@ -701,4 +717,31 @@
 .bn-ariakit .bn-thread.selected .bn-ak-author-info,
 .bn-ariakit .bn-thread.selected .bn-ak-expand-sections-prompt {
   color: var(--bn-thread-selected-color);
+}
+
+/* The preview button fills the row; editable names and actions sit above it.
+   Keeping these controls as siblings avoids interactive content inside a button. */
+.bn-ariakit .bn-snapshot {
+  position: relative;
+}
+
+.bn-ariakit .bn-snapshot-preview {
+  position: absolute;
+  inset: 0;
+  padding: 0;
+  border: 0;
+  border-radius: inherit;
+  background: transparent;
+  color: inherit;
+  cursor: inherit;
+  outline: none;
+}
+
+.bn-ariakit .bn-snapshot-name-sizer {
+  position: relative;
+  z-index: 1;
+}
+
+.bn-ariakit .bn-snapshot-menu {
+  z-index: 1;
 }

@@ -72,14 +72,18 @@ function VersionNameInput(props: {
           return;
         }
         if (event.key === "Enter" || event.key === "Escape") {
+          // Focus moves to a native button below. Do not let this same Enter
+          // also activate it and switch the preview after committing the name.
+          event.preventDefault();
           if (event.key === "Escape") {
             cancelled.current = true;
           }
-          // Focusing the row (not blurring to the body) commits or cancels —
+          // Focusing the preview button commits or cancels —
           // the blur handler runs on the focus change — and keeps keyboard
           // navigation in the list afterwards.
           event.currentTarget
             .closest<HTMLElement>('[role="listitem"]')
+            ?.querySelector<HTMLButtonElement>(".bn-snapshot-preview")
             ?.focus();
         }
       }}

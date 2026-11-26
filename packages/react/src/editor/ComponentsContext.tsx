@@ -272,8 +272,10 @@ export type ComponentProps = {
         };
     /**
      * A single row in the version-history sidebar — the current version or a
-     * stored one. Rendered as a `role="listitem"` inside the sidebar's list,
-     * which is why it takes the roving-tabindex and focus props below.
+     * stored one. Render a `role="listitem"` containing a preview button with
+     * class `bn-snapshot-preview`, alongside the name and action controls.
+     * Apply tabIndex, onClick, and onKeyDown to the preview button. Keep
+     * onFocus on the row as onFocusCapture to track its descendant controls.
      */
     Snapshot: {
       "aria-label"?: string;

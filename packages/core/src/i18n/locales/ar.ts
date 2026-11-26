@@ -181,6 +181,7 @@ export const ar: Dictionary = {
     comment_reply: "أضف تعليقًا...",
   },
   file_blocks: {
+    resize_handle: "تغيير حجم الوسائط",
     add_button_text: {
       image: "إضافة صورة",
       video: "إضافة فيديو",

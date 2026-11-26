@@ -218,6 +218,7 @@ export const it: Dictionary = {
     comment_reply: "Aggiungi commento...",
   },
   file_blocks: {
+    resize_handle: "Ridimensiona contenuto multimediale",
     add_button_text: {
       image: "Aggiungi immagine",
       video: "Aggiungi video",

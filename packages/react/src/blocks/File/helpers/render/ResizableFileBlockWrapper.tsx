@@ -2,6 +2,7 @@ import { BlockConfig, FileBlockConfig } from "@blocknote/core";
 import { ReactNode, useCallback, useEffect, useRef, useState } from "react";
 
 import { useUploadLoading } from "../../../../hooks/useUploadLoading.js";
+import { useDictionary } from "../../../../i18n/dictionary.js";
 import { ReactCustomBlockRenderProps } from "../../../../schema/ReactBlockSpec.js";
 import { FileBlockWrapper } from "./FileBlockWrapper.js";
 
@@ -158,6 +159,7 @@ export const ResizableFileBlockWrapper = (
   );
 
   const showLoader = useUploadLoading(props.block.id);
+  const dict = useDictionary();
 
   return (
     <FileBlockWrapper
@@ -178,7 +180,11 @@ export const ResizableFileBlockWrapper = (
         ref={ref}
       >
         {props.children}
-        <div
+        <button
+          type="button"
+          aria-label={dict.file_blocks.resize_handle}
+          // Keep the existing tab order until keyboard resizing is designed.
+          tabIndex={-1}
           className={"bn-resize-handle"}
           style={{
             left: "4px",
@@ -187,7 +193,10 @@ export const ResizableFileBlockWrapper = (
           onMouseDown={leftResizeHandleMouseDownHandler}
           onTouchStart={leftResizeHandleMouseDownHandler}
         />
-        <div
+        <button
+          type="button"
+          aria-label={dict.file_blocks.resize_handle}
+          tabIndex={-1}
           className={"bn-resize-handle"}
           style={{
             right: "4px",

@@ -215,6 +215,7 @@ export const no: Dictionary = {
     comment_reply: "Legg til kommentar...",
   },
   file_blocks: {
+    resize_handle: "Endre størrelse på mediet",
     add_button_text: {
       image: "Legg til bilde",
       video: "Legg til video",

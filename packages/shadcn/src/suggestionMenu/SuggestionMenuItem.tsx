@@ -6,7 +6,7 @@ import { cn } from "../lib/utils.js";
 import { useShadCNComponentsContext } from "../ShadCNComponentsContext.js";
 
 export const SuggestionMenuItem = forwardRef<
-  HTMLDivElement,
+  HTMLButtonElement,
   ComponentProps["SuggestionMenu"]["Item"]
 >((props, ref) => {
   const ShadCNComponents = useShadCNComponentsContext()!;
@@ -15,7 +15,7 @@ export const SuggestionMenuItem = forwardRef<
 
   assertEmpty(rest);
 
-  const itemRef = useRef<HTMLDivElement>(null);
+  const itemRef = useRef<HTMLButtonElement>(null);
 
   useEffect(() => {
     if (!itemRef.current || !isSelected) {
@@ -33,10 +33,12 @@ export const SuggestionMenuItem = forwardRef<
   }, [isSelected]);
 
   return (
-    <div
+    <button
+      type="button"
+      tabIndex={-1}
       // Styles from ShadCN DropdownMenuItem component
       className={cn(
-        "focus:bg-accent focus:text-accent-foreground data-[variant=destructive]:text-destructive data-[variant=destructive]:focus:bg-destructive/10 dark:data-[variant=destructive]:focus:bg-destructive/20 data-[variant=destructive]:focus:text-destructive data-[variant=destructive]:*:[svg]:!text-destructive [&_svg:not([class*=text-])]:text-muted-foreground outline-hidden relative flex cursor-default select-none items-center gap-2 rounded-sm px-2 py-1.5 text-sm data-[disabled]:pointer-events-none data-[inset]:pl-8 data-[disabled]:opacity-50 [&_svg:not([class*=size-])]:size-4 [&_svg]:pointer-events-none [&_svg]:shrink-0",
+        "focus:bg-accent focus:text-accent-foreground data-[variant=destructive]:text-destructive data-[variant=destructive]:focus:bg-destructive/10 dark:data-[variant=destructive]:focus:bg-destructive/20 data-[variant=destructive]:focus:text-destructive data-[variant=destructive]:*:[svg]:!text-destructive [&_svg:not([class*=text-])]:text-muted-foreground outline-hidden relative flex w-full cursor-default text-start select-none items-center gap-2 rounded-sm px-2 py-1.5 text-sm data-[disabled]:pointer-events-none data-[inset]:pl-8 data-[disabled]:opacity-50 [&_svg:not([class*=size-])]:size-4 [&_svg]:pointer-events-none [&_svg]:shrink-0",
         "hover:bg-accent hover:text-accent-foreground data-[variant=destructive]:hover:bg-destructive/10 dark:data-[variant=destructive]:hover:bg-destructive/20 data-[variant=destructive]:hover:text-destructive",
         "aria-selected:bg-accent aria-selected:text-accent-foreground data-[variant=destructive]:aria-selected:bg-destructive/10 dark:data-[variant=destructive]:aria-selected:bg-destructive/20 data-[variant=destructive]:aria-selected:text-destructive",
         props.item.size === "small" ? "gap-3 py-1" : "",
@@ -51,7 +53,7 @@ export const SuggestionMenuItem = forwardRef<
       aria-selected={isSelected || undefined}
     >
       {item.icon && (
-        <div
+        <span
           className={cn(
             "p-3",
             props.item.size === "small" ? "p-0" : "",
@@ -60,35 +62,35 @@ export const SuggestionMenuItem = forwardRef<
           data-position="left"
         >
           {item.icon}
-        </div>
+        </span>
       )}
-      <div className="flex-1">
-        <div
+      <span className="flex-1">
+        <span
           className={cn(
-            "text-base",
+            "block text-base",
             props.item.size === "small" ? "text-sm" : "",
             className,
           )}
         >
           {item.title}
-        </div>
-        <div
+        </span>
+        <span
           className={cn(
-            "text-xs",
+            "block text-xs",
             props.item.size === "small" ? "hidden" : "",
             className,
           )}
         >
           {item.subtext}
-        </div>
-      </div>
+        </span>
+      </span>
       {item.badge && (
-        <div data-position="right" className="text-xs">
+        <span data-position="right" className="text-xs">
           <ShadCNComponents.Badge.Badge variant={"secondary"}>
             {item.badge}
           </ShadCNComponents.Badge.Badge>
-        </div>
+        </span>
       )}
-    </div>
+    </button>
   );
 });

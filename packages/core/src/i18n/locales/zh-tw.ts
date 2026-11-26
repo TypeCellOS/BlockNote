@@ -237,6 +237,7 @@ export const zhTW: Dictionary = {
     comment_reply: "新增評論...",
   },
   file_blocks: {
+    resize_handle: "調整媒體大小",
     add_button_text: {
       image: "新增圖片",
       video: "新增影片",

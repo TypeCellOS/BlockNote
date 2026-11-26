@@ -58,8 +58,9 @@ export function VersioningSidebarList() {
   const nextCursor = state.mode === "versions" ? state.nextCursor : undefined;
 
   const focusRow = useCallback((index: number) => {
-    const items =
-      listRef.current?.querySelectorAll<HTMLElement>('[role="listitem"]');
+    const items = listRef.current?.querySelectorAll<HTMLButtonElement>(
+      ".bn-snapshot-preview",
+    );
     if (!items || items.length === 0) {
       return;
     }
@@ -273,9 +274,8 @@ export function VersioningSidebarList() {
         break;
       case "Enter":
       case " ":
-        event.preventDefault();
+        // Let the native preview button generate its click.
         pendingNavigation.current = undefined;
-        void run(() => previewRow(rows[index]!.snapshot));
         break;
       default:
         break;

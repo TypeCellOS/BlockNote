@@ -68,6 +68,7 @@ function InlineEmojiPickerEmoji({
       data-selected={selected ? "" : undefined}
       // Editor navigation owns selection; Frimousse still handles pointer/clicks.
       data-active={undefined}
+      role="gridcell"
       aria-selected={selected || undefined}
     >
       {emoji.emoji}

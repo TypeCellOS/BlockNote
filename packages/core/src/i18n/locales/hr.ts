@@ -209,6 +209,7 @@ export const hr: Dictionary = {
     comment_reply: "Dodaj komentar...",
   },
   file_blocks: {
+    resize_handle: "Promijeni veličinu medija",
     add_button_text: {
       image: "Dodaj sliku",
       video: "Dodaj video",

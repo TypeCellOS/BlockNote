@@ -202,6 +202,7 @@ export const tr = {
     comment_reply: "Yorum ekle...",
   } as Record<string, string | undefined>,
   file_blocks: {
+    resize_handle: "Medyayı yeniden boyutlandır",
     add_button_text: {
       image: "Görsel ekle",
       video: "Video ekle",

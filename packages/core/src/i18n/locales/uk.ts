@@ -221,6 +221,7 @@ export const uk: Dictionary = {
     comment_reply: "Додати коментар...",
   },
   file_blocks: {
+    resize_handle: "Змінити розмір медіа",
     add_button_text: {
       image: "Додати зображення",
       video: "Додати відео",

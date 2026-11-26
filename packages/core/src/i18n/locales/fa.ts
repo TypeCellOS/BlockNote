@@ -164,6 +164,7 @@ export const fa = {
     comment_reply: "افزودن دیدگاه...",
   } as Record<string, string | undefined>,
   file_blocks: {
+    resize_handle: "تغییر اندازهٔ رسانه",
     add_button_text: {
       image: "افزودن تصویر",
       video: "افزودن ویدیو",

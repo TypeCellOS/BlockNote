@@ -210,6 +210,7 @@ export const is: Dictionary = {
     comment_reply: "Bæta við athugasemd...",
   },
   file_blocks: {
+    resize_handle: "Breyta stærð miðils",
     add_button_text: {
       image: "Bæta við mynd",
       video: "Bæta við myndbandi",

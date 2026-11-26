@@ -239,6 +239,7 @@ export const ru: Dictionary = {
     comment_reply: "Добавить комментарий...",
   },
   file_blocks: {
+    resize_handle: "Изменить размер медиа",
     add_button_text: {
       image: "Добавить изображение",
       video: "Добавить видео",

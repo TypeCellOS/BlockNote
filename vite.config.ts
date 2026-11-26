@@ -137,7 +137,7 @@ export default defineConfig({
     ],
   },
   lint: {
-    plugins: ["typescript", "react", "import"],
+    plugins: ["typescript", "react", "import", "jsx-a11y"],
     // ESLint compatibility rules and BlockNote-specific conventions.
     jsPlugins: [
       { name: "import-eslint", specifier: "eslint-plugin-import" },
@@ -152,6 +152,62 @@ export default defineConfig({
       typeCheck: true,
     },
     rules: {
+      // Enforce JSX accessibility correctness rules, with the exceptions below.
+      "jsx-a11y/alt-text": "error",
+      "jsx-a11y/anchor-has-content": "error",
+      "jsx-a11y/anchor-is-valid": "error",
+      "jsx-a11y/aria-activedescendant-has-tabindex": "error",
+      "jsx-a11y/aria-props": "error",
+      "jsx-a11y/aria-proptypes": "error",
+      "jsx-a11y/aria-role": "error",
+      "jsx-a11y/aria-unsupported-elements": "error",
+      "jsx-a11y/autocomplete-valid": "error",
+      "jsx-a11y/click-events-have-key-events": "error",
+      "jsx-a11y/control-has-associated-label": "error",
+      "jsx-a11y/heading-has-content": "error",
+      "jsx-a11y/html-has-lang": "error",
+      "jsx-a11y/iframe-has-title": "error",
+      "jsx-a11y/img-redundant-alt": "error",
+      "jsx-a11y/interactive-supports-focus": "error",
+      "jsx-a11y/label-has-associated-control": "error",
+      "jsx-a11y/lang": "error",
+      // Media comes from user content; static linting cannot enforce caption availability.
+      "jsx-a11y/media-has-caption": "off",
+      "jsx-a11y/mouse-events-have-key-events": "error",
+      "jsx-a11y/no-access-key": "error",
+      "jsx-a11y/no-aria-hidden-on-focusable": "error",
+      // Opening a popover or entering edit mode intentionally moves focus.
+      // Keyboard/focus tests verify these interactions.
+      "jsx-a11y/no-autofocus": "off",
+      "jsx-a11y/no-distracting-elements": "error",
+      "jsx-a11y/no-interactive-element-to-noninteractive-role": "error",
+      // Focus and hover handlers can observe descendants without making the
+      // container interactive. Check handlers that activate controls instead.
+      "jsx-a11y/no-noninteractive-element-interactions": [
+        "error",
+        {
+          handlers: [
+            "onClick",
+            "onDoubleClick",
+            "onKeyDown",
+            "onKeyPress",
+            "onKeyUp",
+            "onMouseDown",
+            "onMouseUp",
+          ],
+        },
+      ],
+      "jsx-a11y/no-noninteractive-element-to-interactive-role": "error",
+      "jsx-a11y/no-noninteractive-tabindex": "error",
+      "jsx-a11y/no-redundant-roles": "error",
+      "jsx-a11y/no-static-element-interactions": "error",
+      // Custom widgets, live regions, and inline diagrams legitimately use ARIA
+      // roles. Keep the role/attribute validity checks enabled.
+      "jsx-a11y/prefer-tag-over-role": "off",
+      "jsx-a11y/role-has-required-aria-props": "error",
+      "jsx-a11y/role-supports-aria-props": "error",
+      "jsx-a11y/scope": "error",
+      "jsx-a11y/tabindex-no-positive": "error",
       "blocknote/css-variable-layering": "error",
       "no-console": "error",
       curly: "warn",
