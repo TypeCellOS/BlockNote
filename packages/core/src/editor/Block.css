@@ -287,7 +287,8 @@ NESTED BLOCKS
 
 /* QUOTES */
 [data-content-type="quote"] blockquote {
-  border-inline-start: 2px solid var(--bn-quote-border-color, rgb(125, 121, 122));
+  border-inline-start: 2px solid
+    var(--bn-quote-border-color, rgb(125, 121, 122));
   color: var(--bn-quote-color, #646362);
   margin: 0;
   padding-inline-start: 1em;
@@ -1169,7 +1170,8 @@ passes through the column list. */
 .bn-editor[contenteditable="true"]
   .bn-column-list-hovered
   > .bn-block-column:not(:last-child) {
-  box-shadow: var(--bn-column-border-offset) 0 0 var(--bn-column-border-color, #eee);
+  box-shadow: var(--bn-column-border-offset) 0 0
+    var(--bn-column-border-color, #eee);
   transition: box-shadow 0.2s ease 0.2s;
 }
 

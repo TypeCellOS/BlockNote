@@ -8,13 +8,15 @@ function Probe() {
   return <output>{useEditorDirection()}</output>;
 }
 
-it("server rendering uses the direction fallback without DOM access", async ({ setupEditor }) => {
+it("server rendering uses the direction fallback without DOM access", async ({
+  setupEditor,
+}) => {
   const { editor } = await setupEditor();
-    expect(
-      renderToString(
-        <BlockNoteContext.Provider value={{ editor }}>
-          <Probe />
-        </BlockNoteContext.Provider>,
-      ),
-    ).toBe("<output>ltr</output>");
+  expect(
+    renderToString(
+      <BlockNoteContext.Provider value={{ editor }}>
+        <Probe />
+      </BlockNoteContext.Provider>,
+    ),
+  ).toBe("<output>ltr</output>");
 });

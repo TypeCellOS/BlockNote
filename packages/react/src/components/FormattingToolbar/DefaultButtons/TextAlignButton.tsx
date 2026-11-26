@@ -48,7 +48,7 @@ export const TextAlignButton = (props: { textAlignment: TextAlignment }) => {
   const state = useEditorState({
     editor,
     selector: ({ editor }) => {
-      if (!editor.isEditable || !editor.domElement) {
+      if (!editor.isEditable) {
         return undefined;
       }
 

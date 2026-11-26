@@ -33,6 +33,56 @@ describe("NestBlockButtons", () => {
   });
 
   describe("integration", () => {
+    it.for(["ltr", "rtl"] as const)(
+      "indents toward the %s reading edge and restores the block on unnest",
+      async (dir, { setupEditor, page }) => {
+        const { editor, rootNode } = await setupEditor({
+          initialContent: [
+            { id: "parent", type: "paragraph", content: "Parent — אב" },
+            { id: "child", type: "paragraph", content: "Child — ילד" },
+          ],
+          props: { dir, formattingToolbar: false },
+          children: (
+            <FormattingToolbar>
+              <NestBlockButton />
+              <UnnestBlockButton />
+            </FormattingToolbar>
+          ),
+        });
+        editor.setTextCursorPosition("child");
+        await page
+          .getByRole("button", {
+            name: editor.dictionary.formatting_toolbar.nest.tooltip,
+            exact: true,
+          })
+          .click();
+        expect(editor.document[0].children[0].id).toBe("child");
+        await expect
+          .poll(() => {
+            const parent = rootNode
+              .querySelector('[data-id="parent"] > .bn-block-content')!
+              .getBoundingClientRect();
+            const child = rootNode
+              .querySelector('[data-id="child"] > .bn-block-content')!
+              .getBoundingClientRect();
+            return dir === "rtl"
+              ? parent.right - child.right
+              : child.left - parent.left;
+          })
+          .toBe(24);
+        await page
+          .getByRole("button", {
+            name: editor.dictionary.formatting_toolbar.unnest.tooltip,
+            exact: true,
+          })
+          .click();
+        expect(editor.document.map((block) => block.id)).toEqual([
+          "parent",
+          "child",
+        ]);
+      },
+    );
+
     it("moves the selected block under its previous sibling without changing their contents", async ({
       setupEditor,
       selectText,

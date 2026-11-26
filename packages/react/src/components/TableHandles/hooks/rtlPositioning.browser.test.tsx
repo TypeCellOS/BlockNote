@@ -1,4 +1,4 @@
-import { afterEach, expect, it } from "vite-plus/test";
+import { afterEach, expect } from "vite-plus/test";
 import { flushSync } from "react-dom";
 import { createRoot, type Root } from "react-dom/client";
 import { useTableHandlesPositioning } from "./useTableHandlesPositioning.js";

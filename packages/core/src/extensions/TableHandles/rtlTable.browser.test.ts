@@ -1,48 +1,32 @@
-import { afterEach, expect, it } from "vite-plus/test";
-import { BlockNoteEditor } from "../../editor/BlockNoteEditor.js";
+import { expect } from "vite-plus/test";
 import { TableHandlesExtension } from "./TableHandles.js";
+import type { PartialBlock } from "../../blocks/defaultBlocks.js";
 
-const cleanup: (() => void)[] = [];
-afterEach(() =>
-  cleanup
-    .splice(0)
-    .reverse()
-    .forEach((fn) => fn()),
-);
+const initialContent = [
+  {
+    id: "table",
+    type: "table",
+    content: {
+      type: "tableContent",
+      rows: [{ cells: ["A", "B", "C"] }],
+    },
+  },
+] satisfies PartialBlock[];
 
-function setup(dir: "ltr" | "rtl") {
-  const container = document.createElement("div");
-  container.dir = dir;
-  document.body.append(container);
-  cleanup.push(() => container.remove());
-  const editor = BlockNoteEditor.create({
-    initialContent: [
-      {
-        id: "table",
-        type: "table",
-        content: {
-          type: "tableContent",
-          rows: [{ cells: ["A", "B", "C"] }],
-        },
-      },
-    ],
-  });
-  editor.mount(container);
-  cleanup.push(() => editor._tiptapEditor.destroy());
-  container
-    .querySelector("td")!
-    .dispatchEvent(new MouseEvent("mousemove", { bubbles: true }));
-  return {
-    container,
-    handles: editor.getExtension(TableHandlesExtension)!,
-  };
-}
-
-it.each(["ltr", "rtl"] as const)(
+it.for(["ltr", "rtl"] as const)(
   "%s inserts columns on the requested physical side",
-  (dir) => {
+  async (dir, { setupEditor }) => {
     for (const side of ["left", "right"] as const) {
-      const { container, handles } = setup(dir);
+      const { editor } = await setupEditor({
+        mountType: "dom",
+        initialContent,
+      });
+      const container = editor.domElement!;
+      container.dir = dir;
+      container
+        .querySelector("td")!
+        .dispatchEvent(new MouseEvent("mousemove", { bubbles: true }));
+      const handles = editor.getExtension(TableHandlesExtension)!;
       handles.addRowOrColumn(1, { orientation: "column", side });
       const cells = [...container.querySelectorAll("td")];
       const added = cells.find((cell) => !cell.textContent)!;
@@ -63,14 +47,17 @@ it.each(["ltr", "rtl"] as const)(
   },
 );
 
-it.each([
+it.for([
   ["ltr", 0, 2],
   ["rtl", 0, 2],
   ["rtl", 2, 0],
 ] as const)(
   "%s column reorder from %s to %s marks the target's inline edge",
-  async (dir, from, to) => {
-    const { container, handles } = setup(dir);
+  async ([dir, from, to], { setupEditor }) => {
+    const { editor } = await setupEditor({ mountType: "dom", initialContent });
+    const container = editor.domElement!;
+    container.dir = dir;
+    const handles = editor.getExtension(TableHandlesExtension)!;
     const cells = container.querySelectorAll("td");
     const start = cells[from].getBoundingClientRect();
     cells[from].dispatchEvent(new MouseEvent("mousemove", { bubbles: true }));
