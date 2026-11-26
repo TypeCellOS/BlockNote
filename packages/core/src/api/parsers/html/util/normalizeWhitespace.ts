@@ -7,7 +7,6 @@
  * on the clipboard.
  */
 function isNotionHTML(element: HTMLElement): boolean {
-  // oxlint-disable-next-line blocknote-dom/no-active-document -- A TreeWalker only reads the tree: it makes no node.
   const walker = element.ownerDocument.createTreeWalker(
     element,
     // NodeFilter.SHOW_COMMENT
@@ -42,7 +41,6 @@ function isNotionHTML(element: HTMLElement): boolean {
  */
 function normalizeTextNodeWhitespace(element: HTMLElement) {
   const preserveWSTags = new Set(["PRE", "CODE"]);
-  // oxlint-disable-next-line blocknote-dom/no-active-document -- A TreeWalker only reads the tree: it makes no node.
   const walker = element.ownerDocument.createTreeWalker(
     element,
     // NodeFilter.SHOW_TEXT

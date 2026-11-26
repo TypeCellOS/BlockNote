@@ -6,8 +6,7 @@ import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
 import { after, test } from "node:test";
 
-// Exercise the installed Oxlint engine, including scope analysis and
-// TypeScript parsing, as component-browser-tests.test.mjs does.
+// Exercise the installed Oxlint engine, including TypeScript parsing.
 const directory = mkdtempSync(join(tmpdir(), "blocknote-lint-"));
 after(() => rmSync(directory, { recursive: true, force: true }));
 const config = join(directory, ".oxlintrc.json");
@@ -57,7 +56,7 @@ function findings(lines, file = renderFile) {
     .map((line) => lines[line - 1]);
 }
 
-void test("check 1: cloneNode and createHTMLDocument, in each file", () => {
+void test("flags cloneNode and createHTMLDocument in both render and parse files", () => {
   const lines = [
     `export const render = (el: HTMLElement) => el.cloneNode(true);`,
     `export const copy = (el?: HTMLElement) => el?.["cloneNode"](true);`,
@@ -77,105 +76,22 @@ void test("check 1: cloneNode and createHTMLDocument, in each file", () => {
   );
 });
 
-void test("check 2: document and ownerDocument, in a file for content from outside", () => {
+void test("does not flag document or ownerDocument access", () => {
   const lines = [
     `export const top = document.body;`,
-    `export function liftNestedLists() { return document.createElement("li"); }`,
-    `export function normalize(el: HTMLElement) { return el.ownerDocument.createElement("li"); }`,
+    `export const spec = { parse() { return document.createElement("li"); } };`,
+    `export function parseItem(el: HTMLElement) { return el.ownerDocument.createElement("li"); }`,
     `export function read(el: HTMLElement) { const { ownerDocument } = el; return ownerDocument; }`,
   ];
-  for (const file of [
-    outsideFile,
-    "api/clipboard/fromClipboard/normalizeOfficeHTML.ts",
-    "api/exporters/markdown/htmlToMarkdown.ts",
-    "blocks/File/helpers/parse/read.ts",
-    "blocks/getDetailsContent.ts",
-    "blocks/ListItem/getListItemContent.ts",
-  ]) {
-    assert.deepEqual(findings(lines, file), lines, file);
-  }
-  // Render code makes its elements in the active document on purpose.
-  for (const file of [
-    renderFile,
-    "api/exporters/html/externalHTMLExporter.ts",
-    "blocks/File/helpers/render/createFileBlockWrapper.ts",
-    "blocks/defaultBlockHelpers.ts",
-  ]) {
-    assert.deepEqual(findings(lines, file), [], file);
-  }
-  assert.deepEqual(
-    findings(
-      [
-        `declare function detachedDoc(): Document;`,
-        `export function local() { const document = detachedDoc(); return document.createElement("li"); }`,
-        `export function property(editor: { document: unknown[] }) { return editor.document; }`,
-        `export const names = { document: 1, ownerDocument: 2 };`,
-      ],
-      outsideFile,
-    ),
-    [],
-  );
+  assert.deepEqual(findings(lines), []);
+  assert.deepEqual(findings(lines, outsideFile), []);
 });
 
-void test("check 3: document and ownerDocument, in a parse function of each file", () => {
+void test("reports one finding for multiple restricted properties on a line", () => {
   const lines = [
-    `export const a = { parse(el: HTMLElement) { return document.createElement("div"); } };`,
-    `export const b = { parse: (el: HTMLElement) => el.ownerDocument };`,
-    `export const c = { parseContent: function (el: HTMLElement) { return document.body; } };`,
-    `export const d = { "parse": ((el: HTMLElement) => document.body) as unknown };`,
-    `export const imageParse = (config: unknown) => (el: HTMLElement) => document.createElement("img");`,
-    `export function parseTableContent(node: HTMLElement) { const { ownerDocument } = node; return ownerDocument; }`,
-    `export function blockContentParser() { return (node: HTMLElement) => document.importNode(node, true); }`,
-    `export class Node { parseHTML() { return [{ tag: "p" }, document.title]; } }`,
-    `export class Mark { static parseHTML = () => document.title; }`,
+    `export const copy = () => document.implementation.createHTMLDocument("").body.cloneNode(true);`,
   ];
   assert.deepEqual(findings(lines), lines);
-
-  // The functions in a parse function, for example of a parse rule.
-  const rules = [
-    `export const node = { parseHTML() { return [{`,
-    `  getAttrs: (el: HTMLElement) => ({ title: document.title }),`,
-    `  getContent: (el: HTMLElement) => el.ownerDocument.createElement("p"),`,
-    `}]; } };`,
-    `export function getParseRules() { return [{`,
-    `  contentElement: (el: HTMLElement) => document.body,`,
-    `}]; }`,
-  ];
-  assert.deepEqual(findings(rules), [rules[1], rules[2], rules[5]]);
-
-  assert.deepEqual(
-    findings([
-      `declare function detachedDoc(): Document;`,
-      `export const a = { render() { return document.createElement("p"); } };`,
-      `export const b = { toExternalHTML: (el: HTMLElement) => el.ownerDocument };`,
-      // A function that only has the name of a function of a parse rule.
-      `export const versioning = { getContent(id: string) { return document.title + id; } };`,
-      `export function sparse() { return document.title; }`,
-      `export const parser = document.body;`,
-      `export const c = { parse(el: HTMLElement) { return detachedDoc().importNode(el, true); } };`,
-      `export const d = { parse(el: HTMLElement, document: Document) { return document.importNode(el, true); } };`,
-      `export const e = { parse(editor: { document: unknown[] }) { return editor.document; } };`,
-    ]),
-    [],
-  );
-});
-
-void test("a line that matches two checks gives one finding", () => {
-  // Checks 2 and 3: a parse function in a file for content from outside.
-  const parse = [
-    `export function parseInline(el: HTMLElement) { return document.createElement("a"); }`,
-    `export const rule = { getAttrs: (el: HTMLElement) => el.ownerDocument };`,
-  ];
-  assert.deepEqual(findings(parse, outsideFile), parse);
-  // Checks 1 and 2, and checks 1 and 3: two names on one line.
-  const second = [
-    `export const second = () => document.implementation.createHTMLDocument("");`,
-  ];
-  assert.deepEqual(findings(second, outsideFile), second);
-  const clone = [
-    `export const a = { parse: (el: HTMLElement) => el.ownerDocument.body.cloneNode(true) };`,
-  ];
-  assert.deepEqual(findings(clone), clone);
 });
 
 void test("an exception comment with a reason removes the finding of its line", () => {

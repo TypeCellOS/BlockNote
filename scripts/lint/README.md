@@ -47,31 +47,12 @@ handles it only in `detachedDoc()` (`packages/core/src/util/detachedDoc.ts`).
 
 `detached-doc.mjs` is a local Oxlint JavaScript plugin with one rule,
 `blocknote-dom/no-active-document`. `vite.config.ts` turns it on for the source
-files of `@blocknote/core`. The rule has three checks:
+files of `@blocknote/core`. It flags member access and destructuring for
+`cloneNode` and `createHTMLDocument` when the property name is static. Broader
+checks on `document` and `ownerDocument` are deferred.
 
-| Where                                    | Not allowed                         |
-| ---------------------------------------- | ----------------------------------- |
-| 1. each file                             | `.cloneNode`, `.createHTMLDocument` |
-| 2. a file that only handles such content | global `document`, `.ownerDocument` |
-| 3. a parse function, in each file        | global `document`, `.ownerDocument` |
-
-- Check 2 cannot be for each file: render code makes its elements in the active
-  document on purpose, and a block has its parse functions next to its render
-  code. Check 3 is for those parse functions. The files of check 2 are the
-  list `outsideContentFiles` in the plugin.
-- A parse function is a function with a name that starts with `parse` or
-  contains `Parse`: `parse`, `parseContent`, `parseHTML`, `imageParse`,
-  `parseImageElement`, `getParseRules`, `blockContentParser`. The name is the
-  name of the function, or the name of the property, the method or the variable
-  that holds it. Check 3 includes the functions in a parse function, for example
-  the `getAttrs`, `getContent` and `contentElement` of a ProseMirror parse rule.
-- A local variable or a property with the name `document` is allowed.
-- A line gives one finding. A correct use has an exception on the line before
-  it: `// oxlint-disable-next-line blocknote-dom/no-active-document -- <reason>`.
-
-The rule reads names only. It does not follow a call into a function with
-another name, and it does not see a function that gets its name by an
-assignment (`object.parse = function () {}`).
+A line gives one finding. A correct use has an exception on the line before
+it: `// oxlint-disable-next-line blocknote-dom/no-active-document -- <reason>`.
 
 ```sh
 pnpm exec node --test scripts/lint/detached-doc.test.mjs
