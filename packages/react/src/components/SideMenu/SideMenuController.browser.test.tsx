@@ -1,5 +1,5 @@
 import { SideMenuExtension } from "@blocknote/core/extensions";
-import { describe, expect } from "vite-plus/test";
+import { assert, describe, expect } from "vite-plus/test";
 import { SideMenuController } from "./SideMenuController.js";
 
 describe("SideMenuController", () => {
@@ -17,15 +17,18 @@ describe("SideMenuController", () => {
           <SideMenuController sideMenu={() => <button>Custom action</button>} />
         ),
       });
-      const extension = editor.getExtension(SideMenuExtension)!;
+      const extension = editor.getExtension(SideMenuExtension);
+      assert(extension);
       const button = page.getByRole("button", {
         name: "Custom action",
         exact: true,
       });
       await expect.element(button).not.toBeInTheDocument();
+      const block = editor.getBlock("target");
+      assert(block);
       extension.store.setState({
         show: true,
-        block: editor.getBlock("target")!,
+        block,
         referencePos: new DOMRect(),
       });
       await expect.element(button).toBeVisible();
@@ -50,7 +53,9 @@ describe("SideMenuController", () => {
           />
         ),
       });
-      editor.getExtension(SideMenuExtension)!.store.setState({
+      const extension = editor.getExtension(SideMenuExtension);
+      assert(extension);
+      extension.store.setState({
         show: true,
         block: editor.document[0],
         referencePos: new DOMRect(),

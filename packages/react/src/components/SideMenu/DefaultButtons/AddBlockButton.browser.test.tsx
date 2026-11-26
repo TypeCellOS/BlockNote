@@ -1,5 +1,5 @@
 import { SideMenuExtension, SuggestionMenu } from "@blocknote/core/extensions";
-import { describe, expect } from "vite-plus/test";
+import { assert, describe, expect } from "vite-plus/test";
 import { AddBlockButton } from "./AddBlockButton.js";
 
 describe("AddBlockButton", () => {
@@ -14,7 +14,9 @@ describe("AddBlockButton", () => {
         },
         children: <AddBlockButton />,
       });
-      editor.getExtension(SideMenuExtension)!.store.setState({
+      const extension = editor.getExtension(SideMenuExtension);
+      assert(extension);
+      extension.store.setState({
         show: true,
         block: editor.document[0],
         referencePos: new DOMRect(),
@@ -33,7 +35,8 @@ describe("AddBlockButton", () => {
       expect(getComputedStyle(button.element()).backgroundColor).toBe(
         "rgba(0, 0, 0, 0)",
       );
-      const icon = button.element().querySelector("svg")!;
+      const icon = button.element().querySelector("svg");
+      assert(icon);
       expect(getComputedStyle(icon).color).toBe("rgb(68, 85, 102)");
       expect(getComputedStyle(icon).width).toBe("22px");
       await button.hover();
@@ -50,7 +53,9 @@ describe("AddBlockButton", () => {
         props: { sideMenu: false, editable: false },
         children: <AddBlockButton />,
       });
-      editor.getExtension(SideMenuExtension)!.store.setState({
+      const extension = editor.getExtension(SideMenuExtension);
+      assert(extension);
+      extension.store.setState({
         show: true,
         block: editor.document[0],
         referencePos: new DOMRect(),
@@ -97,9 +102,13 @@ describe("AddBlockButton", () => {
         props: { sideMenu: false },
         children: <AddBlockButton />,
       });
-      editor.getExtension(SideMenuExtension)!.store.setState({
+      const extension = editor.getExtension(SideMenuExtension);
+      assert(extension);
+      const block = editor.getBlock("target");
+      assert(block);
+      extension.store.setState({
         show: true,
-        block: editor.getBlock("target")!,
+        block,
         referencePos: new DOMRect(),
       });
       const before = editor.document;
@@ -111,9 +120,9 @@ describe("AddBlockButton", () => {
         .click();
       expect(editor.document).toEqual(before);
       expect(editor.getTextCursorPosition().block.id).toBe("target");
-      await expect
-        .poll(() => editor.getExtension(SuggestionMenu)!.store.state?.show)
-        .toBe(true);
+      const suggestionMenu = editor.getExtension(SuggestionMenu);
+      assert(suggestionMenu);
+      await expect.poll(() => suggestionMenu.store.state?.show).toBe(true);
     });
 
     it("inserts a paragraph immediately after a nonempty target and opens the slash menu there", async ({
@@ -128,9 +137,13 @@ describe("AddBlockButton", () => {
         props: { sideMenu: false },
         children: <AddBlockButton />,
       });
-      editor.getExtension(SideMenuExtension)!.store.setState({
+      const extension = editor.getExtension(SideMenuExtension);
+      assert(extension);
+      const block = editor.getBlock("target");
+      assert(block);
+      extension.store.setState({
         show: true,
-        block: editor.getBlock("target")!,
+        block,
         referencePos: new DOMRect(),
       });
       const [target, next] = editor.document;
@@ -150,9 +163,9 @@ describe("AddBlockButton", () => {
       expect(editor.getTextCursorPosition().block.id).toBe(
         editor.document[1].id,
       );
-      await expect
-        .poll(() => editor.getExtension(SuggestionMenu)!.store.state?.show)
-        .toBe(true);
+      const suggestionMenu = editor.getExtension(SuggestionMenu);
+      assert(suggestionMenu);
+      await expect.poll(() => suggestionMenu.store.state?.show).toBe(true);
     });
   });
 
@@ -162,7 +175,9 @@ describe("AddBlockButton", () => {
         props: { sideMenu: false, formattingToolbar: false },
         children: <AddBlockButton />,
       });
-      editor.getExtension(SideMenuExtension)!.store.setState({
+      const extension = editor.getExtension(SideMenuExtension);
+      assert(extension);
+      extension.store.setState({
         show: true,
         block: editor.document[0],
         referencePos: new DOMRect(),
@@ -189,7 +204,9 @@ describe("AddBlockButton", () => {
         props: { sideMenu: false, formattingToolbar: false },
         children: <AddBlockButton />,
       });
-      editor.getExtension(SideMenuExtension)!.store.setState({
+      const extension = editor.getExtension(SideMenuExtension);
+      assert(extension);
+      extension.store.setState({
         show: true,
         block: editor.document[0],
         referencePos: new DOMRect(),
@@ -211,7 +228,9 @@ describe("AddBlockButton", () => {
           props: { sideMenu: false, formattingToolbar: false },
           children: <AddBlockButton />,
         });
-        editor.getExtension(SideMenuExtension)!.store.setState({
+        const extension = editor.getExtension(SideMenuExtension);
+        assert(extension);
+        extension.store.setState({
           show: true,
           block: editor.document[0],
           referencePos: new DOMRect(),
@@ -224,9 +243,9 @@ describe("AddBlockButton", () => {
         button.element().focus();
         const before = editor.document;
         await pressKey(key);
-        await expect
-          .poll(() => editor.getExtension(SuggestionMenu)!.store.state?.show)
-          .toBe(true);
+        const suggestionMenu = editor.getExtension(SuggestionMenu);
+        assert(suggestionMenu);
+        await expect.poll(() => suggestionMenu.store.state?.show).toBe(true);
         expect(editor.document).toEqual(before);
         expect(editor.getTextCursorPosition().block.id).toBe(before[0].id);
         await expect.element(page.getByRole("textbox")).toHaveFocus();
@@ -242,7 +261,9 @@ describe("AddBlockButton", () => {
         props: { sideMenu: false, formattingToolbar: false },
         children: <AddBlockButton />,
       });
-      editor.getExtension(SideMenuExtension)!.store.setState({
+      const extension = editor.getExtension(SideMenuExtension);
+      assert(extension);
+      extension.store.setState({
         show: true,
         block: editor.document[0],
         referencePos: new DOMRect(),

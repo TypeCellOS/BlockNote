@@ -1,5 +1,5 @@
 import { SideMenuExtension } from "@blocknote/core/extensions";
-import { describe, expect } from "vite-plus/test";
+import { assert, describe, expect } from "vite-plus/test";
 import { MenuDropdown } from "../../../../../mantine/src/menu/Menu.js";
 import { RemoveBlockItem } from "../DragHandleMenu/DefaultItems/RemoveBlockItem.js";
 import { DragHandleButton } from "./DragHandleButton.js";
@@ -18,7 +18,9 @@ describe("DragHandleButton", () => {
           </DragHandleButton>
         ),
       });
-      editor.getExtension(SideMenuExtension)!.store.setState({
+      const extension = editor.getExtension(SideMenuExtension);
+      assert(extension);
+      extension.store.setState({
         show: true,
         block: editor.document[0],
         referencePos: new DOMRect(),
@@ -43,7 +45,9 @@ describe("DragHandleButton", () => {
         props: { sideMenu: false, editable: false },
         children: <DragHandleButton />,
       });
-      editor.getExtension(SideMenuExtension)!.store.setState({
+      const extension = editor.getExtension(SideMenuExtension);
+      assert(extension);
+      extension.store.setState({
         show: true,
         block: editor.document[0],
         referencePos: new DOMRect(),
@@ -71,7 +75,9 @@ describe("DragHandleButton", () => {
         exact: true,
       });
       await expect.element(trigger).not.toBeInTheDocument();
-      editor.getExtension(SideMenuExtension)!.store.setState({
+      const extension = editor.getExtension(SideMenuExtension);
+      assert(extension);
+      extension.store.setState({
         show: true,
         block: editor.document[0],
         referencePos: new DOMRect(),
@@ -88,7 +94,9 @@ describe("DragHandleButton", () => {
           props: { sideMenu: false },
           children: <DragHandleButton />,
         });
-        editor.getExtension(SideMenuExtension)!.store.setState({
+        const extension = editor.getExtension(SideMenuExtension);
+        assert(extension);
+        extension.store.setState({
           show: true,
           block: editor.document[0],
           referencePos: new DOMRect(),
@@ -132,9 +140,13 @@ describe("DragHandleButton", () => {
           props: { sideMenu: false },
           children: <DragHandleButton />,
         });
-        editor.getExtension(SideMenuExtension)!.store.setState({
+        const extension = editor.getExtension(SideMenuExtension);
+        assert(extension);
+        const block = editor.getBlock("dragged");
+        assert(block);
+        extension.store.setState({
           show: true,
-          block: editor.getBlock("dragged")!,
+          block,
           referencePos: new DOMRect(),
         });
         const handle = page.getByRole("button", {
@@ -171,11 +183,7 @@ describe("DragHandleButton", () => {
         await expect.element(page.getByRole("textbox")).toHaveFocus();
         // A subsequent hover must work after dragend clears the drag state.
         await page.getByText("Middle", { exact: true }).hover();
-        await expect
-          .poll(
-            () => editor.getExtension(SideMenuExtension)!.store.state?.block.id,
-          )
-          .toBe("middle");
+        await expect.poll(() => extension.store.state?.block.id).toBe("middle");
       },
     );
 
@@ -188,7 +196,8 @@ describe("DragHandleButton", () => {
         props: { sideMenu: false },
         children: <DragHandleButton />,
       });
-      const extension = editor.getExtension(SideMenuExtension)!;
+      const extension = editor.getExtension(SideMenuExtension);
+      assert(extension);
       extension.store.setState({
         show: true,
         block: editor.document[0],
@@ -228,9 +237,13 @@ describe("DragHandleButton", () => {
         if (selected) {
           editor.setSelection("first", "second");
         }
-        editor.getExtension(SideMenuExtension)!.store.setState({
+        const extension = editor.getExtension(SideMenuExtension);
+        assert(extension);
+        const block = editor.getBlock(target);
+        assert(block);
+        extension.store.setState({
           show: true,
-          block: editor.getBlock(target)!,
+          block,
           referencePos: new DOMRect(),
         });
         const expected = editor.document.filter((block) =>
@@ -264,9 +277,13 @@ describe("DragHandleButton", () => {
           props: { sideMenu: false },
           children: <DragHandleButton />,
         });
-        editor.getExtension(SideMenuExtension)!.store.setState({
+        const extension = editor.getExtension(SideMenuExtension);
+        assert(extension);
+        const block = editor.getBlock("target");
+        assert(block);
+        extension.store.setState({
           show: true,
-          block: editor.getBlock("target")!,
+          block,
           referencePos: new DOMRect(),
         });
         const [target, other] = editor.document;
@@ -317,14 +334,15 @@ describe("DragHandleButton", () => {
         children: <DragHandleButton />,
       });
       const original = editor.getBlock("table");
-      expect(original?.type).toBe("table");
-      if (original?.type !== "table") {
-        throw new Error("Expected table fixture");
-      }
+      assert(original?.type === "table");
       for (const expected of [1, undefined]) {
-        editor.getExtension(SideMenuExtension)!.store.setState({
+        const extension = editor.getExtension(SideMenuExtension);
+        assert(extension);
+        const block = editor.getBlock("table");
+        assert(block);
+        extension.store.setState({
           show: true,
-          block: editor.getBlock("table")!,
+          block,
           referencePos: new DOMRect(),
         });
         await page
@@ -340,10 +358,7 @@ describe("DragHandleButton", () => {
           })
           .click();
         const table = editor.getBlock("table");
-        expect(table?.type).toBe("table");
-        if (table?.type !== "table") {
-          throw new Error("Expected table fixture");
-        }
+        assert(table?.type === "table");
         expect(table.content.headerRows).toBe(expected);
         expect(table.content.rows).toEqual(original.content.rows);
         await expect.element(page.getByRole("menu")).not.toBeInTheDocument();
@@ -370,14 +385,15 @@ describe("DragHandleButton", () => {
         children: <DragHandleButton />,
       });
       const original = editor.getBlock("table");
-      expect(original?.type).toBe("table");
-      if (original?.type !== "table") {
-        throw new Error("Expected table fixture");
-      }
+      assert(original?.type === "table");
       for (const expected of [1, undefined]) {
-        editor.getExtension(SideMenuExtension)!.store.setState({
+        const extension = editor.getExtension(SideMenuExtension);
+        assert(extension);
+        const block = editor.getBlock("table");
+        assert(block);
+        extension.store.setState({
           show: true,
-          block: editor.getBlock("table")!,
+          block,
           referencePos: new DOMRect(),
         });
         await page
@@ -393,10 +409,7 @@ describe("DragHandleButton", () => {
           })
           .click();
         const table = editor.getBlock("table");
-        expect(table?.type).toBe("table");
-        if (table?.type !== "table") {
-          throw new Error("Expected table fixture");
-        }
+        assert(table?.type === "table");
         expect(table.content.headerCols).toBe(expected);
         expect(table.content.rows).toEqual(original.content.rows);
         await expect.element(page.getByRole("menu")).not.toBeInTheDocument();
@@ -413,7 +426,9 @@ describe("DragHandleButton", () => {
         props: { sideMenu: false, formattingToolbar: false },
         children: <DragHandleButton />,
       });
-      editor.getExtension(SideMenuExtension)!.store.setState({
+      const extension = editor.getExtension(SideMenuExtension);
+      assert(extension);
+      extension.store.setState({
         show: true,
         block: editor.document[0],
         referencePos: new DOMRect(),
@@ -442,7 +457,9 @@ describe("DragHandleButton", () => {
         props: { sideMenu: false },
         children: <DragHandleButton />,
       });
-      editor.getExtension(SideMenuExtension)!.store.setState({
+      const extension = editor.getExtension(SideMenuExtension);
+      assert(extension);
+      extension.store.setState({
         show: true,
         block: editor.document[0],
         referencePos: new DOMRect(),
@@ -474,7 +491,9 @@ describe("DragHandleButton", () => {
         props: { sideMenu: false, formattingToolbar: false },
         children: <DragHandleButton />,
       });
-      editor.getExtension(SideMenuExtension)!.store.setState({
+      const extension = editor.getExtension(SideMenuExtension);
+      assert(extension);
+      extension.store.setState({
         show: true,
         block: editor.document[0],
         referencePos: new DOMRect(),
@@ -496,7 +515,9 @@ describe("DragHandleButton", () => {
         props: { sideMenu: false },
         children: <DragHandleButton />,
       });
-      editor.getExtension(SideMenuExtension)!.store.setState({
+      const extension = editor.getExtension(SideMenuExtension);
+      assert(extension);
+      extension.store.setState({
         show: true,
         block: editor.document[0],
         referencePos: new DOMRect(),
@@ -537,7 +558,9 @@ describe("DragHandleButton", () => {
         props: { sideMenu: false },
         children: <DragHandleButton />,
       });
-      editor.getExtension(SideMenuExtension)!.store.setState({
+      const extension = editor.getExtension(SideMenuExtension);
+      assert(extension);
+      extension.store.setState({
         show: true,
         block: editor.document[0],
         referencePos: new DOMRect(),
@@ -584,7 +607,9 @@ describe("DragHandleButton", () => {
         props: { sideMenu: false, formattingToolbar: false },
         children: <DragHandleButton />,
       });
-      editor.getExtension(SideMenuExtension)!.store.setState({
+      const extension = editor.getExtension(SideMenuExtension);
+      assert(extension);
+      extension.store.setState({
         show: true,
         block: editor.document[0],
         referencePos: new DOMRect(),
@@ -608,7 +633,9 @@ describe("DragHandleButton", () => {
           props: { sideMenu: false },
           children: <DragHandleButton />,
         });
-        editor.getExtension(SideMenuExtension)!.store.setState({
+        const extension = editor.getExtension(SideMenuExtension);
+        assert(extension);
+        extension.store.setState({
           show: true,
           block: editor.document[0],
           referencePos: new DOMRect(),
@@ -644,9 +671,13 @@ describe("DragHandleButton", () => {
         props: { sideMenu: false },
         children: <DragHandleButton />,
       });
-      editor.getExtension(SideMenuExtension)!.store.setState({
+      const extension = editor.getExtension(SideMenuExtension);
+      assert(extension);
+      const block = editor.getBlock("target");
+      assert(block);
+      extension.store.setState({
         show: true,
-        block: editor.getBlock("target")!,
+        block,
         referencePos: new DOMRect(),
       });
       const expected = editor.document.slice(1);

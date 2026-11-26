@@ -1,5 +1,5 @@
 import { SideMenuExtension } from "@blocknote/core/extensions";
-import { describe, expect } from "vite-plus/test";
+import { assert, describe, expect } from "vite-plus/test";
 import { SideMenu } from "./SideMenu.js";
 import { DragHandleMenu } from "./DragHandleMenu/DragHandleMenu.js";
 
@@ -41,7 +41,9 @@ describe("SideMenu", () => {
           />
         ),
       });
-      editor.getExtension(SideMenuExtension)!.store.setState({
+      const extension = editor.getExtension(SideMenuExtension);
+      assert(extension);
+      extension.store.setState({
         show: true,
         block: editor.document[0],
         referencePos: new DOMRect(),
@@ -74,7 +76,9 @@ describe("SideMenu", () => {
           props: { sideMenu: false },
           children: <SideMenu />,
         });
-        editor.getExtension(SideMenuExtension)!.store.setState({
+        const extension = editor.getExtension(SideMenuExtension);
+        assert(extension);
+        extension.store.setState({
           show: true,
           block: editor.document[0],
           referencePos: new DOMRect(),
@@ -91,7 +95,8 @@ describe("SideMenu", () => {
         await expect.element(first).toBeVisible();
         first.element().focus();
         const before = editor.document;
-        const container = first.element().closest(".bn-side-menu")!;
+        const container = first.element().closest(".bn-side-menu");
+        assert(container);
         const sequence = [readAriaSnapshot(first)];
         await focusUntil((active) => {
           if (!container.contains(active.element())) {
