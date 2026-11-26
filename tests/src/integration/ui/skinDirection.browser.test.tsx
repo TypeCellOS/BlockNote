@@ -5,9 +5,12 @@ import { useState } from "react";
 import "@blocknote/mantine/style.css";
 import "@blocknote/ariakit/style.css";
 import "@blocknote/shadcn/style.css";
-import "@examples/01-basic/09-shadcn/tailwind.css";
+import shadcnStyles from "@examples/01-basic/09-shadcn/tailwind.css?inline";
 import { expect } from "vite-plus/test";
+import { useBrowserSuiteStyles } from "../../commands/browser/useBrowserSuiteStyles.js";
 import { page, userEvent } from "../../utils/context.js";
+
+useBrowserSuiteStyles(shadcnStyles);
 
 function Fixture({ skin }: { skin: "mantine" | "ariakit" | "shadcn" }) {
   const [openTab, setOpenTab] = useState("First");

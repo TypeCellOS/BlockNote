@@ -7,11 +7,14 @@ import {
 import { type ComponentProps, useState } from "react";
 import type { BlockNoteEditor } from "@blocknote/core";
 import "@blocknote/shadcn/style.css";
-import "@examples/01-basic/09-shadcn/tailwind.css";
+import shadcnStyles from "@examples/01-basic/09-shadcn/tailwind.css?inline";
 import { afterEach, expect } from "vite-plus/test";
 import { cleanup, render } from "vitest-browser-react";
 import { page, userEvent } from "../../../../tests/src/commands/transport.js";
 import { mouseSequence } from "../../../../tests/src/utils/mouse.js";
+import { useBrowserSuiteStyles } from "../../../../tests/src/commands/browser/useBrowserSuiteStyles.js";
+
+useBrowserSuiteStyles(shadcnStyles);
 
 afterEach(cleanup);
 
