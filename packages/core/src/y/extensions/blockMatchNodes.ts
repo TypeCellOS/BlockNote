@@ -96,10 +96,28 @@ function getTableDimensions(
   return { rows: rows.length, cols: numCols };
 }
 
+/** The block ID of a node (its `id` attribute), or `undefined` for a node without one. */
+function blockIdOf(d: schema.Unwrap<typeof $prosemirrorDelta>): unknown {
+  // In a delta, an attribute is an operation that holds its value.
+  const id: unknown = d.attrs.id;
+  return delta.$setAttrOp.check(id) ? id.value : undefined;
+}
+
 /**
  * BlockNote's node-pairing policy for y-prosemirror's `matchNodes` option
  * (forwarded to `lib0/delta.diff`). This is the schema-specific bit that lives
  * in userland - the binding itself stays schema-agnostic.
+ *
+ * Two blocks pair only if they have the same block ID. Without the ID, the
+ * diff pairs the changed nodes of a list by their type alone. An insert or a
+ * removal next to a changed block of the same type then pairs a block with
+ * its neighbour: the diff rewrites one block into the other, and inserts or
+ * removes the wrong block. In the Y type, a concurrent change of another
+ * client to the block then lands in the wrong block (see
+ * blockMatchNodes.browser.test.ts).
+ *
+ * The ID is compared only for block containers. A layout block (a block that
+ * is its own node, for example a column) pairs by its type, as before.
  *
  * A `blockContainer` holds exactly one block content (`blockContent
  * blockGroup?`). Diffing a *type change* of that content as an in-place child
@@ -138,6 +156,11 @@ export const blockMatchNodes = (
 
   if (a.name !== "blockContainer") {
     return true;
+  }
+
+  // Two containers with different block IDs are different blocks.
+  if (blockIdOf(a) !== blockIdOf(b)) {
+    return false;
   }
 
   const childA = firstChild(a);
