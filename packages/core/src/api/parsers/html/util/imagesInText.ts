@@ -3,6 +3,7 @@ import { detachedDoc } from "../../../../util/detachedDoc.js";
 
 // The elements with text that split around an image.
 const TEXT_BLOCKS = "p, blockquote, h1, h2, h3, h4, h5, h6";
+const CUSTOM_INLINE_CONTENT = "[data-inline-content-type]";
 
 // Removes the line breaks and the white space that are next to the image on
 // one side: they have no meaning at the edge of a block.
@@ -44,9 +45,12 @@ function liftImageOutOfText(image: HTMLImageElement): ParentNode | null {
     const before = detachedDoc().importNode(parent, false);
     moveNodesBefore(image, before);
     parent.before(before, image);
-    // Unwrap parts without text, keeping any other content.
+    // Custom inline content can be meaningful without text.
     for (const part of [before, parent]) {
-      if (!part.textContent?.trim()) {
+      if (
+        !part.textContent?.trim() &&
+        !part.querySelector(CUSTOM_INLINE_CONTENT)
+      ) {
         part.replaceWith(...part.childNodes);
       }
     }
@@ -74,7 +78,7 @@ export function moveImagesOutOfText(root: HTMLElement) {
     // cannot go out of them.
     if (
       image.closest(
-        "[data-inline-content-type], [data-content-type], summary, figcaption",
+        `${CUSTOM_INLINE_CONTENT}, [data-content-type], summary, figcaption`,
       )
     ) {
       continue;

@@ -655,6 +655,10 @@ export const htmlParseCases: ParseTestCase[] = [
     name: "inlineImageInHeading",
     content: `<h1><img src="https://example.com/logo.png" alt="Project logo" width="32"> Project</h1>`,
   },
+  {
+    name: "inlineImageInHeadingWithImageOnlyMention",
+    content: `<h2 style="text-align: right"><span data-inline-content-type="mention" data-user="Matthew"><img src="https://example.com/avatar.png" alt=""></span><img src="https://example.com/photo.png" alt="Photo">Tail</h2>`,
+  },
   // An image without a URL in a table cell: there is no link, and the cell
   // does not get the alt text.
   {
