@@ -32,6 +32,29 @@ function moveNodesBefore(node: ChildNode, to: ParentNode) {
   }
 }
 
+/** Splits enclosing text blocks and returns the image's new parent if moved. */
+function liftImageOutOfText(image: HTMLImageElement): ParentNode | null {
+  let parent = image.parentElement;
+  if (!parent?.closest(TEXT_BLOCKS)) {
+    return null;
+  }
+  do {
+    trimNextTo(image, "previousSibling");
+    trimNextTo(image, "nextSibling");
+    const before = detachedDoc().importNode(parent, false);
+    moveNodesBefore(image, before);
+    parent.before(before, image);
+    // Unwrap parts without text, keeping any other content.
+    for (const part of [before, parent]) {
+      if (!part.textContent?.trim()) {
+        part.replaceWith(...part.childNodes);
+      }
+    }
+    parent = image.parentElement;
+  } while (parent?.closest(TEXT_BLOCKS));
+  return parent;
+}
+
 /**
  * Moves each image out of the text that holds it. An image is a block, and
  * ProseMirror drops a block that is in the text of a block.
@@ -41,10 +64,9 @@ function moveNodesBefore(node: ChildNode, to: ParentNode) {
  * a link replaces the image there, if the URL of the image can be a link.
  */
 export function moveImagesOutOfText(root: HTMLElement) {
-  // The nodes of an element that are complete wait here until the end. In
-  // jsdom, the time to put a node before another node grows with the number
-  // of nodes before it. Thus a block that splits must be near the start.
-  const complete = new Map<ParentNode, DocumentFragment>();
+  // Set aside earlier siblings until the end. This keeps splits near the
+  // start of their parent, where insertions are cheaper in jsdom.
+  const finishedPrefixes = new Map<ParentNode, DocumentFragment>();
   for (const image of root.querySelectorAll("img")) {
     // BlockNote's own HTML stays as it is: custom inline content can hold an
     // image, and a block of the full HTML has only one content element. The
@@ -60,40 +82,24 @@ export function moveImagesOutOfText(root: HTMLElement) {
     if (image.closest("td, th")) {
       // Not each URL can be a link (for example `file:` and `data:`). Such an
       // image stays, and the parse of the cell drops it.
-      if (image.src && isAllowedUri(image.src)) {
+      const url = image.src;
+      if (url && isAllowedUri(url)) {
         const link = detachedDoc().createElement("a");
-        link.href = image.src;
-        link.textContent = image.alt || image.src;
+        link.href = url;
+        link.textContent = image.alt || url;
         image.replaceWith(link);
       }
       continue;
     }
-    // Splits the parent of the image until no text block holds the image: a
-    // copy of the parent takes the content before the image.
-    let holder: ParentNode | null = null;
-    while (image.parentElement?.closest(TEXT_BLOCKS)) {
-      const parent = image.parentElement;
-      trimNextTo(image, "previousSibling");
-      trimNextTo(image, "nextSibling");
-      const before = detachedDoc().importNode(parent, false);
-      moveNodesBefore(image, before);
-      parent.before(before, image);
-      holder = parent.parentNode;
-      // A part without text is not a block. Its other content stays.
-      for (const part of [before, parent]) {
-        if (!part.textContent?.trim()) {
-          part.replaceWith(...part.childNodes);
-        }
-      }
-    }
+    const holder = liftImageOutOfText(image);
     if (holder) {
       const nodes =
-        complete.get(holder) ?? detachedDoc().createDocumentFragment();
-      complete.set(holder, nodes);
+        finishedPrefixes.get(holder) ?? detachedDoc().createDocumentFragment();
+      finishedPrefixes.set(holder, nodes);
       moveNodesBefore(image, nodes);
     }
   }
-  for (const [holder, nodes] of complete) {
+  for (const [holder, nodes] of finishedPrefixes) {
     holder.prepend(nodes);
   }
 }

@@ -1,12 +1,12 @@
 import { describe, expect, it, vi } from "vite-plus/test";
 import { detachedDoc } from "../../../../util/detachedDoc.js";
-import { nestedListsToBlockNoteStructure } from "./nestedLists.js";
+import { normalizeNestedLists } from "./nestedLists.js";
 
 // Makes the element for the HTML as `HTMLToBlocks` does, and runs the steps.
 function parse(html: string) {
   const element = detachedDoc().createElement("div");
   element.innerHTML = html;
-  nestedListsToBlockNoteStructure(element);
+  normalizeNestedLists(element);
   return element;
 }
 

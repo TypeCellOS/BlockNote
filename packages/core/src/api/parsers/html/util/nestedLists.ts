@@ -185,11 +185,7 @@ function createGroups(element: HTMLElement) {
   });
 }
 
-/**
- * Changes the lists in `element` with the two steps above. The element is the
- * one that `HTMLToBlocks` makes in `detachedDoc()` for the HTML.
- */
-export function nestedListsToBlockNoteStructure(element: HTMLElement) {
+export function normalizeNestedLists(element: HTMLElement) {
   liftNestedListsToParent(element);
   createGroups(element);
 }

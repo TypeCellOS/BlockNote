@@ -10,9 +10,9 @@ import { Block } from "../../../blocks/defaultBlocks.js";
 import { detachedDoc } from "../../../util/detachedDoc.js";
 import { EMPTY_BLOCK_PLACEHOLDER } from "../../exporters/html/util/serializeBlocksExternalHTML.js";
 import { nodeToBlock } from "../../nodeConversions/nodeToBlock.js";
-import { nestedListsToBlockNoteStructure } from "./util/nestedLists.js";
-import { preprocessHTMLWhitespace } from "./util/normalizeWhitespace.js";
 import { moveImagesOutOfText } from "./util/imagesInText.js";
+import { normalizeNestedLists } from "./util/nestedLists.js";
+import { preprocessHTMLWhitespace } from "./util/normalizeWhitespace.js";
 
 /**
  * Removes the placeholder character that the external HTML exporter inserts
@@ -78,14 +78,12 @@ export function HTMLToBlocks<
 >(html: string, pmSchema: Schema): Block<BSchema, I, S>[] {
   const htmlNode = detachedDoc().createElement("div");
   htmlNode.innerHTML = html;
-  // The images move out of the text before the list steps. An image in the
-  // paragraph of a list item is then a block for these steps, and a nested
-  // list after it stays in the list item. Without the image block, the parse
-  // drops each image, and the text around it must stay one block.
+  // Lift images before list normalization so a nested list after an image
+  // stays in its item. Without an image block, keep the surrounding text together.
   if (pmSchema.nodes["image"]) {
     moveImagesOutOfText(htmlNode);
   }
-  nestedListsToBlockNoteStructure(htmlNode);
+  normalizeNestedLists(htmlNode);
   preprocessHTMLWhitespace(htmlNode);
   const parser = DOMParser.fromSchema(pmSchema);
 
