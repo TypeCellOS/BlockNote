@@ -1,10 +1,6 @@
 import { type PartialBlock } from "@blocknote/core";
 import "@blocknote/core/fonts/inter.css";
-import { BlockNoteView } from "@blocknote/mantine";
-import "@blocknote/mantine/style.css";
-import { useCreateBlockNote } from "@blocknote/react";
-import { afterEach, expect, test } from "vite-plus/test";
-import { cleanup, render } from "vitest-browser-react";
+import { afterEach, expect } from "vite-plus/test";
 
 import { page, userEvent } from "../../utils/context.js";
 import { waitForSelector } from "../../utils/editor.js";
@@ -32,20 +28,7 @@ const content: PartialBlock[] = [
   { id: "empty", type: "paragraph" },
 ];
 
-function Editor({
-  dir,
-  initialContent = content,
-}: {
-  dir: "rtl" | "ltr";
-  initialContent?: PartialBlock[];
-}) {
-  const editor = useCreateBlockNote({ initialContent });
-  return (
-    <div data-testid="sample" style={{ width: 760, margin: "40px auto" }}>
-      <BlockNoteView editor={editor} dir={dir} />
-    </div>
-  );
-}
+const style = { width: 760, margin: "40px auto" };
 
 function block(id: string) {
   const element = document.querySelector<HTMLElement>(
@@ -59,14 +42,12 @@ function block(id: string) {
 
 afterEach(async () => {
   await mouseSequence([{ type: "move", x: 1, y: 1 }]);
-  await cleanup();
 });
 
-test.each(["rtl", "ltr"] as const)(
+it.for(["rtl", "ltr"] as const)(
   "%s editor layout and side menu",
-  async (dir) => {
-    await render(<Editor dir={dir} />);
-    await waitForSelector(".bn-editor");
+  async (dir, { setupEditor }) => {
+    await setupEditor({ initialContent: content, props: { dir, style } });
     const rightBlock = block("right");
     const image = rightBlock.querySelector("img")!;
     const end = dir === "rtl" ? "left" : "right";
@@ -102,8 +83,10 @@ test.each(["rtl", "ltr"] as const)(
   },
 );
 
-test("RTL emoji navigation follows the visible grid without moving the caret", async () => {
-  await render(<Editor dir="rtl" />);
+it("RTL emoji navigation follows the visible grid without moving the caret", async ({
+  setupEditor,
+}) => {
+  await setupEditor({ initialContent: content, props: { dir: "rtl", style } });
   await userEvent.click(block("empty"));
   await userEvent.keyboard(":sm");
   await waitForEmojiPickerLayout();
@@ -129,21 +112,21 @@ test("RTL emoji navigation follows the visible grid without moving the caret", a
   await expect.poll(() => block("empty").textContent).toBe(`${emoji} `);
 });
 
-test("RTL link editor saves mixed-language URLs and labels", async () => {
-  await render(
-    <Editor
-      dir="rtl"
-      initialContent={[
-        {
-          id: "intro",
-          type: "paragraph",
-          content: [
-            { type: "link", href: "https://example.com", content: "קישור" },
-          ],
-        },
-      ]}
-    />,
-  );
+it("RTL link editor saves mixed-language URLs and labels", async ({
+  setupEditor,
+}) => {
+  await setupEditor({
+    props: { dir: "rtl", style },
+    initialContent: [
+      {
+        id: "intro",
+        type: "paragraph",
+        content: [
+          { type: "link", href: "https://example.com", content: "קישור" },
+        ],
+      },
+    ],
+  });
   const link = block("intro").querySelector("a")!.getBoundingClientRect();
   await mouseSequence([
     { type: "move", x: link.x + link.width / 2, y: link.y + link.height / 2 },
@@ -164,10 +147,13 @@ test("RTL link editor saves mixed-language URLs and labels", async () => {
   );
 });
 
-test("RTL image embedding accepts a mixed-language URL", async () => {
-  await render(
-    <Editor dir="rtl" initialContent={[{ id: "media", type: "image" }]} />,
-  );
+it("RTL image embedding accepts a mixed-language URL", async ({
+  setupEditor,
+}) => {
+  await setupEditor({
+    props: { dir: "rtl", style },
+    initialContent: [{ id: "media", type: "image" }],
+  });
   await userEvent.click(
     block("media").querySelector<HTMLElement>(".bn-add-file-button")!,
   );
@@ -182,27 +168,25 @@ test("RTL image embedding accepts a mixed-language URL", async () => {
     .toBe("https://example.com/שלום?q=123#section");
 });
 
-test.each(["rtl", "ltr"] as const)(
+it.for(["rtl", "ltr"] as const)(
   "%s table extension adds columns by click and outward drag",
-  async (dir) => {
-    await render(
-      <Editor
-        dir={dir}
-        initialContent={[
-          {
-            id: "table",
-            type: "table",
-            content: {
-              type: "tableContent",
-              rows: [
-                { cells: ["ראשון", "English (123)", "آخر"] },
-                { cells: ["א", "ב", "ג"] },
-              ],
-            },
+  async (dir, { setupEditor }) => {
+    await setupEditor({
+      props: { dir, style },
+      initialContent: [
+        {
+          id: "table",
+          type: "table",
+          content: {
+            type: "tableContent",
+            rows: [
+              { cells: ["ראשון", "English (123)", "آخر"] },
+              { cells: ["א", "ב", "ג"] },
+            ],
           },
-        ]}
-      />,
-    );
+        },
+      ],
+    });
     const table = block("table").querySelector("table")!;
     await moveMouseOverElement(table.querySelectorAll("td")[2]);
     const columns = await waitForSelector(

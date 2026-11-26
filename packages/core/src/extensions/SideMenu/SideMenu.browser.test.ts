@@ -7,7 +7,7 @@ import { unsetDragImage } from "./dragging.js";
 
 const cleanup: (() => void)[] = [];
 
-it.each(["ltr", "rtl"] as const)(
+it.for(["ltr", "rtl"] as const)(
   "anchors the %s drag preview at its inline start edge",
   async (direction, { setupEditor }) => {
     const { editor } = await setupEditor({

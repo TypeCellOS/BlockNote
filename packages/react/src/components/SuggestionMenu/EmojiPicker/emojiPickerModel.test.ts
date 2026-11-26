@@ -2,7 +2,7 @@ import type {
   FrimousseEmoji,
   FrimousseEmojiData,
 } from "@blocknote/core/emoji-data";
-import { describe, expect, it } from "vite-plus/test";
+import { describe, expect } from "vite-plus/test";
 
 import {
   EMOJI_PICKER_COLUMNS,

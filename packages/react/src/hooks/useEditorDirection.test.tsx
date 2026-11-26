@@ -1,7 +1,6 @@
 // @vitest-environment node
-import { BlockNoteEditor } from "@blocknote/core";
 import { renderToString } from "react-dom/server";
-import { expect, test } from "vite-plus/test";
+import { expect } from "vite-plus/test";
 import { BlockNoteContext } from "../editor/BlockNoteContext.js";
 import { useEditorDirection } from "./useEditorDirection.js";
 
@@ -9,9 +8,8 @@ function Probe() {
   return <output>{useEditorDirection()}</output>;
 }
 
-test("server rendering uses the direction fallback without DOM access", () => {
-  const editor = BlockNoteEditor.create();
-  try {
+it("server rendering uses the direction fallback without DOM access", async ({ setupEditor }) => {
+  const { editor } = await setupEditor();
     expect(
       renderToString(
         <BlockNoteContext.Provider value={{ editor }}>
@@ -19,7 +17,4 @@ test("server rendering uses the direction fallback without DOM access", () => {
         </BlockNoteContext.Provider>,
       ),
     ).toBe("<output>ltr</output>");
-  } finally {
-    editor._tiptapEditor.destroy();
-  }
 });
