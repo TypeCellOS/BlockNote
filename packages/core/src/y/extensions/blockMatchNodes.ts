@@ -114,17 +114,7 @@ function blockIdOf(d: schema.Unwrap<typeof $prosemirrorDelta>): unknown {
  * its neighbour: the diff rewrites one block into the other, and inserts or
  * removes the wrong block. In the Y type, a concurrent change of another
  * client to the block then lands in the wrong block (see
- * blockMatchNodes.test.ts).
- *
- * A block with a new ID and the same content is still the same block: only
- * its ID changed. The content is the block content node (its type, its props
- * and its text; lib0 gives its fingerprint), without the blocks in it. A
- * document can have two blocks with one ID (two users changed the type of a
- * block, or moved a block, at the same time). An editor that loads such a
- * document gives the copies new IDs, and the binding writes that change. As
- * a change of the `id` attribute in place, two clients that load at the same
- * time change the same blocks. As a removal and an insert, each client would
- * add its own copies, and text typed in a copy at that time would be lost.
+ * blockMatchNodes.browser.test.ts).
  *
  * The ID is compared only for block containers. A layout block (a block that
  * is its own node, for example a column) pairs by its type, as before.
@@ -168,19 +158,15 @@ export const blockMatchNodes = (
     return true;
   }
 
+  // Two containers with different block IDs are different blocks.
+  if (blockIdOf(a) !== blockIdOf(b)) {
+    return false;
+  }
+
   const childA = firstChild(a);
   const childB = firstChild(b);
 
   if (childA?.name !== childB?.name) {
-    return false;
-  }
-
-  // Two containers with different block IDs are different blocks, unless the
-  // content of the block is the same: then only the ID changed (see above).
-  if (
-    blockIdOf(a) !== blockIdOf(b) &&
-    childA?.fingerprint !== childB?.fingerprint
-  ) {
     return false;
   }
 
