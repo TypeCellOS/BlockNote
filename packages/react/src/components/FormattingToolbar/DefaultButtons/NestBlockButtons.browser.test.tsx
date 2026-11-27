@@ -1,4 +1,5 @@
 import { describe, expect } from "vite-plus/test";
+import { FormattingToolbar } from "../FormattingToolbar.js";
 import { NestBlockButton, UnnestBlockButton } from "./NestBlockButtons.js";
 
 describe("NestBlockButtons", () => {
