@@ -1,0 +1,78 @@
+[
+  {
+    "children": [
+      {
+        "children": [],
+        "content": [
+          {
+            "styles": {},
+            "text": "Nested",
+            "type": "text",
+          },
+        ],
+        "id": "2",
+        "props": {
+          "backgroundColor": "default",
+          "textAlignment": "left",
+          "textColor": "default",
+        },
+        "type": "bulletListItem",
+      },
+      {
+        "children": [],
+        "content": [
+          {
+            "styles": {},
+            "text": " After ",
+            "type": "text",
+          },
+          {
+            "styles": {
+              "bold": true,
+            },
+            "text": "bold",
+            "type": "text",
+          },
+        ],
+        "id": "3",
+        "props": {
+          "backgroundColor": "default",
+          "textAlignment": "left",
+          "textColor": "default",
+        },
+        "type": "paragraph",
+      },
+    ],
+    "content": [
+      {
+        "styles": {},
+        "text": "Item 1",
+        "type": "text",
+      },
+    ],
+    "id": "1",
+    "props": {
+      "backgroundColor": "default",
+      "textAlignment": "left",
+      "textColor": "default",
+    },
+    "type": "bulletListItem",
+  },
+  {
+    "children": [],
+    "content": [
+      {
+        "styles": {},
+        "text": "Item 2",
+        "type": "text",
+      },
+    ],
+    "id": "4",
+    "props": {
+      "backgroundColor": "default",
+      "textAlignment": "left",
+      "textColor": "default",
+    },
+    "type": "bulletListItem",
+  },
+]

@@ -147,6 +147,7 @@ export default defineConfig({
         specifier: "./scripts/lint/component-browser-tests.mjs",
       },
       { name: "blocknote", specifier: "./scripts/css-variable-plugin.mjs" },
+      { name: "blocknote-dom", specifier: "./scripts/lint/detached-doc.mjs" },
     ],
     options: {
       typeAware: true,
@@ -203,6 +204,12 @@ export default defineConfig({
             },
           ],
         },
+      },
+      {
+        // Content from outside the editor: see scripts/lint/README.md.
+        files: ["packages/core/src/**/*.{ts,tsx}"],
+        excludeFiles: ["**/*.test.{ts,tsx}"],
+        rules: { "blocknote-dom/no-active-document": "error" },
       },
       {
         files: [

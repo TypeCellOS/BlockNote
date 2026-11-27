@@ -52,11 +52,18 @@ export const createNumberedListItemBlockSpec = createBlockSpec(
         parent.tagName === "OL" ||
         (parent.tagName === "DIV" && parent.parentElement?.tagName === "OL")
       ) {
-        const startIndex = parseInt(parent.getAttribute("start") || "1");
+        // The parser puts an item with nested blocks into a `div`, together
+        // with the block group of these blocks (see `createGroups` in
+        // `nestedLists.ts`). Then that `div` has the place of the item in the
+        // list.
+        const item = parent.tagName === "DIV" ? parent : element;
+        const startIndex = parseInt(
+          item.parentElement?.getAttribute("start") || "1",
+        );
 
         const defaultProps = parseDefaultProps(element);
 
-        if (element.previousElementSibling || startIndex === 1) {
+        if (item.previousElementSibling || startIndex === 1) {
           return defaultProps;
         }
 

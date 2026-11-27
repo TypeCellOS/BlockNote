@@ -1,0 +1,77 @@
+[
+  {
+    "children": [],
+    "content": [
+      {
+        "styles": {},
+        "text": "Ask ",
+        "type": "text",
+      },
+      {
+        "content": undefined,
+        "props": {
+          "user": "Matthew",
+        },
+        "type": "mention",
+      },
+      {
+        "styles": {},
+        "text": " for help",
+        "type": "text",
+      },
+    ],
+    "id": "1",
+    "props": {
+      "backgroundColor": "default",
+      "textAlignment": "left",
+      "textColor": "default",
+    },
+    "type": "paragraph",
+  },
+  {
+    "children": [],
+    "content": {
+      "columnWidths": [
+        undefined,
+      ],
+      "headerCols": undefined,
+      "headerRows": undefined,
+      "rows": [
+        {
+          "cells": [
+            {
+              "content": [
+                {
+                  "styles": {},
+                  "text": "Owner: ",
+                  "type": "text",
+                },
+                {
+                  "content": undefined,
+                  "props": {
+                    "user": "Matthew",
+                  },
+                  "type": "mention",
+                },
+              ],
+              "props": {
+                "backgroundColor": "default",
+                "colspan": 1,
+                "rowspan": 1,
+                "textAlignment": "left",
+                "textColor": "default",
+              },
+              "type": "tableCell",
+            },
+          ],
+        },
+      ],
+      "type": "tableContent",
+    },
+    "id": "2",
+    "props": {
+      "textColor": "default",
+    },
+    "type": "table",
+  },
+]

@@ -1,0 +1,69 @@
+[
+  {
+    "children": [
+      {
+        "children": [],
+        "content": [
+          {
+            "styles": {},
+            "text": "Code",
+            "type": "text",
+          },
+        ],
+        "id": "2",
+        "props": {
+          "language": "javascript",
+        },
+        "type": "codeBlock",
+      },
+      {
+        "children": [],
+        "content": [
+          {
+            "styles": {},
+            "text": "Nested",
+            "type": "text",
+          },
+        ],
+        "id": "3",
+        "props": {
+          "backgroundColor": "default",
+          "textAlignment": "left",
+          "textColor": "default",
+        },
+        "type": "bulletListItem",
+      },
+    ],
+    "content": [
+      {
+        "styles": {},
+        "text": "Item 1",
+        "type": "text",
+      },
+    ],
+    "id": "1",
+    "props": {
+      "backgroundColor": "default",
+      "textAlignment": "left",
+      "textColor": "default",
+    },
+    "type": "bulletListItem",
+  },
+  {
+    "children": [],
+    "content": [
+      {
+        "styles": {},
+        "text": "Item 2",
+        "type": "text",
+      },
+    ],
+    "id": "4",
+    "props": {
+      "backgroundColor": "default",
+      "textAlignment": "left",
+      "textColor": "default",
+    },
+    "type": "bulletListItem",
+  },
+]

@@ -323,6 +323,119 @@ export const htmlParseCases: ParseTestCase[] = [
   <li>Bullet List Item</li>
 </ul>`,
   },
+  // The cases below are for a list item with a nested list and other blocks.
+  // All the blocks stay in the list item, in the order of the HTML.
+  {
+    name: "listItemParagraphAfterNestedList",
+    content: `<ul><li><p>Item 1</p><ul><li><p>Nested</p></li></ul><p>After</p></li><li><p>Item 2</p></li></ul>`,
+  },
+  // The text after the nested list is a paragraph. It keeps one space of the
+  // HTML source at its start, as each text after a block does in the parse.
+  {
+    name: "listItemTextAfterNestedList",
+    content: `<ul>
+  <li>
+    Item 1
+    <ul>
+      <li>Nested</li>
+    </ul>
+    After <b>bold</b>
+  </li>
+  <li>Item 2</li>
+</ul>`,
+  },
+  {
+    name: "listItemImageAfterNestedList",
+    content: `<ul><li><p>Item 1</p><ul><li><p>Nested</p></li></ul><img src="exampleURL"></li><li><p>Item 2</p></li></ul>`,
+  },
+  {
+    name: "listItemBlockBeforeNestedList",
+    content: `<ul><li><p>Item 1</p><pre><code>Code</code></pre><ul><li><p>Nested</p></li></ul></li><li><p>Item 2</p></li></ul>`,
+  },
+  {
+    name: "listItemBlocksAroundNestedLists",
+    content: `<ol><li><p>Item 1</p><p>Before</p><ul><li><p>Nested 1</p></li></ul><p>Between</p><ol><li><p>Nested 2</p></li></ol><p>After</p></li><li><p>Item 2</p></li></ol>`,
+  },
+  {
+    name: "checkListItemBlocksAroundNestedList",
+    content: `<ul><li><input type="checkbox" checked><p>Item 1</p><ul><li><p>Nested</p></li></ul><p>After</p></li></ul>`,
+  },
+  // A comment or an empty element before the content of a list item is not
+  // the content of the list item.
+  {
+    name: "listItemEmptyNodeBeforeContent",
+    content: `<ul>
+  <li><!-- comment --><p>Item 1</p><ul><li><p>Nested 1</p></li></ul></li>
+  <li><a id="anchor"></a><p>Item 2</p><ul><li><p>Nested 2</p></li></ul></li>
+  <li><span></span><p>Item 3</p><ul><li><p>Nested 3</p></li></ul></li>
+  <li><!--[--><p>Item 4</p><!--]--><ul><li><p>Nested 4</p></li></ul></li>
+  <li>
+    <!-- comment -->
+    <p>Item 5</p>
+    <ul><li><p>Nested 5</p></li></ul>
+  </li>
+</ul>`,
+  },
+  // An empty paragraph before the content of a list item is not the content
+  // of the list item. Tiptap writes this form for an empty first line.
+  {
+    name: "listItemEmptyParagraphBeforeContent",
+    content: `<ul><li><p></p><p>Item 1</p><ul><li><p>Nested</p></li></ul></li></ul>`,
+  },
+  // The HTML export of Notion: the text of the list item is directly in the
+  // `<li>`, and a child block comes after it.
+  {
+    name: "listItemTextAndBlockBeforeNestedList",
+    content: `<ul class="bulleted-list"><li style="list-style-type:disc">Item 1<p class="">Child</p><ul class="bulleted-list"><li style="list-style-type:circle">Nested</li></ul></li></ul>`,
+  },
+  // GitHub puts an image into a link. The image is a block, thus the text
+  // before the link is the content of the list item.
+  {
+    name: "listItemLinkedImageBeforeNestedList",
+    content: `<ul dir="auto">
+<li>Item 1 <a target="_blank" rel="noopener noreferrer" href="https://example.com/image.png"><img src="https://example.com/image.png" alt="alt" style="max-width: 100%;"></a>
+<ul dir="auto">
+<li>Nested</li>
+</ul>
+</li>
+</ul>`,
+  },
+  // A markdown renderer writes these forms for a list item that starts with a
+  // heading, a code block or a quote.
+  {
+    name: "listItemHeadingCodeQuoteBeforeNestedList",
+    content: `<ul>
+  <li><h3>Heading</h3><p>Child 1</p><ul><li>Nested 1</li></ul></li>
+  <li><pre><code>Code</code></pre><p>Child 2</p><ul><li>Nested 2</li></ul></li>
+  <li><blockquote><p>Quote</p></blockquote><p>Child 3</p><ul><li>Nested 3</li></ul></li>
+</ul>`,
+  },
+  // Plate puts the content of a list item into a `div`. The `div` is not the
+  // first child block of the list item.
+  {
+    name: "listItemContentInDivBeforeNestedList",
+    content: `<ul class="slate-ul"><li class="slate-li"><div class="slate-lic">Item 1</div><ul class="slate-ul"><li class="slate-li"><div class="slate-lic">Nested</div></li></ul></li></ul>`,
+  },
+  // Lexical puts a nested list into a list item of its own. The nested list
+  // goes to the list item before it.
+  {
+    name: "nestedListInOwnListItem",
+    content: `<ul><li value="1"><span style="white-space: pre-wrap;">Item 1</span></li><li value="2"><ul><li value="1"><span style="white-space: pre-wrap;">Nested</span></li></ul></li><li value="2"><span style="white-space: pre-wrap;">Item 2</span></li></ul>`,
+  },
+  // The same form with check boxes. Lexical writes the check state as
+  // `aria-checked`, which the parser does not read. Thus this case has `input`
+  // elements.
+  {
+    name: "nestedCheckListInOwnListItem",
+    content: `<ul><li><input type="checkbox" checked>Item 1</li><li><ul><li><input type="checkbox">Nested</li></ul></li><li><input type="checkbox">Item 2</li></ul>`,
+  },
+  // A nested list in the list item, and a list next to the list item (the
+  // form of Google Docs). Both are children of the list item. No known tool
+  // writes the two forms together.
+  {
+    name: "nestedListInAndNextToListItem",
+    content: `<ul><li>Item 1<ul><li>Nested 1</li></ul></li><ul><li>Nested 2</li></ul></ul>`,
+  },
   {
     name: "textTableCell",
     content: `<table>
@@ -455,6 +568,208 @@ export const htmlParseCases: ParseTestCase[] = [
     content: `<p>
   <img src="exampleURL">
 </p>`,
+  },
+  // An image in the text of a paragraph, as a blog writes it. An image is a
+  // block, so the paragraph splits around the image.
+  {
+    name: "inlineImageInParagraph",
+    content: `<p>We arrived at the harbor before dusk. <img class="alignnone size-medium wp-image-1234" src="https://example.com/wp-content/uploads/harbor-300x200.jpg" alt="The harbor at dusk" width="300" height="200"> The boats were in.</p>`,
+  },
+  // The parts of the paragraph keep its alignment and its colors.
+  {
+    name: "inlineImageInStyledParagraph",
+    content: `<p style="text-align: center; color: red; background-color: yellow;">Before <img src="https://example.com/harbor.jpg" alt="The harbor"> and <strong>after</strong></p>`,
+  },
+  // An image on its own line in a paragraph. The line breaks and the spaces
+  // next to the image have no meaning at the edge of a block: they are removed.
+  {
+    name: "lineBreakNextToInlineImage",
+    content: `<p>Some text<br> <img src="https://example.com/harbor.jpg" alt="The harbor"> <br>More text</p>`,
+  },
+  // Paragraphs with and without an image, at the top and in a `<div>`. The
+  // blocks keep their order.
+  {
+    name: "inlineImagesBetweenParagraphs",
+    content: `<p>First <img src="https://example.com/one.jpg" alt="One"> second</p>
+<p>No image here</p>
+<div>
+<p>Third <img src="https://example.com/two.jpg" alt="Two"> fourth</p>
+<p>No image here also</p>
+<p>Fifth <img src="https://example.com/three.jpg" alt="Three"> sixth</p>
+</div>
+<p>The end</p>`,
+  },
+  // Text with a style before the image: the text before the image keeps its
+  // order.
+  {
+    name: "inlineImageAfterStyledText",
+    content: `<p>Open <strong>the menu</strong> and look: <img src="https://example.com/menu.png" alt="The menu"> Then close it.</p>`,
+  },
+  // A paragraph with an image and a video, and no text. No part has text, so
+  // there is no paragraph, but the video stays.
+  {
+    name: "imageAndVideoInParagraph",
+    content: `<p><img src="https://example.com/photo.jpg" alt="Photo"><video src="https://example.com/clip.mp4"></video></p>`,
+  },
+  // An image in the paragraph of a list item, as GitHub writes it (the image
+  // is in a link). The image and the text after it become children of the
+  // list item.
+  {
+    name: "inlineImageInListItemParagraph",
+    content: `<ul dir="auto">
+<li>
+<p dir="auto">Open the menu <a target="_blank" rel="noopener noreferrer" href="https://github.com/octo/repo/blob/main/docs/menu.png"><img src="https://github.com/octo/repo/raw/main/docs/menu.png" alt="The menu" style="max-width: 100%;"></a> and select a block</p>
+</li>
+<li>
+<p dir="auto">Close the menu</p>
+</li>
+</ul>`,
+  },
+  // An image in the paragraph of a list item that has a nested list. The
+  // image, the text after it and the nested list are children of the list
+  // item, in this order, and the numbered list continues.
+  {
+    name: "inlineImageInListItemParagraphWithNestedList",
+    content: `<ol>
+<li>
+<p>Step one <img src="https://example.com/shot.png" alt="A screenshot"> done</p>
+<ul>
+<li>sub a</li>
+<li>sub b</li>
+</ul>
+</li>
+<li><p>Step two</p></li>
+<li><p>Step three</p></li>
+</ol>`,
+  },
+  // An image in a quote, as a markdown renderer writes it. The quote splits
+  // around the image.
+  {
+    name: "inlineImageInQuote",
+    content: `<blockquote><p>As the picture shows <img src="https://example.com/diagram.png" alt="A diagram"> the result is good.</p></blockquote>`,
+  },
+  // An image in a heading (a logo next to a title). The heading splits around
+  // the image. There is no text before the image, so there is no heading
+  // before it.
+  {
+    name: "inlineImageInHeading",
+    content: `<h1><img src="https://example.com/logo.png" alt="Project logo" width="32"> Project</h1>`,
+  },
+  {
+    name: "inlineImageInHeadingWithImageOnlyMention",
+    content: `<h2 style="text-align: right"><span data-inline-content-type="mention" data-user="Matthew"><img src="https://example.com/avatar.png" alt=""></span><img src="https://example.com/photo.png" alt="Photo">Tail</h2>`,
+  },
+  // An image without a URL in a table cell: there is no link, and the cell
+  // does not get the alt text.
+  {
+    name: "imageWithoutUrlInTableCell",
+    content: `<table>
+<tr>
+<td>Before <img alt="A picture that is not there"> after</td>
+</tr>
+</table>`,
+  },
+  // A heading with an image and only a space after it, as Word writes it. A
+  // part with only white space is not a block: there is no empty heading.
+  {
+    name: "imageAndSpaceInHeading",
+    content: `<h2><img src="https://example.com/logo.png" alt="Logo"><span style="mso-spacerun: yes"> </span></h2>`,
+  },
+  // Each heading level splits around an image.
+  {
+    name: "inlineImageInHeadingLevels",
+    content: `<h3>Level three <img src="https://example.com/3.png" alt="3"></h3>
+<h4>Level four <img src="https://example.com/4.png" alt="4"></h4>
+<h5>Level five <img src="https://example.com/5.png" alt="5"></h5>
+<h6>Level six <img src="https://example.com/6.png" alt="6"></h6>`,
+  },
+  // An image in the summary of a toggle. The summary is the text of the
+  // toggle, and a toggle cannot split: the step does not change the summary.
+  // The image is dropped, and the words next to it stay apart.
+  {
+    name: "inlineImageInToggleSummary",
+    content: `<details><summary><h2>Step <img src="https://example.com/shot.png" alt="A screenshot"> one</h2></summary><p>The details</p></details>`,
+  },
+  // An image in the caption of a figure. The caption is text, and the step
+  // does not change it: the image is dropped, and the words next to it stay
+  // apart.
+  {
+    name: "inlineImageInFigureCaption",
+    content: `<figure><img src="https://example.com/harbor.jpg" alt="The harbor"><figcaption><p>The harbor <img src="https://example.com/sun.png" alt="sun"> at dusk</p></figcaption></figure>`,
+  },
+  // Images in table cells, as GitHub writes them (each image is in a link). A
+  // table cell cannot hold a block, so the image becomes a link with its alt
+  // text.
+  {
+    name: "inlineImageInTableCell",
+    content: `<table>
+<thead>
+<tr>
+<th>Light</th>
+<th>Dark</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><a target="_blank" rel="noopener noreferrer" href="https://github.com/octo/repo/blob/main/docs/light.png"><img src="https://github.com/octo/repo/raw/main/docs/light.png" alt="Light theme" style="max-width: 100%;"></a></td>
+<td><a target="_blank" rel="noopener noreferrer" href="https://github.com/octo/repo/blob/main/docs/dark.png"><img src="https://github.com/octo/repo/raw/main/docs/dark.png" alt="Dark theme" style="max-width: 100%;"></a></td>
+</tr>
+</tbody>
+</table>`,
+  },
+  // An image in custom inline content (a mention with an avatar), as the HTML
+  // export of BlockNote writes it. The image is a part of the inline content:
+  // the paragraph does not split, and the table cell gets no link.
+  {
+    name: "imageInCustomInlineContent",
+    content: `<p>Ask <span data-inline-content-type="mention" data-user="Matthew"><img src="https://example.com/avatars/matthew.png" alt="">@Matthew</span> for help</p>
+<table>
+<tr>
+<td>Owner: <span data-inline-content-type="mention" data-user="Matthew"><img src="https://example.com/avatars/matthew.png" alt="">@Matthew</span></td>
+</tr>
+</table>`,
+  },
+  // The same in the full HTML of BlockNote. A block of the full HTML has one
+  // content element: a split would lose the text after the image.
+  {
+    name: "imageInCustomInlineContentFullHTML",
+    content: `<div class="bn-block-group" data-node-type="blockGroup"><div class="bn-block-outer" data-node-type="blockOuter" data-id="1"><div class="bn-block" data-node-type="blockContainer" data-id="1"><div class="bn-block-content" data-content-type="paragraph"><p class="bn-inline-content">Ask <span data-inline-content-type="mention" data-user="Matthew"><img src="https://example.com/avatars/matthew.png" alt="">@Matthew</span> for help</p></div></div></div></div>`,
+  },
+  // An image in the content element of a block of the full HTML. BlockNote
+  // does not write this, but the text after the image must not be lost: the
+  // block does not split, and ProseMirror makes the image a child.
+  {
+    name: "inlineImageInFullHTMLBlock",
+    content: `<div data-content-type="paragraph"><p class="bn-inline-content">Before <img src="https://example.com/harbor.jpg" alt="The harbor"> after</p></div>`,
+  },
+  // Images in table cells with different URLs. A web URL becomes a link, with
+  // the alt text or the URL as its text, also in a header cell. A `file:` URL
+  // (a table from Word) and a `data:` URL cannot be a link: the image is
+  // dropped, and the cell does not get the URL as text.
+  {
+    name: "imageUrlsInTableCell",
+    content: `<table>
+<tr>
+<th><img src="https://example.com/logo.png" alt="Logo"></th>
+<th>The URL of the image</th>
+</tr>
+<tr>
+<td><img src="https://example.com/chart.png" alt="Chart"></td>
+<td>A web URL, with alt text</td>
+</tr>
+<tr>
+<td><img src="https://example.com/chart.png"></td>
+<td>A web URL, without alt text</td>
+</tr>
+<tr>
+<td>Before <img src="file:///C:/Temp/msohtmlclip1/01/clip_image002.png" alt="Picture 1"> after</td>
+<td>A file URL</td>
+</tr>
+<tr>
+<td><img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNk+M9QDwADhgGAWjR9awAAAABJRU5ErkJggg=="></td>
+<td>A data URL</td>
+</tr>
+</table>`,
   },
   {
     name: "fakeImageCaption",
@@ -761,6 +1076,24 @@ console.log("Third Line")</code></pre>`,
   <li>List Item 4</li>
 </ol>`,
   },
+  // Only the first item gets the start of the list, also if items have a
+  // nested list.
+  {
+    name: "orderedListStartWithNestedList",
+    content: `<ol start="2">
+  <li>List Item 2
+    <ul>
+      <li>Nested Item 1</li>
+    </ul>
+  </li>
+  <li>List Item 3
+    <ul>
+      <li>Nested Item 2</li>
+    </ul>
+  </li>
+  <li>List Item 4</li>
+</ol>`,
+  },
   {
     name: "imageWidth",
     content: `<img src="exampleURL" width="100">`,
@@ -1059,6 +1392,18 @@ Paragraph
 *   Bullet List Item
 
     1.  Numbered List Item
+`,
+  },
+  // The paragraph after the nested list stays in its list item.
+  {
+    name: "listItemParagraphAfterNestedList",
+    content: `* Item 1
+
+  * Nested
+
+  After
+
+* Item 2
 `,
   },
   {
@@ -1581,10 +1926,53 @@ Final paragraph with [a link](https://example.com).`,
 
 ![Second](https://example.com/second.png)`,
   },
-  // Inline image within text (should be handled)
+  // An image in the text of a paragraph. An image is a block, so the paragraph
+  // splits around the image.
   {
     name: "inlineImage",
     content: `Text before ![inline](https://example.com/img.png) text after`,
+  },
+  // An image on its own line in a paragraph. The line breaks next to the
+  // image are removed.
+  {
+    name: "lineBreakNextToInlineImage",
+    content: `Some text
+![inline](https://example.com/img.png)
+More text`,
+  },
+  // An image in the text of a list item: the image and the text after it
+  // become children of the list item.
+  {
+    name: "inlineImageInListItem",
+    content: `- Item ![inline](https://example.com/img.png) text after`,
+  },
+  // A nested list after an image in a list item. The image and the nested
+  // list are children of the list item, and the numbered list continues.
+  {
+    name: "inlineImageInListItemWithNestedList",
+    content: `1. Step one ![shot](https://example.com/shot.png)
+   - sub a
+   - sub b
+2. Step two`,
+  },
+  // An image in a quote: the quote splits around the image.
+  {
+    name: "inlineImageInQuote",
+    content: `> Quote ![inline](https://example.com/img.png) text after`,
+  },
+  // An image in a heading: the heading splits around the image. Text before
+  // and after the image gives two headings.
+  {
+    name: "inlineImageInHeading",
+    content: `## Heading ![inline](https://example.com/img.png) text after`,
+  },
+  // Images in table cells, with text and alone. A table cell cannot hold a
+  // block, so the image becomes a link with its alt text.
+  {
+    name: "inlineImageInTableCell",
+    content: `| Step | Result |
+| --- | --- |
+| Open the menu ![The menu](https://example.com/menu.png) | ![The result](https://example.com/result.png) |`,
   },
   // Code block immediately after heading
   {

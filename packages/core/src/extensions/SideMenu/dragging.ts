@@ -65,6 +65,7 @@ function setDragImage(view: EditorView, from: number, to = from) {
   // children: a copy of each dragged block's element. The holding element can
   // have no box of its own (`display: contents`, e.g. the slot of a React
   // layout block), but the preview needs one.
+  // oxlint-disable-next-line blocknote-dom/no-active-document -- The drag preview is a copy of the editor's own DOM, not content from outside.
   const blocks = view.domAtPos(from).node.cloneNode(false) as HTMLElement;
   blocks.style.removeProperty("display");
   for (let pos = from; pos < to; pos += view.state.doc.nodeAt(pos)!.nodeSize) {
@@ -72,6 +73,7 @@ function setDragImage(view: EditorView, from: number, to = from) {
     if (!blockDOM) {
       throw new Error(`The dragged block at ${pos} has no DOM.`);
     }
+    // oxlint-disable-next-line blocknote-dom/no-active-document -- The drag preview is a copy of the editor's own DOM, not content from outside.
     blocks.appendChild(blockDOM.cloneNode(true));
   }
 
@@ -90,6 +92,7 @@ function setDragImage(view: EditorView, from: number, to = from) {
   // wraps and images scale as in the editor.
   const container = view.dom.parentElement?.closest(".bn-root");
   const preview =
+    // oxlint-disable-next-line blocknote-dom/no-active-document -- The drag preview is a copy of the editor's own DOM, not content from outside.
     (container?.cloneNode(false) as HTMLElement | undefined) ??
     document.createElement("div");
   preview.removeAttribute("id");
