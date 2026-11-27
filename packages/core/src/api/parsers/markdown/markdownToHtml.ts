@@ -837,8 +837,7 @@ function codeFenceClosing(fence: string): RegExp {
   return new RegExp(`^ {0,3}${fence[0]}{${fence.length},}\\s*$`);
 }
 
-function legacyCodeFence(lines: string[], start: number) {
-  const line = lines[start];
+function legacyCodeFenceOpening(line: string) {
   const opening = line.match(/^ {0,3}(`{3,})([^`]*`.*)$/);
   if (!opening || line.trimEnd().endsWith("```")) {
     return null;
@@ -848,12 +847,20 @@ function legacyCodeFence(lines: string[], start: number) {
   if (span && span.end > fenceStart + opening[1].length) {
     return null;
   }
-  // Older BlockNote exports allowed backticks in info strings. Recover
-  // explicitly closed blocks without interpreting ordinary code spans as fences.
-  const closing = codeFenceClosing(opening[1]);
-  return lines.slice(start + 1).some((line) => closing.test(line))
-    ? opening
-    : null;
+  return opening;
+}
+
+function laterBacktickCloserLengths(lines: string[]): number[] {
+  const lengths: number[] = new Array(lines.length);
+  let longest = 0;
+  for (let index = lines.length - 1; index >= 0; index--) {
+    lengths[index] = longest;
+    const closer = /^ {0,3}(`{3,})\s*$/.exec(lines[index]);
+    if (closer) {
+      longest = Math.max(longest, closer[1].length);
+    }
+  }
+  return lengths;
 }
 
 function quoteMarker(line: string): boolean {
@@ -900,6 +907,7 @@ function tokenize(markdown: string): Token[] {
   // has "\r\n".
   const lines = markdown.split(/\r\n?|\n/);
   const tokens: Token[] = [];
+  let closerLengths: number[] | undefined;
   let i = 0;
   let prevLineWasBlank = true; // treat start of document as after blank
 
@@ -913,9 +921,18 @@ function tokenize(markdown: string): Token[] {
       continue;
     }
 
-    const fenceMatch =
-      line.match(CODE_FENCE_OPENING) ??
-      (prevLineWasBlank ? legacyCodeFence(lines, i) : null);
+    let fenceMatch = line.match(CODE_FENCE_OPENING);
+    if (!fenceMatch && prevLineWasBlank) {
+      // Older BlockNote exports allowed backticks in info strings. Recover
+      // explicitly closed blocks without treating ordinary spans as fences.
+      const legacyOpening = legacyCodeFenceOpening(line);
+      if (legacyOpening) {
+        closerLengths ??= laterBacktickCloserLengths(lines);
+        if (closerLengths[i] >= legacyOpening[1].length) {
+          fenceMatch = legacyOpening;
+        }
+      }
+    }
     if (fenceMatch) {
       const fence = fenceMatch[1];
       const closing = codeFenceClosing(fence);
@@ -1107,6 +1124,18 @@ function tokenize(markdown: string): Token[] {
 
       // Consume ALL subsequent lines that belong to this list item
       i++;
+      const itemParagraph = [firstLineContent];
+      if (canContinueParagraph(firstLineContent)) {
+        // Markdown allows the list indentation to be omitted on paragraph
+        // continuations, even inside a blockquote.
+        while (
+          i < lines.length &&
+          !belongsToItem(lines[i]) &&
+          canContinueParagraph(lines[i])
+        ) {
+          itemParagraph.push(lines[i++]);
+        }
+      }
       const subLines: string[] = [];
       while (i < lines.length) {
         const cur = lines[i];
@@ -1149,7 +1178,7 @@ function tokenize(markdown: string): Token[] {
         type: "listItem",
         listType,
         indent,
-        content: firstLineContent.trim(),
+        content: itemParagraph.join("\n").trim(),
         start,
         checked,
         childContent: childContent || undefined,

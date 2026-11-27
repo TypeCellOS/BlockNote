@@ -55,10 +55,10 @@ describe("markdownToHtml", () => {
       "<blockquote><h1>H</h1></blockquote><p><code>x</code></p>",
     ],
     ["> A\nB\n> C", "<blockquote><p>A<br>B<br>C</p></blockquote>"],
-    ["> - A\nB", "<blockquote><ul><li><p>A</p></li></ul><p>B</p></blockquote>"],
+    ["> - A\nB", "<blockquote><ul><li><p>A<br>B</p></li></ul></blockquote>"],
     [
       "> > - A\nB",
-      "<blockquote><blockquote><ul><li><p>A</p></li></ul><p>B</p></blockquote></blockquote>",
+      "<blockquote><blockquote><ul><li><p>A<br>B</p></li></ul></blockquote></blockquote>",
     ],
     [
       "> - A\n>   # H\nB",
@@ -79,6 +79,10 @@ describe("markdownToHtml", () => {
     [
       "```js`meta\nhello\n```",
       '<pre><code data-language="js`meta">hello</code></pre>',
+    ],
+    [
+      "````js`meta\nhello\n```",
+      "<p>````js`meta<br>hello</p><pre><code></code></pre>",
     ],
     [
       "```x``` is inline\n\n```js\nhello\n```",
