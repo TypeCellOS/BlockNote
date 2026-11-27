@@ -765,6 +765,58 @@ console.log("Third Line")</code></pre>`,
     name: "imageWidth",
     content: `<img src="exampleURL" width="100">`,
   },
+  // A media element without a source shows nothing, so it gives no block.
+  // Other props (a caption, a name) do not change that.
+  {
+    name: "mediaWithoutSource",
+    content: `<p>Paragraph 1</p>
+<img>
+<video></video>
+<audio></audio>
+<embed>
+<img data-caption="Image Caption" data-name="Image Name">
+<video data-caption="Video Caption"></video>
+<audio data-caption="Audio Caption"></audio>
+<embed data-caption="File Caption">
+<p>Paragraph 2</p>`,
+  },
+  // The caption of a figure without a source stays as text.
+  {
+    name: "figureWithoutSource",
+    content: `<figure><img><figcaption>Image Caption</figcaption></figure>
+<figure><video></video><figcaption>Video Caption</figcaption></figure>
+<figure><audio></audio><figcaption>Audio Caption</figcaption></figure>
+<figure><embed><figcaption>File Caption</figcaption></figure>`,
+  },
+  // The URL of a `<video>` or an `<audio>` can be in a `<source>` child. The
+  // first child with a `src` gives the URL.
+  {
+    name: "mediaWithSourceChild",
+    content: `<video><source src="exampleURL"></video>
+<audio><source src="exampleURL"></audio>
+<video><source><source src="exampleURL1"><source src="exampleURL2"></video>`,
+  },
+  // The `data-url` attribute of BlockNote's own HTML gives the URL, on the
+  // element or on its figure.
+  {
+    name: "mediaWithDataUrl",
+    content: `<img data-url="exampleURL">
+<video data-url="exampleURL"></video>
+<audio data-url="exampleURL"></audio>
+<embed data-url="exampleURL">
+<figure data-url="exampleURL"><img><figcaption>Figure URL</figcaption></figure>
+<figure><img data-url="exampleURL"><figcaption>Image URL</figcaption></figure>`,
+  },
+  // An empty URL, or a URL of only white space, is no URL. In a list item,
+  // the `src` property of an empty `src` attribute can be the URL of the page.
+  {
+    name: "mediaWithBlankSource",
+    content: `<img src="">
+<img src=" ">
+<video><source src=""></video>
+<img src="exampleURL" data-url="">
+<ul><li>List Item<img src=""></li></ul>`,
+  },
   {
     name: "textAlignmentProp",
     content: `<p style="text-align: center">Text Align Center</p>`,
@@ -1170,6 +1222,34 @@ Regular paragraph`,
   {
     name: "video",
     content: `![Video](https://interactive-examples.mdn.mozilla.net/media/cc0-videos/flower.webm)`,
+  },
+  // A media element without a source shows nothing, so it gives no block.
+  {
+    name: "mediaWithoutSource",
+    content: `Paragraph 1
+
+![Image]()
+
+<img>
+
+<video></video>
+
+Paragraph 2`,
+  },
+  // The URL of a `<video>` or an `<audio>` can be in a `<source>` child, on
+  // the same line or on its own line.
+  {
+    name: "mediaWithSourceChild",
+    content: `<video controls><source src="exampleURL" type="video/mp4"></video>
+
+<video controls>
+  <source src="exampleURL" type="video/mp4">
+  Your browser does not support the video tag.
+</video>
+
+<audio controls>
+  <source src="exampleURL" type="audio/mpeg">
+</audio>`,
   },
   // Individual heading levels
   {

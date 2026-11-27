@@ -62,10 +62,16 @@ export const imageParse =
         return undefined;
       }
 
+      // An image without a URL gives no block.
+      const image = parseImageElement(element as HTMLImageElement);
+      if (!image.url) {
+        return undefined;
+      }
+
       const { backgroundColor } = parseDefaultProps(element);
 
       return {
-        ...parseImageElement(element as HTMLImageElement),
+        ...image,
         backgroundColor,
       };
     }
@@ -78,10 +84,15 @@ export const imageParse =
 
       const { targetElement, caption } = parsedFigure;
 
+      const image = parseImageElement(targetElement as HTMLImageElement);
+      if (!image.url) {
+        return undefined;
+      }
+
       const { backgroundColor } = parseDefaultProps(element);
 
       return {
-        ...parseImageElement(targetElement as HTMLImageElement),
+        ...image,
         backgroundColor,
         caption,
       };
@@ -146,10 +157,9 @@ export const imageToExternalHTML =
       any
     >,
   ) => {
+    // The upload placeholder (no URL) is not in the export.
     if (!block.props.url) {
-      return {
-        dom: document.createElement("img"),
-      };
+      return null;
     }
 
     let image;

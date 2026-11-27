@@ -1,5 +1,7 @@
+import { parseMediaUrl } from "./parseMediaUrl.js";
+
 export const parseEmbedElement = (embedElement: HTMLEmbedElement) => {
-  const url = embedElement.src || undefined;
+  const url = parseMediaUrl(embedElement);
 
   return { url };
 };

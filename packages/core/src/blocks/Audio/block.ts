@@ -56,10 +56,16 @@ export const audioParse =
         return undefined;
       }
 
+      // An audio without a URL gives no block.
+      const audio = parseAudioElement(element as HTMLAudioElement);
+      if (!audio.url) {
+        return undefined;
+      }
+
       const { backgroundColor } = parseDefaultProps(element);
 
       return {
-        ...parseAudioElement(element as HTMLAudioElement),
+        ...audio,
         backgroundColor,
       };
     }
@@ -72,10 +78,15 @@ export const audioParse =
 
       const { targetElement, caption } = parsedFigure;
 
+      const audio = parseAudioElement(targetElement as HTMLAudioElement);
+      if (!audio.url) {
+        return undefined;
+      }
+
       const { backgroundColor } = parseDefaultProps(element);
 
       return {
-        ...parseAudioElement(targetElement as HTMLAudioElement),
+        ...audio,
         backgroundColor,
         caption,
       };
@@ -128,10 +139,9 @@ export const audioToExternalHTML =
       any
     >,
   ) => {
+    // The upload placeholder (no URL) is not in the export.
     if (!block.props.url) {
-      return {
-        dom: document.createElement("audio"),
-      };
+      return null;
     }
 
     let audio;

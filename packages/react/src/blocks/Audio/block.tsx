@@ -40,8 +40,9 @@ export const AudioToExternalHTML = (
     "contentRef"
   >,
 ) => {
+  // The upload placeholder (no URL) is not in the export.
   if (!props.block.props.url) {
-    return <p>Add audio</p>;
+    return null;
   }
 
   const audio = props.block.props.showPreview ? (

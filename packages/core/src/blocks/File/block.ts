@@ -38,10 +38,16 @@ export const fileParse = () => (element: HTMLElement) => {
       return undefined;
     }
 
+    // A file without a URL gives no block.
+    const embed = parseEmbedElement(element as HTMLEmbedElement);
+    if (!embed.url) {
+      return undefined;
+    }
+
     const { backgroundColor } = parseDefaultProps(element);
 
     return {
-      ...parseEmbedElement(element as HTMLEmbedElement),
+      ...embed,
       backgroundColor,
     };
   }
@@ -61,10 +67,15 @@ export const fileParse = () => (element: HTMLElement) => {
 
     const { targetElement, caption } = parsedFigure;
 
+    const embed = parseEmbedElement(targetElement as HTMLEmbedElement);
+    if (!embed.url) {
+      return undefined;
+    }
+
     const { backgroundColor } = parseDefaultProps(element);
 
     return {
-      ...parseEmbedElement(targetElement as HTMLEmbedElement),
+      ...embed,
       backgroundColor,
       caption,
     };
@@ -82,10 +93,9 @@ export const createFileBlockSpec = createBlockSpec(createFileBlockConfig, {
     return createFileBlockWrapper(block, editor);
   },
   toExternalHTML(block) {
+    // The upload placeholder (no URL) is not in the export.
     if (!block.props.url) {
-      return {
-        dom: document.createElement("embed"),
-      };
+      return null;
     }
 
     const fileSrcLink = document.createElement("a");

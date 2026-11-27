@@ -8,8 +8,9 @@ export const ReactFileBlock = createReactBlockSpec(createFileBlockConfig, {
   render: (props) => <FileBlockWrapper {...props} />,
   parse: fileParse(),
   toExternalHTML: (props) => {
+    // The upload placeholder (no URL) is not in the export.
     if (!props.block.props.url) {
-      return <p>Add file</p>;
+      return null;
     }
 
     return (

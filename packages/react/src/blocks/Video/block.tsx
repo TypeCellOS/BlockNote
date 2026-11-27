@@ -40,8 +40,9 @@ export const VideoToExternalHTML = (
     "contentRef"
   >,
 ) => {
+  // The upload placeholder (no URL) is not in the export.
   if (!props.block.props.url) {
-    return <p>Add video</p>;
+    return null;
   }
 
   const video = props.block.props.showPreview ? (

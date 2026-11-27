@@ -709,7 +709,8 @@ type Token =
 /**
  * HTML block-level tag names (from the CommonMark type-6 list, plus `audio`
  * which BlockNote serializes as raw HTML since markdown has no shorthand
- * for it). When a line starts with `<` followed by one of these tag names,
+ * for it, and `video`, so that its `<source>` lines stay in the element).
+ * When a line starts with `<` followed by one of these tag names,
  * the run of non-blank lines is emitted verbatim as raw HTML rather than
  * wrapped in a paragraph.
  */
@@ -777,6 +778,7 @@ const HTML_BLOCK_TAGS = new Set([
   "tr",
   "track",
   "ul",
+  "video",
 ]);
 
 function isHtmlBlockStart(line: string): boolean {

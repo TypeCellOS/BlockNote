@@ -678,8 +678,8 @@ export function createBlockSpec<
               context,
             );
 
-            if (output === undefined) {
-              return undefined;
+            if (!output) {
+              return output;
             }
 
             if (isLayoutBlock) {

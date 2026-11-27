@@ -38,10 +38,16 @@ export const videoParse = (_config: VideoOptions) => (element: HTMLElement) => {
       return undefined;
     }
 
+    // A video without a URL gives no block.
+    const video = parseVideoElement(element as HTMLVideoElement);
+    if (!video.url) {
+      return undefined;
+    }
+
     const { backgroundColor } = parseDefaultProps(element);
 
     return {
-      ...parseVideoElement(element as HTMLVideoElement),
+      ...video,
       backgroundColor,
     };
   }
@@ -54,10 +60,15 @@ export const videoParse = (_config: VideoOptions) => (element: HTMLElement) => {
 
     const { targetElement, caption } = parsedFigure;
 
+    const video = parseVideoElement(targetElement as HTMLVideoElement);
+    if (!video.url) {
+      return undefined;
+    }
+
     const { backgroundColor } = parseDefaultProps(element);
 
     return {
-      ...parseVideoElement(targetElement as HTMLVideoElement),
+      ...video,
       backgroundColor,
       caption,
     };
@@ -106,10 +117,9 @@ export const createVideoBlockSpec = createBlockSpec(
       );
     },
     toExternalHTML(block) {
+      // The upload placeholder (no URL) is not in the export.
       if (!block.props.url) {
-        return {
-          dom: document.createElement("video"),
-        };
+        return null;
       }
 
       let video;
