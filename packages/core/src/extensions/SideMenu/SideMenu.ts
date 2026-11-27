@@ -7,6 +7,7 @@ import {
 } from "../../editor/BlockNoteExtension.js";
 import { UiElementPosition } from "../../extensions-shared/UiElementPosition.js";
 import { BlockIdentifier } from "../../schema/index.js";
+import { isDOMNode } from "../../util/browser.js";
 import { registerBlockDropHandlers } from "./blockDropHandling.js";
 import { dragStart, unsetDragImage } from "./dragging.js";
 import {
@@ -55,13 +56,12 @@ const INTENT_TIMEOUT = 350;
 
 /** The event's target as an element (text nodes resolve to their parent). */
 function targetElement(target: EventTarget | null): Element | null {
-  if (!target || !("nodeType" in target)) {
+  if (!isDOMNode(target)) {
     return null;
   }
-  const node = target as Node;
-  return node.nodeType === Node.ELEMENT_NODE
-    ? (node as Element)
-    : node.parentElement;
+  return target.nodeType === Node.ELEMENT_NODE
+    ? (target as Element)
+    : target.parentElement;
 }
 
 export const sideMenuPluginKey = new PluginKey("SideMenuPlugin");

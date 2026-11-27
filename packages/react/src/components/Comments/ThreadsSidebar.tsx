@@ -1,4 +1,8 @@
-import { BlockNoteEditor, UnreachableCaseError } from "@blocknote/core";
+import {
+  BlockNoteEditor,
+  isDOMNode,
+  UnreachableCaseError,
+} from "@blocknote/core";
 import { CommentsExtension } from "@blocknote/core/comments";
 import { ThreadData } from "@blocknote/core/comments";
 import React, { FocusEvent, useCallback, useMemo } from "react";
@@ -54,12 +58,10 @@ const ThreadItem = React.memo(
           return;
         }
 
-        const targetElement =
-          event.target instanceof Node ? event.target : null;
-        const parentThreadElement =
-          event.relatedTarget instanceof Node
-            ? event.relatedTarget.closest(".bn-thread")
-            : null;
+        const targetElement = isDOMNode(event.target) ? event.target : null;
+        const parentThreadElement = isDOMNode(event.relatedTarget)
+          ? event.relatedTarget.closest(".bn-thread")
+          : null;
 
         // When you focus the editor (reply composer), we don't want to unselect the thread
         // This check prevents that. But we still want to unselect the thread when it gets blurred in all other cases

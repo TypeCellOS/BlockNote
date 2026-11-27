@@ -37,6 +37,16 @@ type InlineTokenizer = (
   allowLinks: boolean,
 ) => { html: string; end: number } | null;
 
+/** CommonMark backslash escapes apply to ASCII punctuation. */
+const ESCAPABLE_CHARACTERS = /[\x21-\x2f\x3a-\x40\x5b-\x60\x7b-\x7e]/;
+
+function skipIndent(text: string, i: number): number {
+  while (text[i] === " " || text[i] === "\t") {
+    i++;
+  }
+  return i;
+}
+
 function tryBackslashEscape(
   text: string,
   i: number,
@@ -45,12 +55,14 @@ function tryBackslashEscape(
     return null;
   }
   const next = text[i + 1];
-  // Hard line break: backslash at end of line
+  // Hard line break: backslash at end of line. No newline follows the `<br>`:
+  // the HTML parser reads that newline as a space at the start of the next
+  // line.
   if (next === "\n") {
-    return { html: "<br>\n", end: i + 2 };
+    return { html: "<br>", end: skipIndent(text, i + 2) };
   }
   // Escapable characters
-  if ("\\`*_{}[]()#+-.!~|<>".includes(next)) {
+  if (ESCAPABLE_CHARACTERS.test(next)) {
     return { html: escapeHtml(next), end: i + 2 };
   }
   return null;
@@ -63,7 +75,34 @@ function tryInlineCode(
   if (text[i] !== "`") {
     return null;
   }
-  return parseInlineCode(text, i);
+  const backticks = /`+/g;
+  backticks.lastIndex = i;
+  const opening = backticks.exec(text)![0];
+  const codeStart = backticks.lastIndex;
+
+  for (
+    let closing = backticks.exec(text);
+    closing;
+    closing = backticks.exec(text)
+  ) {
+    if (closing[0].length !== opening.length) {
+      continue;
+    }
+
+    // A code span keeps indentation after a newline; only the newline itself
+    // becomes a space. Trim one space from each end unless it is all spaces.
+    let code = text.slice(codeStart, closing.index).replace(/\n/g, " ");
+    if (code.startsWith(" ") && code.endsWith(" ") && /[^ ]/.test(code)) {
+      code = code.slice(1, -1);
+    }
+    return {
+      html: `<code>${escapeHtml(code)}</code>`,
+      end: backticks.lastIndex,
+    };
+  }
+
+  // Consume the whole unmatched run so a suffix cannot become another opener.
+  return { html: opening, end: codeStart };
 }
 
 function tryImage(
@@ -214,16 +253,6 @@ function tryItalic(
   return null;
 }
 
-function trySoftBreak(
-  text: string,
-  i: number,
-): { html: string; end: number } | null {
-  if (text[i] === "\n") {
-    return { html: "<br>\n", end: i + 1 };
-  }
-  return null;
-}
-
 // Inline raw HTML: pass through tags, comments, CDATA, processing
 // instructions, and declarations verbatim so authors can mix HTML into
 // markdown (e.g. `text <em>foo</em> more`). Anything that doesn't match
@@ -293,7 +322,6 @@ const inlineTokenizers: InlineTokenizer[] = [
   tryBold, // ** / __
   tryItalic, // * / _
   tryInlineHtml,
-  trySoftBreak,
 ];
 
 const linkTextTokenizers = inlineTokenizers.filter(
@@ -311,19 +339,14 @@ function parseInline(text: string, allowLinks = true): string {
   const tokenizers = allowLinks ? inlineTokenizers : linkTextTokenizers;
 
   while (i < text.length) {
-    // Hard line break: 2+ trailing spaces immediately before a newline.
-    // (The other hard-break form, backslash + newline, is handled by
-    // tryBackslashEscape.) Strip the trailing spaces from the accumulated
-    // result before emitting the <br>.
-    if (
-      text[i] === "\n" &&
-      i >= 2 &&
-      text[i - 1] === " " &&
-      text[i - 2] === " "
-    ) {
-      result = result.replace(/ +$/, "");
-      result += "<br>\n";
-      i++;
+    // BlockNote renders both soft breaks and hard breaks as <br>. An inline
+    // code span consumes its own newlines before they reach this branch.
+    if (text[i] === "\n") {
+      if (text[i - 1] === " " && text[i - 2] === " ") {
+        result = result.replace(/ +$/, "");
+      }
+      result += "<br>";
+      i = skipIndent(text, i + 1);
       continue;
     }
 
@@ -355,80 +378,19 @@ function parseInline(text: string, allowLinks = true): string {
   return result;
 }
 
-function parseInlineCode(
-  text: string,
-  start: number,
-): { html: string; end: number } | null {
-  // Count opening backticks
-  let openCount = 0;
-  let i = start;
-  while (i < text.length && text[i] === "`") {
-    openCount++;
-    i++;
-  }
-
-  // Find matching closing backticks
-  let j = i;
-  while (j < text.length) {
-    if (text[j] === "`") {
-      let closeCount = 0;
-      const closeStart = j;
-      while (j < text.length && text[j] === "`") {
-        closeCount++;
-        j++;
-      }
-      if (closeCount === openCount) {
-        let code = text.substring(i, closeStart);
-        // Per CommonMark: line endings inside a code span are converted to
-        // single spaces, then if the result starts AND ends with a space and
-        // is not all-spaces, one leading + trailing space is stripped (so
-        // `` ` `foo` ` `` is `<code>`foo`</code>`).
-        code = code.replace(/\n/g, " ");
-        if (
-          code.length >= 2 &&
-          code[0] === " " &&
-          code.at(-1) === " " &&
-          /[^ ]/.test(code)
-        ) {
-          code = code.substring(1, code.length - 1);
-        }
-        return {
-          html: `<code>${escapeHtml(code)}</code>`,
-          end: j,
-        };
-      }
-    } else {
-      j++;
-    }
-  }
-  return null;
-}
-
 function parseImage(
   text: string,
   start: number,
 ): { html: string; end: number } | null {
-  // ![alt](url) or ![alt](url "title")
-  // Use balanced bracket matching to handle nested/escaped brackets in alt text
-  const altEnd = findClosingBracket(text, start + 1);
-  if (altEnd === -1) {
-    return null;
-  }
-  const altStart = start + 2; // after ![
-
-  if (text[altEnd + 1] !== "(") {
+  const resource = findResource(text, start + 1);
+  if (!resource) {
     return null;
   }
 
-  const urlStart = altEnd + 2;
-  const parenEnd = findClosingParen(text, urlStart - 1);
-  if (parenEnd === -1) {
-    return null;
-  }
-
-  const alt = text.substring(altStart, altEnd);
+  const alt = removeBackslashEscapes(text.slice(start + 2, resource.labelEnd));
   const { url, title } = parseDestinationAndTitle(
-    text.substring(urlStart, parenEnd),
+    text.slice(resource.labelEnd + 2, resource.end - 1),
+    "media",
   );
 
   if (isVideoUrl(url)) {
@@ -439,14 +401,14 @@ function parseImage(
     const name = alt || title;
     return {
       html: `<video src="${escapeHtml(url)}"${name ? ` data-name="${escapeHtml(name)}"` : ""} data-url="${escapeHtml(url)}" controls></video>`,
-      end: parenEnd + 1,
+      end: resource.end,
     };
   }
 
   const titleAttr = title !== undefined ? ` title="${escapeHtml(title)}"` : "";
   return {
     html: `<img src="${escapeHtml(url)}" alt="${escapeHtml(alt)}"${titleAttr}>`,
-    end: parenEnd + 1,
+    end: resource.end,
   };
 }
 
@@ -454,33 +416,31 @@ function parseLink(
   text: string,
   start: number,
 ): { html: string; end: number } | null {
-  // [text](url)
-  const textStart = start + 1;
-  const textEnd = findClosingBracket(text, start);
-  if (textEnd === -1) {
+  const resource = findResource(text, start);
+  if (!resource) {
     return null;
   }
 
-  if (text[textEnd + 1] !== "(") {
-    return null;
-  }
-
-  const urlStart = textEnd + 2;
-  const parenEnd = findClosingParen(text, textEnd + 1);
-  if (parenEnd === -1) {
-    return null;
-  }
-
-  const linkText = text.substring(textStart, textEnd);
+  const linkText = text.slice(start + 1, resource.labelEnd);
   const { url, title } = parseDestinationAndTitle(
-    text.substring(urlStart, parenEnd),
+    text.slice(resource.labelEnd + 2, resource.end - 1),
+    "link",
   );
 
   const titleAttr = title !== undefined ? ` title="${escapeHtml(title)}"` : "";
   return {
     html: `<a href="${escapeHtml(url)}"${titleAttr}>${parseInline(linkText, false)}</a>`,
-    end: parenEnd + 1,
+    end: resource.end,
   };
+}
+
+function findResource(text: string, open: number) {
+  const labelEnd = findClosingBracket(text, open);
+  if (labelEnd === -1 || text[labelEnd + 1] !== "(") {
+    return null;
+  }
+  const destinationEnd = findLinkEnd(text, labelEnd + 2);
+  return destinationEnd === -1 ? null : { labelEnd, end: destinationEnd + 1 };
 }
 
 function findClosingBracket(text: string, openPos: number): number {
@@ -503,12 +463,42 @@ function findClosingBracket(text: string, openPos: number): number {
   return -1;
 }
 
-function findClosingParen(text: string, openPos: number): number {
-  let depth = 0;
-  for (let i = openPos; i < text.length; i++) {
+const LINK_TITLE = /^"([^"]*)"$|^'([^']*)'$|^\(([^)]*)\)$/;
+const LINK_END = /^\s*(?:(?:"[^"]*"|'[^']*'|\([^)]*\))\s*)?\)/;
+
+function findLinkEnd(text: string, start: number): number {
+  let destStart = start;
+  while (/\s/.test(text[destStart] ?? "")) {
+    destStart++;
+  }
+  if (text[destStart] === "<") {
+    const angleEnd = findClosingAngle(text, destStart);
+    if (angleEnd !== -1) {
+      const end = text.slice(angleEnd + 1).match(LINK_END);
+      if (end) {
+        return angleEnd + end[0].length;
+      }
+    }
+  }
+  // If the angle form is incomplete, still accept the older lenient syntax.
+  return findClosingParen(text, start);
+}
+
+function findClosingParen(text: string, start: number): number {
+  let depth = 1;
+  for (let i = start; i < text.length; i++) {
     if (text[i] === "\\" && i + 1 < text.length) {
       i++;
       continue;
+    }
+    if (depth === 1 && /\s/.test(text[i])) {
+      const end = text.slice(i).match(LINK_END);
+      if (end) {
+        return i + end[0].length - 1;
+      }
+      while (/\s/.test(text[i + 1] ?? "")) {
+        i++;
+      }
     }
     if (text[i] === "(") {
       depth++;
@@ -523,14 +513,31 @@ function findClosingParen(text: string, openPos: number): number {
   return -1;
 }
 
+function findClosingAngle(text: string, openPos: number): number {
+  for (let i = openPos + 1; i < text.length; i++) {
+    if (text[i] === "\n" || (text[i] === "\\" && text[i + 1] === "\n")) {
+      return -1;
+    }
+    if (text[i] === "\\" && i + 1 < text.length) {
+      i++;
+    } else if (text[i] === ">") {
+      return i;
+    }
+  }
+  return -1;
+}
+
 /**
  * Parse the inside of `(...)` from a link/image (the URL and optional title).
- * Handles three URL forms:
+ * Handles two URL forms:
  *   - bare:           `/uri` or `/uri "title"`
  *   - angle-bracket:  `<url>` or `<url> "title"` (brackets are stripped)
  * And three title-quote forms:  `"..."`, `'...'`, `(...)`.
  */
-function parseDestinationAndTitle(raw: string): {
+function parseDestinationAndTitle(
+  raw: string,
+  kind: "link" | "media",
+): {
   url: string;
   title?: string;
 } {
@@ -539,7 +546,7 @@ function parseDestinationAndTitle(raw: string): {
   let rest: string;
 
   if (raw.startsWith("<")) {
-    const close = raw.indexOf(">");
+    const close = findClosingAngle(raw, 0);
     if (close === -1) {
       // Unmatched `<` — treat the whole thing as the URL minus the `<`.
       url = raw.substring(1);
@@ -565,15 +572,23 @@ function parseDestinationAndTitle(raw: string): {
     rest = raw.substring(split).trim();
   }
 
-  let title: string | undefined;
-  if (rest.length > 0) {
-    const titleMatch = rest.match(/^"([^"]*)"$|^'([^']*)'$|^\(([^)]*)\)$/);
-    if (titleMatch) {
-      title = titleMatch[1] ?? titleMatch[2] ?? titleMatch[3];
-    }
-  }
+  const title = rest.match(LINK_TITLE);
+  // Older exports left Windows media paths bare, with literal backslashes.
+  const isLegacyWindowsPath =
+    kind === "media" && !raw.startsWith("<") && /^(?:[a-z]:\\|\\\\)/i.test(url);
+  return {
+    url: isLegacyWindowsPath ? url : removeBackslashEscapes(url),
+    title: title?.[1] ?? title?.[2] ?? title?.[3],
+  };
+}
 
-  return { url, title };
+/**
+ * Link destinations recognize the same escaped punctuation as inline text.
+ */
+function removeBackslashEscapes(text: string): string {
+  return text.replace(/\\(.)/g, (match, char: string) =>
+    ESCAPABLE_CHARACTERS.test(char) ? char : match,
+  );
 }
 
 function parseDelimited(
@@ -602,6 +617,22 @@ function parseDelimited(
     // Skip escaped characters
     if (text[j] === "\\" && j + 1 < text.length) {
       j += 2;
+      continue;
+    }
+
+    // A delimiter belongs to the token that contains it. In particular a
+    // backtick in a destination or HTML attribute cannot open a code span.
+    const token =
+      tryInlineCode(text, j) ??
+      (text[j] === "<"
+        ? ((allowLinks ? tryAutolink(text, j) : null) ?? tryInlineHtml(text, j))
+        : text[j] === "!" && text[j + 1] === "["
+          ? findResource(text, j + 1)
+          : allowLinks && text[j] === "["
+            ? findResource(text, j)
+            : null);
+    if (token) {
+      j = token.end;
       continue;
     }
 
@@ -667,7 +698,7 @@ interface CodeBlockToken extends BlockToken {
 
 interface BlockquoteToken extends BlockToken {
   type: "blockquote";
-  content: string;
+  children: Token[];
 }
 
 interface HorizontalRuleToken extends BlockToken {
@@ -798,9 +829,85 @@ const TABLE_ROW_RE = /^\s*\|.+\|\s*$/;
 
 // ─── Block-Level Tokenizer ──────────────────────────────────────────────────
 
+// A backtick fence's info string cannot contain backticks, unlike its tilde
+// counterpart's. A line starting with a complete code span is therefore prose.
+const CODE_FENCE_OPENING = /^ {0,3}(`{3,}(?=[^`]*$)|~{3,})(.*)$/;
+
+function codeFenceClosing(fence: string): RegExp {
+  return new RegExp(`^ {0,3}${fence[0]}{${fence.length},}\\s*$`);
+}
+
+function legacyCodeFenceOpening(line: string) {
+  const opening = line.match(/^ {0,3}(`{3,})([^`]*`.*)$/);
+  if (!opening || line.trimEnd().endsWith("```")) {
+    return null;
+  }
+  const fenceStart = line.indexOf("`");
+  const span = tryInlineCode(line, fenceStart);
+  if (span && span.end > fenceStart + opening[1].length) {
+    return null;
+  }
+  return opening;
+}
+
+function laterBacktickCloserLengths(lines: string[]): number[] {
+  const lengths: number[] = new Array(lines.length);
+  let longest = 0;
+  for (let index = lines.length - 1; index >= 0; index--) {
+    lengths[index] = longest;
+    const closer = /^ {0,3}(`{3,})\s*$/.exec(lines[index]);
+    if (closer) {
+      longest = Math.max(longest, closer[1].length);
+    }
+  }
+  return lengths;
+}
+
+function quoteMarker(line: string): boolean {
+  return /^ {0,3}>/.test(line);
+}
+
+function endsInQuotedParagraph(tokens: Token[]): boolean {
+  let last = tokens.at(-1);
+  while (last) {
+    switch (last.type) {
+      case "paragraph":
+        return true;
+      case "blockquote":
+        last = last.children.at(-1);
+        break;
+      case "listItem":
+        if (!last.childContent) {
+          return canContinueParagraph(last.content);
+        }
+        last = tokenize(last.childContent).at(-1);
+        break;
+      default:
+        return false;
+    }
+  }
+  return false;
+}
+
+function canContinueParagraph(line: string): boolean {
+  return (
+    line.trim() !== "" &&
+    !/^(#{1,6})\s/.test(line) &&
+    !CODE_FENCE_OPENING.test(line) &&
+    !/^\s{0,3}>/.test(line) &&
+    !/^(\s{0,3})([-*_])\s*(\2\s*){2,}$/.test(line) &&
+    !/^\s*([-*+]|\d+[.)])\s+/.test(line) &&
+    !TABLE_ROW_RE.test(line) &&
+    !isHtmlBlockStart(line)
+  );
+}
+
 function tokenize(markdown: string): Token[] {
-  const lines = markdown.split("\n");
+  // A line ends with "\n", "\r\n" or "\r" (CommonMark). A file from Windows
+  // has "\r\n".
+  const lines = markdown.split(/\r\n?|\n/);
   const tokens: Token[] = [];
+  let closerLengths: number[] | undefined;
   let i = 0;
   let prevLineWasBlank = true; // treat start of document as after blank
 
@@ -814,20 +921,26 @@ function tokenize(markdown: string): Token[] {
       continue;
     }
 
-    // Fenced code block (0-3 leading spaces allowed per CommonMark)
-    const fenceMatch = line.match(/^ {0,3}(`{3,}|~{3,})(.*)$/);
+    let fenceMatch = line.match(CODE_FENCE_OPENING);
+    if (!fenceMatch && prevLineWasBlank) {
+      // Older BlockNote exports allowed backticks in info strings. Recover
+      // explicitly closed blocks without treating ordinary spans as fences.
+      const legacyOpening = legacyCodeFenceOpening(line);
+      if (legacyOpening) {
+        closerLengths ??= laterBacktickCloserLengths(lines);
+        if (closerLengths[i] >= legacyOpening[1].length) {
+          fenceMatch = legacyOpening;
+        }
+      }
+    }
     if (fenceMatch) {
       const fence = fenceMatch[1];
-      const fenceChar = fence[0];
-      const fenceLen = fence.length;
+      const closing = codeFenceClosing(fence);
       const language = fenceMatch[2].trim();
       const codeLines: string[] = [];
       i++;
       while (i < lines.length) {
-        const closingMatch = lines[i].match(
-          new RegExp(`^ {0,3}${fenceChar}{${fenceLen},}\\s*$`),
-        );
-        if (closingMatch) {
+        if (closing.test(lines[i])) {
           i++;
           break;
         }
@@ -911,45 +1024,47 @@ function tokenize(markdown: string): Token[] {
     }
 
     // Blockquote
-    if (/^\s{0,3}>/.test(line)) {
+    if (quoteMarker(line)) {
       const quoteLines: string[] = [];
-      while (i < lines.length && /^\s{0,3}>/.test(lines[i])) {
-        // Remove the > prefix
-        quoteLines.push(lines[i].replace(/^\s{0,3}>\s?/, ""));
-        i++;
-      }
-      // Lazy continuation: collect non-blank lines that don't start a new
-      // block-level element (per CommonMark spec)
-      while (i < lines.length) {
-        const cur = lines[i];
-        if (cur.trim() === "") {
-          break;
+      let children: Token[] | undefined;
+      let continuedParagraph = false;
+      do {
+        const markedStart = quoteLines.length;
+        while (i < lines.length && quoteMarker(lines[i])) {
+          quoteLines.push(lines[i++].replace(/^ {0,3}>[ \t]?/, ""));
         }
-        // Stop on block-level markers
-        if (/^\s{0,3}>/.test(cur)) {
-          break;
-        } // new blockquote
-        if (/^(#{1,6})\s/.test(cur)) {
-          break;
-        } // heading
-        if (/^(`{3,}|~{3,})/.test(cur)) {
-          break;
-        } // code fence
-        if (/^(\s{0,3})([-*_])\s*(\2\s*){2,}$/.test(cur)) {
-          break;
-        } // hr
-        if (/^\s*([-*+]|\d+[.)])\s+/.test(cur)) {
-          break;
-        } // list item
-        if (TABLE_ROW_RE.test(cur)) {
-          break;
-        } // table
-        quoteLines.push(cur);
-        i++;
-      }
+        let lastLine = quoteLines.at(-1) ?? "";
+        while (quoteMarker(lastLine)) {
+          lastLine = lastLine.replace(/^ {0,3}>[ \t]?/, "");
+        }
+        // Only a paragraph can continue without the container marker.
+        if (
+          i < lines.length &&
+          lastLine.trim() &&
+          canContinueParagraph(lines[i])
+        ) {
+          // The previous lazy line already established an open paragraph.
+          // Inspect only the newly marked lines for an interruption.
+          const marked = quoteLines.slice(markedStart).join("\n");
+          const tail = tokenize(
+            continuedParagraph ? `text\n${marked}` : marked,
+          );
+          if (!continuedParagraph) {
+            children = tail;
+          }
+          if (!endsInQuotedParagraph(tail)) {
+            break;
+          }
+          while (i < lines.length && canContinueParagraph(lines[i])) {
+            quoteLines.push(lines[i++]);
+          }
+          continuedParagraph = true;
+          children = undefined;
+        }
+      } while (i < lines.length && quoteMarker(lines[i]));
       tokens.push({
         type: "blockquote",
-        content: quoteLines.join("\n"),
+        children: children ?? tokenize(quoteLines.join("\n")),
       });
       prevLineWasBlank = false;
       continue;
@@ -980,12 +1095,8 @@ function tokenize(markdown: string): Token[] {
         listType = "bullet";
       }
 
-      // Content indent = column where content actually starts
-      const contentIndent =
-        indent +
-        marker.length +
-        markerSpaces.length +
-        (checkbox ? checkbox.length : 0);
+      // The checkbox is inline content, not part of the list marker.
+      const contentIndent = indent + marker.length + markerSpaces.length;
 
       // Minimum indent for child content: anything indented past the marker
       // (sub-lists can start at indent > marker position)
@@ -1013,6 +1124,18 @@ function tokenize(markdown: string): Token[] {
 
       // Consume ALL subsequent lines that belong to this list item
       i++;
+      const itemParagraph = [firstLineContent];
+      if (canContinueParagraph(firstLineContent)) {
+        // Markdown allows the list indentation to be omitted on paragraph
+        // continuations, even inside a blockquote.
+        while (
+          i < lines.length &&
+          !belongsToItem(lines[i]) &&
+          canContinueParagraph(lines[i])
+        ) {
+          itemParagraph.push(lines[i++]);
+        }
+      }
       const subLines: string[] = [];
       while (i < lines.length) {
         const cur = lines[i];
@@ -1055,7 +1178,7 @@ function tokenize(markdown: string): Token[] {
         type: "listItem",
         listType,
         indent,
-        content: firstLineContent.trim(),
+        content: itemParagraph.join("\n").trim(),
         start,
         checked,
         childContent: childContent || undefined,
@@ -1082,57 +1205,30 @@ function tokenize(markdown: string): Token[] {
     }
 
     // Paragraph (default)
-    const paraLines: string[] = [line];
+    // Keep continuation indentation until inline parsing can distinguish a
+    // line break in prose from a newline inside a code span.
+    const paraLines = [line.replace(/^ {1,3}/, "")];
     i++;
-    while (i < lines.length) {
-      const nextLine = lines[i];
-      // Stop paragraph on blank line
-      if (nextLine.trim() === "") {
-        break;
-      }
-      // Stop on block-level element
-      if (/^(#{1,6})\s/.test(nextLine)) {
-        break;
-      }
-      if (/^(`{3,}|~{3,})/.test(nextLine)) {
-        break;
-      }
-      if (/^\s{0,3}>/.test(nextLine)) {
-        break;
-      }
-      if (/^(\s{0,3})([-*_])\s*(\2\s*){2,}$/.test(nextLine)) {
-        break;
-      }
-      if (/^\s*([-*+]|\d+[.)])\s+/.test(nextLine)) {
-        break;
-      }
-      if (TABLE_ROW_RE.test(nextLine)) {
-        break;
-      }
-      if (isHtmlBlockStart(nextLine)) {
-        break;
-      }
+    while (i < lines.length && canContinueParagraph(lines[i])) {
       // Check if next-next line is setext marker
-      if (
-        i + 1 < lines.length &&
-        /^[=-]+\s*$/.test(lines[i + 1]) &&
-        nextLine.trim().length > 0
-      ) {
+      if (i + 1 < lines.length && /^[=-]+\s*$/.test(lines[i + 1])) {
         break;
       }
-      paraLines.push(nextLine);
+      paraLines.push(lines[i]);
       i++;
     }
-    // CommonMark allows up to 3 leading spaces of indent on paragraph lines.
-    // Also strip trailing whitespace from the final line so a trailing
+    // Strip trailing whitespace from the final line so a trailing
     // hard-break sequence (`  \n` at end of paragraph) doesn't leak as
     // literal trailing spaces in the rendered output.
+    const lastLine = paraLines[paraLines.length - 1];
+    let end = lastLine.length;
+    while (lastLine[end - 1] === " " || lastLine[end - 1] === "\t") {
+      end--;
+    }
+    paraLines[paraLines.length - 1] = lastLine.slice(0, end);
     tokens.push({
       type: "paragraph",
-      content: paraLines
-        .map((l) => l.replace(/^ {1,3}/, ""))
-        .join("\n")
-        .replace(/[ \t]+$/, ""),
+      content: paraLines.join("\n"),
     });
     prevLineWasBlank = false;
   }
@@ -1281,9 +1377,7 @@ function tokensToHtml(tokens: Token[]): string {
 
       case "blockquote": {
         const t = token as BlockquoteToken;
-        // Recursively parse blockquote content as markdown
-        const innerTokens = tokenize(t.content);
-        const innerHtml = tokensToHtml(innerTokens);
+        const innerHtml = tokensToHtml(t.children);
         html += `<blockquote>${innerHtml}</blockquote>`;
         i++;
         break;

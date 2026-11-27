@@ -196,6 +196,7 @@ export default defineConfig({
       "jsx-a11y/scope": "error",
       "jsx-a11y/tabindex-no-positive": "error",
       "blocknote/css-variable-layering": "error",
+      "blocknote-dom/no-realm-dependent-dom-instanceof": "error",
       "no-console": "error",
       curly: "warn",
       "@typescript-eslint/no-non-null-assertion": "off",

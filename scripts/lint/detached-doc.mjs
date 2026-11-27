@@ -51,7 +51,39 @@ const noActiveDocument = {
   },
 };
 
+const noRealmDependentDOMInstanceof = {
+  meta: { type: "problem", schema: [] },
+  create(context) {
+    return {
+      'BinaryExpression[operator="instanceof"]'(node) {
+        const constructor = node.right;
+        let name;
+        if (constructor.type === "Identifier") {
+          name = constructor.name;
+        } else if (
+          constructor.type === "MemberExpression" &&
+          constructor.object.type === "Identifier" &&
+          ["globalThis", "window", "self"].includes(constructor.object.name)
+        ) {
+          name = staticName(constructor.property, constructor.computed);
+        }
+
+        if (name === "Node" || name === "HTMLElement") {
+          context.report({
+            node,
+            message:
+              "DOM constructors are realm-specific. Use isDOMNode, isDOMElement, or isDOMHTMLElement from @blocknote/core, depending on the DOM APIs you need.",
+          });
+        }
+      },
+    };
+  },
+};
+
 export default {
   meta: { name: "blocknote-dom" },
-  rules: { "no-active-document": noActiveDocument },
+  rules: {
+    "no-active-document": noActiveDocument,
+    "no-realm-dependent-dom-instanceof": noRealmDependentDOMInstanceof,
+  },
 };

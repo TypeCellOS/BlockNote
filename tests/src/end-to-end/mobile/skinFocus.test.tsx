@@ -1,4 +1,5 @@
 import "@blocknote/ariakit/style.css";
+import { isDOMNode } from "@blocknote/core";
 import "@blocknote/core/fonts/inter.css";
 import "@blocknote/shadcn/style.css";
 import {
@@ -117,7 +118,7 @@ function trackFocusLeavingEditor(
   const left: string[] = [];
   function onFocusOut(event: FocusEvent) {
     const to = event.relatedTarget;
-    if (!(to instanceof Node) || !editorElement.contains(to)) {
+    if (!isDOMNode(to) || !editorElement.contains(to)) {
       // A departure counts only if focus is still elsewhere once the task
       // ends: Base UI focuses its popup on open and the shadcn adapters hand
       // focus back inside the same dispatch, which keeps the keyboard up

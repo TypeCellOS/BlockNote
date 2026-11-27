@@ -10,6 +10,7 @@ import {
   InlineContentSchema,
   StyleSchema,
 } from "../../../schema/index.js";
+import { isDOMElement } from "../../../util/browser.js";
 import { createExternalHTMLExporter } from "../../exporters/html/externalHTMLExporter.js";
 import { cleanHTMLToMarkdown } from "../../exporters/markdown/markdownExporter.js";
 import { fragmentToBlocks } from "../../nodeConversions/fragmentToBlocks.js";
@@ -193,16 +194,16 @@ const checkIfSelectionInNonEditableBlock = (view: EditorView) => {
   // editable block and end in a non-editable one.
   const selection = window.getSelection();
   if (selection && !selection.isCollapsed) {
-    let node = selection.focusNode;
-    while (node) {
-      if (
-        node instanceof HTMLElement &&
-        node.getAttribute("contenteditable") === "false"
-      ) {
+    const focusNode = selection.focusNode;
+    let element = isDOMElement(focusNode)
+      ? focusNode
+      : focusNode?.parentElement;
+    while (element) {
+      if (element.getAttribute("contenteditable") === "false") {
         return true;
       }
 
-      node = node.parentElement;
+      element = element.parentElement;
     }
   }
 

@@ -1,3 +1,4 @@
+import { isDOMNode } from "@blocknote/core";
 import { LinkToolbarExtension } from "@blocknote/core/extensions";
 import { flip, offset, safePolygon } from "@floating-ui/react";
 import { Range } from "@tiptap/core";
@@ -106,7 +107,7 @@ export const LinkToolbarController = (props: {
         return;
       }
 
-      if (!(event.target instanceof HTMLElement)) {
+      if (!isDOMNode(event.target)) {
         return;
       }
 

@@ -1,6 +1,7 @@
 import {
   BlockNoteSchema,
   createBlockSpec,
+  isDOMNode,
   type PartialBlock,
 } from "@blocknote/core";
 import "@blocknote/core/fonts/inter.css";
@@ -214,7 +215,7 @@ describe("Check Block Dragging Functionality", () => {
       function recordDrop(event: DragEvent) {
         dropped ||=
           event.isTrusted &&
-          event.target instanceof Node &&
+          isDOMNode(event.target) &&
           firstParagraph.contains(event.target);
       }
       editor.addEventListener("drop", recordDrop, true);
