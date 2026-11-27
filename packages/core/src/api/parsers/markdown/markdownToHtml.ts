@@ -362,7 +362,10 @@ function parseInline(text: string, allowLinks = true): string {
     if (!matched) {
       // Batch consecutive plain-text characters and escape once
       const runStart = i;
-      i++;
+      // An unmatched backtick run cannot open a code span partway through.
+      do {
+        i++;
+      } while (text[runStart] === "`" && text[i] === "`");
       while (i < text.length && !canStartInlineToken(text, i)) {
         i++;
       }
