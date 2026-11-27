@@ -841,8 +841,9 @@ function codeFenceClosing(fence: string): RegExp {
 }
 
 function legacyCodeFence(lines: string[], start: number) {
-  const opening = lines[start].match(/^ {0,3}(`{3,})([^`]*`.*)$/);
-  if (!opening || /^ {0,3}`+.*`{3,}\s*$/.test(lines[start])) {
+  const line = lines[start];
+  const opening = line.match(/^ {0,3}(`{3,})([^`]*`.*)$/);
+  if (!opening || line.trimEnd().endsWith("```")) {
     return null;
   }
   // Older BlockNote exports allowed backticks in info strings. Recover
@@ -1149,9 +1150,15 @@ function tokenize(markdown: string): Token[] {
     // Strip trailing whitespace from the final line so a trailing
     // hard-break sequence (`  \n` at end of paragraph) doesn't leak as
     // literal trailing spaces in the rendered output.
+    const lastLine = paraLines[paraLines.length - 1];
+    let end = lastLine.length;
+    while (lastLine[end - 1] === " " || lastLine[end - 1] === "\t") {
+      end--;
+    }
+    paraLines[paraLines.length - 1] = lastLine.slice(0, end);
     tokens.push({
       type: "paragraph",
-      content: paraLines.join("\n").replace(/[ \t]+$/, ""),
+      content: paraLines.join("\n"),
     });
     prevLineWasBlank = false;
   }
