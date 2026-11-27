@@ -2,6 +2,12 @@ import { describe, expect } from "vite-plus/test";
 import { markdownToHtml } from "./markdownToHtml.js";
 
 describe("markdownToHtml", () => {
+  it("unescapes ASCII punctuation in a link destination", () => {
+    expect(markdownToHtml(String.raw`[x](https://example.com/a\?q\=1)`)).toBe(
+      '<p><a href="https://example.com/a?q=1">x</a></p>',
+    );
+  });
+
   it.each([
     [
       '[link](<my file> "some ) title")',

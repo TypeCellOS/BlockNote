@@ -37,8 +37,8 @@ type InlineTokenizer = (
   allowLinks: boolean,
 ) => { html: string; end: number } | null;
 
-/** The characters that a backslash escapes. */
-const ESCAPABLE_CHARACTERS = "\\`*_{}[]()#+-.!~|<>";
+/** CommonMark backslash escapes apply to ASCII punctuation. */
+const ESCAPABLE_CHARACTERS = /[\x21-\x2f\x3a-\x40\x5b-\x60\x7b-\x7e]/;
 
 function skipIndent(text: string, i: number): number {
   while (text[i] === " " || text[i] === "\t") {
@@ -62,7 +62,7 @@ function tryBackslashEscape(
     return { html: "<br>", end: skipIndent(text, i + 2) };
   }
   // Escapable characters
-  if (ESCAPABLE_CHARACTERS.includes(next)) {
+  if (ESCAPABLE_CHARACTERS.test(next)) {
     return { html: escapeHtml(next), end: i + 2 };
   }
   return null;
@@ -590,7 +590,7 @@ function parseDestinationAndTitle(
  */
 function removeBackslashEscapes(text: string): string {
   return text.replace(/\\(.)/g, (match, char: string) =>
-    ESCAPABLE_CHARACTERS.includes(char) ? char : match,
+    ESCAPABLE_CHARACTERS.test(char) ? char : match,
   );
 }
 

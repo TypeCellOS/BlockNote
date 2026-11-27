@@ -4,6 +4,16 @@ import { markdownToHtml } from "../../parsers/markdown/markdownToHtml.js";
 import { htmlToMarkdown } from "./htmlToMarkdown.js";
 
 describe("htmlToMarkdown", () => {
+  it.each([
+    String.raw`foo\ bar.png`,
+    String.raw`\\server\share\my photo.png`,
+    "my file).png",
+    "my file&gt;v.png",
+  ])("round-trips an image pointing to %s", (src) => {
+    const image = `<p><img src="${src}" alt="Photo"></p>`;
+    expect(markdownToHtml(htmlToMarkdown(image))).toBe(image);
+  });
+
   // A hard break in a heading or a list item is a `<br>` tag. A backslash
   // directly before the tag would escape its `<`.
   it.each(["<h1>a\\<br>b</h1>", "<ul><li><p>a\\<br>b</p></li></ul>"])(
