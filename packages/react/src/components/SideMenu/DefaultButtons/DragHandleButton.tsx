@@ -33,7 +33,7 @@ export const DragHandleButton = (
     selector: (state) => state?.block,
   });
 
-  // Unfreeze side menu if editor becomes read-only.
+  // Release the freeze when the open menu can no longer be shown.
   const menuOpen = useRef(false);
   useEffect(() => {
     if ((!isEditable || block === undefined) && menuOpen.current) {
@@ -41,6 +41,15 @@ export const DragHandleButton = (
       sideMenu.unfreezeMenu();
     }
   }, [isEditable, block, sideMenu]);
+
+  useEffect(() => {
+    return () => {
+      if (menuOpen.current) {
+        menuOpen.current = false;
+        sideMenu.unfreezeMenu({ restoreFocus: false });
+      }
+    };
+  }, [sideMenu]);
 
   if (!isEditable || block === undefined) {
     return null;

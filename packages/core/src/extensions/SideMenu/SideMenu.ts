@@ -450,9 +450,12 @@ export const SideMenuExtension = createExtension(
        * attached to the same block regardless of which block is hovered by the
        * mouse cursor.
        */
-      unfreezeMenu() {
+      unfreezeMenu({ restoreFocus = true } = {}) {
         menuFrozen = false;
         hideMenu();
+        if (!restoreFocus) {
+          return;
+        }
         // Restore keyboard focus after menu actions, but don't steal it from
         // another input. In shadow roots, check the focused element, not its host.
         const view = editor.prosemirrorView;
