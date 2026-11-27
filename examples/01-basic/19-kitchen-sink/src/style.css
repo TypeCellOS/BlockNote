@@ -1,5 +1,11 @@
-/* Only the example's host loses its default body margin (standalone Vite).
-   Editor content and editor UI keep BlockNote's own styles. */
+/* The demo scrolls within its panels, including when hosted in the playground. */
+html:has(.kitchen-sink),
+body:has(.kitchen-sink),
+.bn-scroll-container:has(.kitchen-sink) {
+  overflow: clip;
+  overscroll-behavior: none;
+}
+
 body:has(.kitchen-sink) {
   margin: 0;
 }
@@ -45,6 +51,7 @@ body:has(.kitchen-sink) {
 .kitchen-sink-options {
   min-height: 0;
   overflow: auto;
+  overscroll-behavior: contain;
   padding: 28px 22px;
   border-right: 1px solid var(--ks-border);
   background: var(--ks-surface);
@@ -173,15 +180,7 @@ body:has(.kitchen-sink) {
   padding: 24px;
 }
 
-.kitchen-sink-views {
-  display: flex;
-  gap: 20px;
-  min-width: 0;
-  min-height: 0;
-}
-
-.kitchen-sink-editor,
-.kitchen-sink-pdf {
+.kitchen-sink-editor {
   display: flex;
   flex: 1 1 0;
   flex-direction: column;
@@ -226,34 +225,28 @@ body:has(.kitchen-sink) {
   flex: 1;
   min-height: 0;
   overflow: auto;
+  overscroll-behavior: contain;
   padding: 24px 0;
   scrollbar-gutter: stable;
 }
 
 .kitchen-sink-download {
-  color: var(--ks-accent);
-  font-size: 12px;
-  font-weight: 550;
-  text-underline-offset: 3px;
+  width: 100%;
+  margin-top: 12px;
+  justify-content: center;
 }
 
-.kitchen-sink-export-status {
+.kitchen-sink-loading-status {
   margin: 20px;
   color: var(--ks-muted);
   font-size: 13px;
-}
-
-.kitchen-sink-pdf-frame {
-  flex: 1;
-  min-height: 0;
-  width: 100%;
-  border: 0;
 }
 
 .kitchen-sink-shortcuts {
   min-height: 0;
   max-height: 35dvh;
   overflow: auto;
+  overscroll-behavior: contain;
   border: 1px solid var(--ks-border);
   border-radius: 10px;
   background: var(--ks-surface);
@@ -306,7 +299,6 @@ body:has(.kitchen-sink) {
   .kitchen-sink-button,
   .kitchen-sink-checkbox,
   .kitchen-sink-select,
-  .kitchen-sink-download,
   .kitchen-sink-shortcuts-summary
 ):focus-visible {
   outline: 2px solid var(--ks-accent);
@@ -322,17 +314,6 @@ body:has(.kitchen-sink) {
   }
   .kitchen-sink-main {
     padding: 16px;
-  }
-  .kitchen-sink-views {
-    flex-direction: column;
-    gap: 12px;
-    overflow: auto;
-  }
-  .kitchen-sink-editor,
-  .kitchen-sink-pdf {
-    box-sizing: border-box;
-    flex: 0 0 100%;
-    min-height: 280px;
   }
 }
 

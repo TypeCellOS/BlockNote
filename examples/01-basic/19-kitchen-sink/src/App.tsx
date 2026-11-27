@@ -3,10 +3,11 @@ import {
   CommentsExtension,
   DefaultThreadStoreAuth,
 } from "@blocknote/core/comments";
-import { withCollaboration, YjsThreadStore } from "@blocknote/core/yjs";
-import { filterSuggestionItems } from "@blocknote/core/extensions";
-import { en } from "@blocknote/core/locales";
-import { syntaxHighlighter } from "@blocknote/code-block";
+import { withCollaboration, YjsThreadStore } from "@blocknote/core/y";
+import {
+  filterSuggestionItems,
+  LoadingExtension,
+} from "@blocknote/core/extensions";
 import {
   getMathBlockTypeSelectItems,
   getMathSlashMenuItems,
@@ -22,9 +23,12 @@ import {
   multiColumnDropCursor,
   locales as columnLocales,
 } from "@blocknote/xl-multi-column";
+import { en } from "@blocknote/core/locales";
+import { syntaxHighlighter } from "@blocknote/code-block";
 import { BlockNoteView } from "@blocknote/mantine";
 import {
   useCreateBlockNote,
+  useExtensionState,
   SuggestionMenuController,
   getDefaultReactSlashMenuItems,
   getPageBreakReactSlashMenuItems,
@@ -37,9 +41,9 @@ import "@blocknote/core/fonts/inter.css";
 import "@blocknote/mantine/style.css";
 import "@blocknote/math-block/style.css";
 import { schema } from "./schema.js";
-import { presets } from "./documents/index.js";
-import { createSession, type Session } from "./session.js";
-import { PdfPreview } from "./PdfPreview.js";
+import { presets, standardBlocks } from "./documents/index.js";
+import { createSession } from "./session.js";
+import { PdfDownload } from "./PdfDownload.js";
 import { Shortcuts } from "./Shortcuts.js";
 import "./style.css";
 
@@ -61,49 +65,26 @@ async function uploadFile(file: File): Promise<string> {
   });
 }
 
+// Like the YHub example, keep one document and user identity for this page.
+const session = createSession();
+
 export default function App() {
-  const [session, setSession] = useState<Session>();
-
-  useEffect(() => {
-    let disposed = false;
-    let active: Session | undefined;
-
-    // Initialization can finish after unmount, including during Strict Mode setup.
-    void createSession().then((created) => {
-      if (disposed) {
-        created.destroy();
-      } else {
-        active = created;
-        setSession(created);
-      }
-    });
-
-    return () => {
-      disposed = true;
-      active?.destroy();
-    };
-  }, []);
-
-  return session ? (
-    <KitchenSink session={session} />
-  ) : (
-    <p role="status">Opening document…</p>
-  );
-}
-
-function KitchenSink({ session }: { session: Session }) {
   const [editable, setEditable] = useState(true);
   const [dark, setDark] = useState(false);
-  const [format, setFormat] = useState("none");
 
-  const settings = session.doc.getMap<string>("settings");
+  const settings = session.doc.get("settings");
   const [preset, setPreset] = useState(
-    () => settings.get("preset") ?? "standard",
+    () =>
+      presets.find((entry) => entry.id === settings.getAttr("preset"))?.id ??
+      "standard",
   );
 
   useEffect(() => {
     function update() {
-      setPreset(settings.get("preset") ?? "standard");
+      setPreset(
+        presets.find((entry) => entry.id === settings.getAttr("preset"))?.id ??
+          "standard",
+      );
     }
 
     settings.observe(update);
@@ -116,7 +97,7 @@ function KitchenSink({ session }: { session: Session }) {
     () => ({
       threadStore: new YjsThreadStore(
         session.user.id,
-        session.doc.getMap("threads"),
+        session.doc.get("threads"),
         new DefaultThreadStoreAuth(session.user.id, "editor"),
       ),
       userStore: createUserStore(async (ids) =>
@@ -127,7 +108,7 @@ function KitchenSink({ session }: { session: Session }) {
         })),
       ),
     }),
-    [session],
+    [],
   );
 
   const editor = useCreateBlockNote(
@@ -147,19 +128,48 @@ function KitchenSink({ session }: { session: Session }) {
         cellTextColor: true,
         headers: true,
       },
-      collaboration: {
-        provider: session,
-        fragment: session.doc.getXmlFragment("blocknote"),
-        user: { name: session.user.username, color: session.color },
-        resolveUsers: userStore,
-      },
       extensions: [
         syntaxHighlighter,
         CommentsExtension({ threadStore, resolveUsers: userStore }),
       ],
+      collaboration: {
+        provider: session.provider,
+        fragment: session.doc.get("bn"),
+        user: session.user,
+        resolveUsers: userStore,
+      },
     }),
-    [session, threadStore, userStore],
+    [threadStore, userStore],
   );
+  const loading = useExtensionState(LoadingExtension, {
+    editor,
+    selector: (state) => state.size > 0,
+  });
+
+  useEffect(() => {
+    function initialize(synced: boolean) {
+      // Seed an untouched room only after the server has sent its state.
+      if (
+        synced &&
+        session.doc.get("bn").length === 0 &&
+        !settings.hasAttr("preset")
+      ) {
+        session.doc.transact(() => {
+          editor.replaceBlocks(editor.document, standardBlocks);
+          settings.setAttr("preset", "standard");
+        });
+      }
+    }
+
+    session.provider.on("sync", initialize);
+    session.provider.connect();
+    initialize(session.provider.synced);
+
+    return () => {
+      session.provider.off("sync", initialize);
+      session.provider.disconnect();
+    };
+  }, [editor, settings]);
 
   return (
     <div className="kitchen-sink" data-theme={dark ? "dark" : "light"}>
@@ -194,13 +204,13 @@ function KitchenSink({ session }: { session: Session }) {
           <h2 className="kitchen-sink-group-title">Collaboration</h2>
           <p className="kitchen-sink-identity">
             <span className="kitchen-sink-avatar" aria-hidden="true">
-              {session.user.username.slice(-2).toUpperCase()}
+              {session.user.name.slice(-2).toUpperCase()}
             </span>
-            {session.user.username}
+            {session.user.name}
           </p>
           <p className="kitchen-sink-help">
-            Open this page in another tab or window to edit as a different user
-            and see changes in real time.
+            Open the same URL in another tab, browser, or device to edit as a
+            different user and see changes in real time.
           </p>
           <a
             className="kitchen-sink-button"
@@ -218,6 +228,7 @@ function KitchenSink({ session }: { session: Session }) {
             <select
               className="kitchen-sink-select"
               value={preset}
+              disabled={loading}
               aria-describedby="kitchen-sink-document-help"
               onChange={(event) => {
                 const selected = presets.find(
@@ -231,8 +242,8 @@ function KitchenSink({ session }: { session: Session }) {
                 // Replace the content, comments, and preset selection together in every tab.
                 session.doc.transact(() => {
                   editor.replaceBlocks(editor.document, selected.blocks);
-                  session.doc.getMap("threads").clear();
-                  settings.set("preset", selected.id);
+                  session.doc.get("threads").clearAttrs();
+                  settings.setAttr("preset", selected.id);
                 });
               }}
             >
@@ -251,64 +262,70 @@ function KitchenSink({ session }: { session: Session }) {
             Export
             <select
               className="kitchen-sink-select"
-              value={format}
-              onChange={(event) => setFormat(event.target.value)}
+              defaultValue="pdf"
+              disabled={loading}
             >
-              <option value="none">None</option>
               <option value="pdf">PDF</option>
             </select>
           </label>
+          <PdfDownload editor={editor} disabled={loading} />
         </div>
       </aside>
 
       <main className="kitchen-sink-main">
-        <div className="kitchen-sink-views">
-          <section className="kitchen-sink-editor" aria-label="Document editor">
-            <header className="kitchen-sink-panel-header">
-              <h2 className="kitchen-sink-panel-title">Document editor</h2>
-              <span className="kitchen-sink-badge">
-                {editable ? "Editable" : "Read only"}
-              </span>
-            </header>
-            <div className="kitchen-sink-editor-scroll">
-              <BlockNoteView
-                editor={editor}
-                editable={editable}
-                theme={dark ? "dark" : "light"}
-                slashMenu={false}
-                formattingToolbar={false}
-              >
-                <FormattingToolbarController
-                  formattingToolbar={() => (
-                    <FormattingToolbar
-                      blockTypeSelectItems={[
-                        ...blockTypeSelectItems(editor),
-                        ...getMathBlockTypeSelectItems(editor),
-                        ...getDiagramBlockTypeSelectItems(editor),
-                      ]}
-                    />
-                  )}
-                />
-                <SuggestionMenuController
-                  triggerCharacter="/"
-                  getItems={async (query) =>
-                    filterSuggestionItems(
-                      combineByGroup(
-                        getDefaultReactSlashMenuItems(editor),
-                        getPageBreakReactSlashMenuItems(editor),
-                        getMultiColumnSlashMenuItems(editor),
-                        getMathSlashMenuItems(editor),
-                        getDiagramSlashMenuItems(editor),
-                      ),
-                      query,
-                    )
-                  }
-                />
-              </BlockNoteView>
-            </div>
-          </section>
-          {format === "pdf" && <PdfPreview editor={editor} />}
-        </div>
+        <section
+          className="kitchen-sink-editor"
+          aria-label="Document editor"
+          aria-busy={loading}
+        >
+          <header className="kitchen-sink-panel-header">
+            <h2 className="kitchen-sink-panel-title">Document editor</h2>
+            <span className="kitchen-sink-badge">
+              {editable ? "Editable" : "Read only"}
+            </span>
+          </header>
+          {loading && (
+            <p className="kitchen-sink-loading-status" role="status">
+              Loading shared document…
+            </p>
+          )}
+          <div className="kitchen-sink-editor-scroll">
+            <BlockNoteView
+              editor={editor}
+              editable={editable}
+              theme={dark ? "dark" : "light"}
+              slashMenu={false}
+              formattingToolbar={false}
+            >
+              <FormattingToolbarController
+                formattingToolbar={() => (
+                  <FormattingToolbar
+                    blockTypeSelectItems={[
+                      ...blockTypeSelectItems(editor),
+                      ...getMathBlockTypeSelectItems(editor),
+                      ...getDiagramBlockTypeSelectItems(editor),
+                    ]}
+                  />
+                )}
+              />
+              <SuggestionMenuController
+                triggerCharacter="/"
+                getItems={async (query) =>
+                  filterSuggestionItems(
+                    combineByGroup(
+                      getDefaultReactSlashMenuItems(editor),
+                      getPageBreakReactSlashMenuItems(editor),
+                      getMultiColumnSlashMenuItems(editor),
+                      getMathSlashMenuItems(editor),
+                      getDiagramSlashMenuItems(editor),
+                    ),
+                    query,
+                  )
+                }
+              />
+            </BlockNoteView>
+          </div>
+        </section>
         <Shortcuts />
       </main>
     </div>

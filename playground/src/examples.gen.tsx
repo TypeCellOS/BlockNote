@@ -357,9 +357,14 @@ export const examples = {
             "@blocknote/xl-multi-column": "latest",
             "@blocknote/xl-pdf-exporter": "latest",
             "@blocknote/xl-typst-compiler": "latest",
-            yjs: "^13.6.33",
-            "y-protocols": "^1.0.6",
+            "@y/prosemirror": "^2.0.0-15",
+            "@y/protocols": "^1.0.6-rc.1",
+            "@y/websocket": "^4.0.0-3",
+            "@y/y": "^14.0.0-rc.26",
           } as any,
+          devDependencies: {
+            typescript: "^7.0.2",
+          },
         },
         title: "Kitchen sink",
         group: {
@@ -367,7 +372,7 @@ export const examples = {
           slug: "basic",
         },
         readme:
-          "This example brings together BlockNote's blocks, text markup, math, diagrams, tables, and columns for manual testing.\nUse the sidebar to switch documents, change appearance, preview PDF exports, or open another tab in the same browser to try collaborative editing and floating comments.\nRun `vp run dev` from the repository root and open `/basic/kitchen-sink?hideMenu=true`.",
+          "This example brings together BlockNote's blocks, text markup, math, diagrams, tables, and columns for manual testing.\nUse the sidebar to switch documents, change appearance, download PDFs, or open the same room URL in another browser or device to try collaborative editing and floating comments through YHub.\nSee the [collaboration](/docs/features/collaboration) and [comments](/docs/features/collaboration/comments) documentation for more details.",
       },
       {
         projectSlug: "testing",
