@@ -372,7 +372,7 @@ export const examples = {
           slug: "basic",
         },
         readme:
-          "This example brings together BlockNote's blocks, text markup, math, diagrams, tables, and columns for manual testing.\nUse the sidebar to switch documents, change appearance, download PDFs, or open the same room URL in another browser or device to try collaborative editing and floating comments through YHub.\nSee the [collaboration](/docs/features/collaboration) and [comments](/docs/features/collaboration/comments) documentation for more details.",
+          "This example brings together BlockNote's blocks, text markup, math, diagrams, tables, and columns for manual testing.\nUse the sidebar to switch documents, change appearance, download PDFs, or open the same room URL in another browser or device to try collaborative editing and floating comments through YHub.",
       },
       {
         projectSlug: "testing",
