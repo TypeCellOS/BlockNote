@@ -818,7 +818,8 @@ function serializeInlineContent(el: Element): string {
           result += wrapWithDelimiter(serializeInlineContent(childEl), "~~");
           break;
         case "code": {
-          const text = childEl.textContent || "";
+          // Code spans interpret line endings as spaces, not hard breaks.
+          const text = (childEl.textContent ?? "").replace(/\r\n?|\n/g, " ");
           const longestRun = Math.max(
             0,
             ...(text.match(/`+/g) ?? []).map((run) => run.length),

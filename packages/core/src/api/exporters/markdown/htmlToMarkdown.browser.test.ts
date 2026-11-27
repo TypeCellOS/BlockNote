@@ -4,6 +4,12 @@ import { markdownToHtml } from "../../parsers/markdown/markdownToHtml.js";
 import { htmlToMarkdown } from "./htmlToMarkdown.js";
 
 describe("htmlToMarkdown", () => {
+  it("normalizes line endings inside heading code spans without adding a break", () => {
+    const markdown = htmlToMarkdown("<h1><code>a\\\nb</code></h1>");
+
+    expect(markdown).toBe("# `a\\ b`\n");
+  });
+
   // A hard break in a heading or a list item is a `<br>` tag. A backslash
   // directly before the tag would escape its `<`.
   it.each(["<h1>a\\<br>b</h1>", "<ul><li><p>a\\<br>b</p></li></ul>"])(
