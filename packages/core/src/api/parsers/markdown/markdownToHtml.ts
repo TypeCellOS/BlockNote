@@ -37,8 +37,8 @@ type InlineTokenizer = (
   allowLinks: boolean,
 ) => { html: string; end: number } | null;
 
-/** The characters that a backslash escapes. */
-const ESCAPABLE_CHARACTERS = "\\`*_{}[]()#+-.!~|<>";
+/** CommonMark backslash escapes apply to ASCII punctuation. */
+const ESCAPABLE_CHARACTERS = /[\x21-\x2f\x3a-\x40\x5b-\x60\x7b-\x7e]/;
 
 /**
  * Gives the index after the indent (spaces and tabs) of the line that starts
@@ -68,7 +68,7 @@ function tryBackslashEscape(
     return { html: "<br>", end: skipIndent(text, i + 2) };
   }
   // Escapable characters
-  if (ESCAPABLE_CHARACTERS.includes(next)) {
+  if (ESCAPABLE_CHARACTERS.test(next)) {
     return { html: escapeHtml(next), end: i + 2 };
   }
   return null;
@@ -447,6 +447,7 @@ function parseImage(
   const alt = text.substring(altStart, altEnd);
   const { url, title } = parseDestinationAndTitle(
     text.substring(urlStart, parenEnd),
+    "media",
   );
 
   if (isVideoUrl(url)) {
@@ -492,6 +493,7 @@ function parseLink(
   const linkText = text.substring(textStart, textEnd);
   const { url, title } = parseDestinationAndTitle(
     text.substring(urlStart, parenEnd),
+    "link",
   );
 
   const titleAttr = title !== undefined ? ` title="${escapeHtml(title)}"` : "";
@@ -522,8 +524,10 @@ function findClosingBracket(text: string, openPos: number): number {
 }
 
 function findClosingParen(text: string, openPos: number): number {
-  let depth = 0;
-  for (let i = openPos; i < text.length; i++) {
+  const start = skipIndent(text, openPos + 1);
+  const angleEnd = text[start] === "<" ? findClosingAngle(text, start) : -1;
+  let depth = 1;
+  for (let i = Math.max(start, angleEnd + 1); i < text.length; i++) {
     if (text[i] === "\\" && i + 1 < text.length) {
       i++;
       continue;
@@ -541,6 +545,20 @@ function findClosingParen(text: string, openPos: number): number {
   return -1;
 }
 
+function findClosingAngle(text: string, openPos: number): number {
+  for (let i = openPos + 1; i < text.length; i++) {
+    if (text[i] === "\n" || (text[i] === "\\" && text[i + 1] === "\n")) {
+      return -1;
+    }
+    if (text[i] === "\\" && i + 1 < text.length) {
+      i++;
+    } else if (text[i] === ">") {
+      return i;
+    }
+  }
+  return -1;
+}
+
 /**
  * Parse the inside of `(...)` from a link/image (the URL and optional title).
  * Handles three URL forms:
@@ -548,7 +566,10 @@ function findClosingParen(text: string, openPos: number): number {
  *   - angle-bracket:  `<url>` or `<url> "title"` (brackets are stripped)
  * And three title-quote forms:  `"..."`, `'...'`, `(...)`.
  */
-function parseDestinationAndTitle(raw: string): {
+function parseDestinationAndTitle(
+  raw: string,
+  kind: "link" | "media",
+): {
   url: string;
   title?: string;
 } {
@@ -557,7 +578,7 @@ function parseDestinationAndTitle(raw: string): {
   let rest: string;
 
   if (raw.startsWith("<")) {
-    const close = raw.indexOf(">");
+    const close = findClosingAngle(raw, 0);
     if (close === -1) {
       // Unmatched `<` — treat the whole thing as the URL minus the `<`.
       url = raw.substring(1);
@@ -591,7 +612,13 @@ function parseDestinationAndTitle(raw: string): {
     }
   }
 
-  return { url: removeBackslashEscapes(url), title };
+  // Older exports left Windows media paths bare, with literal backslashes.
+  const isLegacyWindowsPath =
+    kind === "media" && !raw.startsWith("<") && /^(?:[a-z]:\\|\\\\)/i.test(url);
+  return {
+    url: isLegacyWindowsPath ? url : removeBackslashEscapes(url),
+    title,
+  };
 }
 
 /**
@@ -601,7 +628,7 @@ function parseDestinationAndTitle(raw: string): {
  */
 function removeBackslashEscapes(text: string): string {
   return text.replace(/\\(.)/g, (match, char: string) =>
-    ESCAPABLE_CHARACTERS.includes(char) ? char : match,
+    ESCAPABLE_CHARACTERS.test(char) ? char : match,
   );
 }
 
