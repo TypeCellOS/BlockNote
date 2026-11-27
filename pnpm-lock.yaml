@@ -1089,6 +1089,67 @@ importers:
         specifier: ^8.0.0
         version: 8.0.8(@types/node@25.9.5)(esbuild@0.27.5)(jiti@2.7.0)(terser@5.51.2)(tsx@4.21.0)(yaml@2.9.0)
 
+  examples/01-basic/19-kitchen-sink:
+    dependencies:
+      '@blocknote/code-block':
+        specifier: latest
+        version: link:../../../packages/code-block
+      '@blocknote/core':
+        specifier: latest
+        version: link:../../../packages/core
+      '@blocknote/diagram-block':
+        specifier: latest
+        version: link:../../../packages/diagram-block
+      '@blocknote/mantine':
+        specifier: latest
+        version: link:../../../packages/mantine
+      '@blocknote/math-block':
+        specifier: latest
+        version: link:../../../packages/math-block
+      '@blocknote/react':
+        specifier: latest
+        version: link:../../../packages/react
+      '@blocknote/xl-multi-column':
+        specifier: latest
+        version: link:../../../packages/xl-multi-column
+      '@blocknote/xl-pdf-exporter':
+        specifier: latest
+        version: link:../../../packages/xl-pdf-exporter
+      '@blocknote/xl-typst-compiler':
+        specifier: latest
+        version: link:../../../packages/xl-typst-compiler
+      '@mantine/core':
+        specifier: ^9.0.2
+        version: 9.1.1(@mantine/hooks@9.1.1(react@19.2.5))(@types/react@19.2.14)(react-dom@19.2.5(react@19.2.5))(react@19.2.5)
+      '@mantine/hooks':
+        specifier: ^9.0.2
+        version: 9.1.1(react@19.2.5)
+      react:
+        specifier: ^19.2.3
+        version: 19.2.5
+      react-dom:
+        specifier: ^19.2.3
+        version: 19.2.5(react@19.2.5)
+      y-protocols:
+        specifier: ^1.0.6
+        version: 1.0.7(yjs@13.6.33)
+      yjs:
+        specifier: ^13.6.33
+        version: 13.6.33
+    devDependencies:
+      '@types/react':
+        specifier: ^19.2.3
+        version: 19.2.14
+      '@types/react-dom':
+        specifier: ^19.2.3
+        version: 19.2.3(@types/react@19.2.14)
+      '@vitejs/plugin-react':
+        specifier: ^6.0.1
+        version: 6.0.1(babel-plugin-react-compiler@1.0.0)(vite@8.0.8(@types/node@25.9.5)(esbuild@0.27.5)(jiti@2.7.0)(terser@5.51.2)(tsx@4.21.0)(yaml@2.9.1))
+      vite:
+        specifier: ^8.0.0
+        version: 8.0.8(@types/node@25.9.5)(esbuild@0.27.5)(jiti@2.7.0)(terser@5.51.2)(tsx@4.21.0)(yaml@2.9.1)
+
   examples/01-basic/testing:
     dependencies:
       '@blocknote/core':

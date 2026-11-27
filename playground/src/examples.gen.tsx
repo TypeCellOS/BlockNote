@@ -341,6 +341,35 @@ export const examples = {
           'Switch between Hebrew, Arabic, and Persian to try localized UI and sample content; changing language resets any edits. Use the selected dictionary, Mantine\'s `DirectionProvider`, and `dir="rtl"` on `BlockNoteView` to localize the UI and mirror the layout while keeping code left-to-right. The provider uses `initialDirection="rtl"` and `detectDirection={false}` so this example stays RTL independently of the surrounding playground.\n\n**Try it out!** Edit the nested lists, open a block menu, edit the link, or type `/` and `:sm` in the empty paragraph to try the slash menu and emoji picker.\n\n**Relevant Docs:**\n\n- [Editor Setup](/docs/getting-started/editor-setup)\n- [Localization](/docs/features/localization)\n- [Mantine RTL setup](https://mantine.dev/styles/rtl/)',
       },
       {
+        projectSlug: "kitchen-sink",
+        fullSlug: "basic/kitchen-sink",
+        pathFromRoot: "examples/01-basic/19-kitchen-sink",
+        config: {
+          playground: true,
+          docs: false,
+          author: "BlockNote",
+          tags: ["Testing", "Collaboration"],
+          pro: true,
+          dependencies: {
+            "@blocknote/code-block": "latest",
+            "@blocknote/math-block": "latest",
+            "@blocknote/diagram-block": "latest",
+            "@blocknote/xl-multi-column": "latest",
+            "@blocknote/xl-pdf-exporter": "latest",
+            "@blocknote/xl-typst-compiler": "latest",
+            yjs: "^13.6.33",
+            "y-protocols": "^1.0.6",
+          } as any,
+        },
+        title: "Kitchen sink",
+        group: {
+          pathFromRoot: "examples/01-basic",
+          slug: "basic",
+        },
+        readme:
+          "This example brings together BlockNote's blocks, text markup, math, diagrams, tables, and columns for manual testing.\nUse the sidebar to switch documents, change appearance, preview PDF exports, or open another tab in the same browser to try collaborative editing and floating comments.\nRun `vp run dev` from the repository root and open `/basic/kitchen-sink?hideMenu=true`.",
+      },
+      {
         projectSlug: "testing",
         fullSlug: "basic/testing",
         pathFromRoot: "examples/01-basic/testing",
