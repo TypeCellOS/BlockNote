@@ -77,19 +77,20 @@ describe("markdownToHtml", () => {
       "<blockquote><p>A<br>B</p><h1>H</h1></blockquote><p>Outside</p>",
     ],
     [
-      "```js`meta\nhello\n```",
-      '<pre><code data-language="js`meta">hello</code></pre>',
-    ],
-    [
-      "````js`meta\nhello\n```",
-      "<p>````js`meta<br>hello</p><pre><code></code></pre>",
-    ],
-    [
       "```x``` is inline\n\n```js\nhello\n```",
       '<p><code>x</code> is inline</p><pre><code data-language="js">hello</code></pre>',
     ],
   ])("keeps the token and container boundaries in %j", (markdown, html) => {
     expect(markdownToHtml(markdown)).toBe(html);
+  });
+
+  it("recovers a legacy fence with backticks in its info string only if it has a compatible closer", () => {
+    expect(markdownToHtml("````js`meta\nhello\n````")).toBe(
+      '<pre><code data-language="js`meta">hello</code></pre>',
+    );
+    expect(markdownToHtml("````js`meta\nhello\n```")).toBe(
+      "<p>````js`meta<br>hello</p><pre><code></code></pre>",
+    );
   });
 
   it.each([
