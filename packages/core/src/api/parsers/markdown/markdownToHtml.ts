@@ -496,6 +496,9 @@ function findClosingParen(text: string, start: number): number {
       if (end) {
         return i + end[0].length - 1;
       }
+      while (/\s/.test(text[i + 1] ?? "")) {
+        i++;
+      }
     }
     if (text[i] === "(") {
       depth++;
@@ -510,11 +513,7 @@ function findClosingParen(text: string, start: number): number {
   return -1;
 }
 
-function findClosingAngle(
-  text: string,
-  openPos: number,
-  allowInnerAngle = false,
-): number {
+function findClosingAngle(text: string, openPos: number): number {
   for (let i = openPos + 1; i < text.length; i++) {
     if (text[i] === "\n" || (text[i] === "\\" && text[i + 1] === "\n")) {
       return -1;
@@ -523,8 +522,6 @@ function findClosingAngle(
       i++;
     } else if (text[i] === ">") {
       return i;
-    } else if (text[i] === "<" && !allowInnerAngle) {
-      return -1;
     }
   }
   return -1;
@@ -549,7 +546,7 @@ function parseDestinationAndTitle(
   let rest: string;
 
   if (raw.startsWith("<")) {
-    const close = findClosingAngle(raw, 0, true);
+    const close = findClosingAngle(raw, 0);
     if (close === -1) {
       // Unmatched `<` — treat the whole thing as the URL minus the `<`.
       url = raw.substring(1);
@@ -846,6 +843,11 @@ function legacyCodeFence(lines: string[], start: number) {
   if (!opening || line.trimEnd().endsWith("```")) {
     return null;
   }
+  const fenceStart = line.indexOf("`");
+  const span = tryInlineCode(line, fenceStart);
+  if (span && span.end > fenceStart + opening[1].length) {
+    return null;
+  }
   // Older BlockNote exports allowed backticks in info strings. Recover
   // explicitly closed blocks without interpreting ordinary code spans as fences.
   const closing = codeFenceClosing(opening[1]);
@@ -856,6 +858,14 @@ function legacyCodeFence(lines: string[], start: number) {
 
 function quoteMarker(line: string): boolean {
   return /^ {0,3}>/.test(line);
+}
+
+function endsInQuotedParagraph(tokens: Token[]): boolean {
+  let last = tokens.at(-1);
+  while (last?.type === "blockquote") {
+    last = last.children.at(-1);
+  }
+  return last?.type === "paragraph";
 }
 
 function canContinueParagraph(line: string): boolean {
@@ -985,29 +995,46 @@ function tokenize(markdown: string): Token[] {
     // Blockquote
     if (quoteMarker(line)) {
       const quoteLines: string[] = [];
-      let children: Token[];
-      let hasUntokenizedContinuation: boolean;
+      let children: Token[] | undefined;
+      let continuedParagraph = false;
       do {
+        const markedStart = quoteLines.length;
         while (i < lines.length && quoteMarker(lines[i])) {
           quoteLines.push(lines[i++].replace(/^ {0,3}>[ \t]?/, ""));
         }
-        children = tokenize(quoteLines.join("\n"));
-        const beforeContinuation = i;
+        let lastLine = quoteLines.at(-1) ?? "";
+        while (quoteMarker(lastLine)) {
+          lastLine = lastLine.replace(/^ {0,3}>[ \t]?/, "");
+        }
         // Only a paragraph can continue without the container marker.
         if (
-          quoteLines.at(-1)?.trim() &&
-          children.at(-1)?.type === "paragraph"
+          i < lines.length &&
+          lastLine.trim() &&
+          canContinueParagraph(lines[i])
         ) {
+          // The previous lazy line already established an open paragraph.
+          // Inspect only the newly marked lines for an interruption.
+          const marked = quoteLines.slice(markedStart).join("\n");
+          const tail = tokenize(
+            continuedParagraph ? `text\n${marked}` : marked,
+          );
+          if (!continuedParagraph) {
+            children = tail;
+          }
+          if (!endsInQuotedParagraph(tail)) {
+            break;
+          }
           while (i < lines.length && canContinueParagraph(lines[i])) {
             quoteLines.push(lines[i++]);
           }
+          continuedParagraph = true;
+          children = undefined;
         }
-        hasUntokenizedContinuation = i !== beforeContinuation;
       } while (i < lines.length && quoteMarker(lines[i]));
-      if (hasUntokenizedContinuation) {
-        children = tokenize(quoteLines.join("\n"));
-      }
-      tokens.push({ type: "blockquote", children });
+      tokens.push({
+        type: "blockquote",
+        children: children ?? tokenize(quoteLines.join("\n")),
+      });
       prevLineWasBlank = false;
       continue;
     }

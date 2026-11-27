@@ -18,6 +18,11 @@ describe("markdownToHtml", () => {
       '<p><a href="my file" title="some ) title">link</a></p>',
     ],
     [
+      '[link](my-file "some ) title")',
+      '<p><a href="my-file" title="some ) title">link</a></p>',
+    ],
+    ["[link](<a<b)c>)", '<p><a href="a&lt;b)c">link</a></p>'],
+    [
       "![Photo](<photo.png)\nTaken by Alice >)",
       '<p><img src="photo.png" alt="Photo"><br>Taken by Alice &gt;)</p>',
     ],
@@ -51,8 +56,20 @@ describe("markdownToHtml", () => {
     ],
     ["> A\nB\n> C", "<blockquote><p>A<br>B<br>C</p></blockquote>"],
     [
+      "> > A\nB\n> > C\nD",
+      "<blockquote><blockquote><p>A<br>B<br>C<br>D</p></blockquote></blockquote>",
+    ],
+    [
+      "> A\nB\n> # H\nOutside",
+      "<blockquote><p>A<br>B</p><h1>H</h1></blockquote><p>Outside</p>",
+    ],
+    [
       "```js`meta\nhello\n```",
       '<pre><code data-language="js`meta">hello</code></pre>',
+    ],
+    [
+      "```x``` is inline\n\n```js\nhello\n```",
+      '<p><code>x</code> is inline</p><pre><code data-language="js">hello</code></pre>',
     ],
   ])("keeps the token and container boundaries in %j", (markdown, html) => {
     expect(markdownToHtml(markdown)).toBe(html);
