@@ -37,6 +37,22 @@ type InlineTokenizer = (
   allowLinks: boolean,
 ) => { html: string; end: number } | null;
 
+/** CommonMark backslash escapes apply to ASCII punctuation. */
+const ESCAPABLE_CHARACTERS = /[\x21-\x2f\x3a-\x40\x5b-\x60\x7b-\x7e]/;
+
+/**
+ * Gives the index after the indent (spaces and tabs) of the line that starts
+ * at `i`. The line after a line break in a paragraph can have any indent,
+ * which is not a part of the text (CommonMark). The line break rules use this
+ * and a code span does not, so the indent of a line in a code span stays.
+ */
+function skipIndent(text: string, i: number): number {
+  while (text[i] === " " || text[i] === "\t") {
+    i++;
+  }
+  return i;
+}
+
 function tryBackslashEscape(
   text: string,
   i: number,
@@ -45,12 +61,14 @@ function tryBackslashEscape(
     return null;
   }
   const next = text[i + 1];
-  // Hard line break: backslash at end of line
+  // Hard line break: backslash at end of line. No newline follows the `<br>`:
+  // the HTML parser reads that newline as a space at the start of the next
+  // line.
   if (next === "\n") {
-    return { html: "<br>\n", end: i + 2 };
+    return { html: "<br>", end: skipIndent(text, i + 2) };
   }
   // Escapable characters
-  if ("\\`*_{}[]()#+-.!~|<>".includes(next)) {
+  if (ESCAPABLE_CHARACTERS.test(next)) {
     return { html: escapeHtml(next), end: i + 2 };
   }
   return null;
@@ -219,7 +237,7 @@ function trySoftBreak(
   i: number,
 ): { html: string; end: number } | null {
   if (text[i] === "\n") {
-    return { html: "<br>\n", end: i + 1 };
+    return { html: "<br>", end: skipIndent(text, i + 1) };
   }
   return null;
 }
@@ -322,8 +340,8 @@ function parseInline(text: string, allowLinks = true): string {
       text[i - 2] === " "
     ) {
       result = result.replace(/ +$/, "");
-      result += "<br>\n";
-      i++;
+      result += "<br>";
+      i = skipIndent(text, i + 1);
       continue;
     }
 
@@ -344,7 +362,10 @@ function parseInline(text: string, allowLinks = true): string {
     if (!matched) {
       // Batch consecutive plain-text characters and escape once
       const runStart = i;
-      i++;
+      // An unmatched backtick run cannot open a code span partway through.
+      do {
+        i++;
+      } while (text[runStart] === "`" && text[i] === "`");
       while (i < text.length && !canStartInlineToken(text, i)) {
         i++;
       }
@@ -429,6 +450,7 @@ function parseImage(
   const alt = text.substring(altStart, altEnd);
   const { url, title } = parseDestinationAndTitle(
     text.substring(urlStart, parenEnd),
+    "media",
   );
 
   if (isVideoUrl(url)) {
@@ -474,6 +496,7 @@ function parseLink(
   const linkText = text.substring(textStart, textEnd);
   const { url, title } = parseDestinationAndTitle(
     text.substring(urlStart, parenEnd),
+    "link",
   );
 
   const titleAttr = title !== undefined ? ` title="${escapeHtml(title)}"` : "";
@@ -504,8 +527,10 @@ function findClosingBracket(text: string, openPos: number): number {
 }
 
 function findClosingParen(text: string, openPos: number): number {
-  let depth = 0;
-  for (let i = openPos; i < text.length; i++) {
+  const start = skipIndent(text, openPos + 1);
+  const angleEnd = text[start] === "<" ? findClosingAngle(text, start) : -1;
+  let depth = 1;
+  for (let i = Math.max(start, angleEnd + 1); i < text.length; i++) {
     if (text[i] === "\\" && i + 1 < text.length) {
       i++;
       continue;
@@ -523,6 +548,20 @@ function findClosingParen(text: string, openPos: number): number {
   return -1;
 }
 
+function findClosingAngle(text: string, openPos: number): number {
+  for (let i = openPos + 1; i < text.length; i++) {
+    if (text[i] === "\n" || (text[i] === "\\" && text[i + 1] === "\n")) {
+      return -1;
+    }
+    if (text[i] === "\\" && i + 1 < text.length) {
+      i++;
+    } else if (text[i] === ">") {
+      return i;
+    }
+  }
+  return -1;
+}
+
 /**
  * Parse the inside of `(...)` from a link/image (the URL and optional title).
  * Handles three URL forms:
@@ -530,7 +569,10 @@ function findClosingParen(text: string, openPos: number): number {
  *   - angle-bracket:  `<url>` or `<url> "title"` (brackets are stripped)
  * And three title-quote forms:  `"..."`, `'...'`, `(...)`.
  */
-function parseDestinationAndTitle(raw: string): {
+function parseDestinationAndTitle(
+  raw: string,
+  kind: "link" | "media",
+): {
   url: string;
   title?: string;
 } {
@@ -539,7 +581,7 @@ function parseDestinationAndTitle(raw: string): {
   let rest: string;
 
   if (raw.startsWith("<")) {
-    const close = raw.indexOf(">");
+    const close = findClosingAngle(raw, 0);
     if (close === -1) {
       // Unmatched `<` — treat the whole thing as the URL minus the `<`.
       url = raw.substring(1);
@@ -573,7 +615,24 @@ function parseDestinationAndTitle(raw: string): {
     }
   }
 
-  return { url, title };
+  // Older exports left Windows media paths bare, with literal backslashes.
+  const isLegacyWindowsPath =
+    kind === "media" && !raw.startsWith("<") && /^(?:[a-z]:\\|\\\\)/i.test(url);
+  return {
+    url: isLegacyWindowsPath ? url : removeBackslashEscapes(url),
+    title,
+  };
+}
+
+/**
+ * Removes the backslash of each backslash escape. As in CommonMark, a
+ * backslash escape works in a link destination as it does in text. The
+ * markdown exporter writes `\(`, `\)` and `\\` in a link destination.
+ */
+function removeBackslashEscapes(text: string): string {
+  return text.replace(/\\(.)/g, (match, char: string) =>
+    ESCAPABLE_CHARACTERS.test(char) ? char : match,
+  );
 }
 
 function parseDelimited(
@@ -799,7 +858,9 @@ const TABLE_ROW_RE = /^\s*\|.+\|\s*$/;
 // ─── Block-Level Tokenizer ──────────────────────────────────────────────────
 
 function tokenize(markdown: string): Token[] {
-  const lines = markdown.split("\n");
+  // A line ends with "\n", "\r\n" or "\r" (CommonMark). A file from Windows
+  // has "\r\n".
+  const lines = markdown.split(/\r\n?|\n/);
   const tokens: Token[] = [];
   let i = 0;
   let prevLineWasBlank = true; // treat start of document as after blank
@@ -814,8 +875,11 @@ function tokenize(markdown: string): Token[] {
       continue;
     }
 
-    // Fenced code block (0-3 leading spaces allowed per CommonMark)
-    const fenceMatch = line.match(/^ {0,3}(`{3,}|~{3,})(.*)$/);
+    // Fenced code block (0-3 leading spaces allowed per CommonMark). The info
+    // string after a backtick fence cannot contain a backtick (CommonMark).
+    // Thus a line that starts with a code span, for example ```a``b```, is
+    // not a fence.
+    const fenceMatch = line.match(/^ {0,3}(`{3,}(?=[^`]*$)|~{3,})(.*)$/);
     if (fenceMatch) {
       const fence = fenceMatch[1];
       const fenceChar = fence[0];
@@ -932,7 +996,7 @@ function tokenize(markdown: string): Token[] {
         if (/^(#{1,6})\s/.test(cur)) {
           break;
         } // heading
-        if (/^(`{3,}|~{3,})/.test(cur)) {
+        if (/^(`{3,}(?=[^`]*$)|~{3,})/.test(cur)) {
           break;
         } // code fence
         if (/^(\s{0,3})([-*_])\s*(\2\s*){2,}$/.test(cur)) {
@@ -1094,7 +1158,7 @@ function tokenize(markdown: string): Token[] {
       if (/^(#{1,6})\s/.test(nextLine)) {
         break;
       }
-      if (/^(`{3,}|~{3,})/.test(nextLine)) {
+      if (/^(`{3,}(?=[^`]*$)|~{3,})/.test(nextLine)) {
         break;
       }
       if (/^\s{0,3}>/.test(nextLine)) {
@@ -1123,14 +1187,16 @@ function tokenize(markdown: string): Token[] {
       paraLines.push(nextLine);
       i++;
     }
-    // CommonMark allows up to 3 leading spaces of indent on paragraph lines.
+    // CommonMark allows up to 3 leading spaces of indent on the first
+    // paragraph line. The lines after it can have any indent: the line break
+    // rules of `parseInline` remove it (see `skipIndent`).
     // Also strip trailing whitespace from the final line so a trailing
     // hard-break sequence (`  \n` at end of paragraph) doesn't leak as
     // literal trailing spaces in the rendered output.
     tokens.push({
       type: "paragraph",
       content: paraLines
-        .map((l) => l.replace(/^ {1,3}/, ""))
+        .map((l, index) => (index === 0 ? l.replace(/^ {1,3}/, "") : l))
         .join("\n")
         .replace(/[ \t]+$/, ""),
     });

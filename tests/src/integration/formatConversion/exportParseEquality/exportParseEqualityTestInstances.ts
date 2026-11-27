@@ -578,6 +578,21 @@ export const markdownRoundTripCases: CoreExportCase[] = [
     ],
   },
   {
+    name: "markdown/inlineCodeWithSurroundingSpaces",
+    content: [
+      {
+        type: "paragraph",
+        content: [
+          {
+            type: "text",
+            text: " Code text ",
+            styles: { code: true },
+          },
+        ],
+      },
+    ],
+  },
+  {
     name: "markdown/boldItalic",
     content: [
       {
@@ -612,6 +627,21 @@ export const markdownRoundTripCases: CoreExportCase[] = [
             type: "text",
             text: " more text",
             styles: {},
+          },
+        ],
+      },
+    ],
+  },
+  {
+    name: "markdown/linkWithParenthesesInUrl",
+    content: [
+      {
+        type: "paragraph",
+        content: [
+          {
+            type: "link",
+            content: "Link",
+            href: "https://example.com/wiki/Page_(topic)",
           },
         ],
       },
@@ -684,6 +714,25 @@ export const markdownRoundTripCases: CoreExportCase[] = [
         type: "image",
         props: {
           url: "https://example.com/image.png",
+          name: "Example",
+        },
+      },
+    ],
+  },
+  {
+    name: "markdown/mediaWithBackslashInUrl",
+    content: [
+      {
+        type: "image",
+        props: {
+          url: "\\\\server\\share\\image.png",
+          name: "Example",
+        },
+      },
+      {
+        type: "video",
+        props: {
+          url: "C:\\videos\\_old\\video.mp4",
           name: "Example",
         },
       },

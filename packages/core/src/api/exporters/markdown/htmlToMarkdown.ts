@@ -1,6 +1,7 @@
 import { parseLinkFigure } from "../../../blocks/File/helpers/parse/parseLinkFigure.js";
 import { detachedDoc } from "../../../util/detachedDoc.js";
 import { parseAutolinkLiteral } from "../../parsers/markdown/autolink.js";
+import { formatLinkDestination } from "./formatLinkDestination.js";
 import { wrapWithDelimiter } from "./wrapWithDelimiter.js";
 
 /**
@@ -561,7 +562,7 @@ function serializeImage(el: HTMLElement, ctx: SerializeContext): string {
   if (!src) {
     return "\n\n";
   }
-  return ctx.indent + `![${alt}](${src})\n\n`;
+  return ctx.indent + formatImageLink(alt, src) + "\n\n";
 }
 
 function serializeVideo(el: HTMLElement, ctx: SerializeContext): string {
@@ -570,7 +571,7 @@ function serializeVideo(el: HTMLElement, ctx: SerializeContext): string {
   if (!src) {
     return "\n\n";
   }
-  return ctx.indent + `![${name}](${src})\n\n`;
+  return ctx.indent + formatImageLink(name, src) + "\n\n";
 }
 
 function serializeAudio(el: HTMLElement, ctx: SerializeContext): string {
@@ -591,7 +592,7 @@ function serializeEmbed(el: HTMLElement, ctx: SerializeContext): string {
   if (!src) {
     return "\n\n";
   }
-  return ctx.indent + `[](${src})\n\n`;
+  return ctx.indent + `[](${formatLinkDestination(src)})\n\n`;
 }
 
 function serializeFigure(el: HTMLElement, ctx: SerializeContext): string {
@@ -657,7 +658,7 @@ function serializeMediaFigure(
 
   // No caption + has a markdown shorthand → use it.
   if (!captionText && (kind === "img" || kind === "video")) {
-    return ctx.indent + `![${descriptor}](${src})\n\n`;
+    return ctx.indent + formatImageLink(descriptor, src) + "\n\n";
   }
 
   // The descriptor (alt / data-name) is dropped when it duplicates the
@@ -733,11 +734,12 @@ function formatLink(text: string, href: string): string {
       return href;
     }
   }
-  return `[${text}](${escapeLinkDestination(href)})`;
+  return `[${text}](${formatLinkDestination(href)})`;
 }
 
-function escapeLinkDestination(url: string): string {
-  return url.replace(/[\\()]/g, "\\$&");
+function formatImageLink(label: string, src: string): string {
+  // Distinguish escaped destinations from legacy bare Windows paths.
+  return `![${label}](${formatLinkDestination(src, /^(?:[a-z]:\\|\\)/i.test(src))})`;
 }
 
 function serializeDetails(el: HTMLElement, ctx: SerializeContext): string {
@@ -796,7 +798,13 @@ function serializeInlineContent(el: Element): string {
             ...(text.match(/`+/g) ?? []).map((run) => run.length),
           );
           const fence = "`".repeat(longestRun + 1);
-          const needsPadding = text.startsWith("`") || text.endsWith("`");
+          // A markdown parser removes one space from each side of a code span
+          // that starts and ends with a space and has other characters
+          // (CommonMark). Add a space on each side to keep these spaces.
+          const needsPadding =
+            text.startsWith("`") ||
+            text.endsWith("`") ||
+            (text.startsWith(" ") && text.endsWith(" ") && /[^ ]/.test(text));
           result += fence + (needsPadding ? ` ${text} ` : text) + fence;
           break;
         }
@@ -830,7 +838,7 @@ function serializeInlineContent(el: Element): string {
         case "img": {
           const src = childEl.getAttribute("src") || "";
           const alt = childEl.getAttribute("alt") || "";
-          result += `![${alt}](${src})`;
+          result += formatImageLink(alt, src);
           break;
         }
         case "video": {
@@ -842,7 +850,7 @@ function serializeInlineContent(el: Element): string {
             childEl.getAttribute("data-name") ||
             childEl.getAttribute("title") ||
             "";
-          result += `![${name}](${src})`;
+          result += formatImageLink(name, src);
           break;
         }
         case "p":
