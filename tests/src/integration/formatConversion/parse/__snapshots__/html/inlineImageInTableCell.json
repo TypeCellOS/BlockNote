@@ -1,0 +1,109 @@
+[
+  {
+    "children": [],
+    "content": {
+      "columnWidths": [
+        undefined,
+        undefined,
+      ],
+      "headerCols": undefined,
+      "headerRows": 1,
+      "rows": [
+        {
+          "cells": [
+            {
+              "content": [
+                {
+                  "styles": {},
+                  "text": "Light",
+                  "type": "text",
+                },
+              ],
+              "props": {
+                "backgroundColor": "default",
+                "colspan": 1,
+                "rowspan": 1,
+                "textAlignment": "left",
+                "textColor": "default",
+              },
+              "type": "tableCell",
+            },
+            {
+              "content": [
+                {
+                  "styles": {},
+                  "text": "Dark",
+                  "type": "text",
+                },
+              ],
+              "props": {
+                "backgroundColor": "default",
+                "colspan": 1,
+                "rowspan": 1,
+                "textAlignment": "left",
+                "textColor": "default",
+              },
+              "type": "tableCell",
+            },
+          ],
+        },
+        {
+          "cells": [
+            {
+              "content": [
+                {
+                  "content": [
+                    {
+                      "styles": {},
+                      "text": "Light theme",
+                      "type": "text",
+                    },
+                  ],
+                  "href": "https://github.com/octo/repo/raw/main/docs/light.png",
+                  "type": "link",
+                },
+              ],
+              "props": {
+                "backgroundColor": "default",
+                "colspan": 1,
+                "rowspan": 1,
+                "textAlignment": "left",
+                "textColor": "default",
+              },
+              "type": "tableCell",
+            },
+            {
+              "content": [
+                {
+                  "content": [
+                    {
+                      "styles": {},
+                      "text": "Dark theme",
+                      "type": "text",
+                    },
+                  ],
+                  "href": "https://github.com/octo/repo/raw/main/docs/dark.png",
+                  "type": "link",
+                },
+              ],
+              "props": {
+                "backgroundColor": "default",
+                "colspan": 1,
+                "rowspan": 1,
+                "textAlignment": "left",
+                "textColor": "default",
+              },
+              "type": "tableCell",
+            },
+          ],
+        },
+      ],
+      "type": "tableContent",
+    },
+    "id": "1",
+    "props": {
+      "textColor": "default",
+    },
+    "type": "table",
+  },
+]

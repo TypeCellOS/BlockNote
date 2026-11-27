@@ -21,7 +21,7 @@ export const EditLinkButton = (
     >
       <Components.Generic.Popover.Trigger>
         <Components.LinkToolbar.Button
-          className={"bn-button"}
+          className={"bn-toolbar-button"}
           mainTooltip={dict.link_toolbar.edit.tooltip}
           isSelected={false}
         >

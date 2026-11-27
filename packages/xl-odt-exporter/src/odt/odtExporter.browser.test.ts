@@ -4,15 +4,15 @@ import {
   defaultBlockSpecs,
 } from "@blocknote/core";
 import { ColumnBlock, ColumnListBlock } from "@blocknote/xl-multi-column";
-import { testDocument } from "@shared/testDocument.js";
-import { testODTDocumentAgainstSnapshot } from "@shared/util/odtTestUtil.js";
-import { testResolveFileUrl } from "@shared/util/testFileResolver.js";
-import { it } from "vite-plus/test";
+import { testDocument } from "../../../../tests/src/fixtures/exporters/testDocument.js";
 
 import { odtDefaultSchemaMappings } from "./defaultSchema/index.js";
 import { ODTExporter } from "./odtExporter.js";
 
-it("exports a document with a string footer and XMLDocument header", async () => {
+it("exports a document with a string footer and XMLDocument header", async ({
+  testResolveFileUrl,
+  testODTDocumentAgainstSnapshot,
+}) => {
   const exporter = new ODTExporter(
     BlockNoteSchema.create({
       blockSpecs: {

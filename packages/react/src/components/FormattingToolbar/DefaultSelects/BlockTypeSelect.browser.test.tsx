@@ -1,7 +1,6 @@
 import { BlockNoteSchema, createBlockSpec } from "@blocknote/core";
 import { describe, expect } from "vite-plus/test";
 import { viewProps } from "../DefaultButtons/defaultButton.test.fixture.js";
-import { FormattingToolbar } from "../FormattingToolbar.js";
 import { BlockTypeSelect } from "./BlockTypeSelect.js";
 
 const customSchema = BlockNoteSchema.create().extend({
@@ -394,11 +393,7 @@ describe("BlockTypeSelect", () => {
       const { editor } = await setupEditor({
         initialContent: [{ type: "paragraph", content: "Selected text" }],
         props: { formattingToolbar: false },
-        children: (
-          <FormattingToolbar>
-            <BlockTypeSelect />
-          </FormattingToolbar>
-        ),
+        children: <BlockTypeSelect />,
       });
       selectText(editor, "Selected text");
       const button = page.getByRole("button", {
@@ -407,7 +402,7 @@ describe("BlockTypeSelect", () => {
       });
       await expect.element(button).toBeVisible();
 
-      const { violations } = await runAxe(page.getByRole("toolbar"));
+      const { violations } = await runAxe(button);
       expect(violations).toEqual([]);
     });
 
@@ -422,11 +417,7 @@ describe("BlockTypeSelect", () => {
       const { editor } = await setupEditor({
         initialContent: [{ type: "paragraph", content: "Selected text" }],
         props: { formattingToolbar: false },
-        children: (
-          <FormattingToolbar>
-            <BlockTypeSelect />
-          </FormattingToolbar>
-        ),
+        children: <BlockTypeSelect />,
       });
       selectText(editor, "Selected text");
 

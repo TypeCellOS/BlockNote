@@ -46,12 +46,12 @@
   justify-content: center;
 }
 
-.bn-shadcn .bn-side-menu .bn-button {
+.bn-shadcn .bn-side-menu-button {
   padding: 0;
   height: 24px;
 }
 
-.bn-shadcn .bn-select {
+.bn-shadcn .bn-toolbar-select {
   max-height: var(--available-height);
 }
 
@@ -252,4 +252,37 @@
   height: auto;
   min-width: 0;
   padding: 2px;
+}
+
+/* The preview button fills the row; editable names and actions sit above it.
+   Keeping these controls as siblings avoids interactive content inside a button. */
+.bn-shadcn .bn-snapshot-preview {
+  position: absolute;
+  inset: 0;
+  padding: 0;
+  border: 0;
+  border-radius: inherit;
+  background: transparent;
+  color: inherit;
+  cursor: inherit;
+  outline: none;
+}
+
+.bn-shadcn .bn-snapshot-name-sizer {
+  position: relative;
+  z-index: 1;
+}
+
+.bn-shadcn .bn-snapshot-menu {
+  z-index: 1;
+}
+
+.bn-shadcn .bn-snapshot:has(> .bn-snapshot-preview:focus-visible) {
+  outline: 2px solid var(--primary);
+  outline-offset: 2px;
+}
+
+.bn-shadcn .bn-snapshot.selected:has(> .bn-snapshot-preview:focus-visible) {
+  outline-color: var(--primary-foreground);
+  outline-offset: -4px;
 }

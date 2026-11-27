@@ -73,13 +73,16 @@ const blockNoteSrcAliases = Object.fromEntries(
 const LOCAL_BROWSER_FILES = [
   "src/end-to-end/linktoolbar/linkToolbar.test.tsx",
   "src/integration/formatConversion/exportParseEquality/fileLinks.browser.test.ts",
+  "../packages/core/src/api/clipboard/fromClipboard/officeHTML.browser.test.ts",
   "../packages/core/src/editor/managers/EventManager.browser.test.ts",
   "../packages/core/src/extensions/FormattingToolbar/FormattingToolbar.browser.test.ts",
   "../packages/react/src/components/FormattingToolbar/DefaultButtons/BasicTextStyleButton.browser.test.tsx",
   "../packages/react/src/components/FormattingToolbar/DefaultButtons/ColorStyleButton.browser.test.tsx",
   "../packages/react/src/components/FormattingToolbar/DefaultButtons/CreateLinkButton.browser.test.tsx",
   "../packages/react/src/components/FormattingToolbar/DefaultButtons/TextAlignButton.browser.test.tsx",
+  "../packages/react/src/hooks/useSelectedBlocks.browser.test.tsx",
   "../packages/react/src/schema/ReactBlockSpec.browser.test.tsx",
+  "../packages/react/src/components/Versioning/VersioningSidebar.browser.test.tsx",
 ];
 
 function localBrowserTestOptions() {
@@ -138,13 +141,6 @@ export default defineConfig(
         // src/examples.d.ts.
         alias: {
           ...blockNoteSrcAliases,
-          // The shared test-utils package lives at the repo root (not under
-          // packages/), so it isn't picked up by the packages scan above.
-          // All consumers - test code and example apps alike - import it via
-          // the repo-wide `@shared` path alias (matching the packages' vite
-          // and tsconfig setups); the package itself is private, so its name
-          // resolves nowhere outside the workspace anyway.
-          "@shared": path.resolve(__dirname, "../shared"),
           "@examples": path.resolve(__dirname, "../examples"),
         },
       },

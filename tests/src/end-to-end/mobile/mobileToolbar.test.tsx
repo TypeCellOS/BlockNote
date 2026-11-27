@@ -407,7 +407,7 @@ it("a pointer jumping onto the toolbar leaves a shown side menu alone", async ({
     await expect.poll(() => moveToButton).toBeDefined();
     expect(moveToButton?.menu).toMatchObject({
       show: true,
-      block: { id: shownMenu?.block.id },
+      blockId: shownMenu?.blockId,
     });
     expect(document.querySelector(".bn-side-menu")).not.toBeNull();
   } finally {

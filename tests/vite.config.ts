@@ -11,10 +11,7 @@ export default defineConfig(
           build: {
             command: "tsc",
             cache: {
-              input: [
-                ...buildCacheInputs("tests"),
-                { pattern: "!**/*.tsbuildinfo", base: "workspace" },
-              ],
+              input: buildCacheInputs("tests"),
             },
           },
           test: {
@@ -47,11 +44,8 @@ export default defineConfig(
       resolve: {
         alias:
           conf.command === "build"
-            ? ({
-                "@shared": path.resolve(__dirname, "../shared/"),
-              } as Record<string, string>)
+            ? ({} as Record<string, string>)
             : ({
-                "@shared": path.resolve(__dirname, "../shared/"),
                 // load live from sources with live reload working
                 "@blocknote/core": path.resolve(
                   __dirname,

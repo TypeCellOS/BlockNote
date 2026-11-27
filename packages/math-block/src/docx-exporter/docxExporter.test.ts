@@ -7,8 +7,7 @@ import {
   DOCXExporter,
   docxDefaultSchemaMappings,
 } from "@blocknote/xl-docx-exporter";
-import { testDocumentWithSourceBlocks } from "@shared/testDocument.js";
-import { testResolveFileUrl } from "@shared/util/testFileResolver.js";
+import { testDocumentWithSourceBlocks } from "../../../../tests/src/fixtures/exporters/testDocument.js";
 import {
   BlobReader,
   Entry,
@@ -17,7 +16,7 @@ import {
   ZipReader,
 } from "@zip.js/zip.js";
 import { Document, Packer, Paragraph } from "docx";
-import { describe, expect, it, onTestFinished, vi } from "vite-plus/test";
+import { describe, expect, onTestFinished, vi } from "vite-plus/test";
 import xmlFormat from "xml-formatter";
 
 import { inlineMathMapping, mathBlockMapping } from "./index.js";
@@ -98,52 +97,58 @@ describe("docx exporter mappings", () => {
     },
   );
 
-  it("should export math as native equations", { timeout: 10000 }, async () => {
-    // Assembled outside the constructor call as the schema doesn't include
-    // the math specs - like the default mappings, the math entries just
-    // map the block JSON.
-    const mappings = {
-      ...docxDefaultSchemaMappings,
-      blockMapping: {
-        ...docxDefaultSchemaMappings.blockMapping,
-        mathBlock: mathBlockMapping,
-      },
-      inlineContentMapping: {
-        ...docxDefaultSchemaMappings.inlineContentMapping,
-        math: inlineMathMapping,
-      },
-    };
-    const exporter = new DOCXExporter(
-      BlockNoteSchema.create({
-        blockSpecs: {
-          ...defaultBlockSpecs,
-          pageBreak: createPageBreakBlockSpec(),
+  it(
+    "should export math as native equations",
+    { timeout: 10000 },
+    async ({ testResolveFileUrl }) => {
+      // Assembled outside the constructor call as the schema doesn't include
+      // the math specs - like the default mappings, the math entries just
+      // map the block JSON.
+      const mappings = {
+        ...docxDefaultSchemaMappings,
+        blockMapping: {
+          ...docxDefaultSchemaMappings.blockMapping,
+          mathBlock: mathBlockMapping,
         },
-      }),
-      mappings,
-      { resolveFileUrl: testResolveFileUrl },
-    );
+        inlineContentMapping: {
+          ...docxDefaultSchemaMappings.inlineContentMapping,
+          math: inlineMathMapping,
+        },
+      };
+      const exporter = new DOCXExporter(
+        BlockNoteSchema.create({
+          blockSpecs: {
+            ...defaultBlockSpecs,
+            pageBreak: createPageBreakBlockSpec(),
+          },
+        }),
+        mappings,
+        { resolveFileUrl: testResolveFileUrl },
+      );
 
-    // The math block & inline math paragraph from the shared test document.
-    const doc = await exporter.toDocxJsDocument(
-      // `as any`: the filtered subset holds no multi-column blocks, but the
-      // fixture's type still carries them and this schema doesn't.
-      testDocumentWithSourceBlocks.filter((block) =>
-        ["math-block", "paragraph-with-inline-math"].includes(block.id),
-      ) as any,
-      { sectionOptions: {}, documentOptions: {}, locale: "en-US" },
-    );
+      // The math block & inline math paragraph from the shared test document.
+      const doc = await exporter.toDocxJsDocument(
+        // `as any`: the filtered subset holds no multi-column blocks, but the
+        // fixture's type still carries them and this schema doesn't.
+        testDocumentWithSourceBlocks.filter((block) =>
+          ["math-block", "paragraph-with-inline-math"].includes(block.id),
+        ) as any,
+        { sectionOptions: {}, documentOptions: {}, locale: "en-US" },
+      );
 
-    const blob = await Packer.toBlob(doc);
-    const zip = new ZipReader(new BlobReader(blob));
-    const entries = await zip.getEntries();
+      const blob = await Packer.toBlob(doc);
+      const zip = new ZipReader(new BlobReader(blob));
+      const entries = await zip.getEntries();
 
-    await expect(
-      prettify(await getZIPEntryContent(entries, "word/document.xml")),
-    ).toMatchFileSnapshot("__snapshots__/withMathMappings/document.xml");
-  });
+      await expect(
+        prettify(await getZIPEntryContent(entries, "word/document.xml")),
+      ).toMatchFileSnapshot("__snapshots__/withMathMappings/document.xml");
+    },
+  );
 
-  it("should render error placeholders for invalid LaTeX", async () => {
+  it("should render error placeholders for invalid LaTeX", async ({
+    testResolveFileUrl,
+  }) => {
     // Assembled outside the constructor call as the schema doesn't include
     // the math specs - like the default mappings, the math entries just map
     // the block JSON.

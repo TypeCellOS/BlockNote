@@ -4,6 +4,7 @@ import type { MarkType } from "@tiptap/pm/model";
 import { Plugin, PluginKey } from "@tiptap/pm/state";
 import { combineTransactionSteps } from "../../../../api/combineTransactionSteps.js";
 import { getChangedRanges } from "../../../../api/getChangedRanges.js";
+import { getYSyncMeta } from "../../../../api/getYSyncMeta.js";
 import type { LinkMatch } from "./linkDetector.js";
 import { tokenizeLink } from "./linkDetector.js";
 
@@ -49,12 +50,12 @@ export function autolink(options: AutolinkOptions): Plugin {
       // A change that a Yjs binding applies to the editor is not typing (the
       // change of another client, or the shared document at load): the client
       // that wrote the text made its links. y-prosemirror marks such a
-      // transaction with the meta of its sync plugin ("y-sync$"), and
-      // `@y/prosemirror` (Yjs 14) with the meta "y-sync-transaction".
+      // transaction with the meta of its sync plugin, and `@y/prosemirror`
+      // (Yjs 14) with the meta "y-sync-transaction".
       const preventAutolink = transactions.some(
         (transaction) =>
           transaction.getMeta("preventAutolink") ||
-          transaction.getMeta("y-sync$") ||
+          getYSyncMeta(transaction) ||
           transaction.getMeta("y-sync-transaction"),
       );
 

@@ -23,7 +23,7 @@ export const SettingsSelect = (props: {
       <Components.Generic.Toolbar.Root className={"bn-toolbar"}>
         <h2>{props.label + ":"}</h2>
         <Components.Generic.Toolbar.Select
-          className={"bn-select"}
+          className={"bn-toolbar-select"}
           items={props.items}
           portalElement={portalElement}
         />

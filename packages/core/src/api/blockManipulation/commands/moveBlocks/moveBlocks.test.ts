@@ -1,3 +1,4 @@
+import { GapCursor } from "@tiptap/pm/gapcursor";
 import { NodeSelection, TextSelection } from "prosemirror-state";
 import { CellSelection } from "prosemirror-tables";
 import { describe, expect } from "vite-plus/test";
@@ -112,6 +113,51 @@ function makeSelectionSpanContent(selectionType: "text" | "cell") {
     );
   }
 }
+
+describe("moving blocks from a gap cursor", () => {
+  it.beforeEach(() => {
+    const editor = getEditor();
+    editor.insertBlocks(
+      [
+        { id: "upper-image", type: "image" },
+        { id: "lower-image", type: "image" },
+      ],
+      "paragraph-1",
+      "before",
+    );
+    editor.setTextCursorPosition("lower-image");
+    editor.transact((tr) => {
+      tr.setSelection(new GapCursor(tr.selection.$from));
+    });
+  });
+
+  it.each([
+    ["up", (editor: LayoutEditor) => editor.moveBlocksUp()],
+    ["down", (editor: LayoutEditor) => editor.moveBlocksDown()],
+    [
+      "relative to a reference block",
+      (editor: LayoutEditor) =>
+        moveSelectedBlocksAndSelection(editor, "paragraph-0", "before"),
+    ],
+  ] as const)("does not move an unselected block %s", (_, move) => {
+    const editor = getEditor();
+    const before = editor.document;
+    const selection = editor.transact((tr) => tr.selection);
+
+    move(editor);
+
+    expect(editor.document).toEqual(before);
+    expect(editor.transact((tr) => tr.selection.eq(selection))).toBe(true);
+  });
+
+  it("still moves an explicitly specified block", () => {
+    const editor = getEditor();
+
+    editor.moveBlocksUp("lower-image");
+
+    expect(editor.getNextBlock("lower-image")?.id).toBe("upper-image");
+  });
+});
 
 describe("Test moveSelectedBlockAndSelection", () => {
   it("Text selection", () => {

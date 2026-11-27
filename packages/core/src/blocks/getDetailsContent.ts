@@ -1,4 +1,5 @@
 import { DOMParser, Fragment, Schema } from "prosemirror-model";
+import { detachedDoc } from "../util/detachedDoc.js";
 import { mergeParagraphs } from "./defaultBlockHelpers.js";
 
 /**
@@ -30,7 +31,8 @@ export function getDetailsContent(
   // <p> tags into one with <br> separators so it fits a single inline node.
   let inlineContent: Fragment;
   if (summary) {
-    const clone = summary.cloneNode(true) as HTMLElement;
+    // Not `cloneNode`: see the rule in `util/detachedDoc.ts`.
+    const clone = detachedDoc().importNode(summary, true) as HTMLElement;
     mergeParagraphs(clone);
     inlineContent = parser.parse(clone, {
       topNode: schema.nodes.paragraph.create(),
@@ -41,7 +43,7 @@ export function getDetailsContent(
   }
 
   // Collect everything after <summary> as nested block children.
-  const childrenContainer = document.createElement("div");
+  const childrenContainer = detachedDoc().createElement("div");
   childrenContainer.setAttribute("data-node-type", "blockGroup");
   let hasChildren = false;
 
@@ -55,7 +57,7 @@ export function getDetailsContent(
       continue;
     }
     hasChildren = true;
-    childrenContainer.appendChild(child.cloneNode(true));
+    childrenContainer.appendChild(detachedDoc().importNode(child, true));
   }
 
   const contentNode = schema.nodes[nodeName].create({}, inlineContent);

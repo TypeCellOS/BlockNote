@@ -15,10 +15,7 @@
     "isolatedModules": true,
     "noEmit": true,
     "jsx": "react-jsx",
-    "composite": true,
-    "paths": {
-      "@shared/*": ["../../../shared/*"]
-    }
+    "composite": true
   },
   "include": ["."],
   "__ADD_FOR_LOCAL_DEV_references": [

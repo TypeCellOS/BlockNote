@@ -1,27 +1,13 @@
 import * as path from "path";
-import { webpackStats } from "rollup-plugin-webpack-stats";
 import { configDefaults, defineConfig } from "vite-plus";
 import pkg from "./package.json";
-import { buildCacheInputs } from "../../scripts/build-cache-inputs.js";
+import { libraryBuildTask } from "../../scripts/build-cache-inputs.js";
+import { typescriptBuild } from "../../scripts/vite-typescript-build.js";
 
 // https://vitejs.dev/config/
 export default defineConfig({
   run: {
-    tasks: {
-      build: {
-        command:
-          "tsc --project tsconfig.json --composite false --incremental false --rootDir . && vp build",
-        cache: {
-          input: [
-            ...buildCacheInputs("packages/core"),
-            { pattern: "!**/*.tsbuildinfo", base: "workspace" },
-          ],
-          // `types/**` must be declared too: a cache replay that restores only
-          // dist/ leaves consumers without declarations (tsc is skipped).
-          output: ["dist/**", "types/**", "!dist/*.tsbuildinfo"],
-        },
-      },
-    },
+    tasks: { build: libraryBuildTask("packages/core") },
   },
   test: {
     // Preserve Vitest 4 mock history during the toolchain upgrade.
@@ -42,7 +28,7 @@ export default defineConfig({
       "**/*.screen-reader.test.ts",
     ],
   },
-  plugins: [webpackStats()],
+  plugins: [typescriptBuild()],
   build: {
     sourcemap: false,
     lib: {

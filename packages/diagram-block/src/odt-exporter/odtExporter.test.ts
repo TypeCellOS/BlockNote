@@ -11,7 +11,7 @@ import {
   renderDiagram,
   renderInvalidDiagram,
   zipEntryContent,
-} from "../exporterTestUtil.js";
+} from "../../test/exporterTestUtil.js";
 import { createDiagramBlockMapping, diagramBlockMapping } from "./index.js";
 
 function createExporter(diagram: ReturnType<typeof createDiagramBlockMapping>) {

@@ -669,7 +669,7 @@ exports[`suggestion mode: merge two cells 2`] = `
         <tableCell
           backgroundColor="default"
           colspan="2"
-          colwidth="[null,null]"
+          colwidth="null"
           rowspan="1"
           textAlignment="left"
           textColor="default"
@@ -722,12 +722,11 @@ exports[`suggestion mode: merge two cells 3`] = `
       <table textColor="default">
         <tableRow>
           <y-attributed-attrs
-            changes="{&quot;colspan&quot;:{&quot;userIds&quot;:[],&quot;timestamp&quot;:null},&quot;colwidth&quot;:{&quot;userIds&quot;:[],&quot;timestamp&quot;:null}}"
+            changes="{&quot;colspan&quot;:{&quot;userIds&quot;:[],&quot;timestamp&quot;:null}}"
           >
             <tableCell
               backgroundColor="default"
               colspan="2"
-              colwidth=","
               rowspan="1"
               textAlignment="left"
               textColor="default"
@@ -1127,7 +1126,7 @@ exports[`suggestion mode: split a merged cell 1`] = `
         <tableCell
           backgroundColor="default"
           colspan="2"
-          colwidth="[null,null]"
+          colwidth="null"
           rowspan="1"
           textAlignment="left"
           textColor="default"
@@ -1224,7 +1223,7 @@ exports[`suggestion mode: split a merged cell 3`] = `
       <table textColor="default">
         <tableRow>
           <y-attributed-attrs
-            changes="{&quot;colspan&quot;:{&quot;userIds&quot;:[],&quot;timestamp&quot;:null},&quot;colwidth&quot;:{&quot;userIds&quot;:[],&quot;timestamp&quot;:null}}"
+            changes="{&quot;colspan&quot;:{&quot;userIds&quot;:[],&quot;timestamp&quot;:null}}"
           >
             <tableCell
               backgroundColor="default"

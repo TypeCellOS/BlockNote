@@ -17,6 +17,17 @@
                   "text": "Table Cell",
                   "type": "text",
                 },
+                {
+                  "content": [
+                    {
+                      "styles": {},
+                      "text": "exampleURL",
+                      "type": "text",
+                    },
+                  ],
+                  "href": "exampleURL",
+                  "type": "link",
+                },
               ],
               "props": {
                 "backgroundColor": "default",

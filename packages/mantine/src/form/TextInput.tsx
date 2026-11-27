@@ -11,6 +11,7 @@ export const TextInput = forwardRef<
   const {
     className,
     name,
+    dir,
     label,
     variant,
     icon,
@@ -42,6 +43,7 @@ export const TextInput = forwardRef<
       )}
       ref={setRefs}
       name={name}
+      dir={dir}
       label={label}
       leftSection={icon}
       value={value}

@@ -66,6 +66,42 @@ describe("FormattingToolbar", () => {
   });
 
   describe("integration", () => {
+    it("toggles inline code on and off from the default toolbar", async ({
+      setupEditor,
+      selectText,
+      compareDocuments,
+      page,
+    }) => {
+      const { editor } = await setupEditor({
+        initialContent: [
+          { id: "format", type: "paragraph", content: "Use fetch here" },
+        ],
+      });
+      const before = editor.document;
+      selectText(editor, "fetch");
+
+      const button = page.getByRole("toolbar").getByRole("button", {
+        name: editor.dictionary.formatting_toolbar.code.tooltip,
+        exact: true,
+      });
+      await expect.element(button).toBeVisible();
+      await button.click();
+
+      await expect.element(button).toHaveAttribute("aria-pressed", "true");
+      expect(compareDocuments(before, editor.document)).toMatchInlineSnapshot(`
+        "BEFORE:
+        <block-format path="0" type="paragraph">Use fetch here</block-format>
+
+        AFTER:
+        <block-format path="0" type="paragraph">Use <text code=true>fetch</text> here</block-format>"
+      `);
+
+      await button.click();
+
+      await expect.element(button).toHaveAttribute("aria-pressed", "false");
+      expect(editor.document).toEqual(before);
+    });
+
     it("preserves the editor selection while keyboard focus moves through the toolbar", async ({
       setupEditor,
       selectText,
@@ -199,6 +235,8 @@ describe("FormattingToolbar", () => {
           - img",
           "- button "Strike":
           - img",
+          "- button "Code":
+          - img",
           "- button "Align text left" [pressed]:
           - img",
           "- button "Align text center":
@@ -261,6 +299,8 @@ describe("FormattingToolbar", () => {
           "- button "Underline":
           - img",
           "- button "Strike":
+          - img",
+          "- button "Code":
           - img",
           "- button "Align text left" [pressed]:
           - img",
@@ -326,6 +366,8 @@ describe("FormattingToolbar", () => {
           "- button "Underline":
           - img",
           "- button "Strike":
+          - img",
+          "- button "Code":
           - img",
           "- button "Align text left" [pressed]:
           - img",
@@ -393,6 +435,8 @@ describe("FormattingToolbar", () => {
           "- button "Align text center":
           - img",
           "- button "Align text left" [pressed]:
+          - img",
+          "- button "Code":
           - img",
           "- button "Strike":
           - img",
@@ -463,6 +507,8 @@ describe("FormattingToolbar", () => {
           - img",
           "- button "Align text left" [pressed]:
           - img",
+          "- button "Code":
+          - img",
           "- button "Strike":
           - img",
           "- button "Underline":
@@ -531,6 +577,8 @@ describe("FormattingToolbar", () => {
           "- button "Align text center":
           - img",
           "- button "Align text left" [pressed]:
+          - img",
+          "- button "Code":
           - img",
           "- button "Strike":
           - img",

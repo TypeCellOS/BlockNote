@@ -43,6 +43,7 @@ export const getFormattingToolbarItems = (
     key={"underlineStyleButton"}
   />,
   <BasicTextStyleButton basicTextStyle={"strike"} key={"strikeStyleButton"} />,
+  <BasicTextStyleButton basicTextStyle={"code"} key={"codeStyleButton"} />,
   <TextAlignButton textAlignment={"left"} key={"textAlignLeftButton"} />,
   <TextAlignButton textAlignment={"center"} key={"textAlignCenterButton"} />,
   <TextAlignButton textAlignment={"right"} key={"textAlignRightButton"} />,

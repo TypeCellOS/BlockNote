@@ -18,7 +18,7 @@ export function useEditorDOMElement(editor?: BlockNoteEditor<any, any, any>) {
 
   return useEditorState({
     editor,
-    selector: (ctx) => ctx.editor.domElement,
+    selector: (ctx) => ctx.editor?.domElement,
     equalityFn: (a, b) => a === b,
     on: "mount",
   });

@@ -3,6 +3,7 @@ import { defineConfig } from "vite-plus";
 // Opt existing suites into the new conventions as they are migrated, rather
 // than requiring unrelated legacy tests to change in this PR.
 const componentTestFiles = [
+  "packages/react/src/components/SideMenu/**/*.browser.test.tsx",
   "packages/core/src/blocks/Heading/Heading.browser.test.tsx",
   "packages/react/src/components/FormattingToolbar/FormattingToolbar.browser.test.tsx",
   "packages/react/src/components/FormattingToolbar/DesktopFormattingToolbarController.browser.test.tsx",
@@ -54,10 +55,8 @@ export default defineConfig({
   },
   run: {
     // Cache package.json scripts by default (off by default in vp).
-    // Vite Task automatically fingerprints each command's read file set,
-    // so cache invalidation already follows the workspace dependency graph:
-    // when `core`'s dist changes, `react`'s build cache misses because
-    // its tsc step reads `core`'s `.d.ts` files.
+    // Vite Task fingerprints files read by each build, including the upstream
+    // declarations TypeScript consumes. Exclude only task-owned outputs.
     cache: { scripts: true },
     tasks: {
       // Docker owns image reuse. Always ask the daemon and execute browser runs:
@@ -139,7 +138,7 @@ export default defineConfig({
     ],
   },
   lint: {
-    plugins: ["typescript", "react", "import"],
+    plugins: ["typescript", "react", "import", "jsx-a11y"],
     // ESLint compatibility rules and BlockNote-specific conventions.
     jsPlugins: [
       { name: "import-eslint", specifier: "eslint-plugin-import" },
@@ -148,12 +147,54 @@ export default defineConfig({
         specifier: "./scripts/lint/component-browser-tests.mjs",
       },
       { name: "blocknote", specifier: "./scripts/css-variable-plugin.mjs" },
+      { name: "blocknote-dom", specifier: "./scripts/lint/detached-doc.mjs" },
     ],
     options: {
       typeAware: true,
       typeCheck: true,
     },
     rules: {
+      // Enforce JSX accessibility correctness rules, with the exceptions below.
+      "jsx-a11y/alt-text": "error",
+      "jsx-a11y/anchor-has-content": "error",
+      "jsx-a11y/anchor-is-valid": "error",
+      "jsx-a11y/aria-activedescendant-has-tabindex": "error",
+      "jsx-a11y/aria-props": "error",
+      "jsx-a11y/aria-proptypes": "error",
+      "jsx-a11y/aria-role": "error",
+      "jsx-a11y/aria-unsupported-elements": "error",
+      "jsx-a11y/autocomplete-valid": "error",
+      "jsx-a11y/click-events-have-key-events": "error",
+      "jsx-a11y/control-has-associated-label": "error",
+      "jsx-a11y/heading-has-content": "error",
+      "jsx-a11y/html-has-lang": "error",
+      "jsx-a11y/iframe-has-title": "error",
+      "jsx-a11y/img-redundant-alt": "error",
+      "jsx-a11y/interactive-supports-focus": "error",
+      "jsx-a11y/label-has-associated-control": "error",
+      "jsx-a11y/lang": "error",
+      // Media comes from user content; static linting cannot enforce caption availability.
+      "jsx-a11y/media-has-caption": "off",
+      "jsx-a11y/mouse-events-have-key-events": "error",
+      "jsx-a11y/no-access-key": "error",
+      "jsx-a11y/no-aria-hidden-on-focusable": "error",
+      // Opening a popover or entering edit mode intentionally moves focus.
+      // Keyboard/focus tests verify these interactions.
+      "jsx-a11y/no-autofocus": "off",
+      "jsx-a11y/no-distracting-elements": "error",
+      "jsx-a11y/no-interactive-element-to-noninteractive-role": "error",
+      "jsx-a11y/no-noninteractive-element-interactions": "error",
+      "jsx-a11y/no-noninteractive-element-to-interactive-role": "error",
+      "jsx-a11y/no-noninteractive-tabindex": "error",
+      "jsx-a11y/no-redundant-roles": "error",
+      "jsx-a11y/no-static-element-interactions": "error",
+      // Custom widgets, live regions, and inline diagrams legitimately use ARIA
+      // roles. Keep the role/attribute validity checks enabled.
+      "jsx-a11y/prefer-tag-over-role": "off",
+      "jsx-a11y/role-has-required-aria-props": "error",
+      "jsx-a11y/role-supports-aria-props": "error",
+      "jsx-a11y/scope": "error",
+      "jsx-a11y/tabindex-no-positive": "error",
       "blocknote/css-variable-layering": "error",
       "no-console": "error",
       curly: "warn",
@@ -204,6 +245,12 @@ export default defineConfig({
             },
           ],
         },
+      },
+      {
+        // Content from outside the editor: see scripts/lint/README.md.
+        files: ["packages/core/src/**/*.{ts,tsx}"],
+        excludeFiles: ["**/*.test.{ts,tsx}"],
+        rules: { "blocknote-dom/no-active-document": "error" },
       },
       {
         files: [
@@ -341,6 +388,8 @@ export default defineConfig({
       "**/test-results/**",
       "**/playwright-report/**",
       "**/blob-report/**",
+      // Formatting captured clipboard HTML can change what the parser sees.
+      "packages/core/src/api/clipboard/fromClipboard/fixtures/*.html",
       "**/*.mdx",
       "pnpm-lock.yaml",
     ],

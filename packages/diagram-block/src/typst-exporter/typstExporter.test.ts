@@ -4,15 +4,14 @@ import {
   TypstExporter,
   typstDefaultSchemaMappings,
 } from "@blocknote/xl-typst-exporter";
-import { compileTypstForTesting } from "@shared/util/typstTestUtil.js";
-import { describe, expect, it } from "vite-plus/test";
+import { describe, expect } from "vite-plus/test";
 
 import {
   diagramDocument,
   renderDiagram,
   renderDiagramSVG,
   renderInvalidDiagram,
-} from "../exporterTestUtil.js";
+} from "../../test/exporterTestUtil.js";
 import { createDiagramBlockMapping } from "./index.js";
 
 function createExporter(
@@ -38,7 +37,7 @@ describe("typst exporter mappings", () => {
   it(
     "should export diagrams as figures with the source as alt text",
     { timeout: 20000 },
-    async () => {
+    async ({ compileTypstForTesting }) => {
       const exporter = createExporter({ renderDiagram });
 
       const typst = await exporter.toTypst(diagramDocument, {
@@ -70,7 +69,7 @@ describe("typst exporter mappings", () => {
   it(
     "should embed vector SVG renders and stay PDF/UA-1 conformant",
     { timeout: 20000 },
-    async () => {
+    async ({ compileTypstForTesting }) => {
       // The default renderer produces SVG (`renderDiagramToSVG`);
       // this covers that path end-to-end with the SVG stub.
       const exporter = createExporter({ renderDiagram: renderDiagramSVG });
@@ -112,7 +111,7 @@ describe("typst exporter mappings", () => {
     ).toHaveLength(0);
   });
 
-  it.each([
+  it.for([
     "graph TD\n A[Start] --> B[End]",
     "sequenceDiagram\n Alice->>Bob: Hello",
     "classDiagram\n Animal <|-- Duck",
@@ -121,7 +120,7 @@ describe("typst exporter mappings", () => {
     "journey\n title My day\n section Work\n Task: 5: Me",
   ])(
     "compiles real server-rendered diagrams to PDF/UA-1: %s",
-    async (source) => {
+    async (source, { compileTypstForTesting }) => {
       const exporter = createExporter();
 
       const typst = await exporter.toTypst(

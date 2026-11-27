@@ -7,9 +7,11 @@ import {
 } from "../../../schema/index.js";
 
 import { Block } from "../../../blocks/defaultBlocks.js";
+import { detachedDoc } from "../../../util/detachedDoc.js";
 import { EMPTY_BLOCK_PLACEHOLDER } from "../../exporters/html/util/serializeBlocksExternalHTML.js";
 import { nodeToBlock } from "../../nodeConversions/nodeToBlock.js";
-import { nestedListsToBlockNoteStructure } from "./util/nestedLists.js";
+import { moveImagesOutOfText } from "./util/imagesInText.js";
+import { normalizeNestedLists } from "./util/nestedLists.js";
 import { preprocessHTMLWhitespace } from "./util/normalizeWhitespace.js";
 
 /**
@@ -74,7 +76,14 @@ export function HTMLToBlocks<
   I extends InlineContentSchema,
   S extends StyleSchema,
 >(html: string, pmSchema: Schema): Block<BSchema, I, S>[] {
-  const htmlNode = nestedListsToBlockNoteStructure(html);
+  const htmlNode = detachedDoc().createElement("div");
+  htmlNode.innerHTML = html;
+  // Lift images before list normalization so a nested list after an image
+  // stays in its item. Without an image block, keep the surrounding text together.
+  if (pmSchema.nodes["image"]) {
+    moveImagesOutOfText(htmlNode);
+  }
+  normalizeNestedLists(htmlNode);
   preprocessHTMLWhitespace(htmlNode);
   const parser = DOMParser.fromSchema(pmSchema);
 

@@ -4,11 +4,8 @@ import {
   defaultBlockSpecs,
 } from "@blocknote/core";
 import { ColumnBlock, ColumnListBlock } from "@blocknote/xl-multi-column";
-import { partialBlocksToBlocksForTesting } from "@shared/formatConversionTestUtil.js";
-import { testDocument } from "@shared/testDocument.js";
-import { testResolveFileUrl } from "@shared/util/testFileResolver.js";
-import { compileTypstForTesting } from "@shared/util/typstTestUtil.js";
-import { describe, expect, it } from "vite-plus/test";
+import { testDocument } from "../../../tests/src/fixtures/exporters/testDocument.js";
+import { describe, expect } from "vite-plus/test";
 import { typstDefaultSchemaMappings } from "./defaultSchema/index.js";
 import { TypstExporter } from "./typstExporter.js";
 
@@ -30,7 +27,9 @@ const fullSchema = BlockNoteSchema.create({
 });
 
 describe("TypstExporter", () => {
-  it("exports a real BlockNote document to Typst", async () => {
+  it("exports a real BlockNote document to Typst", async ({
+    testResolveFileUrl,
+  }) => {
     // fullSchema (incl. multi-column) matches the shared testDocument. The
     // document's images resolve through the network-free test resolver, like
     // the other exporters' tests. emojiFontFamily matches the example +
@@ -68,7 +67,9 @@ describe("TypstExporter", () => {
     await expect(typ).toMatchFileSnapshot("__snapshots__/testDocument.typ");
   });
 
-  it("fabricates no document metadata when none is given", async () => {
+  it("fabricates no document metadata when none is given", async ({
+    partialBlocksToBlocksForTesting,
+  }) => {
     const exporter = new TypstExporter(schema, typstDefaultSchemaMappings);
 
     const typ = await exporter.toTypst(
@@ -88,7 +89,9 @@ describe("TypstExporter", () => {
     );
   });
 
-  it("propagates font (constructor) and document (export) options into the preamble", async () => {
+  it("propagates font (constructor) and document (export) options into the preamble", async ({
+    partialBlocksToBlocksForTesting,
+  }) => {
     // Font/theme config -> constructor; document metadata -> export call.
     const exporter = new TypstExporter(schema, typstDefaultSchemaMappings, {
       fontFamily: "Times New Roman",
@@ -121,7 +124,9 @@ describe("TypstExporter", () => {
     expect(typ).toContain('#set page(paper: "us-letter", margin: 2cm)');
   });
 
-  it("escapes Typst-significant characters in text content", async () => {
+  it("escapes Typst-significant characters in text content", async ({
+    partialBlocksToBlocksForTesting,
+  }) => {
     const exporter = new TypstExporter(schema, typstDefaultSchemaMappings);
 
     const typ = await exporter.toTypst(
@@ -136,7 +141,9 @@ describe("TypstExporter", () => {
     expect(typ).toContain('#"Backslash \\\\ quote \\" hash # star *"');
   });
 
-  it("sets a running page header and footer when provided", async () => {
+  it("sets a running page header and footer when provided", async ({
+    partialBlocksToBlocksForTesting,
+  }) => {
     const exporter = new TypstExporter(schema, typstDefaultSchemaMappings);
 
     const typ = await exporter.toTypst(
@@ -155,7 +162,9 @@ describe("TypstExporter", () => {
     );
   });
 
-  it("omits header/footer from the page setup by default", async () => {
+  it("omits header/footer from the page setup by default", async ({
+    partialBlocksToBlocksForTesting,
+  }) => {
     const exporter = new TypstExporter(schema, typstDefaultSchemaMappings);
 
     const typ = await exporter.toTypst(
@@ -169,7 +178,10 @@ describe("TypstExporter", () => {
     expect(typ).not.toContain("footer:");
   });
 
-  it("embeds a resolved image as a Typst image() shadow file", async () => {
+  it("embeds a resolved image as a Typst image() shadow file", async ({
+    testResolveFileUrl,
+    partialBlocksToBlocksForTesting,
+  }) => {
     const exporter = new TypstExporter(schema, typstDefaultSchemaMappings, {
       resolveFileUrl: testResolveFileUrl,
     });
@@ -199,7 +211,9 @@ describe("TypstExporter", () => {
     expect(asset!.byteLength).toBeGreaterThan(0);
   });
 
-  it("keeps nested children outside the parent's alignment scope", async () => {
+  it("keeps nested children outside the parent's alignment scope", async ({
+    partialBlocksToBlocksForTesting,
+  }) => {
     // Typst's `align` styles everything in its scope, but in the editor a
     // block's alignment applies to its own content only - indenting a block
     // under a right-aligned heading must not right-align the child.
@@ -232,7 +246,9 @@ describe("TypstExporter", () => {
     expect(typ.indexOf("#pad(left: 1.5em)")).toBeLessThan(typ.indexOf(child));
   });
 
-  it("keeps every heading with the block that follows it", async () => {
+  it("keeps every heading with the block that follows it", async ({
+    partialBlocksToBlocksForTesting,
+  }) => {
     // Typst headings are sticky, but stickiness doesn't carry out of the
     // spacing block they're wrapped in - a heading could be left alone at the
     // bottom of a page. So the wrapping block is made sticky, in every path a
@@ -268,7 +284,9 @@ describe("TypstExporter", () => {
     expect(typ.match(/sticky: true/g)).toHaveLength(4);
   });
 
-  it("fails the export when an image can't be resolved", async () => {
+  it("fails the export when an image can't be resolved", async ({
+    partialBlocksToBlocksForTesting,
+  }) => {
     // An unreachable image is an environment failure, not expected input -
     // the export fails loudly instead of silently degrading the document
     // (see the error-handling conventions in AGENTS.md).
@@ -287,7 +305,9 @@ describe("TypstExporter", () => {
     ).rejects.toThrow("offline");
   });
 
-  it("keeps header-column styling on the true column across row spans", async () => {
+  it("keeps header-column styling on the true column across row spans", async ({
+    partialBlocksToBlocksForTesting,
+  }) => {
     const exporter = new TypstExporter(schema, typstDefaultSchemaMappings);
 
     const typ = await exporter.toTypst(
@@ -330,7 +350,7 @@ describe("TypstExporter", () => {
   it(
     "spans merged table cells and emits a single multi-row header",
     { timeout: 20000 },
-    async () => {
+    async ({ partialBlocksToBlocksForTesting, compileTypstForTesting }) => {
       const exporter = new TypstExporter(schema, typstDefaultSchemaMappings);
 
       const typ = await exporter.toTypst(
@@ -392,7 +412,9 @@ describe("TypstExporter", () => {
     },
   );
 
-  it("keeps the default colors when a caller forwards undefined for them", async () => {
+  it("keeps the default colors when a caller forwards undefined for them", async ({
+    partialBlocksToBlocksForTesting,
+  }) => {
     // A caller forwarding its own optional (`{ colors: maybeColors }`) must
     // not erase the default palette - the constructor defaults per key.
     const exporter = new TypstExporter(schema, typstDefaultSchemaMappings, {
@@ -412,7 +434,9 @@ describe("TypstExporter", () => {
     expect(typ).toContain('rgb("#994a37")');
   });
 
-  it("renders header-column cells with the header treatment", async () => {
+  it("renders header-column cells with the header treatment", async ({
+    partialBlocksToBlocksForTesting,
+  }) => {
     const exporter = new TypstExporter(schema, typstDefaultSchemaMappings);
 
     const typ = await exporter.toTypst(
@@ -438,7 +462,9 @@ describe("TypstExporter", () => {
     expect(typ).not.toContain("table.header(");
   });
 
-  it("renders a placeholder figure only for a *named* image without a URL", async () => {
+  it("renders a placeholder figure only for a *named* image without a URL", async ({
+    partialBlocksToBlocksForTesting,
+  }) => {
     const exporter = new TypstExporter(schema, typstDefaultSchemaMappings);
 
     // Neither URL nor name: the editor's un-uploaded "Add image"

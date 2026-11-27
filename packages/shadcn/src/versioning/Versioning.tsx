@@ -106,9 +106,9 @@ export const Snapshot = forwardRef<
     <ShadCNComponents.Card.Card
       className={cn(
         className,
-        "group relative mb-1 flex w-full cursor-pointer flex-col gap-1.5 overflow-visible rounded-lg border border-transparent px-3.5 py-3 text-card-foreground shadow-none transition-colors hover:bg-accent focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary",
+        "group relative mb-1 flex w-full cursor-pointer flex-col gap-1.5 overflow-visible rounded-lg border border-transparent px-3.5 py-3 text-card-foreground shadow-none transition-colors hover:bg-accent",
         (state === "selected" || state === "comparison-source") &&
-          "selected bg-primary text-primary-foreground hover:bg-primary focus-visible:-outline-offset-4 focus-visible:outline-primary-foreground",
+          "selected bg-primary text-primary-foreground hover:bg-primary",
         state === "comparison-baseline" && "comparing bg-primary/10",
         (state === "comparison-source" || state === "comparison-baseline") &&
           "border-primary ring-1 ring-primary",
@@ -122,12 +122,23 @@ export const Snapshot = forwardRef<
           : undefined
       }
       aria-busy={ariaBusy}
-      tabIndex={tabIndex}
-      onClick={onClick}
-      onKeyDown={onKeyDown}
-      onFocus={onFocus}
+      // Observe focus entering the row without making the row itself interactive.
+      onFocusCapture={onFocus}
       ref={ref}
     >
+      <button
+        type="button"
+        className="bn-snapshot-preview"
+        aria-label={ariaLabel}
+        aria-current={
+          state === "selected" || state === "comparison-source"
+            ? "true"
+            : undefined
+        }
+        tabIndex={tabIndex}
+        onClick={onClick}
+        onKeyDown={onKeyDown}
+      />
       {comparingLabel && (
         <div className="bn-snapshot-comparing-to text-primary dark:text-primary flex items-center gap-1 text-[13px] font-semibold">
           {comparingIcon}
@@ -168,11 +179,7 @@ export const Snapshot = forwardRef<
         ) : null}
       </div>
       {actions && (
-        <div
-          className="bn-snapshot-menu absolute top-2 right-2 opacity-0 transition-opacity group-focus-within:opacity-100 group-hover:opacity-100 group-focus-visible:opacity-100"
-          onClick={(event) => event.stopPropagation()}
-          onKeyDown={(event) => event.stopPropagation()}
-        >
+        <div className="bn-snapshot-menu absolute top-2 right-2 opacity-0 transition-opacity group-focus-within:opacity-100 group-hover:opacity-100 group-focus-visible:opacity-100">
           {actions}
         </div>
       )}

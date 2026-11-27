@@ -10,7 +10,7 @@ export const OpenLinkButton = (props: Pick<LinkToolbarProps, "url">) => {
 
   return (
     <Components.LinkToolbar.Button
-      className={"bn-button"}
+      className={"bn-toolbar-button"}
       mainTooltip={dict.link_toolbar.open.tooltip}
       label={dict.link_toolbar.open.tooltip}
       isSelected={false}

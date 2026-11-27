@@ -1,0 +1,223 @@
+[
+  {
+    "children": [],
+    "content": {
+      "columnWidths": [
+        undefined,
+        undefined,
+      ],
+      "headerCols": undefined,
+      "headerRows": 1,
+      "rows": [
+        {
+          "cells": [
+            {
+              "content": [
+                {
+                  "content": [
+                    {
+                      "styles": {},
+                      "text": "Logo",
+                      "type": "text",
+                    },
+                  ],
+                  "href": "https://example.com/logo.png",
+                  "type": "link",
+                },
+              ],
+              "props": {
+                "backgroundColor": "default",
+                "colspan": 1,
+                "rowspan": 1,
+                "textAlignment": "left",
+                "textColor": "default",
+              },
+              "type": "tableCell",
+            },
+            {
+              "content": [
+                {
+                  "styles": {},
+                  "text": "The URL of the image",
+                  "type": "text",
+                },
+              ],
+              "props": {
+                "backgroundColor": "default",
+                "colspan": 1,
+                "rowspan": 1,
+                "textAlignment": "left",
+                "textColor": "default",
+              },
+              "type": "tableCell",
+            },
+          ],
+        },
+        {
+          "cells": [
+            {
+              "content": [
+                {
+                  "content": [
+                    {
+                      "styles": {},
+                      "text": "Chart",
+                      "type": "text",
+                    },
+                  ],
+                  "href": "https://example.com/chart.png",
+                  "type": "link",
+                },
+              ],
+              "props": {
+                "backgroundColor": "default",
+                "colspan": 1,
+                "rowspan": 1,
+                "textAlignment": "left",
+                "textColor": "default",
+              },
+              "type": "tableCell",
+            },
+            {
+              "content": [
+                {
+                  "styles": {},
+                  "text": "A web URL, with alt text",
+                  "type": "text",
+                },
+              ],
+              "props": {
+                "backgroundColor": "default",
+                "colspan": 1,
+                "rowspan": 1,
+                "textAlignment": "left",
+                "textColor": "default",
+              },
+              "type": "tableCell",
+            },
+          ],
+        },
+        {
+          "cells": [
+            {
+              "content": [
+                {
+                  "content": [
+                    {
+                      "styles": {},
+                      "text": "https://example.com/chart.png",
+                      "type": "text",
+                    },
+                  ],
+                  "href": "https://example.com/chart.png",
+                  "type": "link",
+                },
+              ],
+              "props": {
+                "backgroundColor": "default",
+                "colspan": 1,
+                "rowspan": 1,
+                "textAlignment": "left",
+                "textColor": "default",
+              },
+              "type": "tableCell",
+            },
+            {
+              "content": [
+                {
+                  "styles": {},
+                  "text": "A web URL, without alt text",
+                  "type": "text",
+                },
+              ],
+              "props": {
+                "backgroundColor": "default",
+                "colspan": 1,
+                "rowspan": 1,
+                "textAlignment": "left",
+                "textColor": "default",
+              },
+              "type": "tableCell",
+            },
+          ],
+        },
+        {
+          "cells": [
+            {
+              "content": [
+                {
+                  "styles": {},
+                  "text": "Before after",
+                  "type": "text",
+                },
+              ],
+              "props": {
+                "backgroundColor": "default",
+                "colspan": 1,
+                "rowspan": 1,
+                "textAlignment": "left",
+                "textColor": "default",
+              },
+              "type": "tableCell",
+            },
+            {
+              "content": [
+                {
+                  "styles": {},
+                  "text": "A file URL",
+                  "type": "text",
+                },
+              ],
+              "props": {
+                "backgroundColor": "default",
+                "colspan": 1,
+                "rowspan": 1,
+                "textAlignment": "left",
+                "textColor": "default",
+              },
+              "type": "tableCell",
+            },
+          ],
+        },
+        {
+          "cells": [
+            {
+              "content": [],
+              "props": {
+                "backgroundColor": "default",
+                "colspan": 1,
+                "rowspan": 1,
+                "textAlignment": "left",
+                "textColor": "default",
+              },
+              "type": "tableCell",
+            },
+            {
+              "content": [
+                {
+                  "styles": {},
+                  "text": "A data URL",
+                  "type": "text",
+                },
+              ],
+              "props": {
+                "backgroundColor": "default",
+                "colspan": 1,
+                "rowspan": 1,
+                "textAlignment": "left",
+                "textColor": "default",
+              },
+              "type": "tableCell",
+            },
+          ],
+        },
+      ],
+      "type": "tableContent",
+    },
+    "id": "1",
+    "props": {
+      "textColor": "default",
+    },
+    "type": "table",
+  },
+]

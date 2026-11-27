@@ -9,6 +9,7 @@ import {
   loadDefaultBodyFonts,
   loadDefaultEmojiFont,
   TypstExporter,
+  type TypstExporterOptions,
   typstDefaultSchemaMappings,
 } from "@blocknote/xl-pdf-exporter";
 // Bundled wasm so the Typst compile below runs fully offline. The fonts come
@@ -19,10 +20,8 @@ import {
 // export ships.
 // eslint-disable-next-line import/no-unresolved
 import compilerWasmUrl from "@blocknote/xl-typst-compiler/wasm?url";
-import { testDocumentWithSourceBlocks } from "@shared/testDocument.js";
-import { isPdf } from "@shared/util/testBytesUtil.js";
-import { testResolveFileUrl } from "@shared/util/testFileResolver.js";
-import { describe, expect, test } from "vite-plus/test";
+import { testDocumentWithSourceBlocks } from "../../fixtures/exporters/testDocument.js";
+import { describe, expect } from "vite-plus/test";
 import { resizeViewportForTest } from "../../commands/browser/screenshotFull.js";
 import { browserName } from "../../utils/context.js";
 import {
@@ -38,7 +37,9 @@ import {
 // Builds the exporter, converts the shared document (plus invalid math /
 // diagram placeholders), and compiles it natively as PDF/UA-1 through the
 // real wasm pipeline. Shared by the assertion test and the visual test.
-async function compileTypstUaPdf() {
+async function compileTypstUaPdf(
+  resolveFileUrl: NonNullable<TypstExporterOptions["resolveFileUrl"]>,
+) {
   const typstDocument = [
     ...testDocumentWithSourceBlocks,
     invalidDiagramBlock,
@@ -60,7 +61,7 @@ async function compileTypstUaPdf() {
       },
     } as any,
     {
-      resolveFileUrl: testResolveFileUrl,
+      resolveFileUrl,
       // As PDFExporter declares by default, so multi-codepoint emoji (skin
       // tones, ZWJ sequences) shape through the emoji font instead of
       // relying on Typst's per-glyph fallback.
@@ -99,23 +100,27 @@ async function compileTypstUaPdf() {
 // The two cases assert different properties of the same deterministic export.
 // Initialize lazily so either case still exercises the full pipeline when run alone.
 let compiled: ReturnType<typeof compileTypstUaPdf> | undefined;
-function getTypstUaPdf() {
-  return (compiled ??= compileTypstUaPdf().catch((error: unknown) => {
-    // The next test or retry must be able to compile again after a failure.
-    compiled = undefined;
-    throw error;
-  }));
+function getTypstUaPdf(
+  resolveFileUrl: NonNullable<TypstExporterOptions["resolveFileUrl"]>,
+) {
+  return (compiled ??= compileTypstUaPdf(resolveFileUrl).catch(
+    (error: unknown) => {
+      // The next test or retry must be able to compile again after a failure.
+      compiled = undefined;
+      throw error;
+    },
+  ));
 }
 
 describe("pdf/ua export through the complete typst pipeline in the browser", () => {
-  test(
+  it(
     "exports the shared document with math and diagrams",
     { timeout: 60000 },
-    async () => {
+    async ({ isPdf, testResolveFileUrl }) => {
       // Compiling through the real wasm pipeline is what only the browser
       // suite covers: bundler-served wasm loading (the node unit suites
       // drive the same wasm from bytes).
-      const { typ, exporter, pdf } = await getTypstUaPdf();
+      const { typ, exporter, pdf } = await getTypstUaPdf(testResolveFileUrl);
 
       // Native equations with the LaTeX source as alt text, the diagram as a
       // figure with the Mermaid source as alt text - and the invalid sources
@@ -149,13 +154,13 @@ describe("pdf/ua export through the complete typst pipeline in the browser", () 
   // bytes everywhere (Typst lays it out from the supplied fonts, not
   // browser rendering), so per-browser runs would only re-test pdf.js's
   // rasterizer at 3x the suite cost.
-  test.skipIf(browserName !== "chromium")(
+  it.skipIf(browserName !== "chromium")(
     "matches the per-page visual snapshot",
     // Cold wasm load + compile + rasterizing every page needs more headroom
     // than the other tests on shared CI runners.
     { timeout: 120000 },
-    async () => {
-      const { pdf } = await getTypstUaPdf();
+    async ({ testResolveFileUrl }) => {
+      const { pdf } = await getTypstUaPdf(testResolveFileUrl);
       const { GlobalWorkerOptions } = await import("pdfjs-dist");
       const workerSrc = GlobalWorkerOptions.workerSrc;
       const callerViewport = [1100, 700] as const;

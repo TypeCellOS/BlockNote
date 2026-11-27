@@ -157,6 +157,7 @@ function VersioningSidebar(props: ComponentProps["Versioning"]["Sidebar"]) {
     <section
       className={props.className}
       aria-label={props["aria-label"]}
+      // eslint-disable-next-line jsx-a11y/no-redundant-roles -- Keep the test fixture's explicit region role.
       role="region"
     >
       {props.children}
@@ -222,11 +223,21 @@ function VersioningSnapshot(props: ComponentProps["Versioning"]["Snapshot"]) {
           : undefined
       }
       aria-busy={props["aria-busy"]}
-      tabIndex={props.tabIndex}
-      onClick={props.onClick}
-      onFocus={props.onFocus}
-      onKeyDown={props.onKeyDown}
+      onFocusCapture={props.onFocus}
     >
+      <button
+        type="button"
+        className="bn-snapshot-preview"
+        aria-label={props["aria-label"]}
+        aria-current={
+          props.state === "selected" || props.state === "comparison-source"
+            ? "true"
+            : undefined
+        }
+        tabIndex={props.tabIndex}
+        onClick={props.onClick}
+        onKeyDown={props.onKeyDown}
+      />
       {props.name}
       {props.date && <span>{props.date}</span>}
       {props.restoredFrom && <span>{props.restoredFrom}</span>}

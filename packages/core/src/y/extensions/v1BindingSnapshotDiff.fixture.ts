@@ -10,15 +10,21 @@ export function buildV1Snapshots(editor: BlockNoteEditor) {
   const legacyDoc = new Y1.Doc();
   try {
     const legacyFragment = legacyDoc.getXmlFragment("doc");
-    function snapshot(content: string) {
-      editor.replaceBlocks(editor.document, [{ type: "paragraph", content }]);
+    function snapshot() {
       prosemirrorToYXmlFragment(
         editor.transact(({ doc }) => doc),
         legacyFragment,
       );
       return Y1.encodeStateAsUpdateV2(legacyDoc);
     }
-    return { baseline: snapshot("Version 1"), snapshot: snapshot("Version 2") };
+    editor.replaceBlocks(editor.document, [
+      { type: "paragraph", content: "Version 1" },
+    ]);
+    const baseline = snapshot();
+    // An edit of the block: it keeps its block ID. A block with a different ID
+    // is a different block for the diff (see blockMatchNodes.ts).
+    editor.updateBlock(editor.document[0].id, { content: "Version 2" });
+    return { baseline, snapshot: snapshot() };
   } finally {
     legacyDoc.destroy();
   }

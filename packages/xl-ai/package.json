@@ -30,8 +30,7 @@
     "!**/testUtil/**",
     "!**/testUtils/**",
     "!**/test-utils/**",
-    "!**/*.tsbuildinfo",
-    "!dist/webpack-stats.json"
+    "!**/*.tsbuildinfo"
   ],
   "keywords": [
     "ai",
@@ -112,7 +111,6 @@
     "msw": "^2.11.5",
     "msw-snapshot": "^5.3.0",
     "rimraf": "^5.0.10",
-    "rollup-plugin-webpack-stats": "^0.2.6",
     "typescript": "^7.0.2",
     "vite-plus": "catalog:",
     "yjs": "^13.6.33"

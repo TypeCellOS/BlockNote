@@ -63,7 +63,7 @@ const TableCellMergeButtonInner = () => {
 
   return (
     <Components.FormattingToolbar.Button
-      className={"bn-button"}
+      className={"bn-toolbar-button"}
       label={dict.formatting_toolbar.table_cell_merge.tooltip}
       mainTooltip={dict.formatting_toolbar.table_cell_merge.tooltip}
       icon={

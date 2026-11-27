@@ -85,9 +85,9 @@ function MUIDragHandleButton(props: SideMenuProps) {
 
   const editor = useBlockNoteEditor();
   const sideMenu = useExtension(SideMenuExtension, { editor });
-  const block = useExtensionState(SideMenuExtension, {
+  const blockId = useExtensionState(SideMenuExtension, {
     editor,
-    selector: (state) => state?.block,
+    selector: (state) => state?.blockId,
   });
 
   // Handles opening and closing the drag handle menu.
@@ -102,7 +102,7 @@ function MUIDragHandleButton(props: SideMenuProps) {
     setAnchorEl(null);
   }, []);
 
-  if (!block) {
+  if (blockId === undefined) {
     return null;
   }
 
@@ -113,7 +113,7 @@ function MUIDragHandleButton(props: SideMenuProps) {
         component={"button"}
         draggable={"true"}
         onClick={onClick}
-        onDragStart={(e) => sideMenu.blockDragStart(e, block)}
+        onDragStart={(e) => sideMenu.blockDragStart(e, blockId)}
         onDragEnd={sideMenu.blockDragEnd}
       >
         <DragIndicator
@@ -139,18 +139,20 @@ function MUISideMenu(props: SideMenuProps & { children: ReactNode }) {
   // Since the side menu is positioned by the top-left corner of a block, we
   // manually set its height based on the hovered block so that it's vertically
   // centered.
+  const editor = useBlockNoteEditor();
   const sideMenuHeight = useExtensionState(SideMenuExtension, {
     selector: (state) => {
-      if (state && state.block.type === "heading") {
-        if (state.block.props.level === 1) {
+      const block = state ? editor.getBlock(state.blockId) : undefined;
+      if (block?.type === "heading") {
+        if (block.props.level === 1) {
           return 78;
         }
 
-        if (state.block.props.level === 2) {
+        if (block.props.level === 2) {
           return 54;
         }
 
-        if (state.block.props.level === 3) {
+        if (block.props.level === 3) {
           return 37;
         }
       }

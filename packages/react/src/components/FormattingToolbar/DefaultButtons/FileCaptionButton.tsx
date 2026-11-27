@@ -103,7 +103,7 @@ export const FileCaptionButton = () => {
     >
       <Components.Generic.Popover.Trigger>
         <Components.FormattingToolbar.Button
-          className={"bn-button"}
+          className={"bn-toolbar-button"}
           label={dict.formatting_toolbar.file_caption.tooltip}
           mainTooltip={dict.formatting_toolbar.file_caption.tooltip}
           icon={<RiInputField />}

@@ -5,15 +5,13 @@ import {
 } from "@blocknote/core";
 import { ColumnBlock, ColumnListBlock } from "@blocknote/xl-multi-column";
 import { Text } from "@react-pdf/renderer";
-import { partialBlocksToBlocksForTesting } from "@shared/formatConversionTestUtil.js";
-import { testDocument } from "@shared/testDocument.js";
-import { testResolveFileUrl } from "@shared/util/testFileResolver.js";
+import { testDocument } from "../../../../tests/src/fixtures/exporters/testDocument.js";
 import reactElementToJSXString from "react-element-to-jsx-string";
-import { describe, expect, it } from "vite-plus/test";
+import { describe, expect } from "vite-plus/test";
 import { pdfDefaultSchemaMappings } from "./defaultSchema/index.js";
 import { PDFExporter } from "./pdfExporter.js";
 describe("exporter", () => {
-  it("should export a document", async () => {
+  it("should export a document", async ({ testResolveFileUrl }) => {
     const exporter = new PDFExporter(
       BlockNoteSchema.create({
         blockSpecs: {
@@ -39,7 +37,9 @@ describe("exporter", () => {
     // which is what blocked doing this in Node.
   });
 
-  it("should export a document with header and footer", async () => {
+  it("should export a document with header and footer", async ({
+    testResolveFileUrl,
+  }) => {
     const exporter = new PDFExporter(
       BlockNoteSchema.create({
         blockSpecs: {
@@ -63,7 +63,10 @@ describe("exporter", () => {
     );
   });
 
-  it("should start each numbered list at its start number", async () => {
+  it("should start each numbered list at its start number", async ({
+    testResolveFileUrl,
+    partialBlocksToBlocksForTesting,
+  }) => {
     const schema = BlockNoteSchema.create();
     const exporter = new PDFExporter(schema, pdfDefaultSchemaMappings, {
       resolveFileUrl: testResolveFileUrl,

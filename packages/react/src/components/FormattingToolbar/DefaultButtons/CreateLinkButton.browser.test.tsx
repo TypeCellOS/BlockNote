@@ -1,6 +1,5 @@
 import { describe, expect } from "vite-plus/test";
 import { CreateLinkButton } from "./CreateLinkButton.js";
-import { FormattingToolbar } from "../FormattingToolbar.js";
 
 describe("CreateLinkButton", () => {
   describe("unit", () => {
@@ -209,11 +208,7 @@ describe("CreateLinkButton", () => {
       const { editor } = await setupEditor({
         initialContent: [{ type: "paragraph", content: "Selected text" }],
         props: { formattingToolbar: false },
-        children: (
-          <FormattingToolbar>
-            <CreateLinkButton />
-          </FormattingToolbar>
-        ),
+        children: <CreateLinkButton />,
       });
       selectText(editor, "Selected text");
 
@@ -225,7 +220,12 @@ describe("CreateLinkButton", () => {
           }),
         )
         .toBeVisible();
-      const { violations } = await runAxe(page.getByRole("toolbar"));
+      const { violations } = await runAxe(
+        page.getByRole("button", {
+          name: editor.dictionary.formatting_toolbar.link.tooltip,
+          exact: true,
+        }),
+      );
       expect(violations).toEqual([]);
     });
     it("opens a link form with no automated accessibility violations", async ({

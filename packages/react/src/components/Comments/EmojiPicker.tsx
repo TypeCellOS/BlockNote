@@ -1,4 +1,9 @@
-import { ReactNode, useState } from "react";
+import {
+  cloneElement,
+  type MouseEvent,
+  type ReactElement,
+  useState,
+} from "react";
 
 import { useComponentsContext } from "../../editor/ComponentsContext.js";
 import { usePortalElement } from "../../editor/PortalElementOverride.js";
@@ -8,7 +13,7 @@ import FrimoussePicker from "./FrimoussePicker.js";
 export const EmojiPicker = (props: {
   onEmojiSelect: (emoji: string) => void;
   onOpenChange?: (open: boolean) => void;
-  children: ReactNode;
+  children: ReactElement<{ onClick?: (event: MouseEvent) => void }>;
 }) => {
   const [open, setOpen] = useState(false);
 
@@ -22,6 +27,14 @@ export const EmojiPicker = (props: {
     props.onOpenChange?.(nextOpen);
   }
 
+  function handleTriggerClick(event: MouseEvent) {
+    props.children.props.onClick?.(event);
+    // Own the toggle across skins, including Mantine's controlled target.
+    event.preventDefault();
+    event.stopPropagation();
+    handleOpenChange(!open);
+  }
+
   return (
     <Components.Generic.Popover.Root
       open={open}
@@ -29,11 +42,6 @@ export const EmojiPicker = (props: {
       portalElement={portalElement}
     >
       <div
-        onClick={(event) => {
-          event.preventDefault();
-          event.stopPropagation();
-          handleOpenChange(!open);
-        }}
         style={{
           display: "flex",
           justifyContent: "center",
@@ -41,7 +49,7 @@ export const EmojiPicker = (props: {
         }}
       >
         <Components.Generic.Popover.Trigger>
-          {props.children}
+          {cloneElement(props.children, { onClick: handleTriggerClick })}
         </Components.Generic.Popover.Trigger>
       </div>
       <Components.Generic.Popover.Content

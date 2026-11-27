@@ -65,6 +65,7 @@ function setDragImage(view: EditorView, from: number, to = from) {
   // children: a copy of each dragged block's element. The holding element can
   // have no box of its own (`display: contents`, e.g. the slot of a React
   // layout block), but the preview needs one.
+  // oxlint-disable-next-line blocknote-dom/no-active-document -- The drag preview is a copy of the editor's own DOM, not content from outside.
   const blocks = view.domAtPos(from).node.cloneNode(false) as HTMLElement;
   blocks.style.removeProperty("display");
   for (let pos = from; pos < to; pos += view.state.doc.nodeAt(pos)!.nodeSize) {
@@ -72,6 +73,7 @@ function setDragImage(view: EditorView, from: number, to = from) {
     if (!blockDOM) {
       throw new Error(`The dragged block at ${pos} has no DOM.`);
     }
+    // oxlint-disable-next-line blocknote-dom/no-active-document -- The drag preview is a copy of the editor's own DOM, not content from outside.
     blocks.appendChild(blockDOM.cloneNode(true));
   }
 
@@ -90,6 +92,7 @@ function setDragImage(view: EditorView, from: number, to = from) {
   // wraps and images scale as in the editor.
   const container = view.dom.parentElement?.closest(".bn-root");
   const preview =
+    // oxlint-disable-next-line blocknote-dom/no-active-document -- The drag preview is a copy of the editor's own DOM, not content from outside.
     (container?.cloneNode(false) as HTMLElement | undefined) ??
     document.createElement("div");
   preview.removeAttribute("id");
@@ -105,6 +108,8 @@ function setDragImage(view: EditorView, from: number, to = from) {
   // the snapshot in Firefox and Safari. Taller than the cap, it would reach
   // into the page from above.
   Object.assign(preview.style, {
+    // The preview is mounted outside the editor's direction-inheriting tree.
+    direction: getComputedStyle(view.dom).direction,
     background: "transparent",
     position: "absolute",
     top: "-10000px",
@@ -226,6 +231,12 @@ export function dragStart<
     e.dataTransfer.setData("text/html", externalHTML);
     e.dataTransfer.setData("text/plain", plainText);
     e.dataTransfer.effectAllowed = "move";
-    e.dataTransfer.setDragImage(dragImageElement!, 0, 0);
+    const dragImage = dragImageElement!;
+    // Anchor at the gutter-facing edge: RTL blocks extend left of the pointer.
+    const offsetX =
+      getComputedStyle(view.dom).direction === "rtl"
+        ? dragImage.getBoundingClientRect().width
+        : 0;
+    e.dataTransfer.setDragImage(dragImage, offsetX, 0);
   }
 }

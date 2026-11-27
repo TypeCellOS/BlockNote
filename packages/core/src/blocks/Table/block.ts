@@ -237,7 +237,10 @@ const TiptapTableNode = Node.create({
           colGroup.appendChild(col);
         }
       } else {
-        colGroup.appendChild(document.createElement("col"));
+        // A cell without widths has one `<col>` for each column in its span.
+        for (let i = 0; i < tableCell.attrs["colspan"]; i++) {
+          colGroup.appendChild(document.createElement("col"));
+        }
       }
     }
 

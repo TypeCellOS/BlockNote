@@ -7,9 +7,7 @@ import {
   ODTExporter,
   odtDefaultSchemaMappings,
 } from "@blocknote/xl-odt-exporter";
-import { testODTDocumentAgainstSnapshot } from "@shared/util/odtTestUtil.js";
-import { testDocumentWithSourceBlocks } from "@shared/testDocument.js";
-import { testResolveFileUrl } from "@shared/util/testFileResolver.js";
+import { testDocumentWithSourceBlocks } from "../../../../tests/src/fixtures/exporters/testDocument.js";
 import { BlobReader, FileEntry, TextWriter, ZipReader } from "@zip.js/zip.js";
 import { describe, expect, vi } from "vite-plus/test";
 
@@ -17,6 +15,7 @@ import { inlineMathMapping, mathBlockMapping } from "./index.js";
 
 describe("odt exporter mappings", () => {
   it("should render error placeholders for invalid LaTeX", async ({
+    testResolveFileUrl,
     onTestFinished,
   }) => {
     const error = vi.spyOn(console, "error");
@@ -85,48 +84,52 @@ describe("odt exporter mappings", () => {
     );
   });
 
-  it("should export math as native formulas", { timeout: 10000 }, async () => {
-    // Assembled outside the constructor call as the schema doesn't include
-    // the math specs - like the default mappings, the math entries just
-    // map the block JSON.
-    const mappings = {
-      ...odtDefaultSchemaMappings,
-      blockMapping: {
-        ...odtDefaultSchemaMappings.blockMapping,
-        mathBlock: mathBlockMapping,
-      },
-      inlineContentMapping: {
-        ...odtDefaultSchemaMappings.inlineContentMapping,
-        math: inlineMathMapping,
-      },
-    };
-    const exporter = new ODTExporter(
-      BlockNoteSchema.create({
-        blockSpecs: {
-          ...defaultBlockSpecs,
-          pageBreak: createPageBreakBlockSpec(),
+  it(
+    "should export math as native formulas",
+    { timeout: 10000 },
+    async ({ testResolveFileUrl, testODTDocumentAgainstSnapshot }) => {
+      // Assembled outside the constructor call as the schema doesn't include
+      // the math specs - like the default mappings, the math entries just
+      // map the block JSON.
+      const mappings = {
+        ...odtDefaultSchemaMappings,
+        blockMapping: {
+          ...odtDefaultSchemaMappings.blockMapping,
+          mathBlock: mathBlockMapping,
         },
-      }),
-      mappings,
-      { resolveFileUrl: testResolveFileUrl },
-    );
+        inlineContentMapping: {
+          ...odtDefaultSchemaMappings.inlineContentMapping,
+          math: inlineMathMapping,
+        },
+      };
+      const exporter = new ODTExporter(
+        BlockNoteSchema.create({
+          blockSpecs: {
+            ...defaultBlockSpecs,
+            pageBreak: createPageBreakBlockSpec(),
+          },
+        }),
+        mappings,
+        { resolveFileUrl: testResolveFileUrl },
+      );
 
-    // The math block & inline math paragraph from the shared test document.
-    const odt = await exporter.toODTDocument(
-      // `as any`: the filtered subset holds no multi-column blocks, but the
-      // fixture's type still carries them and this schema doesn't.
-      testDocumentWithSourceBlocks.filter((block) =>
-        ["math-block", "paragraph-with-inline-math"].includes(block.id),
-      ) as any,
-    );
-    // The math block & the inline math each embed one formula object.
-    await testODTDocumentAgainstSnapshot(odt, {
-      styles: "__snapshots__/withMathMappings/styles.xml",
-      content: "__snapshots__/withMathMappings/content.xml",
-      objects: {
-        snapshot: "__snapshots__/withMathMappings/objects.xml",
-        expectedCount: 2,
-      },
-    });
-  });
+      // The math block & inline math paragraph from the shared test document.
+      const odt = await exporter.toODTDocument(
+        // `as any`: the filtered subset holds no multi-column blocks, but the
+        // fixture's type still carries them and this schema doesn't.
+        testDocumentWithSourceBlocks.filter((block) =>
+          ["math-block", "paragraph-with-inline-math"].includes(block.id),
+        ) as any,
+      );
+      // The math block & the inline math each embed one formula object.
+      await testODTDocumentAgainstSnapshot(odt, {
+        styles: "__snapshots__/withMathMappings/styles.xml",
+        content: "__snapshots__/withMathMappings/content.xml",
+        objects: {
+          snapshot: "__snapshots__/withMathMappings/objects.xml",
+          expectedCount: 2,
+        },
+      });
+    },
+  );
 });
