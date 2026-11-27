@@ -24,7 +24,7 @@ export const ExtendButton = forwardRef<
         className,
         "h-full w-full p-0 text-gray-400",
         className?.includes("extend-button-add-remove-columns")
-          ? "ml-1"
+          ? "ms-1"
           : "mt-1",
         className?.includes("extend-button-editing")
           ? "bg-accent text-accent-foreground"

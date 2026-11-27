@@ -9,6 +9,7 @@ import {
   deleteColumn,
   deleteRow,
   mergeCells,
+  setCellAttr,
   splitCell,
 } from "prosemirror-tables";
 import { Decoration, DecorationSet, EditorView } from "prosemirror-view";
@@ -42,6 +43,7 @@ import {
 import {
   BlockFromConfigNoChildren,
   BlockSchemaWithBlock,
+  TableCellProps,
 } from "../../schema/index.js";
 import { getBlockFromElement } from "../blockDOM.js";
 
@@ -289,28 +291,34 @@ export class TableHandlesView implements PluginView {
       ?.querySelector(".table-widgets-container") as HTMLElement;
 
     if (target?.type === "wrapper") {
-      // if we're just to the right or below the table, show the extend buttons
+      // Show the extend buttons just beyond the table's inline end or bottom.
       // (this is a bit hacky. It would probably be cleaner to render the extend buttons in the Table NodeView instead)
       const belowTable =
         event.clientY >= tableRect.bottom - 1 && // -1 to account for fractions of pixels in "bottom"
         event.clientY < tableRect.bottom + 20;
-      const toRightOfTable =
-        event.clientX >= tableRect.right - 1 &&
-        event.clientX < tableRect.right + 20;
+      const rtl = getComputedStyle(target.tbodyNode).direction === "rtl";
+      const beyondInlineEnd = rtl
+        ? event.clientX < tableRect.left
+        : event.clientX > tableRect.right;
+      const nearInlineEnd = rtl
+        ? event.clientX <= tableRect.left + 1 &&
+          event.clientX > tableRect.left - 20
+        : event.clientX >= tableRect.right - 1 &&
+          event.clientX < tableRect.right + 20;
 
       const hideHandles =
         // always hide handles when the actively hovered table changed
         this.state?.block?.id !== tableBlock.id ||
         // make sure we don't hide existing handles (keep col / row index) when
-        // we're hovering just above or to the right of a table
-        event.clientX > tableRect.right ||
+        // we're hovering just above or beyond the inline end of a table
+        beyondInlineEnd ||
         event.clientY > tableRect.bottom;
 
       this.state = {
         ...this.state!,
         show: true,
         showAddOrRemoveRowsButton: belowTable,
-        showAddOrRemoveColumnsButton: toRightOfTable,
+        showAddOrRemoveColumnsButton: nearInlineEnd,
         referencePosTable: tableRect,
         block: tableBlock,
         widgetContainer,
@@ -1126,6 +1134,23 @@ export const TableHandlesExtension = createExtension(({ editor }) => {
 
         return splitCell(state, dispatch);
       });
+    },
+
+    /** Updates alignment without replacing the table or moving the selection. */
+    setCellTextAlignment(textAlignment: TableCellProps["textAlignment"]) {
+      if (isTableCellSelection(editor.prosemirrorState.selection)) {
+        // setCellAttr skips the whole selection when its anchor already matches.
+        // A mixed selection still needs its other cells updated.
+        editor.transact((tr) => {
+          if (isTableCellSelection(tr.selection)) {
+            tr.selection.forEachCell((_cell, pos) => {
+              tr.setNodeAttribute(pos, "textAlignment", textAlignment);
+            });
+          }
+        });
+        return true;
+      }
+      return editor.exec(setCellAttr("textAlignment", textAlignment));
     },
 
     /**
