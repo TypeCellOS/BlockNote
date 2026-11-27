@@ -70,8 +70,20 @@ export const createFileBlockWrapper = (
   // Show the file preview, or the file name and icon.
   if (block.props.showPreview === false || !element) {
     // Show file name and icon.
-    const fileNameWithIcon = createFileNameWithIcon(block);
-    wrapper.appendChild(fileNameWithIcon.dom);
+    const fileNameWithIcon = createFileNameWithIcon({
+      ...block,
+      props: { ...block.props, name: block.props.name || block.props.url },
+    });
+    const link = document.createElement("a");
+    link.className = "bn-file-link";
+    link.setAttribute("href", block.props.url);
+    link.addEventListener("click", (event) => {
+      if (editor.isEditable) {
+        event.preventDefault();
+      }
+    });
+    link.appendChild(fileNameWithIcon.dom);
+    wrapper.appendChild(link);
 
     ret.destroy = () => {
       fileNameWithIcon.destroy?.();

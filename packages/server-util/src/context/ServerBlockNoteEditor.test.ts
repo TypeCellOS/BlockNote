@@ -118,6 +118,25 @@ describe("Test ServerBlockNoteEditor", () => {
     expect(html).toMatchSnapshot();
   });
 
+  it("exports file links while preserving stored URLs", async () => {
+    const fileEditor = ServerBlockNoteEditor.create();
+    try {
+      const input = [
+        {
+          id: "file",
+          type: "file" as const,
+          props: { url: "https://example.com/report.pdf" },
+        },
+      ];
+      const html = await fileEditor.blocksToFullHTML(input);
+      expect(html).toContain('href="https://example.com/report.pdf"');
+      const parsed = await fileEditor.tryParseHTMLToBlocks(html);
+      expect(parsed[0]).toMatchObject(input[0]);
+    } finally {
+      fileEditor.editor._tiptapEditor.destroy();
+    }
+  });
+
   it("converts to and from markdown (blocksToMarkdownLossy)", async () => {
     const md = await editor.blocksToMarkdownLossy(blocks);
     expect(md).toMatchSnapshot();

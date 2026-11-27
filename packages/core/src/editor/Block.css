@@ -931,6 +931,11 @@ NESTED BLOCKS
   font-size: 0.9rem;
 }
 
+[data-file-block] .bn-file-link {
+  color: inherit;
+  text-decoration: none;
+}
+
 [data-file-block] .bn-file-name-with-icon {
   border-radius: 4px;
   display: flex;

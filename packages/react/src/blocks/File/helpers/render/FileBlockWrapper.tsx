@@ -53,7 +53,25 @@ export const FileBlockWrapper = (
         <>
           {props.block.props.showPreview === false || !props.children ? (
             // Show file name and icon.
-            <FileNameWithIcon {...props} />
+            <a
+              className="bn-file-link"
+              href={props.block.props.url}
+              onClick={(event) => {
+                if (props.editor.isEditable) {
+                  event.preventDefault();
+                }
+              }}
+            >
+              <FileNameWithIcon
+                block={{
+                  ...props.block,
+                  props: {
+                    ...props.block.props,
+                    name: props.block.props.name || props.block.props.url,
+                  },
+                }}
+              />
+            </a>
           ) : (
             // Show preview.
             props.children
