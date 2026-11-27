@@ -25,14 +25,6 @@ function trimNextTo(image: Element, side: "previousSibling" | "nextSibling") {
   }
 }
 
-// Moves the nodes that are before `node` in its parent to the end of `to`.
-function moveNodesBefore(node: ChildNode, to: ParentNode) {
-  const from = node.parentNode;
-  while (from?.firstChild && from.firstChild !== node) {
-    to.append(from.firstChild);
-  }
-}
-
 function hasRemainingContent(
   parent: Element,
   contentNodes: WeakMap<Element, Node>,
@@ -60,20 +52,19 @@ function hasRemainingContent(
   return false;
 }
 
-/** Splits enclosing text blocks and returns the image's new parent if moved. */
+/** Splits enclosing text blocks around the image. */
 function liftImageOutOfText(
   image: HTMLImageElement,
   contentNodes: WeakMap<Element, Node>,
-): ParentNode | null {
+) {
   let parent = image.parentElement;
-  if (!parent?.closest(TEXT_BLOCKS)) {
-    return null;
-  }
-  do {
+  while (parent?.closest(TEXT_BLOCKS)) {
     trimNextTo(image, "previousSibling");
     trimNextTo(image, "nextSibling");
     const before = detachedDoc().importNode(parent, false);
-    moveNodesBefore(image, before);
+    while (parent.firstChild && parent.firstChild !== image) {
+      before.append(parent.firstChild);
+    }
     parent.before(before, image);
     // Custom inline content can be meaningful without text.
     if (
@@ -86,8 +77,7 @@ function liftImageOutOfText(
       parent.replaceWith(...parent.childNodes);
     }
     parent = image.parentElement;
-  } while (parent?.closest(TEXT_BLOCKS));
-  return parent;
+  }
 }
 
 /**
@@ -99,9 +89,6 @@ function liftImageOutOfText(
  * a link replaces the image there, if the URL of the image can be a link.
  */
 export function moveImagesOutOfText(root: HTMLElement) {
-  // Set aside earlier siblings until the end. This keeps splits near the
-  // start of their parent, where insertions are cheaper in jsdom.
-  const finishedPrefixes = new Map<ParentNode, DocumentFragment>();
   const contentNodes = new WeakMap<Element, Node>();
   for (const image of root.querySelectorAll("img")) {
     // BlockNote's own HTML stays as it is: custom inline content can hold an
@@ -127,15 +114,6 @@ export function moveImagesOutOfText(root: HTMLElement) {
       }
       continue;
     }
-    const holder = liftImageOutOfText(image, contentNodes);
-    if (holder) {
-      const nodes =
-        finishedPrefixes.get(holder) ?? detachedDoc().createDocumentFragment();
-      finishedPrefixes.set(holder, nodes);
-      moveNodesBefore(image, nodes);
-    }
-  }
-  for (const [holder, nodes] of finishedPrefixes) {
-    holder.prepend(nodes);
+    liftImageOutOfText(image, contentNodes);
   }
 }
