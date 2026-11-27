@@ -1,3 +1,4 @@
+import { GapCursor } from "@tiptap/pm/gapcursor";
 import type { NodeType, Schema } from "prosemirror-model";
 import {
   NodeSelection,
@@ -215,6 +216,10 @@ export function moveSelectedBlocksAndSelection(
 ) {
   // We want this to be a single step in the undo history
   editor.transact((tr) => {
+    if (tr.selection instanceof GapCursor) {
+      return;
+    }
+
     const blocks = editor.getSelection()?.blocks || [
       editor.getTextCursorPosition().block,
     ];
@@ -293,7 +298,7 @@ function moveBlocksInDirection(
   direction: "up" | "down",
   blockIdentifier?: BlockIdentifier,
 ) {
-  editor.transact(() => {
+  editor.transact((tr) => {
     let blocks: Block<any, any, any>[];
     if (blockIdentifier) {
       const block = editor.getBlock(blockIdentifier);
@@ -302,6 +307,10 @@ function moveBlocksInDirection(
       }
       blocks = [block];
     } else {
+      if (tr.selection instanceof GapCursor) {
+        return;
+      }
+
       blocks = editor.getSelection()?.blocks || [
         editor.getTextCursorPosition().block,
       ];

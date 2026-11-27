@@ -79,6 +79,7 @@ const LOCAL_BROWSER_FILES = [
   "../packages/react/src/components/FormattingToolbar/DefaultButtons/ColorStyleButton.browser.test.tsx",
   "../packages/react/src/components/FormattingToolbar/DefaultButtons/CreateLinkButton.browser.test.tsx",
   "../packages/react/src/components/FormattingToolbar/DefaultButtons/TextAlignButton.browser.test.tsx",
+  "../packages/react/src/hooks/useSelectedBlocks.browser.test.tsx",
   "../packages/react/src/schema/ReactBlockSpec.browser.test.tsx",
   "../packages/react/src/components/Versioning/VersioningSidebar.browser.test.tsx",
 ];
