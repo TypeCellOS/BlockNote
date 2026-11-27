@@ -242,7 +242,6 @@ export const fr: Dictionary = {
     comment_reply: "Ajouter un commentaire...",
   },
   file_blocks: {
-    resize_handle: "Redimensionner le média",
     add_button_text: {
       image: "Ajouter une image",
       video: "Ajouter une vidéo",

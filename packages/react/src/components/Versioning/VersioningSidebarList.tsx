@@ -284,6 +284,7 @@ export function VersioningSidebarList() {
 
   return (
     <>
+      {/* eslint-disable-next-line jsx-a11y/no-noninteractive-element-interactions -- onBlur observes focus leaving the list to clear navigation state; descendant controls own interaction. */}
       <div
         className="bn-versioning-sidebar-list"
         role="list"

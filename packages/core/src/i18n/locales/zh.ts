@@ -237,7 +237,6 @@ export const zh: Dictionary = {
     comment_reply: "添加评论...",
   },
   file_blocks: {
-    resize_handle: "调整媒体大小",
     add_button_text: {
       image: "添加图片",
       video: "添加视频",

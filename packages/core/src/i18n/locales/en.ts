@@ -196,7 +196,6 @@ export const en = {
     comment_reply: "Add comment...",
   } as Record<string, string | undefined>,
   file_blocks: {
-    resize_handle: "Resize media",
     add_button_text: {
       image: "Add image",
       video: "Add video",

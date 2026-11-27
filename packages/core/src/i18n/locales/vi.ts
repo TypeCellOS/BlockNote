@@ -195,7 +195,6 @@ export const vi: Dictionary = {
     comment_reply: "Thêm bình luận...",
   },
   file_blocks: {
-    resize_handle: "Thay đổi kích thước nội dung đa phương tiện",
     add_button_text: {
       image: "Thêm ảnh",
       video: "Thêm video",

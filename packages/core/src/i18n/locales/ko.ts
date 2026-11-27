@@ -209,7 +209,6 @@ export const ko: Dictionary = {
     comment_reply: "댓글 추가...",
   },
   file_blocks: {
-    resize_handle: "미디어 크기 조절",
     add_button_text: {
       image: "이미지 추가",
       video: "비디오 추가",

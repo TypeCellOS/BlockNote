@@ -198,7 +198,6 @@ export const he: Dictionary = {
     comment_reply: "הוסף תגובה...",
   } as Record<string, string | undefined>,
   file_blocks: {
-    resize_handle: "שינוי גודל המדיה",
     add_button_text: {
       image: "הוסף תמונה",
       video: "הוסף וידאו",

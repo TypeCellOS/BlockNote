@@ -181,22 +181,7 @@ export default defineConfig({
       "jsx-a11y/no-autofocus": "off",
       "jsx-a11y/no-distracting-elements": "error",
       "jsx-a11y/no-interactive-element-to-noninteractive-role": "error",
-      // Focus and hover handlers can observe descendants without making the
-      // container interactive. Check handlers that activate controls instead.
-      "jsx-a11y/no-noninteractive-element-interactions": [
-        "error",
-        {
-          handlers: [
-            "onClick",
-            "onDoubleClick",
-            "onKeyDown",
-            "onKeyPress",
-            "onKeyUp",
-            "onMouseDown",
-            "onMouseUp",
-          ],
-        },
-      ],
+      "jsx-a11y/no-noninteractive-element-interactions": "error",
       "jsx-a11y/no-noninteractive-element-to-interactive-role": "error",
       "jsx-a11y/no-noninteractive-tabindex": "error",
       "jsx-a11y/no-redundant-roles": "error",

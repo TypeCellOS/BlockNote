@@ -196,7 +196,6 @@ export const sk = {
     comment_reply: "Pridať komentár...",
   } as Record<string, string | undefined>,
   file_blocks: {
-    resize_handle: "Zmeniť veľkosť média",
     add_button_text: {
       image: "Pridať obrázok",
       video: "Pridať video",

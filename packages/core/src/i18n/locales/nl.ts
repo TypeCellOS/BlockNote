@@ -197,7 +197,6 @@ export const nl: Dictionary = {
     comment_reply: "Reactie toevoegen...",
   },
   file_blocks: {
-    resize_handle: "Mediaformaat wijzigen",
     add_button_text: {
       image: "Afbeelding toevoegen",
       video: "Video toevoegen",

@@ -236,7 +236,6 @@ export const ja: Dictionary = {
     comment_reply: "コメントを追加...",
   },
   file_blocks: {
-    resize_handle: "メディアのサイズを変更",
     add_button_text: {
       image: "画像を追加",
       video: "ビデオを追加",

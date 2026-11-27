@@ -256,7 +256,6 @@ export const uz: Dictionary = {
   },
 
   file_blocks: {
-    resize_handle: "Media oʻlchamini oʻzgartirish",
     add_button_text: {
       image: "Rasm qo‘shish",
       video: "Video qo‘shish",

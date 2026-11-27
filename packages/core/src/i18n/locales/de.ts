@@ -216,7 +216,6 @@ export const de: Dictionary = {
     comment_reply: "Kommentar hinzufügen …",
   },
   file_blocks: {
-    resize_handle: "Mediengröße ändern",
     add_button_text: {
       image: "Bild hinzufügen",
       video: "Video hinzufügen",
