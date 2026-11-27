@@ -18,7 +18,7 @@ export function getPageBreakReactSlashMenuItems<
   S extends StyleSchema,
 >(
   editor: BlockNoteEditor<BSchema, I, S>,
-): (Omit<DefaultReactSuggestionItem, "key"> & { key: "page_break" })[] {
+): (DefaultReactSuggestionItem & { key: "page_break" })[] {
   return getPageBreakSlashMenuItems(editor).map((item) => {
     const Icon = icons[item.key];
     return {
