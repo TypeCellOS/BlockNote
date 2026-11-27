@@ -1,12 +1,35 @@
 import react from "@vitejs/plugin-react";
-import { resolve } from "path";
+import { mkdirSync, renameSync } from "node:fs";
+import { dirname, resolve } from "node:path";
 import { webpackStats } from "rollup-plugin-webpack-stats";
 import Inspect from "vite-plugin-inspect";
 
 import tailwindcss from "@tailwindcss/vite";
 
-import { defineConfig } from "vite-plus";
+import { defineConfig, type Plugin } from "vite-plus";
 import { buildCacheInputs } from "../scripts/build-cache-inputs.js";
+import { typescriptBuild } from "../scripts/vite-typescript-build.js";
+
+const relativeCIStatsFile = "relative-ci/webpack-stats.json";
+// Task-cache replay overlays files, so Vercel must not share the local
+// output directory, which can contain sourcemaps not emitted on Vercel.
+const outDir = process.env.VERCEL ? "dist-vercel" : "dist";
+
+function moveRelativeCIStats(): Plugin {
+  return {
+    name: "blocknote-relative-ci-stats",
+    apply: "build",
+    writeBundle({ dir }) {
+      if (!dir) {
+        throw new Error("RelativeCI stats require a build output directory");
+      }
+      // Cache replay can leave extra files in dist, so keep CI data separate.
+      const file = resolve(__dirname, relativeCIStatsFile);
+      mkdirSync(dirname(file), { recursive: true });
+      renameSync(resolve(dir, "webpack-stats.json"), file);
+    },
+  };
+}
 
 const devAliases: Record<string, string> = {
   "@blocknote/core": resolve(__dirname, "../packages/core/src"),
@@ -31,7 +54,6 @@ const devAliases: Record<string, string> = {
     __dirname,
     "../packages/xl-typst-exporter/src",
   ),
-  "@shared": resolve(__dirname, "../shared"),
   "@blocknote/xl-multi-column": resolve(
     __dirname,
     "../packages/xl-multi-column/src",
@@ -72,24 +94,32 @@ export default defineConfig(((conf: { command: string }) => ({
   run: {
     tasks: {
       build: {
-        command: "tsc && vp build",
+        command: "vp build",
         cache: {
+          // These flags change which files the build emits.
+          env: ["VERCEL", "BLOCKNOTE_RELATIVE_CI_STATS"],
           input: [
             ...buildCacheInputs("playground"),
-            { pattern: "!**/*.tsbuildinfo", base: "workspace" },
+            "!dist-vercel/**",
+            "!relative-ci/**",
           ],
-          output: ["dist/**"],
+          output: [
+            `${outDir}/**`,
+            ...(process.env.BLOCKNOTE_RELATIVE_CI_STATS === "1"
+              ? [relativeCIStatsFile]
+              : []),
+          ],
         },
       },
     },
   },
   plugins: [
+    typescriptBuild("typecheck"),
     react(),
-    // The stats are only consumed by RelativeCI, which uploads them from the
-    // GitHub Actions build. Serializing the (huge) module graph at the end of
-    // the build costs a lot of memory, which the Vercel build container can't
-    // spare - it fails spawning processes (EAGAIN) right at that point.
-    ...(process.env.VERCEL ? [] : [webpackStats()]),
+    // Only the RelativeCI upload in GitHub Actions consumes this report.
+    ...(process.env.BLOCKNOTE_RELATIVE_CI_STATS === "1"
+      ? [webpackStats(), moveRelativeCIStats()]
+      : []),
     Inspect(),
     tailwindcss(),
   ],
@@ -97,9 +127,8 @@ export default defineConfig(((conf: { command: string }) => ({
     // link: ['vite-react-ts-components'],
   },
   build: {
-    // Skipped on Vercel for the same reason as `webpackStats` above: emitting
-    // a map for each of the ~340 chunks doubles the file writes and memory of
-    // the largest build in the workspace, which is where the container dies.
+    outDir,
+    // Emitting maps for hundreds of chunks strains Vercel's build resources.
     sourcemap: !process.env.VERCEL,
   },
   preview: {
@@ -141,9 +170,6 @@ export default defineConfig(((conf: { command: string }) => ({
             // math-block's typst entry's optional peer, resolved from the
             // playground's own dependencies (like katex below).
             tex2typst: resolve(__dirname, "node_modules/tex2typst"),
-            // The shared test-utils package the suggestion-gallery example
-            // imports; dev mode resolves it via devAliases above.
-            "@shared": resolve(__dirname, "../shared"),
             katex: resolve(__dirname, "node_modules/katex"),
           }
         : devAliases,

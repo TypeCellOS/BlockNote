@@ -595,9 +595,9 @@ exports[`versioning diff: Delete a nested block 1`] = `
 
 exports[`versioning diff: Delete a parent block 1`] = `
 [
-  "attrs block "Parent" id:A",
-  "delete "Parent" A",
-  "delete block "Child" A",
+  "delete block "Parent" A",
+  "insert block "" A",
+  "insert <paragraph> A",
 ]
 `;
 
@@ -643,10 +643,9 @@ exports[`versioning diff: Delete one of two empty blocks 1`] = `
 
 exports[`versioning diff: Delete parent with mixed children 1`] = `
 [
-  "attrs block "Parent" id:A",
-  "delete "Parent" A",
-  "delete block "Nested paragraph" A",
-  "delete block "" A",
+  "delete block "Parent" A",
+  "insert block "" A",
+  "insert <paragraph> A",
 ]
 `;
 
@@ -718,12 +717,12 @@ exports[`versioning diff: Fix typo vs delete word 1`] = `
 exports[`versioning diff: Heading vs list item 1`] = `
 [
   "delete block "hello world" A,B",
-  "insert block "hello world" A",
-  "insert <heading> A",
-  "insert "hello world" A",
-  "insert block "hello world" B",
-  "insert <bulletListItem> B",
-  "insert "hello world" B",
+  "insert block "hello world"",
+  "insert <heading>",
+  "insert "hello world"",
+  "insert block "hello world"",
+  "insert <bulletListItem>",
+  "insert "hello world"",
 ]
 `;
 
@@ -785,7 +784,7 @@ exports[`versioning diff: Merge blocks vs edit block B 1`] = `
 
 exports[`versioning diff: Merge cells 1`] = `
 [
-  "attrs <tableCell> colspan:A colwidth:A",
+  "attrs <tableCell> colspan:A",
   "insert "+B1" A",
   "delete <tableCell> A",
   "insert <tableCell>",
@@ -899,8 +898,9 @@ exports[`versioning diff: Remove row 1`] = `
 
 exports[`versioning diff: Remove the only block 1`] = `
 [
-  "attrs block "Only block" id:A",
-  "delete "Only block" A",
+  "delete block "Only block" A",
+  "insert block "" A",
+  "insert <paragraph> A",
 ]
 `;
 
@@ -931,7 +931,7 @@ exports[`versioning diff: Split a block vs type at end 1`] = `
 
 exports[`versioning diff: Split a merged cell 1`] = `
 [
-  "attrs <tableCell> colspan:A colwidth:A",
+  "attrs <tableCell> colspan:A",
   "delete "+B1" A",
   "insert <tableCell> A",
   "insert <tableParagraph> A",

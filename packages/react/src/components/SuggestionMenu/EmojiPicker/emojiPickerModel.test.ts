@@ -2,7 +2,7 @@ import type {
   FrimousseEmoji,
   FrimousseEmojiData,
 } from "@blocknote/core/emoji-data";
-import { describe, expect, it } from "vite-plus/test";
+import { describe, expect } from "vite-plus/test";
 
 import {
   EMOJI_PICKER_COLUMNS,
@@ -113,6 +113,22 @@ describe("emoji picker model", () => {
       expect(moveEmojiPosition(position, key, rows)).toBe(position);
     },
   );
+
+  it.each([
+    ["ArrowLeft", { row: 0, column: 0 }, { row: 0, column: 1 }],
+    ["ArrowRight", { row: 0, column: 1 }, { row: 0, column: 0 }],
+    ["ArrowLeft", { row: 0, column: 8 }, { row: 1, column: 0 }],
+    ["ArrowRight", { row: 1, column: 0 }, { row: 0, column: 8 }],
+  ] as const)("moves visually %s in RTL from %j to %j", (key, from, to) => {
+    expect(moveEmojiPosition(from, key, rows, "rtl")).toEqual(to);
+  });
+
+  it.each([
+    ["ArrowRight", { row: 0, column: 0 }],
+    ["ArrowLeft", { row: 1, column: 1 }],
+  ] as const)("preserves position at the RTL %s boundary", (key, position) => {
+    expect(moveEmojiPosition(position, key, rows, "rtl")).toBe(position);
+  });
 
   it.each(["ArrowLeft", "ArrowRight", "ArrowUp", "ArrowDown"] as const)(
     "preserves position identity for %s when there is no row",

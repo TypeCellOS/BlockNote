@@ -3,6 +3,7 @@ import { Toolbar as AriakitToolbar } from "@ariakit/react";
 import { assertEmpty, mergeCSSClasses } from "@blocknote/core";
 import { ComponentProps } from "@blocknote/react";
 import { forwardRef } from "react";
+import { useEditorRTL } from "../useEditorRTL.js";
 
 type ToolbarProps = ComponentProps["Generic"]["Toolbar"]["Root"];
 
@@ -20,9 +21,11 @@ export const Toolbar = forwardRef<HTMLDivElement, ToolbarProps>(
     } = props;
 
     assertEmpty(rest);
+    const rtl = useEditorRTL();
 
     return (
       <AriakitToolbar
+        rtl={rtl}
         className={mergeCSSClasses("bn-ak-toolbar", className || "")}
         aria-label={ariaLabel}
         ref={ref}

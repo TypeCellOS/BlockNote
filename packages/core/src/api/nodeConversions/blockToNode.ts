@@ -273,10 +273,15 @@ export function tableContentToNodes<
 
         if (colspan > 1) {
           // If the cell has a > 1 colspan, we need to get the column width for each cell in the span
-          colwidth = new Array(colspan).fill(false).map((_, i) => {
-            // Starting from the absolute column index, get the column width for each cell in the span
-            return columnWidths[absoluteColumnIndex + i] ?? undefined;
+          const spanWidths = new Array(colspan).fill(false).map((_, i) => {
+            // Starting from the absolute column index, get the column width for each cell in the span.
+            // A column without a width is `0`, as prosemirror-tables writes it.
+            return columnWidths[absoluteColumnIndex + i] ?? 0;
           });
+          // If no column in the span has a width, the cell has no widths
+          // (`null`), as a cell without a span. An empty entry would go into
+          // the HTML as `colwidth=","`, which the HTML parser reads as `NaN`.
+          colwidth = spanWidths.some(Boolean) ? spanWidths : null;
         }
       } else {
         content = inlineContentToNodes(

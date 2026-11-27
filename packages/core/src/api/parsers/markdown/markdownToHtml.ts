@@ -825,6 +825,11 @@ function isHtmlBlockStart(line: string): boolean {
   return HTML_BLOCK_TAGS.has(m[1].toLowerCase());
 }
 
+// A table row that starts and ends with a pipe. Do not write `(.+\|)+` here:
+// it matches the same lines, but for a line without the last pipe its time
+// grows exponentially with the number of pipes.
+const TABLE_ROW_RE = /^\s*\|.+\|\s*$/;
+
 // ─── Block-Level Tokenizer ──────────────────────────────────────────────────
 
 // A backtick fence's info string cannot contain backticks, unlike its tilde
@@ -860,7 +865,7 @@ function canContinueParagraph(line: string): boolean {
     !/^\s{0,3}>/.test(line) &&
     !/^(\s{0,3})([-*_])\s*(\2\s*){2,}$/.test(line) &&
     !/^\s*([-*+]|\d+[.)])\s+/.test(line) &&
-    !/^\s*\|(.+\|)+\s*$/.test(line) &&
+    !TABLE_ROW_RE.test(line) &&
     !isHtmlBlockStart(line)
   );
 }

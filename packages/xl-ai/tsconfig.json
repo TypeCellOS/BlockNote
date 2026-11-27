@@ -20,10 +20,7 @@
     "emitDeclarationOnly": true,
     "composite": true,
     "skipLibCheck": true,
-    "types": ["node"],
-    "paths": {
-      "@shared/*": ["../../shared/*"]
-    }
+    "types": ["node"]
   },
   "include": ["src"],
   "exclude": ["src/**/*.test.*"],
@@ -36,9 +33,6 @@
     },
     {
       "path": "../xl-multi-column"
-    },
-    {
-      "path": "../../shared"
     }
   ]
 }

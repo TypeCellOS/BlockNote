@@ -4,7 +4,7 @@ import type {
   PartialBlock,
   StyleSchema,
 } from "@blocknote/core";
-import { addIdsToBlocks } from "@shared/formatConversionTestUtil.js";
+import { addIdsToBlocks } from "../../commands/node/formatConversion.js";
 
 import { testOptionsHost } from "../support/testOptions.js";
 

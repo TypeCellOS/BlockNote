@@ -40,14 +40,16 @@ jobs:
         with:
           path: node_modules/.vite/task-cache
           # Immutable per merge commit: reruns reuse it without duplicate uploads.
-          key: vite-task-v3-${{ runner.os }}-${{ runner.arch }}-${{ steps.task-cache-generation.outputs.week }}-${{ github.sha }}
+          key: vite-task-v4-${{ runner.os }}-${{ runner.arch }}-${{ steps.task-cache-generation.outputs.week }}-${{ github.sha }}
           restore-keys: |
-            vite-task-v3-${{ runner.os }}-${{ runner.arch }}-${{ steps.task-cache-generation.outputs.week }}-
+            vite-task-v4-${{ runner.os }}-${{ runner.arch }}-${{ steps.task-cache-generation.outputs.week }}-
 
       # Unchanged Rust uses the cached WASM even when the TS build misses.
       # Other package outputs are restored by Vite Task's own fingerprints.
       - name: Build packages
         run: vp run -r build
+        env:
+          BLOCKNOTE_RELATIVE_CI_STATS: "1"
 
       - name: Lint packages
         run: vp run lint
@@ -63,7 +65,7 @@ jobs:
       - name: Upload webpack stats artifact (editor)
         uses: relative-ci/agent-upload-artifact-action@a2b5741b4f7e6a989c84ec1a3059696b23c152e5 # v2
         with:
-          webpackStatsFile: ./playground/dist/webpack-stats.json
+          webpackStatsFile: ./playground/relative-ci/webpack-stats.json
           artifactName: relative-ci-artifacts-editor
 
       - name: Soft release

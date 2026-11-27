@@ -18,7 +18,6 @@
     { "path": "./packages/xl-odt-exporter" },
     { "path": "./packages/xl-pdf-exporter" },
     { "path": "./packages/server-util" },
-    { "path": "./packages/dev-scripts" },
-    { "path": "./shared" }
+    { "path": "./packages/dev-scripts" }
   ]
 }

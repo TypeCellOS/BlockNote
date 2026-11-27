@@ -19,16 +19,8 @@
     "declarationDir": "types",
     "composite": true,
     "skipLibCheck": true,
-    "emitDeclarationOnly": true,
-    "paths": {
-      "@shared/*": ["../../shared/*"]
-    }
+    "emitDeclarationOnly": true
   },
   "include": ["src"],
-  "exclude": ["src/**/*.test.*"],
-  "references": [
-    {
-      "path": "../../shared"
-    }
-  ]
+  "exclude": ["src/**/*.test.*"]
 }

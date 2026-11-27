@@ -1,7 +1,6 @@
 import { BlockNoteSchema, defaultStyleSpecs } from "@blocknote/core";
 import { describe, expect } from "vite-plus/test";
 import { ColorStyleButton } from "./ColorStyleButton.js";
-import { FormattingToolbar } from "../FormattingToolbar.js";
 import { viewProps } from "./defaultButton.test.fixture.js";
 
 describe("ColorStyleButton", () => {
@@ -385,16 +384,17 @@ describe("ColorStyleButton", () => {
 
   describe("axe", () => {
     it("checks the color trigger", async ({ setupEditor, runAxe, page }) => {
-      await setupEditor({
+      const { editor } = await setupEditor({
         props: viewProps,
-        children: (
-          <FormattingToolbar>
-            <ColorStyleButton />
-          </FormattingToolbar>
-        ),
+        children: <ColorStyleButton />,
       });
 
-      const { violations } = await runAxe(page.getByRole("toolbar"));
+      const { violations } = await runAxe(
+        page.getByRole("button", {
+          name: editor.dictionary.formatting_toolbar.colors.tooltip,
+          exact: true,
+        }),
+      );
       expect(violations).toEqual([]);
     });
 
@@ -404,11 +404,7 @@ describe("ColorStyleButton", () => {
     it("checks the open color menu", async ({ setupEditor, runAxe, page }) => {
       const { editor } = await setupEditor({
         props: viewProps,
-        children: (
-          <FormattingToolbar>
-            <ColorStyleButton />
-          </FormattingToolbar>
-        ),
+        children: <ColorStyleButton />,
       });
       await page
         .getByRole("button", {

@@ -1,0 +1,48 @@
+[
+  {
+    "children": [],
+    "content": [
+      {
+        "styles": {},
+        "text": "As the picture shows",
+        "type": "text",
+      },
+    ],
+    "id": "1",
+    "props": {
+      "backgroundColor": "default",
+      "textColor": "default",
+    },
+    "type": "quote",
+  },
+  {
+    "children": [],
+    "content": undefined,
+    "id": "2",
+    "props": {
+      "backgroundColor": "default",
+      "caption": "",
+      "name": "A diagram",
+      "showPreview": true,
+      "textAlignment": "left",
+      "url": "https://example.com/diagram.png",
+    },
+    "type": "image",
+  },
+  {
+    "children": [],
+    "content": [
+      {
+        "styles": {},
+        "text": "the result is good.",
+        "type": "text",
+      },
+    ],
+    "id": "3",
+    "props": {
+      "backgroundColor": "default",
+      "textColor": "default",
+    },
+    "type": "quote",
+  },
+]

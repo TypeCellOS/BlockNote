@@ -68,6 +68,7 @@ export const createExternalHTMLExporter = <
       );
 
       const parent = document.createElement("div");
+      // oxlint-disable-next-line blocknote-dom/no-active-document -- The fragment is the export of the editor's own content, not content from outside.
       parent.append(domFragment.cloneNode(true));
 
       return parent.innerHTML;

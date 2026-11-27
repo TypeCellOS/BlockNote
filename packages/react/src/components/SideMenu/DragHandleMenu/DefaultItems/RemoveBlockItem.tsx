@@ -12,7 +12,7 @@ export const RemoveBlockItem = (props: { children: ReactNode }) => {
 
   const block = useExtensionState(SideMenuExtension, {
     editor,
-    selector: (state) => state?.block,
+    selector: (state) => (state ? editor.getBlock(state.blockId) : undefined),
   });
 
   if (block === undefined) {
@@ -23,11 +23,15 @@ export const RemoveBlockItem = (props: { children: ReactNode }) => {
     <Components.Generic.Menu.Item
       className={"bn-menu-item"}
       onClick={() => {
+        const blockId = block.id;
+        if (!editor.getBlock(blockId)) {
+          return;
+        }
         const selectedBlocks = editor.getSelection()?.blocks;
         const blocksToRemove =
-          selectedBlocks && selectedBlocks.some((b) => b.id === block.id)
+          selectedBlocks && selectedBlocks.some((b) => b.id === blockId)
             ? selectedBlocks
-            : [block];
+            : [blockId];
         editor.removeBlocks(blocksToRemove);
       }}
     >

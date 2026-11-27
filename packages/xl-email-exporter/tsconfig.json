@@ -19,10 +19,7 @@
     "declarationDir": "types",
     "emitDeclarationOnly": true,
     "composite": true,
-    "skipLibCheck": true,
-    "paths": {
-      "@shared/*": ["../../shared/*"]
-    }
+    "skipLibCheck": true
   },
   "include": ["src"],
   "exclude": ["src/**/*.test.*"],
@@ -32,9 +29,6 @@
     },
     {
       "path": "../react"
-    },
-    {
-      "path": "../../shared"
     }
   ]
 }

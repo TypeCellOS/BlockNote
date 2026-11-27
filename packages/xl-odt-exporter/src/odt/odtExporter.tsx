@@ -9,9 +9,9 @@ import {
   StyleSchema,
   StyledText,
 } from "@blocknote/core";
-import { corsProxyResolveFileUrl } from "@shared/api/corsProxy.js";
-import { loadFileBuffer } from "@shared/util/fileUtil.js";
-import { getImageDimensions } from "@shared/util/imageUtil.js";
+import { corsProxyResolveFileUrl } from "../corsProxy.js";
+import { loadFileBuffer } from "../fontFile.js";
+import { getImageDimensions } from "../imageDimensions.js";
 import { BlobReader, BlobWriter, TextReader, ZipWriter } from "@zip.js/zip.js";
 import { Fragment } from "react";
 import { renderToString } from "react-dom/server";
@@ -86,10 +86,10 @@ export class ODTExporter<
 
   protected async loadFonts() {
     const interFont = await loadFileBuffer(
-      await import("@shared/assets/fonts/inter/Inter_18pt-Regular.ttf"),
+      await import("../../../../shared/assets/fonts/inter/Inter_18pt-Regular.ttf"),
     );
     const geistMonoFont = await loadFileBuffer(
-      await import("@shared/assets/fonts/GeistMono-Regular.ttf"),
+      await import("../../../../shared/assets/fonts/GeistMono-Regular.ttf"),
     );
 
     return [

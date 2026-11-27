@@ -59,15 +59,15 @@
   color: var(--bn-menu-color);
 }
 
-.bn-mantine .mantine-Menu-item {
+.bn-mantine .bn-menu-item.mantine-Menu-item {
   background-color: var(--bn-menu-item-background);
   border: none;
   border-radius: var(--bn-menu-item-radius);
   color: var(--bn-menu-item-color);
 }
 
-.bn-mantine .mantine-Menu-item[aria-selected="true"],
-.bn-mantine .mantine-Menu-item:hover {
+.bn-mantine .bn-menu-item.mantine-Menu-item[aria-selected="true"],
+.bn-mantine .bn-menu-item.mantine-Menu-item:hover {
   background-color: var(--bn-menu-item-hover-background);
   border: none;
   color: var(--bn-menu-item-hover-color);
@@ -131,6 +131,19 @@
   height: 52px;
 }
 
+/* Icon placement follows the wrapper's layout, not the field's language.
+   Use physical padding here so dir="ltr"/"auto" on the input cannot move
+   the icon's reserved space to the opposite edge. */
+.bn-mantine .mantine-TextInput-wrapper:dir(ltr) .mantine-TextInput-input {
+  padding-left: var(--input-padding-inline-start);
+  padding-right: var(--input-padding-inline-end);
+}
+
+.bn-mantine .mantine-TextInput-wrapper:dir(rtl) .mantine-TextInput-input {
+  padding-left: var(--input-padding-inline-end);
+  padding-right: var(--input-padding-inline-start);
+}
+
 /* Mantine Tooltip component base styles */
 .bn-mantine .mantine-Tooltip-tooltip {
   background-color: transparent;
@@ -151,7 +164,7 @@
 /* UI element styling */
 
 /* Select styling */
-.bn-mantine .bn-select {
+.bn-mantine .bn-toolbar-select {
   overflow: auto;
 }
 
@@ -172,8 +185,8 @@
   display: none;
 }
 
-.bn-toolbar .mantine-Button-root,
-.bn-toolbar .mantine-ActionIcon-root {
+.bn-toolbar-button.mantine-Button-root,
+.bn-toolbar-button.mantine-ActionIcon-root {
   background-color: var(--bn-toolbar-button-background);
   border: none;
   border-radius: var(--bn-toolbar-button-radius);
@@ -184,44 +197,40 @@
 /* Hover styles are gated behind `hover: hover` so they don't stick after a tap
 on touch devices (e.g. the mobile formatting toolbar). */
 @media (hover: hover) {
-  .bn-toolbar .mantine-Button-root:hover,
-  .bn-toolbar .mantine-ActionIcon-root:hover {
+  .bn-toolbar-button.mantine-Button-root:hover,
+  .bn-toolbar-button.mantine-ActionIcon-root:hover {
     background-color: var(--bn-toolbar-button-hover-background);
     border: none;
     color: var(--bn-toolbar-button-hover-color);
   }
 }
 
-.bn-toolbar .mantine-Button-root[data-selected],
-.bn-toolbar .mantine-ActionIcon-root[data-selected] {
+.bn-toolbar-button.mantine-Button-root[data-selected],
+.bn-toolbar-button.mantine-ActionIcon-root[data-selected] {
   background-color: var(--bn-toolbar-button-selected-background);
   border: none;
   color: var(--bn-toolbar-button-selected-color);
 }
 
-.bn-toolbar .mantine-Button-root[data-disabled],
-.bn-toolbar .mantine-ActionIcon-root[data-disabled] {
+.bn-toolbar-button.mantine-Button-root[data-disabled],
+.bn-toolbar-button.mantine-ActionIcon-root[data-disabled] {
   background-color: var(--bn-toolbar-button-disabled-background);
   border: none;
   color: var(--bn-toolbar-button-disabled-color);
 }
 
-.bn-mobile-formatting-toolbar .bn-toolbar .mantine-Button-root {
+.bn-mobile-formatting-toolbar .bn-toolbar-button.mantine-Button-root {
   height: 40px;
   padding-inline: 12px;
 }
 
-.bn-mobile-formatting-toolbar .bn-toolbar .mantine-ActionIcon-root {
+.bn-mobile-formatting-toolbar .bn-toolbar-button.mantine-ActionIcon-root {
   width: 40px;
   height: 40px;
 }
 
-/* Menus are portalled into the editor container, so they can't be styled
-   through the toolbar, side menu or table handle that opened them; scope on
-   the dropdowns themselves instead. */
-.bn-mantine .bn-select .mantine-Menu-item,
-.bn-mantine .bn-menu-dropdown .mantine-Menu-item,
-.bn-mantine .bn-table-handle-menu .mantine-Menu-item {
+/* Menu items carry their sizing independently of the dropdown that owns them. */
+.bn-mantine .bn-menu-item.mantine-Menu-item {
   font-size: 12px;
   height: 30px;
 }
@@ -413,7 +422,7 @@ on touch devices (e.g. the mobile formatting toolbar). */
   min-width: 0;
   flex-direction: column;
   justify-content: flex-start;
-  padding-right: 16px;
+  padding-inline-end: 16px;
 }
 
 .bn-mt-suggestion-menu-item-title {
@@ -462,22 +471,22 @@ on touch devices (e.g. the mobile formatting toolbar). */
   overflow: visible;
 }
 
-.bn-side-menu .mantine-UnstyledButton-root:not(.mantine-Menu-item) {
+.bn-side-menu-button.mantine-UnstyledButton-root {
   background-color: transparent;
 }
 
-.bn-side-menu .mantine-UnstyledButton-root:hover {
+.bn-side-menu-button.mantine-UnstyledButton-root:hover {
   background-color: var(--bn-side-menu-hover-background);
 }
 
-.bn-side-menu .mantine-UnstyledButton-root:not(.mantine-Menu-item) svg {
+.bn-side-menu-button.mantine-UnstyledButton-root svg {
   background-color: transparent;
   color: var(--bn-side-menu-icon-color);
   height: 22px;
   width: 22px;
 }
 
-.bn-mantine .bn-side-menu > [draggable="true"] {
+.bn-mantine .bn-side-menu-button[draggable="true"] {
   display: flex;
 }
 
@@ -567,7 +576,7 @@ on touch devices (e.g. the mobile formatting toolbar). */
 .bn-mantine .bn-extend-button-add-remove-columns {
   height: 100%;
   width: 18px;
-  margin-left: 4px;
+  margin-inline-start: 4px;
   cursor: col-resize;
 }
 
@@ -862,12 +871,12 @@ we just don't display it in CSS instead. */
   background-color: var(--mantine-color-default-hover);
 }
 
-.bn-mantine .bn-snapshot:focus-visible {
+.bn-mantine .bn-snapshot:has(> .bn-snapshot-preview:focus-visible) {
   outline: 2px solid var(--mantine-primary-color-filled);
   outline-offset: 2px;
 }
 
-.bn-mantine .bn-snapshot.selected:focus-visible {
+.bn-mantine .bn-snapshot.selected:has(> .bn-snapshot-preview:focus-visible) {
   outline-color: var(--mantine-color-white);
   outline-offset: -4px;
 }
@@ -1011,7 +1020,9 @@ we just don't display it in CSS instead. */
 }
 
 .bn-mantine .bn-snapshot:hover .bn-snapshot-menu,
-.bn-mantine .bn-snapshot:focus-visible .bn-snapshot-menu,
+.bn-mantine
+  .bn-snapshot:has(> .bn-snapshot-preview:focus-visible)
+  .bn-snapshot-menu,
 .bn-mantine .bn-snapshot:focus-within .bn-snapshot-menu {
   opacity: 1;
 }
@@ -1075,4 +1086,27 @@ we just don't display it in CSS instead. */
 
 .bn-mantine[data-mantine-color-scheme="dark"] .bn-snapshot-comparing-to {
   color: var(--mantine-primary-color-3);
+}
+
+/* The preview button fills the row; editable names and actions sit above it.
+   Keeping these controls as siblings avoids interactive content inside a button. */
+.bn-mantine .bn-snapshot-preview {
+  position: absolute;
+  inset: 0;
+  padding: 0;
+  border: 0;
+  border-radius: inherit;
+  background: transparent;
+  color: inherit;
+  cursor: inherit;
+  outline: none;
+}
+
+.bn-mantine .bn-snapshot-name-sizer {
+  position: relative;
+  z-index: 1;
+}
+
+.bn-mantine .bn-snapshot-menu {
+  z-index: 1;
 }

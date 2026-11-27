@@ -68,6 +68,7 @@ function InlineEmojiPickerEmoji({
       data-selected={selected ? "" : undefined}
       // Editor navigation owns selection; Frimousse still handles pointer/clicks.
       data-active={undefined}
+      role="gridcell"
       aria-selected={selected || undefined}
     >
       {emoji.emoji}
@@ -278,7 +279,19 @@ function InlineEmojiPickerContent(props: {
         key === "ArrowDown" ||
         key === "ArrowUp"
       ) {
-        const nextPosition = moveEmojiPosition(selectedPosition, key, rows);
+        // Follow the rendered grid, not the dictionary language: an English
+        // picker can still be embedded in an RTL editor (and vice versa).
+        const direction =
+          rootRef.current &&
+          getComputedStyle(rootRef.current).direction === "rtl"
+            ? "rtl"
+            : "ltr";
+        const nextPosition = moveEmojiPosition(
+          selectedPosition,
+          key,
+          rows,
+          direction,
+        );
         if (nextPosition === selectedPosition) {
           return;
         }
@@ -303,6 +316,7 @@ function InlineEmojiPickerContent(props: {
     };
   }, [
     rows,
+    rootRef,
     editorDOMElement,
     insertEmoji,
     query,

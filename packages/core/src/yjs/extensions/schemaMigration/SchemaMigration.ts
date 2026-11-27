@@ -1,6 +1,7 @@
 import { Plugin, PluginKey } from "@tiptap/pm/state";
 import * as Y from "yjs";
 
+import { getYSyncMeta } from "../../../api/getYSyncMeta.js";
 import {
   createExtension,
   ExtensionOptions,
@@ -30,7 +31,7 @@ export const SchemaMigration = createExtension(
 
             if (
               // If any of the transactions are not due to a yjs sync, we don't need to run the migration
-              !transactions.some((tr) => tr.getMeta("y-sync$")) ||
+              !transactions.some((tr) => getYSyncMeta(tr)) ||
               // If none of the transactions result in a document change, we don't need to run the migration
               transactions.every((tr) => !tr.docChanged) ||
               // If the fragment is still empty, we can't run the migration (since it has not yet been applied to the Y.Doc)

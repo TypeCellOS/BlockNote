@@ -1,6 +1,5 @@
 import { exportImageToDataURL } from "@blocknote/core";
-import { decodeAndSample } from "@shared/util/browserImageTestUtil.js";
-import { describe, expect, test } from "vite-plus/test";
+import { describe, expect } from "vite-plus/test";
 
 import { latexToMathSVG, rasterizeSVGInBrowser } from "./renderMathToImage.js";
 
@@ -8,7 +7,7 @@ import { latexToMathSVG, rasterizeSVGInBrowser } from "./renderMathToImage.js";
 // implementation that the (node) unit suites replace with stubs. Runs in the
 // tests package's browser suite.
 describe("rasterizeSVGInBrowser", () => {
-  test("rasterizes at the requested scale", async () => {
+  it("rasterizes at the requested scale", async ({ decodeAndSample }) => {
     const result = latexToMathSVG("a^2 = \\sqrt{b^2 + c^2}", {
       inline: false,
       fontSize: 16,

@@ -53,7 +53,7 @@ afterEach(async () => {
 
 function menuBlock(editor: BlockNoteEditor): string | undefined {
   const state = editor.getExtension(SideMenuExtension)?.store.state;
-  return state?.show ? state.block.id : undefined;
+  return state?.show ? state.blockId : undefined;
 }
 
 function blockContent(name: string, id: string) {

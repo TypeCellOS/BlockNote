@@ -1,9 +1,83 @@
-function getChildIndex(node: Element) {
-  return Array.prototype.indexOf.call(node.parentElement!.childNodes, node);
+import { detachedDoc } from "../../../../util/detachedDoc.js";
+
+function isElement(node: Node): node is Element {
+  return node.nodeType === 1;
 }
 
-function isWhitespaceNode(node: Node) {
-  return node.nodeType === 3 && !/\S/.test(node.nodeValue || "");
+function isList(node: Node) {
+  return node.nodeName === "UL" || node.nodeName === "OL";
+}
+
+// The elements that end a paragraph in the parse. These are the block elements
+// of the ProseMirror DOM parser, and the elements that BlockNote parses as a
+// block (the last line). The first three lines are a copy of `blockTags`, which
+// prosemirror-model does not export:
+// https://github.com/ProseMirror/prosemirror-model/blob/master/src/from_dom.ts
+const BLOCK_ELEMENTS = [
+  "address, article, aside, blockquote, body, canvas, dd, div, dl, fieldset",
+  "figcaption, figure, footer, form, h1, h2, h3, h4, h5, h6, header, hgroup",
+  "hr, li, noscript, ol, output, p, pre, section, table, tfoot, ul",
+  "audio, details, embed, img, video",
+].join(", ");
+const CUSTOM_INLINE_CONTENT = "[data-inline-content-type]";
+const BLOCK_OUTSIDE_INLINE_CONTENT = `:is(${BLOCK_ELEMENTS}):not(${CUSTOM_INLINE_CONTENT}, ${CUSTOM_INLINE_CONTENT} *)`;
+
+/** True for a block element, and for an element that has a block in it. */
+function isBlock(node: Node) {
+  return (
+    isElement(node) &&
+    !node.matches(CUSTOM_INLINE_CONTENT) &&
+    (node.matches(BLOCK_ELEMENTS) ||
+      node.querySelector(BLOCK_OUTSIDE_INLINE_CONTENT) !== null)
+  );
+}
+
+/**
+ * True for non-whitespace text or custom inline content, which can contain
+ * only an image. Comments and empty elements such as checkboxes do not count.
+ */
+function hasContent(node: Node) {
+  return (
+    (node.nodeType !== 8 && /\S/.test(node.textContent || "")) ||
+    (isElement(node) &&
+      (node.matches(CUSTOM_INLINE_CONTENT) ||
+        node.querySelector(CUSTOM_INLINE_CONTENT) !== null))
+  );
+}
+
+/**
+ * True for an element that the parse reads as one block with text: a
+ * paragraph, a heading, a code block or a quote.
+ */
+function isTextBlock(node: Node) {
+  return /^(P|H[1-6]|PRE|BLOCKQUOTE)$/.test(node.nodeName) && hasContent(node);
+}
+
+/**
+ * Returns the index of the first child in the nodes of a list item that has a
+ * nested list. The nodes before it are the own content of the list item: its
+ * text and inline elements up to the first block, or else that first block, if
+ * it is a block with text.
+ *
+ * If the first block is not a block with text (for example an image, or the
+ * nested list), the nodes before the nested list stay in the list item. The
+ * parse of the list item (`getListItemContent`) then finds its content.
+ */
+function childrenStart(nodes: Node[]) {
+  const firstBlock = nodes.findIndex(isBlock);
+  if (nodes.slice(0, firstBlock).some(hasContent)) {
+    return firstBlock;
+  }
+  if (isTextBlock(nodes[firstBlock])) {
+    return firstBlock + 1;
+  }
+  return nodes.findIndex(isList);
+}
+
+function createBlockGroup() {
+  const blockGroup = detachedDoc().createElement("div");
+  blockGroup.setAttribute("data-node-type", "blockGroup");
+  return blockGroup;
 }
 
 /**
@@ -27,32 +101,48 @@ function isWhitespaceNode(node: Node) {
  *  </ul>
  * </ul>
  *
+ * A list item with content of its own keeps that content. All the nodes after
+ * it are the children of the list item. They move out of the list item into a
+ * block group, in order:
+ *
+ * <li>
+ *   <p>item</p>
+ *   <pre>...</pre>
+ *   <ul>...</ul>
+ *   text
+ * </li>
+ *
+ * Into:
+ * <li><p>item</p></li>
+ * <div data-node-type="blockGroup">
+ *   <pre>...</pre>
+ *   <ul>...</ul>
+ *   text
+ * </div>
+ *
  */
 function liftNestedListsToParent(element: HTMLElement) {
   element.querySelectorAll("li > ul, li > ol").forEach((list) => {
-    const index = getChildIndex(list);
     const parentListItem = list.parentElement!;
-    const siblingsAfter = Array.from(parentListItem.childNodes).slice(
-      index + 1,
-    );
-    list.remove();
-    siblingsAfter.forEach((sibling) => {
-      sibling.remove();
-    });
-
-    parentListItem.insertAdjacentElement("afterend", list);
-
-    siblingsAfter.reverse().forEach((sibling) => {
-      if (isWhitespaceNode(sibling)) {
-        return;
-      }
-      const siblingContainer = document.createElement("li");
-      siblingContainer.append(sibling);
-      list.insertAdjacentElement("afterend", siblingContainer);
-    });
-    if (parentListItem.childNodes.length === 0) {
-      parentListItem.remove();
+    // An earlier list of the same list item moved this list out already.
+    if (parentListItem.nodeName !== "LI") {
+      return;
     }
+
+    const nodes = Array.from(parentListItem.childNodes);
+    const start = childrenStart(nodes);
+    const children = nodes.slice(start);
+
+    if (start === 0) {
+      // The list item starts with the nested list. Its nodes take its place,
+      // and step 2 gives the nested list to the list item before it.
+      parentListItem.replaceWith(...children);
+      return;
+    }
+
+    const blockGroup = createBlockGroup();
+    parentListItem.after(blockGroup);
+    blockGroup.append(...children);
   });
 }
 
@@ -76,18 +166,21 @@ function liftNestedListsToParent(element: HTMLElement) {
  *  </div>
  * </div>
  *
+ * If step 1 made a block group for the list item, that block group is used.
+ *
  * This resulting format is parsed
  */
 function createGroups(element: HTMLElement) {
-  element.querySelectorAll("li + ul, li + ol").forEach((list) => {
-    const listItem = list.previousElementSibling as HTMLElement;
-    const blockContainer = document.createElement("div");
+  const firstChildren =
+    'li + ul, li + ol, li + div[data-node-type="blockGroup"]';
+  element.querySelectorAll(firstChildren).forEach((firstChild) => {
+    const listItem = firstChild.previousElementSibling as HTMLElement;
+    const blockContainer = detachedDoc().createElement("div");
 
     listItem.insertAdjacentElement("afterend", blockContainer);
     blockContainer.append(listItem);
 
-    const blockGroup = document.createElement("div");
-    blockGroup.setAttribute("data-node-type", "blockGroup");
+    const blockGroup = isList(firstChild) ? createBlockGroup() : firstChild;
     blockContainer.append(blockGroup);
 
     while (
@@ -99,25 +192,7 @@ function createGroups(element: HTMLElement) {
   });
 }
 
-// prevent XSS, similar to https://github.com/ProseMirror/prosemirror-view/blob/1251b2b412656a2a06263e4187574beb43651273/src/clipboard.ts#L204
-// https://github.com/TypeCellOS/BlockNote/issues/601
-let _detachedDoc: Document | null = null;
-function detachedDoc() {
-  return (
-    _detachedDoc ||
-    (_detachedDoc = document.implementation.createHTMLDocument("title"))
-  );
-}
-
-export function nestedListsToBlockNoteStructure(
-  elementOrHTML: HTMLElement | string,
-) {
-  if (typeof elementOrHTML === "string") {
-    const element = detachedDoc().createElement("div");
-    element.innerHTML = elementOrHTML;
-    elementOrHTML = element;
-  }
-  liftNestedListsToParent(elementOrHTML);
-  createGroups(elementOrHTML);
-  return elementOrHTML;
+export function normalizeNestedLists(element: HTMLElement) {
+  liftNestedListsToParent(element);
+  createGroups(element);
 }

@@ -3,6 +3,7 @@ import {
   getBlocksChangedByTransaction,
   type BlocksChanged,
 } from "../../api/getBlocksChangedByTransaction.js";
+import { getYSyncMeta } from "../../api/getYSyncMeta.js";
 import { Transaction } from "prosemirror-state";
 import { EventEmitter } from "../../util/EventEmitter.js";
 import type { VersioningController } from "../../extensions/Versioning/Versioning.js";
@@ -277,5 +278,5 @@ export class EventManager<
 }
 
 function isRemoteTransaction(transaction: Transaction): boolean {
-  return !!transaction.getMeta("y-sync$");
+  return !!getYSyncMeta(transaction);
 }

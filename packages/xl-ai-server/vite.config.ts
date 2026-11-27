@@ -1,8 +1,8 @@
 import * as path from "path";
-import { webpackStats } from "rollup-plugin-webpack-stats";
 import { configDefaults, defineConfig, type UserConfig } from "vite-plus";
 import pkg from "./package.json";
-import { buildCacheInputs } from "../../scripts/build-cache-inputs.js";
+import { libraryBuildTask } from "../../scripts/build-cache-inputs.js";
+import { typescriptBuild } from "../../scripts/vite-typescript-build.js";
 // import eslintPlugin from "vite-plugin-eslint";
 
 // https://vitejs.dev/config/
@@ -10,21 +10,7 @@ export default defineConfig(
   (conf) =>
     ({
       run: {
-        tasks: {
-          build: {
-            command:
-              "tsc --project tsconfig.json --composite false --incremental false --rootDir . && vp build",
-            cache: {
-              input: [
-                ...buildCacheInputs("packages/xl-ai-server"),
-                { pattern: "!**/*.tsbuildinfo", base: "workspace" },
-              ],
-              // `types/**` must be declared too: a cache replay that restores only
-              // dist/ leaves consumers without declarations (tsc is skipped).
-              output: ["dist/**", "types/**", "!dist/*.tsbuildinfo"],
-            },
-          },
-        },
+        tasks: { build: libraryBuildTask("packages/xl-ai-server") },
       },
       test: {
         // Preserve Vitest 4 mock history during the toolchain upgrade.
@@ -32,7 +18,7 @@ export default defineConfig(
         exclude: [...configDefaults.exclude, "**/*.browser.test.*"],
         setupFiles: ["../../tests/vitestSetup.node-fixtures.ts"],
       },
-      plugins: [webpackStats()],
+      plugins: [typescriptBuild()],
       // used so that vitest resolves the core package from the sources instead of the built version
       resolve: {
         alias:
