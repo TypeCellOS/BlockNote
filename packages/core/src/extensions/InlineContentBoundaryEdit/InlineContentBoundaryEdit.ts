@@ -1,4 +1,5 @@
 import { Plugin, PluginKey, Selection, TextSelection } from "prosemirror-state";
+import type { EditorView } from "prosemirror-view";
 import { createExtension } from "../../editor/BlockNoteExtension.js";
 
 const PLUGIN_KEY = new PluginKey("inline-content-boundary-edit");
@@ -23,6 +24,25 @@ function emptiesInlineContent(
     : isSingleChar && selection.from === content.from;
 }
 
+function deleteInlineContent(view: EditorView, key: "Backspace" | "Delete") {
+  const { selection } = view.state;
+  const node = selection.$from.node();
+  if (!node.type.spec.inline || node.content.size === 0) {
+    return false;
+  }
+
+  const from = selection.$from.before() + 1;
+  const to = from + node.content.size;
+  if (!emptiesInlineContent(selection, key, { from, to })) {
+    return false;
+  }
+
+  const tr = view.state.tr.delete(from, to);
+  tr.setSelection(TextSelection.create(tr.doc, from));
+  view.dispatch(tr);
+  return true;
+}
+
 // Fixes editing at the boundary of an empty custom inline content node (i.e. an
 // inline node with editable content, like a mention or inline math).
 //
@@ -45,19 +65,41 @@ export const InlineContentBoundaryEditExtension = createExtension(
         new Plugin({
           key: PLUGIN_KEY,
           props: {
+            handleDOMEvents: {
+              beforeinput(view, event) {
+                if (!view.editable || !event.cancelable || event.isComposing) {
+                  return false;
+                }
+
+                // A DOM change from the preceding key can cause ProseMirror
+                // to skip this key's command. Still preserve the inline node
+                // before the browser's native deletion runs.
+                const key =
+                  event.inputType === "deleteContentBackward"
+                    ? "Backspace"
+                    : event.inputType === "deleteContentForward"
+                      ? "Delete"
+                      : undefined;
+                if (!key || !deleteInlineContent(view, key)) {
+                  return false;
+                }
+                event.preventDefault();
+                return true;
+              },
+            },
             handleKeyDown: (view, event) => {
               if (!view.editable) {
                 return false;
               }
 
+              if (event.key === "Backspace" || event.key === "Delete") {
+                return deleteInlineContent(view, event.key);
+              }
+
               const isTypedChar =
                 event.key.length === 1 && !event.ctrlKey && !event.metaKey;
 
-              if (
-                !isTypedChar &&
-                event.key !== "Backspace" &&
-                event.key !== "Delete"
-              ) {
+              if (!isTypedChar) {
                 return false;
               }
 
@@ -69,10 +111,9 @@ export const InlineContentBoundaryEditExtension = createExtension(
 
               const pos = selection.$from.before();
               const contentFrom = pos + 1;
-              const contentTo = pos + 1 + node.content.size;
 
               // Empty content: redirect the typed character into the node.
-              if (isTypedChar && node.content.size === 0) {
+              if (node.content.size === 0) {
                 const tr = view.state.tr.insert(
                   contentFrom,
                   view.state.schema.text(event.key),
@@ -80,24 +121,6 @@ export const InlineContentBoundaryEditExtension = createExtension(
                 tr.setSelection(
                   TextSelection.create(tr.doc, contentFrom + event.key.length),
                 );
-                view.dispatch(tr);
-
-                return true;
-              }
-
-              // Backspace/Delete that would empty the content: delete it all in
-              // one transaction, keeping the now-empty node (and the caret
-              // inside it) so it stays editable.
-              if (
-                (event.key === "Backspace" || event.key === "Delete") &&
-                node.content.size > 0 &&
-                emptiesInlineContent(selection, event.key, {
-                  from: contentFrom,
-                  to: contentTo,
-                })
-              ) {
-                const tr = view.state.tr.delete(contentFrom, contentTo);
-                tr.setSelection(TextSelection.create(tr.doc, contentFrom));
                 view.dispatch(tr);
 
                 return true;

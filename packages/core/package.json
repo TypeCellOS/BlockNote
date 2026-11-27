@@ -128,7 +128,7 @@
     "@tiptap/extensions": "^3.31.4",
     "@tiptap/pm": "^3.31.4",
     "lib0": "1.0.0-rc.36",
-    "prosemirror-highlight": "^0.15.3",
+    "prosemirror-highlight": "^0.15.3 || ^0.16",
     "prosemirror-model": "^1.25.11",
     "prosemirror-state": "^1.4.4",
     "prosemirror-tables": "^1.8.5",

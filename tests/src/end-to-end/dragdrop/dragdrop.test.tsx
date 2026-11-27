@@ -23,7 +23,6 @@ import {
 } from "../../utils/const.js";
 import { browserName, MOD, userEvent } from "../../utils/context.js";
 import {
-  focusOnEditor,
   sleep,
   waitForSelector,
   waitForSelectorDetached,
@@ -194,12 +193,10 @@ describe("Check Block Dragging Functionality", () => {
     async () => {
       await render(<PdfFileApp />);
       const editor = await waitForSelector(EDITOR_SELECTOR);
-      await focusOnEditor();
       await waitForSelector(PDF_SELECTOR);
 
-      const firstParagraph = document.querySelector(
-        PARAGRAPH_SELECTOR,
-      ) as HTMLElement;
+      const firstParagraph = await waitForSelector(PARAGRAPH_SELECTOR);
+      await userEvent.click(firstParagraph);
       function blockIds() {
         return [...editor.querySelectorAll(BLOCK_CONTAINER_SELECTOR)].map(
           (block) => block.getAttribute("data-id"),

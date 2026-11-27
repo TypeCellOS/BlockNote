@@ -38,25 +38,22 @@ async function expectPickerToLeaveKeyUnhandled(
   }
 }
 
-beforeEach(async () => {
-  submitCount = 0;
-  await render(
-    <form
-      onSubmit={(event) => {
-        event.preventDefault();
-        submitCount += 1;
-      }}
-    >
-      <App />
-    </form>,
-  );
-  // Only the emoji interactions are under test; no pointer trip is needed
-  // to focus the initially empty editor.
-  (await waitForSelector(EDITOR_SELECTOR)).focus();
-  await window.__blockNoteWaitForEditorFocus();
-});
-
 describe("Check Emoji Picker Functionality", () => {
+  beforeEach(async () => {
+    submitCount = 0;
+    await render(
+      <form
+        onSubmit={(event) => {
+          event.preventDefault();
+          submitCount += 1;
+        }}
+      >
+        <App />
+      </form>,
+    );
+    (await waitForSelector(EDITOR_SELECTOR)).focus();
+    await window.__blockNoteWaitForEditorFocus();
+  });
   test("should open only after two characters and select the top-left emoji", async () => {
     await userEvent.keyboard(":");
     expect(document.querySelector(EMOJI_PICKER_SELECTOR)).toBeNull();
@@ -273,38 +270,6 @@ describe("Check Emoji Picker Functionality", () => {
     });
   });
   test.each(["ArrowLeft", "ArrowUp", "ArrowRight", "ArrowDown"])(
-    "should leave %s at a grid boundary to the editor",
-    async (key) => {
-      const editor = await waitForSelector(EDITOR_SELECTOR);
-      await userEvent.keyboard(" tail");
-      window
-        .getSelection()!
-        .collapse(editor.querySelector(".bn-inline-content")!.firstChild, 0);
-      // A synthetic caret change must reach ProseMirror before typing;
-      // merely waiting one animation frame can leave its selection stale.
-      document.dispatchEvent(new Event("selectionchange"));
-      expect(editorCaretOffset(editor)).toBe(0);
-      await userEvent.keyboard(":keycap");
-      await waitForSelector(".bn-frimousse-emoji[data-selected]");
-      expect(editor.textContent).toBe(":keycap tail");
-      if (key === "ArrowRight" || key === "ArrowDown") {
-        await userEvent.keyboard("{ArrowRight}".repeat(8) + "{ArrowDown}");
-        await waitForSelector(
-          '[aria-rowindex="1"] .bn-frimousse-emoji[data-selected][aria-colindex="3"]',
-        );
-      }
-      const offset = editorCaretOffset(editor);
-      await expectPickerToLeaveKeyUnhandled(editor, key);
-      if (key === "ArrowLeft" || key === "ArrowRight") {
-        await vi.waitFor(() =>
-          expect(editorCaretOffset(editor)).toBe(
-            offset + (key === "ArrowLeft" ? -1 : 1),
-          ),
-        );
-      }
-    },
-  );
-  test.each(["ArrowLeft", "ArrowUp", "ArrowRight", "ArrowDown"])(
     "should not consume %s when there are no results",
     async (key) => {
       const editor = await waitForSelector(EDITOR_SELECTOR);
@@ -406,10 +371,8 @@ describe("Check Emoji Picker Functionality", () => {
     );
     const emoji = selected.textContent;
 
-    // Synthetic composition flags exercise the bridge, not an OS IME's UI.
-    editor.dispatchEvent(
-      new CompositionEvent("compositionstart", { bubbles: true }),
-    );
+    // Exercise the picker's composition guards independently of the editor's
+    // composition handling, which requires an actual IME session.
     for (const key of [
       "ArrowRight",
       "ArrowDown",
@@ -427,8 +390,22 @@ describe("Check Emoji Picker Functionality", () => {
           bubbles: true,
           cancelable: true,
         });
-        editor.dispatchEvent(event);
-        expect(event.defaultPrevented, key).toBe(false);
+        // Observe the picker before ProseMirror's own key handler runs.
+        let preventedByPicker: boolean | undefined;
+        function observe(event: KeyboardEvent) {
+          preventedByPicker = event.defaultPrevented;
+          event.stopPropagation();
+        }
+        editor.addEventListener("keydown", observe, {
+          capture: true,
+          once: true,
+        });
+        try {
+          editor.dispatchEvent(event);
+          expect(preventedByPicker, key).toBe(false);
+        } finally {
+          editor.removeEventListener("keydown", observe, true);
+        }
         await new Promise(requestAnimationFrame);
         expect(
           document.querySelector(".bn-frimousse-emoji[data-selected]")
@@ -438,9 +415,6 @@ describe("Check Emoji Picker Functionality", () => {
     }
     expect(editor.textContent).toContain(":frog");
     expect(document.activeElement).toBe(editor);
-    editor.dispatchEvent(
-      new CompositionEvent("compositionend", { bubbles: true }),
-    );
     await userEvent.keyboard("{Enter}");
     await waitForTextInEditor(`${emoji} `);
     await vi.waitFor(() =>
@@ -568,3 +542,34 @@ describe("Check Emoji Picker Functionality", () => {
     await waitForTextInEditor("🐸 ");
   });
 });
+
+it.for(["ArrowLeft", "ArrowUp", "ArrowRight", "ArrowDown"])(
+  "should leave %s at a grid boundary to the editor",
+  async (key, { setupEditor }) => {
+    const { editor: blockNote } = await setupEditor({
+      initialContent: [{ type: "paragraph", content: " tail" }],
+    });
+    const editor = await waitForSelector(EDITOR_SELECTOR);
+    blockNote.setTextCursorPosition(blockNote.document[0], "start");
+    blockNote.focus();
+    await vi.waitFor(() => expect(editorCaretOffset(editor)).toBe(0));
+    await userEvent.keyboard(":keycap");
+    await waitForSelector(".bn-frimousse-emoji[data-selected]");
+    expect(editor.textContent).toBe(":keycap tail");
+    if (key === "ArrowRight" || key === "ArrowDown") {
+      await userEvent.keyboard("{ArrowRight}".repeat(8) + "{ArrowDown}");
+      await waitForSelector(
+        '[aria-rowindex="1"] .bn-frimousse-emoji[data-selected][aria-colindex="3"]',
+      );
+    }
+    const offset = editorCaretOffset(editor);
+    await expectPickerToLeaveKeyUnhandled(editor, key);
+    if (key === "ArrowLeft" || key === "ArrowRight") {
+      await vi.waitFor(() =>
+        expect(editorCaretOffset(editor)).toBe(
+          offset + (key === "ArrowLeft" ? -1 : 1),
+        ),
+      );
+    }
+  },
+);

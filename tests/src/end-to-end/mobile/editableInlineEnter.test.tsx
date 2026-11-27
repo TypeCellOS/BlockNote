@@ -99,7 +99,8 @@ it("Enter inside editable inline content allows typing and deletion", async ({
       { type: "token", content: [{ type: "text", text: "Xd" }] },
       { type: "text", text: "ef" },
     ]);
-  // Deletion can still empty the token, and typing can refill it.
+  // Send the keys together: Delete must still keep the empty token when
+  // ProseMirror is reading the preceding Backspace change from the DOM.
   await userEvent.keyboard("{Backspace}{Delete}Y");
   await expect
     .poll(() => editor.document[1].content)
