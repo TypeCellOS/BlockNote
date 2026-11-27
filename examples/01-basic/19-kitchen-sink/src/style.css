@@ -1,0 +1,337 @@
+/* The demo scrolls within its panels, including when hosted in the playground. */
+html:has(.kitchen-sink),
+body:has(.kitchen-sink),
+.bn-scroll-container:has(.kitchen-sink) {
+  overflow: clip;
+  overscroll-behavior: none;
+}
+
+body:has(.kitchen-sink) {
+  margin: 0;
+}
+
+.kitchen-sink {
+  --ks-background: #f5f5f5;
+  --ks-surface: #fff;
+  --ks-subtle: #f8fafc;
+  --ks-control-background: #fafafa;
+  --ks-control-hover: #eeeeee;
+  --ks-border: #e5e5e5;
+  --ks-text: #202b3c;
+  --ks-muted: #59677a;
+  --ks-accent: #345dcc;
+  --ks-accent-soft: #edf2ff;
+  box-sizing: border-box;
+  display: grid;
+  grid-template-columns: 280px minmax(0, 1fr);
+  height: 100dvh;
+  overflow: hidden;
+  background: var(--ks-background);
+  color: var(--ks-text);
+  font-family: Inter, sans-serif;
+  font-size: 14px;
+  line-height: 1.5;
+  color-scheme: light;
+}
+
+.kitchen-sink[data-theme="dark"] {
+  --ks-background: #171717;
+  --ks-surface: #1f1f1f;
+  --ks-subtle: #252a33;
+  --ks-control-background: #272727;
+  --ks-control-hover: #333333;
+  --ks-border: #3b3b3b;
+  --ks-text: #edf0f5;
+  --ks-muted: #a8b2c3;
+  --ks-accent: #a3baff;
+  --ks-accent-soft: #283349;
+  color-scheme: dark;
+}
+
+.kitchen-sink-options {
+  min-height: 0;
+  overflow: auto;
+  overscroll-behavior: contain;
+  padding: 28px 22px;
+  border-right: 1px solid var(--ks-border);
+  background: var(--ks-surface);
+}
+
+.kitchen-sink-brand {
+  margin-bottom: 32px;
+}
+
+.kitchen-sink-title {
+  margin: 0;
+  font-size: 17px;
+  font-weight: 650;
+  line-height: 1.35;
+  letter-spacing: -0.025em;
+}
+
+.kitchen-sink-settings-group + .kitchen-sink-settings-group {
+  margin-top: 24px;
+  padding-top: 24px;
+  border-top: 1px solid var(--ks-border);
+}
+
+.kitchen-sink-group-title {
+  margin: 0 0 14px;
+  color: var(--ks-muted);
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.kitchen-sink-toggle {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  min-height: 36px;
+  cursor: pointer;
+}
+
+.kitchen-sink-checkbox {
+  width: 17px;
+  height: 17px;
+  margin: 0;
+  accent-color: var(--ks-accent);
+  cursor: pointer;
+}
+
+.kitchen-sink-field {
+  display: grid;
+  gap: 8px;
+  font-weight: 550;
+}
+
+.kitchen-sink-select {
+  appearance: none;
+  box-sizing: border-box;
+  width: 100%;
+  min-width: 0;
+  min-height: 40px;
+  padding: 8px 36px 8px 12px;
+  border: 1px solid var(--ks-border);
+  border-radius: 8px;
+  background-color: var(--ks-control-background);
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 16 16'%3E%3Cpath d='m4 6 4 4 4-4' fill='none' stroke='%23888888' stroke-width='1.5' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 12px center;
+  color: var(--ks-text);
+  font: inherit;
+  font-size: 13px;
+  font-weight: 400;
+}
+
+.kitchen-sink-help {
+  margin: 10px 0 20px;
+  color: var(--ks-muted);
+  font-size: 12px;
+  line-height: 1.65;
+}
+
+.kitchen-sink-identity {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin: 0;
+  font-size: 13px;
+  font-weight: 550;
+}
+
+.kitchen-sink-avatar {
+  display: grid;
+  place-items: center;
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  background: var(--ks-accent-soft);
+  color: var(--ks-accent);
+  font-size: 11px;
+  font-weight: 650;
+}
+
+.kitchen-sink-button {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  padding: 10px 12px;
+  border: 1px solid var(--ks-border);
+  border-radius: 8px;
+  background: var(--ks-control-background);
+  color: var(--ks-accent);
+  font-size: 12px;
+  font-weight: 550;
+  text-decoration: none;
+}
+
+.kitchen-sink-button:hover {
+  background: var(--ks-control-hover);
+}
+
+.kitchen-sink-main {
+  display: grid;
+  grid-template-rows: minmax(0, 1fr) auto;
+  gap: 16px;
+  min-width: 0;
+  min-height: 0;
+  padding: 24px;
+}
+
+.kitchen-sink-editor {
+  display: flex;
+  flex: 1 1 0;
+  flex-direction: column;
+  min-width: 0;
+  min-height: 0;
+  overflow: hidden;
+  border: 1px solid var(--ks-border);
+  border-radius: 12px;
+  background: var(--ks-surface);
+  box-shadow: 0 2px 8px #00000004;
+}
+
+.kitchen-sink-panel-header {
+  display: flex;
+  flex: 0 0 auto;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 8px;
+  min-height: 54px;
+  box-sizing: border-box;
+  padding: 12px 20px;
+  border-bottom: 1px solid var(--ks-border);
+}
+
+.kitchen-sink-panel-title {
+  margin: 0;
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.kitchen-sink-badge {
+  padding: 3px 8px;
+  border-radius: 5px;
+  background: var(--ks-subtle);
+  color: var(--ks-muted);
+  font-size: 11px;
+  font-weight: 500;
+}
+
+.kitchen-sink-editor-scroll {
+  flex: 1;
+  min-height: 0;
+  overflow: auto;
+  overscroll-behavior: contain;
+  padding: 24px 0;
+  scrollbar-gutter: stable;
+}
+
+.kitchen-sink-download {
+  width: 100%;
+  margin-top: 12px;
+  justify-content: center;
+}
+
+.kitchen-sink-loading-status {
+  margin: 20px;
+  color: var(--ks-muted);
+  font-size: 13px;
+}
+
+.kitchen-sink-shortcuts {
+  min-height: 0;
+  max-height: 35dvh;
+  overflow: auto;
+  overscroll-behavior: contain;
+  border: 1px solid var(--ks-border);
+  border-radius: 10px;
+  background: var(--ks-surface);
+}
+
+.kitchen-sink-shortcuts-summary {
+  position: sticky;
+  top: 0;
+  padding: 14px 18px;
+  background: var(--ks-surface);
+  font-size: 13px;
+  font-weight: 550;
+  cursor: pointer;
+}
+
+.kitchen-sink-shortcuts-help {
+  margin: 12px 18px 18px;
+  color: var(--ks-muted);
+  font-size: 13px;
+}
+
+.kitchen-sink-shortcuts-table-scroll {
+  overflow-x: auto;
+  margin: 0 18px;
+}
+
+.kitchen-sink-shortcuts-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 12px;
+}
+
+.kitchen-sink-shortcuts-table > caption {
+  padding: 0 0 12px;
+  text-align: left;
+  font-weight: 600;
+}
+
+.kitchen-sink-shortcuts-table > :is(thead, tbody) > tr > :is(th, td) {
+  padding: 10px 12px;
+  border: 1px solid var(--ks-border);
+  text-align: left;
+}
+
+.kitchen-sink-shortcuts-table > thead {
+  background: var(--ks-subtle);
+}
+
+:is(
+  .kitchen-sink-button,
+  .kitchen-sink-checkbox,
+  .kitchen-sink-select,
+  .kitchen-sink-shortcuts-summary
+):focus-visible {
+  outline: 2px solid var(--ks-accent);
+  outline-offset: -3px;
+}
+
+@media (max-width: 900px) {
+  .kitchen-sink {
+    grid-template-columns: 220px minmax(0, 1fr);
+  }
+  .kitchen-sink-options {
+    padding: 20px 16px;
+  }
+  .kitchen-sink-main {
+    padding: 16px;
+  }
+}
+
+@media (max-width: 600px) {
+  .kitchen-sink {
+    grid-template-columns: minmax(0, 1fr);
+    grid-template-rows: auto minmax(0, 1fr);
+  }
+  .kitchen-sink-options {
+    max-height: 28dvh;
+    border-right: 0;
+    border-bottom: 1px solid var(--ks-border);
+  }
+  .kitchen-sink-brand {
+    margin-bottom: 20px;
+  }
+  .kitchen-sink-main {
+    padding: 12px;
+    gap: 12px;
+  }
+}

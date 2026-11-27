@@ -1089,6 +1089,76 @@ importers:
         specifier: ^8.0.0
         version: 8.0.8(@types/node@25.9.5)(esbuild@0.27.5)(jiti@2.7.0)(terser@5.51.2)(tsx@4.21.0)(yaml@2.9.0)
 
+  examples/01-basic/19-kitchen-sink:
+    dependencies:
+      '@blocknote/code-block':
+        specifier: latest
+        version: link:../../../packages/code-block
+      '@blocknote/core':
+        specifier: latest
+        version: link:../../../packages/core
+      '@blocknote/diagram-block':
+        specifier: latest
+        version: link:../../../packages/diagram-block
+      '@blocknote/mantine':
+        specifier: latest
+        version: link:../../../packages/mantine
+      '@blocknote/math-block':
+        specifier: latest
+        version: link:../../../packages/math-block
+      '@blocknote/react':
+        specifier: latest
+        version: link:../../../packages/react
+      '@blocknote/xl-multi-column':
+        specifier: latest
+        version: link:../../../packages/xl-multi-column
+      '@blocknote/xl-pdf-exporter':
+        specifier: latest
+        version: link:../../../packages/xl-pdf-exporter
+      '@blocknote/xl-typst-compiler':
+        specifier: latest
+        version: link:../../../packages/xl-typst-compiler
+      '@mantine/core':
+        specifier: ^9.0.2
+        version: 9.1.1(@mantine/hooks@9.1.1(react@19.2.5))(@types/react@19.2.14)(react-dom@19.2.5(react@19.2.5))(react@19.2.5)
+      '@mantine/hooks':
+        specifier: ^9.0.2
+        version: 9.1.1(react@19.2.5)
+      '@y/prosemirror':
+        specifier: 2.0.0-15
+        version: 2.0.0-15(@y/protocols@1.0.6-rc.1(@y/y@14.0.0-rc.26))(prosemirror-model@1.25.13)(prosemirror-state@1.4.4)(prosemirror-transform@1.12.7)(prosemirror-view@1.44.0)
+      '@y/protocols':
+        specifier: ^1.0.6-rc.1
+        version: 1.0.6-rc.1(@y/y@14.0.0-rc.26)
+      '@y/websocket':
+        specifier: ^4.0.0-3
+        version: 4.0.0-rc.2(@y/y@14.0.0-rc.26)
+      '@y/y':
+        specifier: 14.0.0-rc.26
+        version: 14.0.0-rc.26
+      react:
+        specifier: ^19.2.3
+        version: 19.2.5
+      react-dom:
+        specifier: ^19.2.3
+        version: 19.2.5(react@19.2.5)
+    devDependencies:
+      '@types/react':
+        specifier: ^19.2.3
+        version: 19.2.14
+      '@types/react-dom':
+        specifier: ^19.2.3
+        version: 19.2.3(@types/react@19.2.14)
+      '@vitejs/plugin-react':
+        specifier: ^6.0.1
+        version: 6.0.1(babel-plugin-react-compiler@1.0.0)(vite@8.0.8(@types/node@25.9.5)(esbuild@0.27.5)(jiti@2.7.0)(terser@5.51.2)(tsx@4.21.0)(yaml@2.9.1))
+      typescript:
+        specifier: ^7.0.2
+        version: 7.0.2
+      vite:
+        specifier: ^8.0.0
+        version: 8.0.8(@types/node@25.9.5)(esbuild@0.27.5)(jiti@2.7.0)(terser@5.51.2)(tsx@4.21.0)(yaml@2.9.1)
+
   examples/01-basic/testing:
     dependencies:
       '@blocknote/core':
