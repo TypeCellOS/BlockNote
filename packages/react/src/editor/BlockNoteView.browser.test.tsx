@@ -552,7 +552,7 @@ if (!screenReader) {
         { row: 1, column: 0 },
         { row: 1, column: 1 },
       ];
-      expect(readDOMSelection().tableCell).toEqual(route[0]);
+      await expect.poll(() => readDOMSelection().tableCell).toEqual(route[0]);
       for (const key of ["ArrowRight", "ArrowLeft"] as const) {
         const expected = key === "ArrowRight" ? route : route.toReversed();
         let index = 0;
@@ -588,10 +588,12 @@ if (!screenReader) {
         await pressKey("Tab");
         await expect.element(page.getByRole("textbox")).toHaveFocus();
         for (const column of [0, 1]) {
-          expect(readDOMSelection().tableCell).toEqual({
-            row: 0,
-            column,
-          });
+          await expect
+            .poll(() => readDOMSelection().tableCell)
+            .toEqual({
+              row: 0,
+              column,
+            });
           for (const key of ["ArrowDown", "ArrowUp"] as const) {
             const targetRow = key === "ArrowDown" ? 1 : 0;
             let selection = readDOMSelection();

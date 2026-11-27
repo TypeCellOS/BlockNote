@@ -235,6 +235,8 @@ export const SourceWithPreview = (
             }
             data-placeholder={sourcePlaceholder}
             aria-hidden={popup.isOpen ? undefined : true}
+            // Let the browser place the caret inside the positioned popup.
+            onMouseDownCapture={(event) => event.stopPropagation()}
           >
             <code
               ref={contentRef}

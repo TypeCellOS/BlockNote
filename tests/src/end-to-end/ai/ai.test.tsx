@@ -2,7 +2,7 @@ import App from "@examples/09-ai/01-minimal/src/App";
 import { beforeEach, describe, expect, test } from "vite-plus/test";
 import { render } from "vitest-browser-react";
 import { resizeViewportForTest } from "../../commands/browser/screenshotFull.js";
-import { page, userEvent } from "../../utils/context.js";
+import { MOD, page, userEvent } from "../../utils/context.js";
 import { EDITOR_SELECTOR } from "../../utils/const.js";
 import { expectElement, waitForSelector } from "../../utils/editor.js";
 
@@ -21,6 +21,7 @@ describe("AI Menu Scroll Regression", () => {
       "[data-content-type='paragraph']",
     );
     const lastParagraph = paragraphs[paragraphs.length - 1] as HTMLElement;
+    const originalText = lastParagraph.textContent;
     await userEvent.click(lastParagraph);
 
     // Ensure the page is scrolled down (editor puts cursor near bottom of content)
@@ -35,9 +36,8 @@ describe("AI Menu Scroll Regression", () => {
     expect(scrollYBefore).toBeGreaterThan(0);
 
     // Open the AI menu via the slash command
-    // First, focus back on the editor at the last paragraph
-    await userEvent.click(lastParagraph);
-    await window.__blockNoteWaitForEditorFocus();
+    // Put the command after the text so the click position can't split a word.
+    await userEvent.keyboard(`{${MOD}>}{End}{/${MOD}}`);
 
     // Type /ai to open the slash menu and select the AI option
     await userEvent.keyboard("/ai");
@@ -58,6 +58,7 @@ describe("AI Menu Scroll Regression", () => {
 
     // Verify the AI menu input is actually focused
     expect(document.activeElement).toBe(aiMenuInput);
+    expect(lastParagraph.textContent).toBe(originalText);
 
     await expectElement(document.body).toMatchScreenshot(
       "ai_menu_scroll_position",
