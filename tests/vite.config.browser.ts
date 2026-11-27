@@ -72,7 +72,6 @@ const blockNoteSrcAliases = Object.fromEntries(
 // and don't need mobile, native clipboard, or Docker's OS-level dependencies.
 const LOCAL_BROWSER_FILES = [
   "src/end-to-end/linktoolbar/linkToolbar.test.tsx",
-  "src/end-to-end/sidemenu/collaborativeTableHeaders.test.tsx",
   "src/integration/formatConversion/exportParseEquality/fileLinks.browser.test.ts",
   "../packages/core/src/api/clipboard/fromClipboard/officeHTML.browser.test.ts",
   "../packages/core/src/editor/managers/EventManager.browser.test.ts",
