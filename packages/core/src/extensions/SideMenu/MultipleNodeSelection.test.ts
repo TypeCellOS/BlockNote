@@ -100,27 +100,38 @@ describe("MultipleNodeSelection bookmarks", () => {
     expect(restored.empty).toBe(true);
   });
 
-  it.each([1, 2])("preserves %i selected blocks through undo/redo", (count) => {
-    const selection = MultipleNodeSelection.create(doc, 0, count * 3);
-    let state = EditorState.create({ doc, selection, plugins: [history()] });
-    const content = selection.content().content;
-    const tr = state.tr.delete(selection.from, selection.to);
-    tr.insert(tr.doc.content.size, content);
-    tr.setSelection(Selection.near(tr.doc.resolve(tr.doc.content.size)));
-    state = state.apply(tr);
-    const movedDoc = state.doc;
+  it.each([
+    { count: 1, secondUndoCursor: 4 }, // Start of B
+    { count: 2, secondUndoCursor: 7 }, // Start of C
+  ])(
+    "restores the selection when replaying a move of $count blocks",
+    ({ count, secondUndoCursor }) => {
+      const selection = MultipleNodeSelection.create(doc, 0, count * 3);
+      let state = EditorState.create({ doc, selection, plugins: [history()] });
+      const content = selection.content().content;
+      const tr = state.tr.delete(selection.from, selection.to);
+      tr.insert(tr.doc.content.size, content);
+      tr.setSelection(Selection.near(tr.doc.resolve(tr.doc.content.size)));
+      state = state.apply(tr);
+      const movedDoc = state.doc;
 
-    function dispatch(transaction: typeof tr) {
-      state = state.apply(transaction);
-    }
+      function dispatch(transaction: typeof tr) {
+        state = state.apply(transaction);
+      }
 
-    expect(undo(state, dispatch)).toBe(true);
-    expect(state.doc.eq(doc)).toBe(true);
-    expect(state.selection).toBeInstanceOf(MultipleNodeSelection);
-    expect(state.selection.eq(selection)).toBe(true);
-    expect(redo(state, dispatch)).toBe(true);
-    expect(state.doc.eq(movedDoc)).toBe(true);
-    expect(undo(state, dispatch)).toBe(true);
-    expect(state.selection.eq(selection)).toBe(true);
-  });
+      expect(undo(state, dispatch)).toBe(true);
+      expect(state.doc.eq(doc)).toBe(true);
+      expect(state.selection).toBeInstanceOf(MultipleNodeSelection);
+      expect(state.selection.eq(selection)).toBe(true);
+      expect(redo(state, dispatch)).toBe(true);
+      expect(state.doc.eq(movedDoc)).toBe(true);
+      expect(state.selection.eq(tr.selection)).toBe(true);
+      expect(undo(state, dispatch)).toBe(true);
+      expect(state.doc.eq(doc)).toBe(true);
+      // ProseMirror places the cursor in the first block after the moved range.
+      expect(state.selection).toBeInstanceOf(TextSelection);
+      expect(state.selection.anchor).toBe(secondUndoCursor);
+      expect(state.selection.head).toBe(secondUndoCursor);
+    },
+  );
 });
