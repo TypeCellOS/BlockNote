@@ -1,4 +1,4 @@
-import { blockHasType, editorHasBlockWithType } from "@blocknote/core";
+import { blockHasType } from "@blocknote/core";
 import { SideMenuExtension } from "@blocknote/core/extensions";
 import { ReactNode } from "react";
 
@@ -6,8 +6,8 @@ import { useComponentsContext } from "../../../../editor/ComponentsContext.js";
 import { usePortalElement } from "../../../../editor/PortalElementOverride.js";
 import { useBlockNoteEditor } from "../../../../hooks/useBlockNoteEditor.js";
 import { useEditorDirection } from "../../../../hooks/useEditorDirection.js";
-import { ColorPicker } from "../../../ColorPicker/ColorPicker.js";
 import { useExtensionState } from "../../../../hooks/useExtension.js";
+import { ColorPicker } from "../../../ColorPicker/ColorPicker.js";
 
 export const BlockColorsItem = (props: { children: ReactNode }) => {
   const Components = useComponentsContext()!;
@@ -18,19 +18,30 @@ export const BlockColorsItem = (props: { children: ReactNode }) => {
 
   const block = useExtensionState(SideMenuExtension, {
     editor,
-    selector: (state) => state?.block,
+    selector: (state) => (state ? editor.getBlock(state.blockId) : undefined),
   });
-
-  if (
-    block === undefined ||
-    (!blockHasType(block, editor, block.type, {
-      textColor: "string",
-    }) &&
-      !blockHasType(block, editor, block.type, {
-        backgroundColor: "string",
-      }))
-  ) {
+  if (!block) {
     return null;
+  }
+  const hasTextColor = blockHasType(block, editor, block.type, {
+    textColor: "string",
+  });
+  const hasBackgroundColor = blockHasType(block, editor, block.type, {
+    backgroundColor: "string",
+  });
+  if (!hasTextColor && !hasBackgroundColor) {
+    return null;
+  }
+
+  const blockId = block.id;
+  function setBlockColor(prop: "textColor" | "backgroundColor", color: string) {
+    const block = editor.getBlock(blockId);
+    if (
+      block &&
+      blockHasType(block, editor, block.type, { [prop]: "string" })
+    ) {
+      editor.updateBlock(blockId, { props: { [prop]: color } });
+    }
   }
 
   return (
@@ -55,35 +66,18 @@ export const BlockColorsItem = (props: { children: ReactNode }) => {
         <ColorPicker
           iconSize={18}
           text={
-            blockHasType(block, editor, block.type, {
-              textColor: "string",
-            }) &&
-            editorHasBlockWithType(editor, block.type, {
-              textColor: "string",
-            })
+            hasTextColor
               ? {
                   color: block.props.textColor,
-                  setColor: (color) =>
-                    editor.updateBlock(block, {
-                      type: block.type,
-                      props: { textColor: color },
-                    }),
+                  setColor: (color) => setBlockColor("textColor", color),
                 }
               : undefined
           }
           background={
-            blockHasType(block, editor, block.type, {
-              backgroundColor: "string",
-            }) &&
-            editorHasBlockWithType(editor, block.type, {
-              backgroundColor: "string",
-            })
+            hasBackgroundColor
               ? {
                   color: block.props.backgroundColor,
-                  setColor: (color) =>
-                    editor.updateBlock(block, {
-                      props: { backgroundColor: color },
-                    }),
+                  setColor: (color) => setBlockColor("backgroundColor", color),
                 }
               : undefined
           }

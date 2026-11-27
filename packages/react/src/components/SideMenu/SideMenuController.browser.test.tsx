@@ -24,11 +24,9 @@ describe("SideMenuController", () => {
         exact: true,
       });
       await expect.element(button).not.toBeInTheDocument();
-      const block = editor.getBlock("target");
-      assert(block);
       extension.store.setState({
         show: true,
-        block,
+        blockId: "target",
         referencePos: new DOMRect(),
       });
       await expect.element(button).toBeVisible();
@@ -57,7 +55,7 @@ describe("SideMenuController", () => {
       assert(extension);
       extension.store.setState({
         show: true,
-        block: editor.document[0],
+        blockId: editor.document[0].id,
         referencePos: new DOMRect(),
       });
       const button = page.getByRole("button", {

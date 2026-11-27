@@ -1,17 +1,12 @@
 import { Plugin, PluginKey } from "@tiptap/pm/state";
 
-import { Block } from "../../blocks/defaultBlocks.js";
 import {
   createExtension,
   createStore,
   ExtensionOptions,
 } from "../../editor/BlockNoteExtension.js";
 import { UiElementPosition } from "../../extensions-shared/UiElementPosition.js";
-import {
-  BlockSchema,
-  InlineContentSchema,
-  StyleSchema,
-} from "../../schema/index.js";
+import { BlockIdentifier } from "../../schema/index.js";
 import { registerBlockDropHandlers } from "./blockDropHandling.js";
 import { dragStart, unsetDragImage } from "./dragging.js";
 import {
@@ -21,18 +16,13 @@ import {
   resolveHoveredBlock,
 } from "./sideMenuHover.js";
 
-export type SideMenuState<
-  BSchema extends BlockSchema,
-  I extends InlineContentSchema,
-  S extends StyleSchema,
-> = UiElementPosition & {
+export type SideMenuState = UiElementPosition & {
   /**
-   * The block that the side menu is attached to. While the menu is hidden
-   * (`show` is `false`), the block it was last attached to, so it can animate
-   * out next to it. The store's state is `undefined` until the menu first
-   * shows.
+   * The ID of the block the side menu is attached to. Read the current block
+   * from the editor when needed. While hidden, the menu retains its last ID.
+   * The store's state is `undefined` until the menu first shows.
    */
-  block: Block<BSchema, I, S>;
+  blockId: string;
 };
 
 /**
@@ -96,9 +86,7 @@ export const SideMenuExtension = createExtension(
     editor,
     options,
   }: ExtensionOptions<{ sideMenu?: SideMenuOptions } | undefined>) => {
-    const store = createStore<SideMenuState<any, any, any> | undefined>(
-      undefined,
-    );
+    const store = createStore<SideMenuState | undefined>(undefined);
 
     const hoverMargin = options?.sideMenu?.hoverMargin ?? 0;
 
@@ -134,17 +122,12 @@ export const SideMenuExtension = createExtension(
     }
 
     function showMenu(hovered: HoveredBlock) {
-      const block = editor.getBlock(hovered.id);
-      if (!block) {
-        hideMenu();
-        return;
-      }
       store.setState({
         show: true,
         // The hovered block's box: the menu goes next to the block itself, as
         // the React UI anchors it to the block's element.
         referencePos: hovered.node.getBoundingClientRect(),
-        block,
+        blockId: hovered.id,
       });
     }
 
@@ -198,7 +181,7 @@ export const SideMenuExtension = createExtension(
       }
 
       const state = store.state;
-      const active = state?.show ? state.block.id : undefined;
+      const active = state?.show ? state.blockId : undefined;
       if (resolution.kind === "block" && resolution.block.id === active) {
         clearIntent();
         lastOnActive = point;
@@ -406,8 +389,12 @@ export const SideMenuExtension = createExtension(
        */
       blockDragStart(
         event: { dataTransfer: DataTransfer | null; clientY: number },
-        block: Block<any, any, any>,
+        blockIdentifier: BlockIdentifier,
       ) {
+        const block = editor.getBlock(blockIdentifier);
+        if (!block) {
+          return;
+        }
         isDragOrigin = true;
         dragStart(event, block, editor);
       },

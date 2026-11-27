@@ -1,4 +1,6 @@
 import { SideMenuExtension } from "@blocknote/core/extensions";
+import { blocksToYDoc, withCollaboration } from "@blocknote/core/y";
+import * as Y from "@y/y";
 import { assert, describe, expect } from "vite-plus/test";
 import { MenuDropdown } from "../../../../../mantine/src/menu/Menu.js";
 import { RemoveBlockItem } from "../DragHandleMenu/DefaultItems/RemoveBlockItem.js";
@@ -22,7 +24,7 @@ describe("DragHandleButton", () => {
       assert(extension);
       extension.store.setState({
         show: true,
-        block: editor.document[0],
+        blockId: editor.document[0].id,
         referencePos: new DOMRect(),
       });
       await page
@@ -49,7 +51,7 @@ describe("DragHandleButton", () => {
       assert(extension);
       extension.store.setState({
         show: true,
-        block: editor.document[0],
+        blockId: editor.document[0].id,
         referencePos: new DOMRect(),
       });
       const button = page.getByRole("button", {
@@ -79,7 +81,7 @@ describe("DragHandleButton", () => {
       assert(extension);
       extension.store.setState({
         show: true,
-        block: editor.document[0],
+        blockId: editor.document[0].id,
         referencePos: new DOMRect(),
       });
       await expect.element(trigger).toBeVisible();
@@ -98,7 +100,7 @@ describe("DragHandleButton", () => {
         assert(extension);
         extension.store.setState({
           show: true,
-          block: editor.document[0],
+          blockId: editor.document[0].id,
           referencePos: new DOMRect(),
         });
         await page
@@ -142,11 +144,9 @@ describe("DragHandleButton", () => {
         });
         const extension = editor.getExtension(SideMenuExtension);
         assert(extension);
-        const block = editor.getBlock("dragged");
-        assert(block);
         extension.store.setState({
           show: true,
-          block,
+          blockId: "dragged",
           referencePos: new DOMRect(),
         });
         const handle = page.getByRole("button", {
@@ -183,7 +183,7 @@ describe("DragHandleButton", () => {
         await expect.element(page.getByRole("textbox")).toHaveFocus();
         // A subsequent hover must work after dragend clears the drag state.
         await page.getByText("Middle", { exact: true }).hover();
-        await expect.poll(() => extension.store.state?.block.id).toBe("middle");
+        await expect.poll(() => extension.store.state?.blockId).toBe("middle");
       },
     );
 
@@ -200,7 +200,7 @@ describe("DragHandleButton", () => {
       assert(extension);
       extension.store.setState({
         show: true,
-        block: editor.document[0],
+        blockId: editor.document[0].id,
         referencePos: new DOMRect(),
       });
       await page
@@ -233,7 +233,7 @@ describe("DragHandleButton", () => {
         assert(extension);
         extension.store.setState({
           show: true,
-          block: editor.document[0],
+          blockId: editor.document[0].id,
           referencePos: new DOMRect(),
         });
         await page
@@ -262,7 +262,7 @@ describe("DragHandleButton", () => {
 
         rerender({ editable: true, children: <DragHandleButton /> });
         await page.getByText("Second", { exact: true }).hover();
-        await expect.poll(() => extension.store.state?.block.id).toBe("second");
+        await expect.poll(() => extension.store.state?.blockId).toBe("second");
         expect(editor.document).toEqual(before);
       },
     );
@@ -288,11 +288,9 @@ describe("DragHandleButton", () => {
         }
         const extension = editor.getExtension(SideMenuExtension);
         assert(extension);
-        const block = editor.getBlock(target);
-        assert(block);
         extension.store.setState({
           show: true,
-          block,
+          blockId: target,
           referencePos: new DOMRect(),
         });
         const expected = editor.document.filter((block) =>
@@ -328,11 +326,9 @@ describe("DragHandleButton", () => {
         });
         const extension = editor.getExtension(SideMenuExtension);
         assert(extension);
-        const block = editor.getBlock("target");
-        assert(block);
         extension.store.setState({
           show: true,
-          block,
+          blockId: "target",
           referencePos: new DOMRect(),
         });
         const [target, other] = editor.document;
@@ -387,11 +383,9 @@ describe("DragHandleButton", () => {
       for (const expected of [1, undefined]) {
         const extension = editor.getExtension(SideMenuExtension);
         assert(extension);
-        const block = editor.getBlock("table");
-        assert(block);
         extension.store.setState({
           show: true,
-          block,
+          blockId: "table",
           referencePos: new DOMRect(),
         });
         await page
@@ -438,11 +432,9 @@ describe("DragHandleButton", () => {
       for (const expected of [1, undefined]) {
         const extension = editor.getExtension(SideMenuExtension);
         assert(extension);
-        const block = editor.getBlock("table");
-        assert(block);
         extension.store.setState({
           show: true,
-          block,
+          blockId: "table",
           referencePos: new DOMRect(),
         });
         await page
@@ -464,6 +456,95 @@ describe("DragHandleButton", () => {
         await expect.element(page.getByRole("menu")).not.toBeInTheDocument();
       }
     });
+    it.for([
+      { label: "header_row_menuitem", header: "headerRows" },
+      { label: "header_column_menuitem", header: "headerCols" },
+    ] as const)(
+      "preserves a synced cell edit when toggling $header from an open menu",
+      async ({ label, header }, { setupEditor, page, onTestFinished }) => {
+        const { editor: seed } = await setupEditor({ mountType: false });
+        const doc = blocksToYDoc(seed, [
+          {
+            id: "table",
+            type: "table",
+            content: {
+              type: "tableContent",
+              rows: [{ cells: ["Original", "B"] }, { cells: ["C", "D"] }],
+            },
+          },
+        ]);
+        onTestFinished(() => doc.destroy());
+        const remoteDoc = new Y.Doc();
+        onTestFinished(() => remoteDoc.destroy());
+        Y.applyUpdateV2(remoteDoc, Y.encodeStateAsUpdateV2(doc));
+        const { editor } = await setupEditor({
+          ...withCollaboration({
+            tables: { headers: true },
+            collaboration: {
+              fragment: doc.get("prosemirror"),
+              user: { name: "Local", color: "red" },
+            },
+          }),
+          props: { sideMenu: false },
+          children: <DragHandleButton />,
+        });
+        const { editor: remote } = await setupEditor({
+          ...withCollaboration({
+            tables: { headers: true },
+            collaboration: {
+              fragment: remoteDoc.get("prosemirror"),
+              user: { name: "Remote", color: "blue" },
+            },
+          }),
+          mountType: "dom",
+        });
+        const table = page
+          .elementLocator(editor.domElement!)
+          .getByRole("table");
+        await table
+          .getByRole("cell", { name: "Original", exact: true })
+          .hover();
+        await page
+          .getByRole("button", {
+            name: editor.dictionary.side_menu.drag_handle_label,
+            exact: true,
+          })
+          .click();
+        const menu = page.getByRole("menu");
+        await expect.element(menu).toBeVisible();
+
+        remote.updateBlock("table", {
+          content: {
+            type: "tableContent",
+            rows: [{ cells: ["Remote edit", "B"] }, { cells: ["C", "D"] }],
+          },
+        });
+        Y.applyUpdateV2(doc, Y.encodeStateAsUpdateV2(remoteDoc));
+        await expect
+          .element(
+            table.getByRole("cell", { name: "Remote edit", exact: true }),
+          )
+          .toBeVisible();
+        const synced = editor.getBlock("table");
+        assert(synced?.type === "table");
+
+        await menu
+          .getByRole("menuitem", {
+            name: editor.dictionary.drag_handle[label],
+            exact: true,
+          })
+          .click();
+        Y.applyUpdateV2(remoteDoc, Y.encodeStateAsUpdateV2(doc));
+
+        const expected = {
+          ...synced,
+          content: { ...synced.content, [header]: 1 },
+        };
+        expect(editor.getBlock("table")).toEqual(expected);
+        expect(remote.getBlock("table")).toEqual(expected);
+        await expect.element(menu).not.toBeInTheDocument();
+      },
+    );
   });
 
   describe("aria", () => {
@@ -479,7 +560,7 @@ describe("DragHandleButton", () => {
       assert(extension);
       extension.store.setState({
         show: true,
-        block: editor.document[0],
+        blockId: editor.document[0].id,
         referencePos: new DOMRect(),
       });
       const button = page.getByRole("button", {
@@ -510,7 +591,7 @@ describe("DragHandleButton", () => {
       assert(extension);
       extension.store.setState({
         show: true,
-        block: editor.document[0],
+        blockId: editor.document[0].id,
         referencePos: new DOMRect(),
       });
       await page
@@ -544,7 +625,7 @@ describe("DragHandleButton", () => {
       assert(extension);
       extension.store.setState({
         show: true,
-        block: editor.document[0],
+        blockId: editor.document[0].id,
         referencePos: new DOMRect(),
       });
       const button = page.getByRole("button", {
@@ -568,7 +649,7 @@ describe("DragHandleButton", () => {
       assert(extension);
       extension.store.setState({
         show: true,
-        block: editor.document[0],
+        blockId: editor.document[0].id,
         referencePos: new DOMRect(),
       });
       await page
@@ -611,7 +692,7 @@ describe("DragHandleButton", () => {
       assert(extension);
       extension.store.setState({
         show: true,
-        block: editor.document[0],
+        blockId: editor.document[0].id,
         referencePos: new DOMRect(),
       });
       await page
@@ -660,7 +741,7 @@ describe("DragHandleButton", () => {
       assert(extension);
       extension.store.setState({
         show: true,
-        block: editor.document[0],
+        blockId: editor.document[0].id,
         referencePos: new DOMRect(),
       });
       const button = page.getByRole("button", {
@@ -686,7 +767,7 @@ describe("DragHandleButton", () => {
         assert(extension);
         extension.store.setState({
           show: true,
-          block: editor.document[0],
+          blockId: editor.document[0].id,
           referencePos: new DOMRect(),
         });
         const trigger = page.getByRole("button", {
@@ -722,11 +803,9 @@ describe("DragHandleButton", () => {
       });
       const extension = editor.getExtension(SideMenuExtension);
       assert(extension);
-      const block = editor.getBlock("target");
-      assert(block);
       extension.store.setState({
         show: true,
-        block,
+        blockId: "target",
         referencePos: new DOMRect(),
       });
       const expected = editor.document.slice(1);

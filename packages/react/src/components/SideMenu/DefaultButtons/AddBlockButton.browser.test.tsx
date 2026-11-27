@@ -18,7 +18,7 @@ describe("AddBlockButton", () => {
       assert(extension);
       extension.store.setState({
         show: true,
-        block: editor.document[0],
+        blockId: editor.document[0].id,
         referencePos: new DOMRect(),
       });
       const button = page.getByRole("button", {
@@ -57,7 +57,7 @@ describe("AddBlockButton", () => {
       assert(extension);
       extension.store.setState({
         show: true,
-        block: editor.document[0],
+        blockId: editor.document[0].id,
         referencePos: new DOMRect(),
       });
       const button = page.getByRole("button", {
@@ -104,11 +104,9 @@ describe("AddBlockButton", () => {
       });
       const extension = editor.getExtension(SideMenuExtension);
       assert(extension);
-      const block = editor.getBlock("target");
-      assert(block);
       extension.store.setState({
         show: true,
-        block,
+        blockId: "target",
         referencePos: new DOMRect(),
       });
       const before = editor.document;
@@ -139,11 +137,9 @@ describe("AddBlockButton", () => {
       });
       const extension = editor.getExtension(SideMenuExtension);
       assert(extension);
-      const block = editor.getBlock("target");
-      assert(block);
       extension.store.setState({
         show: true,
-        block,
+        blockId: "target",
         referencePos: new DOMRect(),
       });
       const [target, next] = editor.document;
@@ -179,7 +175,7 @@ describe("AddBlockButton", () => {
       assert(extension);
       extension.store.setState({
         show: true,
-        block: editor.document[0],
+        blockId: editor.document[0].id,
         referencePos: new DOMRect(),
       });
       const button = page.getByRole("button", {
@@ -208,7 +204,7 @@ describe("AddBlockButton", () => {
       assert(extension);
       extension.store.setState({
         show: true,
-        block: editor.document[0],
+        blockId: editor.document[0].id,
         referencePos: new DOMRect(),
       });
       const button = page.getByRole("button", {
@@ -232,7 +228,7 @@ describe("AddBlockButton", () => {
         assert(extension);
         extension.store.setState({
           show: true,
-          block: editor.document[0],
+          blockId: editor.document[0].id,
           referencePos: new DOMRect(),
         });
         const button = page.getByRole("button", {
@@ -265,7 +261,7 @@ describe("AddBlockButton", () => {
       assert(extension);
       extension.store.setState({
         show: true,
-        block: editor.document[0],
+        blockId: editor.document[0].id,
         referencePos: new DOMRect(),
       });
       const button = page.getByRole("button", {

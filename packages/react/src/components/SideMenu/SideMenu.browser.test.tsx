@@ -45,7 +45,7 @@ describe("SideMenu", () => {
       assert(extension);
       extension.store.setState({
         show: true,
-        block: editor.document[0],
+        blockId: editor.document[0].id,
         referencePos: new DOMRect(),
       });
       await page
@@ -80,7 +80,7 @@ describe("SideMenu", () => {
         assert(extension);
         extension.store.setState({
           show: true,
-          block: editor.document[0],
+          blockId: editor.document[0].id,
           referencePos: new DOMRect(),
         });
         const add = page.getByRole("button", {

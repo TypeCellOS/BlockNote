@@ -31,18 +31,18 @@ export const DragHandleButton = (
     editor,
     selector: ({ editor }) => editor.isEditable,
   });
-  const block = useExtensionState(SideMenuExtension, {
-    selector: (state) => state?.block,
+  const blockId = useExtensionState(SideMenuExtension, {
+    selector: (state) => state?.blockId,
   });
 
   // Release the freeze when the open menu can no longer be shown.
   const menuOpen = useRef(false);
   useEffect(() => {
-    if ((!isEditable || block === undefined) && menuOpen.current) {
+    if ((!isEditable || blockId === undefined) && menuOpen.current) {
       menuOpen.current = false;
       sideMenu.unfreezeMenu();
     }
-  }, [isEditable, block, sideMenu]);
+  }, [isEditable, blockId, sideMenu]);
 
   useEffect(() => {
     return () => {
@@ -53,7 +53,7 @@ export const DragHandleButton = (
     };
   }, [sideMenu]);
 
-  if (!isEditable || block === undefined) {
+  if (!isEditable || blockId === undefined) {
     return null;
   }
 
@@ -76,7 +76,7 @@ export const DragHandleButton = (
         <Components.SideMenu.Button
           label={dict.side_menu.drag_handle_label}
           draggable={true}
-          onDragStart={(e) => sideMenu.blockDragStart(e, block)}
+          onDragStart={(e) => sideMenu.blockDragStart(e, blockId)}
           // eslint-disable-next-line @typescript-eslint/unbound-method -- blockDragEnd is a plain object method, not a class method
           onDragEnd={sideMenu.blockDragEnd}
           className={"bn-side-menu-button"}
@@ -84,7 +84,7 @@ export const DragHandleButton = (
             <MdDragIndicator
               size={24}
               data-test="dragHandle"
-              data-side-menu-block-id={block.id}
+              data-side-menu-block-id={blockId}
             />
           }
         />

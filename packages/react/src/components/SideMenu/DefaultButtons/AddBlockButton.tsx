@@ -22,12 +22,13 @@ export const AddBlockButton = () => {
     editor,
     selector: ({ editor }) => editor.isEditable,
   });
-  const block = useExtensionState(SideMenuExtension, {
+  const blockId = useExtensionState(SideMenuExtension, {
     editor,
-    selector: (state) => state?.block,
+    selector: (state) => state?.blockId,
   });
 
   const onClick = useCallback(() => {
+    const block = blockId !== undefined ? editor.getBlock(blockId) : undefined;
     if (block === undefined) {
       return;
     }
@@ -50,9 +51,9 @@ export const AddBlockButton = () => {
       editor.setTextCursorPosition(insertedBlock);
       suggestionMenu.openSuggestionMenu("/");
     }
-  }, [block, editor, suggestionMenu]);
+  }, [blockId, editor, suggestionMenu]);
 
-  if (!isEditable || block === undefined) {
+  if (!isEditable || blockId === undefined) {
     return null;
   }
 

@@ -99,7 +99,7 @@ afterEach(async () => {
 /** The block the side menu shows for in an editor, or `undefined`. */
 function menuBlock(name = "main"): string | undefined {
   const state = editors[name].getExtension(SideMenuExtension)?.store.state;
-  return state?.show ? state.block.id : undefined;
+  return state?.show ? state.blockId : undefined;
 }
 
 function blockContent(id: string, name = "main") {
@@ -1249,7 +1249,7 @@ describe("side menu hover: regressions against main", () => {
       await walk([{ x: 1, y: 1 }]);
       await walk([{ x, y }], 1);
       const state = outer!.getExtension(SideMenuExtension)?.store.state;
-      expect(state?.show ? state.block.id : undefined).toBe("n");
+      expect(state?.show ? state.blockId : undefined).toBe("n");
     }
   });
 });
