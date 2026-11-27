@@ -2,6 +2,10 @@ import { describe, expect } from "vite-plus/test";
 import { markdownToHtml } from "./markdownToHtml.js";
 
 describe("markdownToHtml", () => {
+  it("keeps an unmatched backtick run literal", () => {
+    expect(markdownToHtml("``a`")).toBe("<p>``a`</p>");
+  });
+
   it("unescapes ASCII punctuation in a link destination", () => {
     expect(markdownToHtml(String.raw`[x](https://example.com/a\?q\=1)`)).toBe(
       '<p><a href="https://example.com/a?q=1">x</a></p>',
