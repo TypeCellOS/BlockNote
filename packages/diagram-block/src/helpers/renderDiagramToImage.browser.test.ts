@@ -1,6 +1,5 @@
 import { exportImageToDataURL } from "@blocknote/core";
-import { decodeAndSample } from "@shared/util/browserImageTestUtil.js";
-import { describe, expect, test } from "vite-plus/test";
+import { describe, expect } from "vite-plus/test";
 
 import { renderDiagramToImage } from "./renderDiagramToImage.js";
 
@@ -8,10 +7,10 @@ import { renderDiagramToImage } from "./renderDiagramToImage.js";
 // `RenderDiagram` implementation that the (node) unit suites replace with
 // stubs. Runs in the tests package's browser suite.
 describe("renderDiagramToImage", () => {
-  test(
+  it(
     "renders Mermaid source to a non-blank PNG",
     { timeout: 15000 },
-    async () => {
+    async ({ decodeAndSample }) => {
       const result = await renderDiagramToImage(
         "graph TD\n  A[Start] --> B[End]",
       );
@@ -32,7 +31,7 @@ describe("renderDiagramToImage", () => {
     },
   );
 
-  test(
+  it(
     "returns invalid Mermaid source as a typed error",
     { timeout: 15000 },
     async () => {

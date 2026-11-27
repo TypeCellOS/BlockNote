@@ -9,7 +9,7 @@ import {
   StyleSchema,
   StyledText,
 } from "@blocknote/core";
-import { corsProxyResolveFileUrl } from "@shared/api/corsProxy.js";
+import { corsProxyResolveFileUrl } from "./corsProxy.js";
 import { TYPST_CODE_THEME_BYTES, TYPST_CODE_THEME_PATH } from "./codeTheme.js";
 import {
   CHECKBOX_MARKER_DEFS,

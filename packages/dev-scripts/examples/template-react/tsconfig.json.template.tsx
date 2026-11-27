@@ -18,9 +18,6 @@ const template = (_project: Project) => ({
     noEmit: true,
     jsx: "react-jsx",
     composite: true,
-    // The repo-wide alias for the shared test-utils directory (private, so it
-    // only resolves inside the monorepo). Harmless for examples that don't use it.
-    paths: { "@shared/*": ["../../../shared/*"] },
   },
   include: ["."],
   __ADD_FOR_LOCAL_DEV_references: [

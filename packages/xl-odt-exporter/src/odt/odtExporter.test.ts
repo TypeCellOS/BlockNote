@@ -3,38 +3,41 @@ import {
   createPageBreakBlockSpec,
   defaultBlockSpecs,
 } from "@blocknote/core";
-import { partialBlocksToBlocksForTesting } from "@shared/formatConversionTestUtil.js";
-import { testODTDocumentAgainstSnapshot } from "@shared/util/odtTestUtil.js";
-import { testDocument } from "@shared/testDocument.js";
-import { describe, expect, it } from "vite-plus/test";
+import { testDocument } from "../../../../tests/src/fixtures/exporters/testDocument.js";
+import { describe, expect } from "vite-plus/test";
 import { createElement } from "react";
 import { odtDefaultSchemaMappings } from "./defaultSchema/index.js";
 import { ODTExporter } from "./odtExporter.js";
 import { ColumnBlock, ColumnListBlock } from "@blocknote/xl-multi-column";
-import { testResolveFileUrl } from "@shared/util/testFileResolver.js";
 
 describe("exporter", () => {
-  it("should export a document", { timeout: 10000 }, async () => {
-    const exporter = new ODTExporter(
-      BlockNoteSchema.create({
-        blockSpecs: {
-          ...defaultBlockSpecs,
-          pageBreak: createPageBreakBlockSpec(),
-          column: ColumnBlock,
-          columnList: ColumnListBlock,
-        },
-      }),
-      odtDefaultSchemaMappings,
-      { resolveFileUrl: testResolveFileUrl },
-    );
-    const odt = await exporter.toODTDocument(testDocument);
-    await testODTDocumentAgainstSnapshot(odt, {
-      styles: "__snapshots__/basic/styles.xml",
-      content: "__snapshots__/basic/content.xml",
-    });
-  });
+  it(
+    "should export a document",
+    { timeout: 10000 },
+    async ({ testResolveFileUrl, testODTDocumentAgainstSnapshot }) => {
+      const exporter = new ODTExporter(
+        BlockNoteSchema.create({
+          blockSpecs: {
+            ...defaultBlockSpecs,
+            pageBreak: createPageBreakBlockSpec(),
+            column: ColumnBlock,
+            columnList: ColumnListBlock,
+          },
+        }),
+        odtDefaultSchemaMappings,
+        { resolveFileUrl: testResolveFileUrl },
+      );
+      const odt = await exporter.toODTDocument(testDocument);
+      await testODTDocumentAgainstSnapshot(odt, {
+        styles: "__snapshots__/basic/styles.xml",
+        content: "__snapshots__/basic/content.xml",
+      });
+    },
+  );
 
-  it("passes raw block and inline mapping results to custom mappings", async () => {
+  it("passes raw block and inline mapping results to custom mappings", async ({
+    partialBlocksToBlocksForTesting,
+  }) => {
     const schema = BlockNoteSchema.create();
     const child = createElement("text:p", null, "visible child");
     const parent = createElement("text:section");
@@ -76,7 +79,7 @@ describe("exporter", () => {
     expect(await exporter.transformBlocks(blocks)).toEqual([parent]);
   });
 
-  it("deduplicates identical automatic styles", () => {
+  it("deduplicates identical automatic styles", ({ testResolveFileUrl }) => {
     const exporter = new ODTExporter(
       BlockNoteSchema.create({
         blockSpecs: {

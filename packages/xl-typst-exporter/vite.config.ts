@@ -1,30 +1,14 @@
 import * as path from "path";
-import { webpackStats } from "rollup-plugin-webpack-stats";
 import { configDefaults, defineConfig, type UserConfig } from "vite-plus";
-import { buildCacheInputs } from "../../scripts/build-cache-inputs.js";
+import { libraryBuildTask } from "../../scripts/build-cache-inputs.js";
+import { typescriptBuild } from "../../scripts/vite-typescript-build.js";
 
 // https://vitejs.dev/config/
 export default defineConfig(
   (conf) =>
     ({
       run: {
-        tasks: {
-          build: {
-            command:
-              "tsc --project tsconfig.json --composite false --incremental false --rootDir . && vp build",
-            cache: {
-              input: [
-                ...buildCacheInputs("packages/xl-typst-exporter"),
-                { pattern: "!**/*.tsbuildinfo", base: "workspace" },
-              ],
-              // `types/**` must be declared too: a cache replay that restores only
-              // dist/ leaves consumers without declarations (tsc is skipped).
-              // Entries stored before this spec carried types/** replay stale
-              // declarations; editing this config invalidates them.
-              output: ["dist/**", "types/**", "!dist/*.tsbuildinfo"],
-            },
-          },
-        },
+        tasks: { build: libraryBuildTask("packages/xl-typst-exporter") },
       },
       test: {
         // Preserve Vitest 4 mock history during the toolchain upgrade.
@@ -35,27 +19,19 @@ export default defineConfig(
         exclude: [...configDefaults.exclude, "**/*.browser.test.*"],
         testTimeout: 15000,
       },
-      plugins: [webpackStats() as any],
+      plugins: [typescriptBuild()],
       // resolve workspace packages from sources (live reload) in dev/test
       resolve: {
         alias:
           conf.command === "build"
-            ? ({
-                "@shared": path.resolve(__dirname, "../../shared/"),
-              } as Record<string, string>)
+            ? ({} as Record<string, string>)
             : ({
-                "@shared": path.resolve(__dirname, "../../shared/"),
                 "@blocknote/core": path.resolve(__dirname, "../core/src/"),
                 "@blocknote/xl-multi-column": path.resolve(
                   __dirname,
                   "../xl-multi-column/src/",
                 ),
               } as Record<string, string>),
-      },
-      server: {
-        fs: {
-          allow: ["../../shared"],
-        },
       },
       build: {
         sourcemap: false,

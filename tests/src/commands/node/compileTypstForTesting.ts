@@ -10,7 +10,7 @@ type TypstCompilerInstance =
 function wasmBytes(): Uint8Array {
   const path = resolve(
     __dirname,
-    "../../packages/xl-typst-compiler/pkg/blocknote_typst_wasm_bg.wasm",
+    "../../../../packages/xl-typst-compiler/pkg/blocknote_typst_wasm_bg.wasm",
   );
   try {
     return new Uint8Array(readFileSync(path));
@@ -27,7 +27,7 @@ function wasmBytes(): Uint8Array {
 // this is deterministic across machines - a test render can only use fonts
 // that are checked into the repo.
 function defaultFontBlobs(): Uint8Array[] {
-  const fontDir = resolve(__dirname, "../assets/fonts");
+  const fontDir = resolve(__dirname, "../../../../shared/assets/fonts");
   return [
     "inter/Inter_18pt-Regular.ttf",
     "inter/Inter_18pt-Italic.ttf",

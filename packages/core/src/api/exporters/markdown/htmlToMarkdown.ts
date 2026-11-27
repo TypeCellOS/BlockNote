@@ -1,3 +1,4 @@
+import { parseLinkFigure } from "../../../blocks/File/helpers/parse/parseLinkFigure.js";
 import { parseAutolinkLiteral } from "../../parsers/markdown/autolink.js";
 import { wrapWithDelimiter } from "./wrapWithDelimiter.js";
 
@@ -626,6 +627,16 @@ function serializeFigure(el: HTMLElement, ctx: SerializeContext): string {
       ctx,
     );
   }
+  const linkFigure = parseLinkFigure(el);
+  if (linkFigure) {
+    return serializeMediaFigure(
+      "a",
+      linkFigure.url,
+      linkFigure.name || linkFigure.url,
+      linkFigure.caption,
+      ctx,
+    );
+  }
   if (link) {
     return serializeBlockLink(link as HTMLElement, ctx);
   }
@@ -633,7 +644,7 @@ function serializeFigure(el: HTMLElement, ctx: SerializeContext): string {
 }
 
 function serializeMediaFigure(
-  kind: "img" | "video" | "audio",
+  kind: "img" | "video" | "audio" | "a",
   src: string,
   descriptor: string,
   captionText: string,
@@ -644,7 +655,7 @@ function serializeMediaFigure(
   }
 
   // No caption + has a markdown shorthand → use it.
-  if (!captionText && kind !== "audio") {
+  if (!captionText && (kind === "img" || kind === "video")) {
     return ctx.indent + `![${descriptor}](${src})\n\n`;
   }
 
@@ -664,10 +675,14 @@ function serializeMediaFigure(
   const tag =
     kind === "img"
       ? `<img${descAttr} src="${escapeHtmlAttr(src)}">`
-      : `<${kind} src="${escapeHtmlAttr(src)}"${descAttr} controls></${kind}>`;
+      : kind === "a"
+        ? `<a href="${escapeHtmlAttr(src)}">${escapeHtmlText(descriptor)}</a>`
+        : `<${kind} src="${escapeHtmlAttr(src)}"${descAttr} controls></${kind}>`;
 
+  // A line feed is a character reference, so that the figure stays on one
+  // line: an empty line in the caption would end the HTML block in markdown.
   const captionPart = captionText
-    ? `<figcaption>${escapeHtmlText(captionText)}</figcaption>`
+    ? `<figcaption>${escapeHtmlText(captionText).replace(/\n/g, "&#10;")}</figcaption>`
     : "";
   return ctx.indent + `<figure>${tag}${captionPart}</figure>\n\n`;
 }

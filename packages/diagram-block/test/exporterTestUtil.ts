@@ -1,7 +1,7 @@
-import { TEST_PNG_BYTES } from "@shared/util/testBytesUtil.js";
+import { TEST_PNG_BYTES } from "../../../tests/src/fixtures/exporters/testPngBytes.js";
 import { BlobReader, FileEntry, TextWriter, ZipReader } from "@zip.js/zip.js";
 
-import type { RenderDiagram } from "./helpers/renderDiagramToImage.js";
+import type { RenderDiagram } from "../src/helpers/renderDiagramToImage.js";
 
 export const diagramDocument = [
   {

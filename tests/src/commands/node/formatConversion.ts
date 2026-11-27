@@ -1,5 +1,3 @@
-// TODO: remove duplicate file
-
 import {
   Block,
   BlockNoteSchema,

@@ -138,13 +138,6 @@ export default defineConfig(
         // src/examples.d.ts.
         alias: {
           ...blockNoteSrcAliases,
-          // The shared test-utils package lives at the repo root (not under
-          // packages/), so it isn't picked up by the packages scan above.
-          // All consumers - test code and example apps alike - import it via
-          // the repo-wide `@shared` path alias (matching the packages' vite
-          // and tsconfig setups); the package itself is private, so its name
-          // resolves nowhere outside the workspace anyway.
-          "@shared": path.resolve(__dirname, "../shared"),
           "@examples": path.resolve(__dirname, "../examples"),
         },
       },

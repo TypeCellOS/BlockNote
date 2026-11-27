@@ -62,11 +62,3 @@ export async function loadFileBuffer(requireUrl: {
     return arrayBuffer;
   }
 }
-
-/**
- * usage:
- * 
- *  await loadFontDataUrl(
-      await import("../fonts/inter/Inter_18pt-Italic.ttf")
-    );
- */

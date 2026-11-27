@@ -807,6 +807,20 @@ console.log("Third Line")</code></pre>`,
   </li>
 </ul>`,
   },
+  // The checkbox belongs to the child. The toggle stays a toggle list item.
+  {
+    name: "toggleListItemWithCheckListChild",
+    content: `<ul>
+  <li>
+    <details open="">
+      <summary><p>Toggle Item</p></summary>
+      <ul>
+        <li><input type="checkbox" checked=""><p>Check Child</p></li>
+      </ul>
+    </details>
+  </li>
+</ul>`,
+  },
   {
     name: "toggleHeading",
     content: `<details>
@@ -1617,6 +1631,16 @@ Paragraph after table`,
     content: `Col 1 | Col 2
 ----- | -----
 A     | B`,
+  },
+  // A line that starts with a pipe, has many more pipes, and does not end
+  // with a pipe is not a table row: it stays in its paragraph or quote.
+  {
+    name: "pipeLineInParagraph",
+    content: `x\n|${" a |".repeat(60)} x\n`,
+  },
+  {
+    name: "pipeLineInQuote",
+    content: `> q\n|${" a |".repeat(60)} x\n`,
   },
   // Indented fenced code block (up to 3 leading spaces per CommonMark)
   {

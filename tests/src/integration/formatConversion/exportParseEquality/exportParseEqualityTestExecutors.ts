@@ -6,7 +6,7 @@ import {
   nodeToBlock,
   StyleSchema,
 } from "@blocknote/core";
-import { partialBlocksToBlocksForTesting } from "@shared/formatConversionTestUtil.js";
+import { partialBlocksToBlocksForTesting } from "../../../commands/node/formatConversion.js";
 import { expect } from "vite-plus/test";
 
 import { testOptionsHost } from "../../support/testOptions.js";

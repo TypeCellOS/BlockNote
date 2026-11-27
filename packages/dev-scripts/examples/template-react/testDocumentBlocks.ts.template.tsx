@@ -5,7 +5,7 @@ import { fileURLToPath } from "node:url";
 import type { Project } from "../util.js";
 
 /**
- * Emits the shared example document (`shared/testDocumentBlocks.ts`) into the
+ * Emits the shared example document (`tests/src/fixtures/exporters/testDocumentBlocks.ts`) into the
  * example verbatim, so the example can `import { testDocumentBlocks }` for its
  * editor `initialContent` and still run standalone (no cross-directory imports).
  *
@@ -24,11 +24,11 @@ export const targetPath = "src/testDocumentBlocks.ts";
 const template = () => {
   const sharedFile = path.resolve(
     path.dirname(fileURLToPath(import.meta.url)),
-    "../../../../shared/testDocumentBlocks.ts",
+    "../../../../tests/src/fixtures/exporters/testDocumentBlocks.ts",
   );
   const source = fs.readFileSync(sharedFile, "utf-8");
   return `// AUTO-GENERATED FILE, DO NOT EDIT DIRECTLY.
-// Generated from shared/testDocumentBlocks.ts — run \`pnpm run gen\` to update.
+// Generated from tests/src/fixtures/exporters/testDocumentBlocks.ts — run \`pnpm run gen\` to update.
 ${source}`;
 };
 

@@ -3,9 +3,8 @@ import {
   TypstExporter,
   typstDefaultSchemaMappings,
 } from "@blocknote/xl-typst-exporter";
-import { testDocumentWithSourceBlocks } from "@shared/testDocument.js";
-import { compileTypstForTesting } from "@shared/util/typstTestUtil.js";
-import { describe, expect, it } from "vite-plus/test";
+import { testDocumentWithSourceBlocks } from "../../../../tests/src/fixtures/exporters/testDocument.js";
+import { describe, expect } from "vite-plus/test";
 
 import { inlineMathMapping, mathBlockMapping } from "./index.js";
 
@@ -34,7 +33,7 @@ describe("typst exporter mappings", () => {
   it(
     "should export math as native typst equations",
     { timeout: 20000 },
-    async () => {
+    async ({ compileTypstForTesting }) => {
       const exporter = createExporter();
 
       // The math block & inline math paragraph from the shared test document.

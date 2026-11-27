@@ -14,15 +14,8 @@
     "noUnusedLocals": true,
     "noUnusedParameters": true,
     "noImplicitReturns": true,
-    "outDir": "dist",
-    "declaration": true,
-    "declarationDir": "types",
-    "composite": true,
     "skipLibCheck": true,
-    "types": ["node"],
-    "paths": {
-      "@shared/*": ["../shared/*"]
-    }
+    "types": ["node"]
   },
   "include": ["src", "vitestSetup.browser-fixtures.ts"],
   "exclude": ["src/integration/**/*.test.*"],
@@ -32,9 +25,6 @@
     },
     {
       "path": "../packages/react"
-    },
-    {
-      "path": "../shared"
     }
   ]
 }
