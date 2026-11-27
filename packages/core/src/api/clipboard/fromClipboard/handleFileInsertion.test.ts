@@ -61,7 +61,11 @@ describe("File insertion", () => {
       // The mounted regression separately covers browser coordinate resolution.
       Object.defineProperty(editor, "prosemirrorView", {
         value: {
-          posAtCoords: () => ({ pos: positions[position], inside: -1 }),
+          posAtCoords: () => ({
+            pos: positions[position],
+            inside: -1,
+            affinity: 0,
+          }),
         } satisfies Pick<BlockNoteEditor["prosemirrorView"], "posAtCoords">,
       });
       Object.defineProperty(editor, "domElement", {
@@ -151,7 +155,7 @@ describe("File insertion", () => {
                           targetPos = pos + 1;
                         }
                       });
-                      return { pos: targetPos, inside: -1 };
+                      return { pos: targetPos, inside: -1, affinity: 0 };
                     }),
                 } satisfies Pick<
                   BlockNoteEditor["prosemirrorView"],
@@ -246,7 +250,7 @@ describe("File insertion", () => {
         if (eventType === "drop") {
           Object.defineProperty(editor, "prosemirrorView", {
             value: {
-              posAtCoords: () => ({ pos: 1, inside: -1 }),
+              posAtCoords: () => ({ pos: 1, inside: -1, affinity: 0 }),
             } satisfies Pick<BlockNoteEditor["prosemirrorView"], "posAtCoords">,
           });
         }
