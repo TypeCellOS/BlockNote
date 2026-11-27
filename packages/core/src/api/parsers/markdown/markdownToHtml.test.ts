@@ -55,6 +55,19 @@ describe("markdownToHtml", () => {
       "<blockquote><h1>H</h1></blockquote><p><code>x</code></p>",
     ],
     ["> A\nB\n> C", "<blockquote><p>A<br>B<br>C</p></blockquote>"],
+    ["> - A\nB", "<blockquote><ul><li><p>A</p></li></ul><p>B</p></blockquote>"],
+    [
+      "> > - A\nB",
+      "<blockquote><blockquote><ul><li><p>A</p></li></ul><p>B</p></blockquote></blockquote>",
+    ],
+    [
+      "> - A\n>   # H\nB",
+      "<blockquote><ul><li><p>A</p><h1>H</h1></li></ul></blockquote><p>B</p>",
+    ],
+    [
+      "> - A\n>\nB",
+      "<blockquote><ul><li><p>A</p></li></ul></blockquote><p>B</p>",
+    ],
     [
       "> > A\nB\n> > C\nD",
       "<blockquote><blockquote><p>A<br>B<br>C<br>D</p></blockquote></blockquote>",

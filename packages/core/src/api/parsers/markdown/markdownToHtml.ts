@@ -862,10 +862,24 @@ function quoteMarker(line: string): boolean {
 
 function endsInQuotedParagraph(tokens: Token[]): boolean {
   let last = tokens.at(-1);
-  while (last?.type === "blockquote") {
-    last = last.children.at(-1);
+  while (last) {
+    switch (last.type) {
+      case "paragraph":
+        return true;
+      case "blockquote":
+        last = last.children.at(-1);
+        break;
+      case "listItem":
+        if (!last.childContent) {
+          return canContinueParagraph(last.content);
+        }
+        last = tokenize(last.childContent).at(-1);
+        break;
+      default:
+        return false;
+    }
   }
-  return last?.type === "paragraph";
+  return false;
 }
 
 function canContinueParagraph(line: string): boolean {
