@@ -1756,6 +1756,17 @@ Line two`,
 Line two\\
 Line three`,
   },
+  // An indented text line directly after the line of a list item is a child
+  // paragraph. The markdown export does not need a different result: it
+  // writes a hard break in a list item as a `<br>` tag in the line of the
+  // item.
+  {
+    name: "listItemIndentedTextLine",
+    content: `- a
+  b
+1. **Title**
+   Description`,
+  },
   // Backslash escapes
   {
     name: "backslashEscapes",

@@ -817,6 +817,148 @@ export const markdownRoundTripCases: CoreExportCase[] = [
     ],
   },
   {
+    name: "markdown/hardBreakInHeading",
+    content: [
+      {
+        type: "heading",
+        content: [
+          {
+            type: "text",
+            text: "Line 1\nLine 2",
+            styles: {},
+          },
+        ],
+      },
+    ],
+  },
+  {
+    name: "markdown/hardBreakInListItems",
+    content: [
+      {
+        type: "bulletListItem",
+        content: [
+          {
+            type: "text",
+            text: "Bullet 1\nBullet 2",
+            styles: {},
+          },
+        ],
+        children: [
+          {
+            type: "bulletListItem",
+            content: [
+              {
+                type: "text",
+                text: "Nested 1\nNested 2",
+                styles: {},
+              },
+            ],
+          },
+        ],
+      },
+      {
+        type: "numberedListItem",
+        content: [
+          {
+            type: "text",
+            text: "Numbered 1\nNumbered 2",
+            styles: {},
+          },
+        ],
+      },
+      {
+        type: "checkListItem",
+        content: [
+          {
+            type: "text",
+            text: "Check 1\nCheck 2",
+            styles: {},
+          },
+        ],
+      },
+      // Markdown has no toggle, so this comes back as a bullet list item.
+      {
+        type: "toggleListItem",
+        content: "Toggle",
+        children: [
+          {
+            type: "paragraph",
+            content: [
+              {
+                type: "text",
+                text: "Child 1\nChild 2",
+                styles: {},
+              },
+            ],
+          },
+        ],
+      },
+    ],
+  },
+  // The parser reads a line below a check list item as a part of the item
+  // only if it starts a list item, or if it has the indent of the text after
+  // the checkbox. Thus the text of a list item below a check list item must
+  // be one line.
+  {
+    name: "markdown/hardBreakBelowCheckListItem",
+    content: [
+      {
+        type: "checkListItem",
+        content: "Check A",
+        children: [
+          {
+            type: "bulletListItem",
+            content: [
+              {
+                type: "text",
+                text: "Bullet 1\nBullet 2",
+                styles: {},
+              },
+            ],
+            children: [
+              {
+                type: "bulletListItem",
+                content: [
+                  {
+                    type: "text",
+                    text: "Nested 1\nNested 2",
+                    styles: {},
+                  },
+                ],
+              },
+            ],
+          },
+          {
+            type: "checkListItem",
+            content: [
+              {
+                type: "text",
+                text: "Check 1\nCheck 2",
+                styles: {},
+              },
+            ],
+          },
+        ],
+      },
+      {
+        type: "checkListItem",
+        content: "Check B",
+        children: [
+          {
+            type: "numberedListItem",
+            content: [
+              {
+                type: "text",
+                text: "Numbered 1\nNumbered 2",
+                styles: {},
+              },
+            ],
+          },
+        ],
+      },
+    ],
+  },
+  {
     name: "markdown/mixedStyles",
     content: [
       {
