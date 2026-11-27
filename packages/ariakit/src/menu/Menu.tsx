@@ -12,6 +12,7 @@ import {
 import { assertEmpty, mergeCSSClasses } from "@blocknote/core";
 import { ComponentProps, preventFocusOnTap } from "@blocknote/react";
 import { createContext, forwardRef, useContext } from "react";
+import { useEditorRTL } from "../useEditorRTL.js";
 
 // Hands the `portalElement` and `preventFocusOnOpen` props from `Menu` (the
 // root) down to `MenuDropdown`, where Ariakit takes them.
@@ -32,9 +33,11 @@ export const Menu = (props: ComponentProps["Generic"]["Menu"]["Root"]) => {
   } = props;
 
   assertEmpty(rest);
+  const rtl = useEditorRTL(portalElement);
 
   return (
     <AriakitMenuProvider
+      rtl={rtl}
       placement={position}
       setOpen={onOpenChange}
       virtualFocus={true}

@@ -7,6 +7,7 @@ import { useBlockNoteEditor } from "../../../hooks/useBlockNoteEditor.js";
 import { useEditorState } from "../../../hooks/useEditorState.js";
 import { usePortalElement } from "../../../editor/PortalElementOverride.js";
 import { useDictionary } from "../../../i18n/dictionary.js";
+import { useEditorDirection } from "../../../hooks/useEditorDirection.js";
 import { DragHandleMenu } from "../DragHandleMenu/DragHandleMenu.js";
 import { SideMenuProps } from "../SideMenuProps.js";
 import {
@@ -22,6 +23,7 @@ export const DragHandleButton = (
   const Components = useComponentsContext()!;
   const portalElement = usePortalElement();
   const dict = useDictionary();
+  const direction = useEditorDirection();
 
   const editor = useBlockNoteEditor();
   const sideMenu = useExtension(SideMenuExtension);
@@ -67,7 +69,7 @@ export const DragHandleButton = (
           sideMenu.unfreezeMenu();
         }
       }}
-      position={"left"}
+      position={direction === "rtl" ? "right" : "left"}
       portalElement={portalElement}
     >
       <Components.Generic.Menu.Trigger>

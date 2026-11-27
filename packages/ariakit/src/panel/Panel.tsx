@@ -8,6 +8,7 @@ import {
 import { assertEmpty, mergeCSSClasses } from "@blocknote/core";
 import { ComponentProps } from "@blocknote/react";
 import { forwardRef } from "react";
+import { useEditorRTL } from "../useEditorRTL.js";
 
 export const Panel = forwardRef<
   HTMLDivElement,
@@ -23,6 +24,7 @@ export const Panel = forwardRef<
     ...rest
   } = props;
   assertEmpty(rest);
+  const rtl = useEditorRTL();
 
   return (
     <div
@@ -30,6 +32,7 @@ export const Panel = forwardRef<
       ref={ref}
     >
       <AriakitTabProvider
+        rtl={rtl}
         defaultSelectedId={defaultOpenTab}
         selectedId={openTab}
         setActiveId={(activeId: string | null | undefined) => {
