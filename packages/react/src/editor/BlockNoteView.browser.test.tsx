@@ -1,6 +1,7 @@
 import {
   COLORS_DEFAULT,
   defaultBlockSpecs,
+  isDOMHTMLElement,
   type PartialBlock,
   type DefaultBlockSchema,
   type PartialInlineContentElement,
@@ -711,10 +712,9 @@ if (!screenReader) {
     // size, not just the base editor font size.
     function resizeText(scale: number) {
       function rulesFor(element: Element, selector: string): string {
-        const rule =
-          element instanceof HTMLElement
-            ? `${selector} { font-size: ${Number.parseFloat(getComputedStyle(element).fontSize) * scale}px !important; }`
-            : "";
+        const rule = isDOMHTMLElement(element)
+          ? `${selector} { font-size: ${Number.parseFloat(getComputedStyle(element).fontSize) * scale}px !important; }`
+          : "";
         return [
           rule,
           ...Array.from(element.children, (child, index) =>

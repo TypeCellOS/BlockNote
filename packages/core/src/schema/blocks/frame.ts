@@ -8,6 +8,7 @@ import type {
 
 import { nodeToBlock } from "../../api/nodeConversions/nodeToBlock.js";
 import type { BlockNoteEditor } from "../../editor/BlockNoteEditor.js";
+import { isDOMNode } from "../../util/browser.js";
 import { isDarkReaderMutation } from "../nodeViewMutations.js";
 import { applyLayoutBlockAttributes } from "./layoutBlockAttributes.js";
 import type { BlockConfig, BlockImplementation } from "./types.js";
@@ -288,7 +289,7 @@ export function isFrameChromeEvent(
 ): boolean {
   const target = event.target;
   return (
-    target instanceof globalThis.Node &&
+    isDOMNode(target) &&
     frame.dom.contains(target) &&
     !frame.slot.contains(target) &&
     !editorEvents.has(event.type)

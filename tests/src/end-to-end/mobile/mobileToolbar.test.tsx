@@ -1,3 +1,4 @@
+import { isDOMNode } from "@blocknote/core";
 import "@blocknote/core/fonts/inter.css";
 import { SideMenuExtension } from "@blocknote/core/extensions";
 import { afterEach, beforeEach, describe, expect, vi } from "vite-plus/test";
@@ -395,7 +396,7 @@ it("a pointer jumping onto the toolbar leaves a shown side menu alone", async ({
     if (
       !moveToButton &&
       event.isTrusted &&
-      event.target instanceof Node &&
+      isDOMNode(event.target) &&
       button.contains(event.target)
     ) {
       moveToButton = { menu: store.state };

@@ -54,7 +54,7 @@ export const LinkToolbarExtension = createExtension(({ editor }) => {
       return getLinkAtPos(pos);
     },
 
-    getLinkAtElement(element: HTMLElement) {
+    getLinkAtElement(element: Node) {
       return editor.transact(() => {
         const posAtElement = editor.prosemirrorView.posAtDOM(element, 0) + 1;
         return getLinkAtPos(posAtElement);

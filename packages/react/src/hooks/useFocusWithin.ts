@@ -1,4 +1,5 @@
 // Copied from https://github.com/mantinedev/mantine/blob/90900efc7f107933ba027007cf240fea61d9c9f2/packages/%40mantine/hooks/src/use-focus-within/use-focus-within.ts#L16
+import { isDOMNode } from "@blocknote/core";
 import { useCallback, useEffect, useRef, useState } from "react";
 
 export interface UseFocusWithinOptions {
@@ -7,10 +8,7 @@ export interface UseFocusWithinOptions {
 }
 
 function containsRelatedTarget(event: FocusEvent) {
-  if (
-    event.currentTarget instanceof HTMLElement &&
-    event.relatedTarget instanceof HTMLElement
-  ) {
+  if (isDOMNode(event.currentTarget) && isDOMNode(event.relatedTarget)) {
     return event.currentTarget.contains(event.relatedTarget);
   }
 

@@ -12,6 +12,7 @@ import {
   Extension,
   ExtensionFactoryInstance,
   ExtractBlockConfigFromConfigOrCreator,
+  isDOMHTMLElement,
   markFrameSlot,
   mergeCSSClasses,
   nodeToBlock,
@@ -400,7 +401,7 @@ export function createReactBlockSpec<
     ) {
       markFrameSlot(slot);
       const root = slot.closest("[data-node-view-wrapper]")?.firstElementChild;
-      if (!(root instanceof HTMLElement)) {
+      if (!isDOMHTMLElement(root)) {
         throw new Error(
           "Layout block content must be inside its node view wrapper.",
         );

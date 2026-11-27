@@ -11,6 +11,7 @@ import {
 } from "./utils.js";
 import type { BlockNoteEditor } from "../../editor/BlockNoteEditor.js";
 import { createExtension } from "../../editor/BlockNoteExtension.js";
+import { isDOMNode } from "../../util/browser.js";
 import { getDropIntoChildren } from "./dropIntoChildren.js";
 
 export const DRAG_EXCLUSION_CLASSNAME = "bn-drag-exclude";
@@ -267,7 +268,7 @@ export const DropCursorExtension = createExtension<
   const onDragLeave = (event: Event) => {
     const e = event as DragEvent;
     if (
-      !(e.relatedTarget instanceof Node) ||
+      !isDOMNode(e.relatedTarget) ||
       !editor.prosemirrorView.dom.contains(e.relatedTarget)
     ) {
       setCursor(null);

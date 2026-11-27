@@ -3,6 +3,7 @@ import { describe, expect, vi } from "vite-plus/test";
 
 import { BlockNoteSchema } from "../blocks/BlockNoteSchema.js";
 import { defaultBlockSpecs } from "../blocks/defaultBlocks.js";
+import { isDOMNode } from "./browser.js";
 import { detachedDoc } from "./detachedDoc.js";
 
 // An image without a request: the HTML of this test is in the active document,
@@ -44,7 +45,7 @@ describe("the parse rules with HTML that is in the active document", () => {
     const clonedInActiveDocument = cloneNode.mock.contexts
       .filter(
         (source): source is Node =>
-          source instanceof Node && source.ownerDocument === document,
+          isDOMNode(source) && source.ownerDocument === document,
       )
       .map((source) => source.nodeName);
     expect(clonedInActiveDocument).toEqual([]);

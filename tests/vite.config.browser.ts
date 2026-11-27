@@ -76,6 +76,7 @@ const LOCAL_BROWSER_FILES = [
   "../packages/core/src/api/clipboard/fromClipboard/officeHTML.browser.test.ts",
   "../packages/core/src/editor/managers/EventManager.browser.test.ts",
   "../packages/core/src/extensions/FormattingToolbar/FormattingToolbar.browser.test.ts",
+  "../packages/core/src/extensions/SuggestionMenu/SuggestionMenu.browser.test.ts",
   "../packages/react/src/components/FormattingToolbar/DefaultButtons/BasicTextStyleButton.browser.test.tsx",
   "../packages/react/src/components/FormattingToolbar/DefaultButtons/ColorStyleButton.browser.test.tsx",
   "../packages/react/src/components/FormattingToolbar/DefaultButtons/CreateLinkButton.browser.test.tsx",
