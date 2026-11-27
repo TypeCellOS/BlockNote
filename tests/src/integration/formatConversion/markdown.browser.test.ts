@@ -1,6 +1,6 @@
-import { partialBlocksToBlocksForTesting } from "@shared/formatConversionTestUtil.js";
 import { describe, expect } from "vite-plus/test";
 
+import { partialBlocksToBlocksForTesting } from "../../commands/node/formatConversion.js";
 import { useFileTestEditor } from "../support/testEditorOptions.js";
 import { testOptionsHost } from "../support/testOptions.js";
 import type { CoreExportCase } from "./export/exportTestInstances.js";
