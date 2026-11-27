@@ -1,0 +1,16 @@
+[
+  {
+    "children": [],
+    "content": undefined,
+    "id": "1",
+    "props": {
+      "backgroundColor": "default",
+      "caption": "The harbor  at dusk",
+      "name": "The harbor",
+      "showPreview": true,
+      "textAlignment": "left",
+      "url": "https://example.com/harbor.jpg",
+    },
+    "type": "image",
+  },
+]

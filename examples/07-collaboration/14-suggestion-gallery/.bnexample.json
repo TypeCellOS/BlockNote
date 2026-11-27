@@ -1,5 +1,6 @@
 {
   "playground": true,
+  "sharedTestDocument": true,
   "docs": false,
   "author": "yousefed",
   "tags": ["Advanced", "Development", "Collaboration"],

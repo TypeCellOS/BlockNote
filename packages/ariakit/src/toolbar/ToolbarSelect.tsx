@@ -11,6 +11,7 @@ import {
 import { assertEmpty, mergeCSSClasses } from "@blocknote/core";
 import { ComponentProps, preventFocusOnTap } from "@blocknote/react";
 import { forwardRef } from "react";
+import { useEditorRTL } from "../useEditorRTL.js";
 
 export const ToolbarSelect = forwardRef<
   HTMLDivElement,
@@ -26,6 +27,7 @@ export const ToolbarSelect = forwardRef<
   } = props;
 
   assertEmpty(rest);
+  const rtl = useEditorRTL(portalElement);
 
   const selectedItem = props.items.filter((p) => p.isSelected)[0];
 
@@ -34,9 +36,13 @@ export const ToolbarSelect = forwardRef<
   };
 
   return (
-    <AriakitSelectProvider value={selectedItem.text} setValue={setValue}>
+    <AriakitSelectProvider
+      rtl={rtl}
+      value={selectedItem.text}
+      setValue={setValue}
+    >
       <AriakitSelect
-        className={"bn-ak-button bn-ak-secondary"}
+        className={"bn-toolbar-button bn-ak-button bn-ak-secondary"}
         disabled={isDisabled}
         // How-to-test: without it, tapping the block type select focuses the button and closes the keyboard (covered by skinFocus, android, ariakit: "opening the block type select keeps focus in the editor").
         onMouseDown={preventFocusOnTap}
@@ -45,7 +51,10 @@ export const ToolbarSelect = forwardRef<
         {selectedItem.icon} {selectedItem.text} <AriakitSelectArrow />
       </AriakitSelect>
       <AriakitSelectPopover
-        className={mergeCSSClasses("bn-ak-popover", className || "")}
+        className={mergeCSSClasses(
+          "bn-toolbar-select bn-ak-popover",
+          className,
+        )}
         ref={ref}
         gutter={4}
         // Ariakit's default focuses the listbox on show; on the mobile toolbar

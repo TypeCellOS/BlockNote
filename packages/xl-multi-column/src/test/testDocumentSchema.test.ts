@@ -1,4 +1,4 @@
-import { columnBlockSchema } from "@shared/testDocument.js";
+import { columnBlockSchema } from "../../../../tests/src/fixtures/exporters/testDocument.js";
 import { describe, expect, it } from "vite-plus/test";
 
 import { ColumnBlock, ColumnListBlock } from "../blocks/Columns/index.js";
@@ -7,7 +7,7 @@ import { ColumnBlock, ColumnListBlock } from "../blocks/Columns/index.js";
 // workspace build cycle), so its test document hand-declares the column
 // block schema entries. This guard lives here, next to the real specs, and
 // fails loudly if they ever drift apart - update `columnBlockSchema` in
-// shared/testDocument.ts to match.
+// tests/src/fixtures/exporters/testDocument.ts to match.
 describe("shared test document column schema", () => {
   it("matches the real ColumnBlock / ColumnListBlock configs", () => {
     expect(columnBlockSchema.column).toEqual({

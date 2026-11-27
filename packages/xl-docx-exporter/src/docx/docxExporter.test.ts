@@ -1,11 +1,12 @@
 import {
+  Block,
   BlockNoteSchema,
   defaultBlockSpecs,
   createPageBreakBlockSpec,
   PartialBlock,
 } from "@blocknote/core";
 import { de } from "@blocknote/core/locales";
-import { testDocument } from "@shared/testDocument.js";
+import { testDocument } from "../../../../tests/src/fixtures/exporters/testDocument.js";
 import {
   BlobReader,
   Entry,
@@ -22,14 +23,12 @@ import {
   TableRow,
   TextRun,
 } from "docx";
-import { describe, expect, it } from "vite-plus/test";
+import { describe, expect } from "vite-plus/test";
 import xmlFormat from "xml-formatter";
 import { docxDefaultSchemaMappings } from "./defaultSchema/index.js";
 import { DOCXExporter } from "./docxExporter.js";
 import { createDOCXParagraph } from "./mapping.js";
 import { ColumnBlock, ColumnListBlock } from "@blocknote/xl-multi-column";
-import { partialBlocksToBlocksForTesting } from "@shared/formatConversionTestUtil.js";
-import { testResolveFileUrl } from "@shared/util/testFileResolver.js";
 import { readDocumentImages } from "./imageRelationships.testUtil.js";
 
 const schema = BlockNoteSchema.create();
@@ -62,31 +61,37 @@ function getZIPEntryContent(entries: Entry[], fileName: string) {
 }
 
 describe("exporter", () => {
-  it("should export a document", { timeout: 10000 }, async () => {
-    const exporter = new DOCXExporter(
-      fullDocumentSchema,
-      docxDefaultSchemaMappings,
-      { resolveFileUrl: testResolveFileUrl },
-    );
-    const doc = await exporter.toDocxJsDocument(testDocument, {
-      sectionOptions: {},
-      documentOptions: {},
-      locale: "en-US",
-    });
+  it(
+    "should export a document",
+    { timeout: 10000 },
+    async ({ testResolveFileUrl }) => {
+      const exporter = new DOCXExporter(
+        fullDocumentSchema,
+        docxDefaultSchemaMappings,
+        { resolveFileUrl: testResolveFileUrl },
+      );
+      const doc = await exporter.toDocxJsDocument(testDocument, {
+        sectionOptions: {},
+        documentOptions: {},
+        locale: "en-US",
+      });
 
-    const blob = await Packer.toBlob(doc);
-    const zip = new ZipReader(new BlobReader(blob));
-    const entries = await zip.getEntries();
+      const blob = await Packer.toBlob(doc);
+      const zip = new ZipReader(new BlobReader(blob));
+      const entries = await zip.getEntries();
 
-    await expect(
-      prettify(await getZIPEntryContent(entries, "word/document.xml")),
-    ).toMatchFileSnapshot("__snapshots__/basic/document.xml");
-    await expect(
-      prettify(await getZIPEntryContent(entries, "word/styles.xml")),
-    ).toMatchFileSnapshot(await stylesSnapshotPath("basic"));
-  });
+      await expect(
+        prettify(await getZIPEntryContent(entries, "word/document.xml")),
+      ).toMatchFileSnapshot("__snapshots__/basic/document.xml");
+      await expect(
+        prettify(await getZIPEntryContent(entries, "word/styles.xml")),
+      ).toMatchFileSnapshot(await stylesSnapshotPath("basic"));
+    },
+  );
 
-  it("should resolve distinct and repeated images to their original bytes in drawing order", async () => {
+  it("should resolve distinct and repeated images to their original bytes in drawing order", async ({
+    partialBlocksToBlocksForTesting,
+  }) => {
     const first = Uint8Array.from(
       Buffer.from(
         "R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7",
@@ -121,7 +126,7 @@ describe("exporter", () => {
   it(
     "should export a document with custom document options",
     { timeout: 10000 },
-    async () => {
+    async ({ testResolveFileUrl }) => {
       const exporter = new DOCXExporter(
         fullDocumentSchema,
         docxDefaultSchemaMappings,
@@ -182,7 +187,10 @@ describe("exporter", () => {
     },
   );
 
-  it("should indent nested paragraphs but not list items", async () => {
+  it("should indent nested paragraphs but not list items", async ({
+    testResolveFileUrl,
+    partialBlocksToBlocksForTesting,
+  }) => {
     const exporter = new DOCXExporter(schema, docxDefaultSchemaMappings, {
       resolveFileUrl: testResolveFileUrl,
     });
@@ -238,7 +246,9 @@ describe("exporter", () => {
     ]);
   });
 
-  it("should use mapping-declared indentation instead of block names", async () => {
+  it("should use mapping-declared indentation instead of block names", async ({
+    partialBlocksToBlocksForTesting,
+  }) => {
     const exporter = new DOCXExporter(schema, {
       ...docxDefaultSchemaMappings,
       blockMapping: {
@@ -294,7 +304,9 @@ describe("exporter", () => {
     ]);
   });
 
-  it("should pass real paragraphs to custom child-placement mappings", async () => {
+  it("should pass real paragraphs to custom child-placement mappings", async ({
+    partialBlocksToBlocksForTesting,
+  }) => {
     const exporter = new DOCXExporter(schema, {
       ...docxDefaultSchemaMappings,
       blockMapping: {
@@ -341,9 +353,9 @@ describe("exporter", () => {
     expect((xml.match(/<w:numPr>/g) ?? []).length).toBe(2);
   });
 
-  it.each(["document", "columnList", "column"] as const)(
+  it.for(["document", "columnList", "column"] as const)(
     "should reject invalid layout results in a %s",
-    async (context) => {
+    async (context, { partialBlocksToBlocksForTesting }) => {
       const exporter = new DOCXExporter(
         fullDocumentSchema,
         docxDefaultSchemaMappings,
@@ -380,7 +392,7 @@ describe("exporter", () => {
   it(
     "should clamp list nesting deeper than DOCX supports",
     { timeout: 10000 },
-    async () => {
+    async ({ testResolveFileUrl, partialBlocksToBlocksForTesting }) => {
       // A list nested `depth` items deep, i.e. nesting levels 0..depth-1.
       const nestedList = (depth: number) => {
         type SchemaPartialBlock = PartialBlock<
@@ -436,7 +448,7 @@ describe("exporter", () => {
   it(
     "should use distinct bullet symbols per nesting level",
     { timeout: 10000 },
-    async () => {
+    async ({ testResolveFileUrl, partialBlocksToBlocksForTesting }) => {
       const exporter = new DOCXExporter(schema, docxDefaultSchemaMappings, {
         resolveFileUrl: testResolveFileUrl,
       });
@@ -482,9 +494,9 @@ describe("exporter", () => {
     },
   );
 
-  it.each(["plain parent", "legacy parent", "legacy child"] as const)(
+  it.for(["plain parent", "legacy parent", "legacy child"] as const)(
     "should restart nested lists with a custom %s mapping",
-    async (variant) => {
+    async (variant, { partialBlocksToBlocksForTesting }) => {
       const exporter = new DOCXExporter(schema, {
         ...docxDefaultSchemaMappings,
         blockMapping: {
@@ -554,7 +566,9 @@ describe("exporter", () => {
     },
   );
 
-  it("should keep concurrent exports' numbering definitions independent", async () => {
+  it("should keep concurrent exports' numbering definitions independent", async ({
+    partialBlocksToBlocksForTesting,
+  }) => {
     const exporter = new DOCXExporter(schema, docxDefaultSchemaMappings);
     const documents = (["bulletListItem", "numberedListItem"] as const).map(
       (type) =>
@@ -582,9 +596,9 @@ describe("exporter", () => {
     expect(await Promise.all(concurrent.map(numberingXml))).toEqual(expected);
   });
 
-  it.each(["bulletListItem", "numberedListItem"] as const)(
+  it.for(["bulletListItem", "numberedListItem"] as const)(
     "should keep mixed descendants in the %s parent's numbering instance",
-    async (type) => {
+    async (type, { partialBlocksToBlocksForTesting }) => {
       const childType =
         type === "bulletListItem" ? "numberedListItem" : "bulletListItem";
       const exporter = new DOCXExporter(schema, docxDefaultSchemaMappings);
@@ -669,7 +683,9 @@ describe("exporter", () => {
     },
   );
 
-  it("should isolate incompatible child runs without restarting their parent", async () => {
+  it("should isolate incompatible child runs without restarting their parent", async ({
+    partialBlocksToBlocksForTesting,
+  }) => {
     const exporter = new DOCXExporter(schema, docxDefaultSchemaMappings);
     const doc = await exporter.toDocxJsDocument(
       partialBlocksToBlocksForTesting(schema, [
@@ -751,7 +767,7 @@ describe("exporter", () => {
   it(
     "should give each list its own numbering instance",
     { timeout: 10000 },
-    async () => {
+    async ({ testResolveFileUrl, partialBlocksToBlocksForTesting }) => {
       // Two separate numbered lists split by a paragraph, then a bullet list.
       // Each is a distinct list and must not continue the previous one, so each
       // needs its own `w:numId`. A nested item stays part of its parent list.
@@ -823,7 +839,7 @@ describe("exporter", () => {
   it(
     "should start each numbered list at its start number",
     { timeout: 10000 },
-    async () => {
+    async ({ testResolveFileUrl, partialBlocksToBlocksForTesting }) => {
       // Like in the editor, the first item of a list sets the number it starts
       // at; a start number on a later item is ignored. Two lists that start at
       // the same number each start there, and so does each nested list, also
@@ -913,19 +929,19 @@ describe("exporter", () => {
     },
   );
 
-  async function exportAndGetStylesEntries(locale?: string) {
+  async function exportAndGetStylesEntries(blocks: Block[], locale?: string) {
     const exporter = new DOCXExporter(schema, docxDefaultSchemaMappings);
-    const doc = await exporter.toDocxJsDocument(
-      partialBlocksToBlocksForTesting(schema, [{ type: "paragraph" }]),
-      { ...xmlOnlyOptions, locale },
-    );
+    const doc = await exporter.toDocxJsDocument(blocks, {
+      ...xmlOnlyOptions,
+      locale,
+    });
     return new ZipReader(new BlobReader(await Packer.toBlob(doc))).getEntries();
   }
 
   it(
     "should export file links with the configured dictionary",
     { timeout: 10000 },
-    async () => {
+    async ({ partialBlocksToBlocksForTesting }) => {
       // Exporter strings are never hardcoded - the file link text comes
       // from the `exporter` section of the configured dictionary (English
       // when not configured).
@@ -955,8 +971,10 @@ describe("exporter", () => {
   it(
     "should export a document without w:lang when no locale is provided",
     { timeout: 10000 },
-    async () => {
-      const entries = await exportAndGetStylesEntries();
+    async ({ partialBlocksToBlocksForTesting }) => {
+      const entries = await exportAndGetStylesEntries(
+        partialBlocksToBlocksForTesting(schema, [{ type: "paragraph" }]),
+      );
       const styles = await getZIPEntryContent(entries, "word/styles.xml");
 
       expect(styles).not.toMatch(/<w:lang\b/);
@@ -969,8 +987,11 @@ describe("exporter", () => {
   it(
     "should export a document with w:lang when locale is provided",
     { timeout: 10000 },
-    async () => {
-      const entries = await exportAndGetStylesEntries("fr-FR");
+    async ({ partialBlocksToBlocksForTesting }) => {
+      const entries = await exportAndGetStylesEntries(
+        partialBlocksToBlocksForTesting(schema, [{ type: "paragraph" }]),
+        "fr-FR",
+      );
       const styles = await getZIPEntryContent(entries, "word/styles.xml");
 
       expect(styles).toContain('<w:lang w:val="fr-FR"');

@@ -117,12 +117,23 @@ export const Snapshot = forwardRef<
           : undefined
       }
       aria-busy={ariaBusy}
-      tabIndex={tabIndex}
-      onClick={onClick}
-      onKeyDown={onKeyDown}
-      onFocus={onFocus}
+      // Observe focus entering the row without making the row itself interactive.
+      onFocusCapture={onFocus}
       ref={ref}
     >
+      <button
+        type="button"
+        className="bn-snapshot-preview"
+        aria-label={ariaLabel}
+        aria-current={
+          state === "selected" || state === "comparison-source"
+            ? "true"
+            : undefined
+        }
+        tabIndex={tabIndex}
+        onClick={onClick}
+        onKeyDown={onKeyDown}
+      />
       {comparingLabel && (
         <Group className="bn-snapshot-comparing-to" gap={4} wrap="nowrap">
           {comparingIcon}
@@ -160,15 +171,7 @@ export const Snapshot = forwardRef<
           </div>
         ) : null}
       </Stack>
-      {actions && (
-        <Box
-          className="bn-snapshot-menu"
-          onClick={(event) => event.stopPropagation()}
-          onKeyDown={(event) => event.stopPropagation()}
-        >
-          {actions}
-        </Box>
-      )}
+      {actions && <Box className="bn-snapshot-menu">{actions}</Box>}
     </Card>
   );
 });

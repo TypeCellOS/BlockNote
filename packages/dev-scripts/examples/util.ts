@@ -120,7 +120,7 @@ export type Project = {
     stackBlitz?: boolean;
     /**
      * When true, the example generator emits the shared `testDocumentBlocks.ts`
-     * into the example (copied verbatim from `shared/testDocumentBlocks.ts`) so
+     * into the example (copied verbatim from `tests/src/fixtures/exporters/testDocumentBlocks.ts`) so
      * the example can use it as editor `initialContent` while staying
      * self-contained.
      */

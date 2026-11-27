@@ -15,7 +15,7 @@ import "@blocknote/mantine/style.css";
 import "@blocknote/math-block/style.css";
 import { createBundledHighlighter } from "@shikijs/core";
 import { createJavaScriptRegexEngine } from "@shikijs/engine-javascript";
-import { testDocument } from "@shared/testDocument.js";
+import { testDocument } from "../../fixtures/exporters/testDocument.js";
 import * as Y from "@y/y";
 import { expect, onTestFinished, test } from "vite-plus/test";
 import { cleanup, render } from "vitest-browser-react";

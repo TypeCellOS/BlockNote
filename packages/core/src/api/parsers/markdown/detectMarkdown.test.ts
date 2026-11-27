@@ -185,6 +185,10 @@ describe("isMarkdown", () => {
       expect(isMarkdown("| Header 1 | Header 2\n")).toBe(false); // missing closing pipe
       expect(isMarkdown("Header 1 | Header 2 |\n")).toBe(false); // missing opening pipe
     });
+
+    it("should not detect a row with many pipes and no closing pipe", () => {
+      expect(isMarkdown("|" + " a |".repeat(60) + " x")).toBe(false);
+    });
   });
 
   describe("Edge cases and combinations", () => {

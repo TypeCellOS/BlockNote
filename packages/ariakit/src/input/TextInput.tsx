@@ -14,6 +14,7 @@ export const TextInput = forwardRef<
   const {
     className,
     name,
+    dir,
     label,
     variant,
     icon,
@@ -48,6 +49,7 @@ export const TextInput = forwardRef<
           )}
           ref={setRefs}
           name={name}
+          dir={dir}
           value={value}
           placeholder={placeholder}
           disabled={disabled}

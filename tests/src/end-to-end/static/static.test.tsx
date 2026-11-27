@@ -9,7 +9,7 @@ import "@blocknote/mantine/style.css";
 import { useCreateBlockNote } from "@blocknote/react";
 import { withMultiColumn } from "@blocknote/xl-multi-column";
 import StaticApp from "@examples/02-backend/04-rendering-static-documents/src/App";
-import { testDocument } from "@shared/testDocument.js";
+import { testDocument } from "../../fixtures/exporters/testDocument.js";
 import { describe, expect, onTestFinished, test } from "vite-plus/test";
 import { cleanup, render } from "vitest-browser-react";
 import { withTiptapStyleCleanup } from "../../commands/browser/tiptapFixtureStyles.js";

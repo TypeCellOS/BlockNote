@@ -38,3 +38,22 @@ vp run lint packages/react/src/components/FormattingToolbar packages/core/src/bl
 
 The tests use an isolated temporary config and TSX source fixtures; they do not
 modify real component tests. No new package dependency is required.
+
+# Content from outside the editor
+
+Content from outside the editor (a paste, a drop, an HTML or markdown string)
+can load a resource and run an event handler in the active document. The code
+handles it only in `detachedDoc()` (`packages/core/src/util/detachedDoc.ts`).
+
+`detached-doc.mjs` is a local Oxlint JavaScript plugin with one rule,
+`blocknote-dom/no-active-document`. `vite.config.ts` turns it on for the source
+files of `@blocknote/core`. It flags member access and destructuring for
+`cloneNode` and `createHTMLDocument` when the property name is static. Broader
+checks on `document` and `ownerDocument` are deferred.
+
+A line gives one finding. A correct use has an exception on the line before
+it: `// oxlint-disable-next-line blocknote-dom/no-active-document -- <reason>`.
+
+```sh
+vp run lint packages/core
+```

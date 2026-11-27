@@ -3,7 +3,7 @@ import {
   Button as MantineButton,
 } from "@mantine/core";
 
-import { assertEmpty } from "@blocknote/core";
+import { assertEmpty, mergeCSSClasses } from "@blocknote/core";
 import { ComponentProps } from "@blocknote/react";
 import { forwardRef } from "react";
 
@@ -31,7 +31,7 @@ export const SideMenuButton = forwardRef<
     return (
       <MantineActionIcon
         size={24}
-        className={className}
+        className={mergeCSSClasses("bn-side-menu-button", className)}
         ref={ref}
         onClick={onClick}
         onDragEnd={onDragEnd}
@@ -47,7 +47,7 @@ export const SideMenuButton = forwardRef<
 
   return (
     <MantineButton
-      className={className}
+      className={mergeCSSClasses("bn-side-menu-button", className)}
       ref={ref}
       onClick={onClick}
       onDragEnd={onDragEnd}

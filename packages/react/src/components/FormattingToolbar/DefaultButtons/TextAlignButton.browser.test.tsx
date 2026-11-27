@@ -1,8 +1,19 @@
 import { CellSelection } from "@tiptap/pm/tables";
 import { describe, expect } from "vite-plus/test";
-import { TextAlignButton } from "./TextAlignButton.js";
 import { FormattingToolbar } from "../FormattingToolbar.js";
+import { TextAlignButton } from "./TextAlignButton.js";
 import { viewProps } from "./defaultButton.test.fixture.js";
+import { TableHandlesExtension } from "@blocknote/core/extensions";
+
+function AlignmentControls() {
+  return (
+    <FormattingToolbar>
+      {(["left", "center", "right"] as const).map((textAlignment) => (
+        <TextAlignButton key={textAlignment} textAlignment={textAlignment} />
+      ))}
+    </FormattingToolbar>
+  );
+}
 
 describe("TextAlignButton", () => {
   describe("unit", () => {
@@ -36,6 +47,111 @@ describe("TextAlignButton", () => {
   });
 
   describe("integration", () => {
+    it.for(["ltr", "rtl"] as const)(
+      "%s left/right align to logical start/end with matching labels",
+      async (dir, { setupEditor, page }) => {
+        const { editor, rootNode } = await setupEditor({
+          initialContent: [
+            { id: "text", type: "paragraph", content: "שלום — مرحباً (123)" },
+          ],
+          props: { ...viewProps, dir },
+          children: <AlignmentControls />,
+        });
+        editor.setTextCursorPosition("text");
+        const start = page.getByRole("button", {
+          name: editor.dictionary.formatting_toolbar[
+            dir === "rtl" ? "align_right" : "align_left"
+          ].tooltip,
+          exact: true,
+        });
+        const end = page.getByRole("button", {
+          name: editor.dictionary.formatting_toolbar[
+            dir === "rtl" ? "align_left" : "align_right"
+          ].tooltip,
+          exact: true,
+        });
+        await expect.element(start).toHaveAttribute("aria-pressed", "true");
+        function textX() {
+          const range = document.createRange();
+          range.selectNodeContents(
+            rootNode.querySelector(".bn-inline-content")!,
+          );
+          return range.getBoundingClientRect().left;
+        }
+        const naturalX = textX();
+        await end.click();
+        expect(editor.getBlock("text")?.props).toMatchObject({
+          textAlignment: "right",
+        });
+        await expect
+          .poll(() => (textX() - naturalX) * (dir === "rtl" ? -1 : 1))
+          .toBeGreaterThan(100);
+        await start.click();
+        await expect.poll(() => Math.abs(textX() - naturalX)).toBeLessThan(1);
+      },
+    );
+
+    it("follows the selected table cell and preserves the caret and mixed cell selection", async ({
+      setupEditor,
+      page,
+      userEvent,
+    }) => {
+      const { editor, rootNode } = await setupEditor({
+        initialContent: [
+          {
+            id: "table",
+            type: "table",
+            content: {
+              type: "tableContent",
+              rows: [
+                {
+                  cells: [
+                    { type: "tableCell", content: "First" },
+                    {
+                      type: "tableCell",
+                      content: "שלום",
+                      props: { textAlignment: "right" },
+                    },
+                  ],
+                },
+              ],
+            },
+          },
+        ],
+        props: { ...viewProps, dir: "rtl" },
+        children: <AlignmentControls />,
+      });
+      const start = page.getByRole("button", {
+        name: editor.dictionary.formatting_toolbar.align_right.tooltip,
+        exact: true,
+      });
+      const end = page.getByRole("button", {
+        name: editor.dictionary.formatting_toolbar.align_left.tooltip,
+        exact: true,
+      });
+      await page.getByRole("cell", { name: "שלום", exact: true }).click();
+      await expect.element(end).toHaveAttribute("aria-pressed", "true");
+      await start.click();
+      await expect.element(start).toHaveAttribute("aria-pressed", "true");
+      await userEvent.keyboard("X");
+      expect(rootNode.querySelectorAll("td p")[0].textContent).toBe("First");
+      expect(rootNode.querySelectorAll("td p")[1].textContent).toContain("X");
+      const tables = editor.getExtension(TableHandlesExtension)!;
+      await end.click();
+      editor.exec((state, dispatch) => {
+        dispatch?.(
+          tables.setCellSelection(state, { row: 0, col: 0 }, { row: 0, col: 1 })
+            .tr,
+        );
+        return true;
+      });
+      await expect.element(start).toHaveAttribute("aria-pressed", "false");
+      await expect.element(end).toHaveAttribute("aria-pressed", "false");
+      await start.click();
+      await expect.element(start).toHaveAttribute("aria-pressed", "true");
+      expect(tables.getCellSelection()?.cells).toHaveLength(2);
+    });
+
     it("aligns the selected block left without changing its text or neighboring blocks", async ({
       setupEditor,
       selectText,
@@ -339,27 +455,22 @@ describe("TextAlignButton", () => {
   });
 
   describe("axe", () => {
-    it("checks all alignment controls, including the selected one", async ({
-      setupEditor,
-      runAxe,
-      page,
-    }) => {
-      await setupEditor({
-        props: viewProps,
-        children: (
-          <FormattingToolbar>
-            {(["left", "center", "right", "justify"] as const).map(
-              (alignment) => (
-                <TextAlignButton key={alignment} textAlignment={alignment} />
-              ),
-            )}
-          </FormattingToolbar>
-        ),
-      });
-
-      const { violations } = await runAxe(page.getByRole("toolbar"));
-      expect(violations).toEqual([]);
-    });
+    it.for(["left", "center", "right", "justify"] as const)(
+      "checks the %s alignment button",
+      async (alignment, { setupEditor, runAxe, page }) => {
+        const { editor } = await setupEditor({
+          props: viewProps,
+          children: <TextAlignButton textAlignment={alignment} />,
+        });
+        const button = page.getByRole("button", {
+          name: editor.dictionary.formatting_toolbar[`align_${alignment}`]
+            .tooltip,
+          exact: true,
+        });
+        await expect.element(button).toBeVisible();
+        expect((await runAxe(button)).violations).toEqual([]);
+      },
+    );
   });
 
   describe("keyboard", () => {

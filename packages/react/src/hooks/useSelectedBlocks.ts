@@ -4,13 +4,13 @@ import {
   InlineContentSchema,
   StyleSchema,
 } from "@blocknote/core";
+import { GapCursor } from "@tiptap/pm/gapcursor";
 import { useEditorState } from "./useEditorState.js";
 
 /**
- * Returns the blocks that are currently selected in the editor. If no
- * multi-block selection exists, returns an array containing the single block
- * at the text cursor position. Re-renders automatically when the selection
- * changes.
+ * Returns the blocks spanned by the selection, or the single block with the
+ * text cursor or block selection. Returns an empty array when the cursor is
+ * in a gap between blocks. Re-renders automatically when the selection changes.
  *
  * @param editor - The BlockNote editor instance. If omitted, uses the editor
  * from the nearest `BlockNoteContext`.
@@ -24,6 +24,16 @@ export function useSelectedBlocks<
   return useEditorState({
     editor,
     selector: ({ editor }) =>
-      editor.getSelection()?.blocks || [editor.getTextCursorPosition().block],
+      editor.transact((tr) => {
+        if (tr.selection instanceof GapCursor) {
+          return [];
+        }
+
+        return (
+          editor.getSelection()?.blocks ?? [
+            editor.getTextCursorPosition().block,
+          ]
+        );
+      }),
   });
 }

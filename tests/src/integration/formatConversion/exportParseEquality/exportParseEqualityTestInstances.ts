@@ -182,6 +182,51 @@ export const htmlRoundTripCases: CoreExportCase[] = [
       },
     ],
   },
+  // Mixed list and non-list children keep their original order.
+  {
+    name: "lists/toggleListItemWithMixedChildren",
+    content: [
+      {
+        type: "toggleListItem",
+        content: "Toggle List Item",
+        children: [
+          {
+            type: "numberedListItem",
+            content: "Numbered child",
+          },
+          {
+            type: "paragraph",
+            content: "Paragraph child",
+          },
+          {
+            type: "bulletListItem",
+            content: "Bullet child",
+          },
+        ],
+      },
+    ],
+  },
+  // The first child is exported inside the toggle, not mistaken for its checkbox.
+  {
+    name: "lists/toggleListItemWithCheckListFirstChild",
+    content: [
+      {
+        type: "toggleListItem",
+        content: "Toggle List Item",
+        children: [
+          {
+            type: "checkListItem",
+            props: { checked: true },
+            content: "Check child",
+          },
+          {
+            type: "paragraph",
+            content: "Paragraph child",
+          },
+        ],
+      },
+    ],
+  },
   {
     name: "lists/toggleHeading",
     content: [

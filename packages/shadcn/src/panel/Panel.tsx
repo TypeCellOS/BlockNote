@@ -1,6 +1,7 @@
 import { assertEmpty } from "@blocknote/core";
 import { ComponentProps } from "@blocknote/react";
 import { forwardRef } from "react";
+import { EditorDirectionProvider } from "../EditorDirectionProvider.js";
 
 import { cn } from "../lib/utils.js";
 import { useShadCNComponentsContext } from "../ShadCNComponentsContext.js";
@@ -24,32 +25,34 @@ export const Panel = forwardRef<
   const ShadCNComponents = useShadCNComponentsContext()!;
 
   return (
-    <ShadCNComponents.Tabs.Tabs
-      className={cn(className, "bg-popover max-w-screen rounded-lg p-2")}
-      ref={ref}
-      value={openTab}
-      defaultValue={defaultOpenTab}
-      onValueChange={setOpenTab}
-    >
-      {/*{loading && <LoadingOverlay visible={loading} />}*/}
+    <EditorDirectionProvider>
+      <ShadCNComponents.Tabs.Tabs
+        className={cn(className, "bg-popover max-w-screen rounded-lg p-2")}
+        ref={ref}
+        value={openTab}
+        defaultValue={defaultOpenTab}
+        onValueChange={setOpenTab}
+      >
+        {/*{loading && <LoadingOverlay visible={loading} />}*/}
 
-      <ShadCNComponents.Tabs.TabsList>
+        <ShadCNComponents.Tabs.TabsList>
+          {tabs.map((tab) => (
+            <ShadCNComponents.Tabs.TabsTrigger value={tab.name} key={tab.name}>
+              {tab.name}
+            </ShadCNComponents.Tabs.TabsTrigger>
+          ))}
+        </ShadCNComponents.Tabs.TabsList>
+
         {tabs.map((tab) => (
-          <ShadCNComponents.Tabs.TabsTrigger value={tab.name} key={tab.name}>
-            {tab.name}
-          </ShadCNComponents.Tabs.TabsTrigger>
+          <ShadCNComponents.Tabs.TabsContent value={tab.name} key={tab.name}>
+            <ShadCNComponents.Card.Card>
+              <ShadCNComponents.Card.CardContent className={"p-4"}>
+                {tab.tabPanel}
+              </ShadCNComponents.Card.CardContent>
+            </ShadCNComponents.Card.Card>
+          </ShadCNComponents.Tabs.TabsContent>
         ))}
-      </ShadCNComponents.Tabs.TabsList>
-
-      {tabs.map((tab) => (
-        <ShadCNComponents.Tabs.TabsContent value={tab.name} key={tab.name}>
-          <ShadCNComponents.Card.Card>
-            <ShadCNComponents.Card.CardContent className={"p-4"}>
-              {tab.tabPanel}
-            </ShadCNComponents.Card.CardContent>
-          </ShadCNComponents.Card.Card>
-        </ShadCNComponents.Tabs.TabsContent>
-      ))}
-    </ShadCNComponents.Tabs.Tabs>
+      </ShadCNComponents.Tabs.Tabs>
+    </EditorDirectionProvider>
   );
 });

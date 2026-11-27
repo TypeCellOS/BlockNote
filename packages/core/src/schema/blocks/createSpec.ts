@@ -8,6 +8,7 @@ import {
 import { NodeView } from "@tiptap/pm/view";
 import { mergeParagraphs } from "../../blocks/defaultBlockHelpers.js";
 import type { BlockNoteEditor } from "../../editor/BlockNoteEditor.js";
+import { detachedDoc } from "../../util/detachedDoc.js";
 import {
   Extension,
   ExtensionFactoryInstance,
@@ -106,7 +107,8 @@ function blockContentParser<
     }
 
     // Cloned so merging doesn't modify the element being parsed.
-    const clone = (node as HTMLElement).cloneNode(true) as HTMLElement;
+    // Not `cloneNode`: see the rule in `util/detachedDoc.ts`.
+    const clone = detachedDoc().importNode(node as HTMLElement, true);
     // Merge multiple paragraphs into one with line breaks
     mergeParagraphs(
       clone,

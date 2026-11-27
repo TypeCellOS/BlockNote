@@ -1,0 +1,30 @@
+[
+  {
+    "children": [],
+    "content": undefined,
+    "id": "1",
+    "props": {
+      "backgroundColor": "default",
+      "caption": "",
+      "name": "Photo",
+      "showPreview": true,
+      "textAlignment": "left",
+      "url": "https://example.com/photo.jpg",
+    },
+    "type": "image",
+  },
+  {
+    "children": [],
+    "content": undefined,
+    "id": "2",
+    "props": {
+      "backgroundColor": "default",
+      "caption": "",
+      "name": "",
+      "showPreview": true,
+      "textAlignment": "left",
+      "url": "https://example.com/clip.mp4",
+    },
+    "type": "video",
+  },
+]

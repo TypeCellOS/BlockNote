@@ -36,25 +36,13 @@
       // gen:examples discovers these templates with a filesystem glob.
       "entry": ["examples/template-react/*.template.tsx"],
     },
-    "packages/{diagram-block,math-block,xl-typst-exporter}": {
-      // Their Typst tests load the compiler and its WASM via @shared.
-      "ignoreDependencies": ["@blocknote/xl-typst-compiler"],
-    },
     "packages/react": {
       // Colocated browser tests are run from tests/, which provides this.
       "ignoreDependencies": ["vitest-browser-react"],
     },
-    "packages/xl-docx-exporter": {
-      // The @shared image utility is bundled, but image-meta stays external.
-      "ignoreDependencies": ["image-meta"],
-    },
     "packages/xl-multi-column": {
       // Keep the Vite Plus peer resolution in sync with core.
       "ignoreDependencies": ["jsdom"],
-    },
-    "packages/xl-odt-exporter": {
-      // Same external dependency as the DOCX exporter.
-      "ignoreDependencies": ["image-meta"],
     },
     "packages/xl-pdf-exporter": {
       // These .jsx files are assertions read as text by toMatchFileSnapshot.
@@ -63,10 +51,6 @@
     "packages/xl-typst-compiler": {
       // scripts/wasm-build.mjs invokes the installed run.js by filesystem path.
       "ignoreDependencies": ["wasm-pack"],
-    },
-    "shared": {
-      // Only consumers of the image utility need this peer.
-      "ignoreIssues": { "package.json": ["optionalPeerDependencies"] },
     },
     "tests": {
       "vite": { "config": ["vite.config{,.browser}.ts"] },
@@ -87,7 +71,6 @@
       "ignoreBinaries": ["build"],
       "paths": {
         "@examples/*": ["../examples/*"],
-        "@shared/*": ["../shared/*"],
       },
     },
   },

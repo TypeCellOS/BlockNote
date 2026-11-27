@@ -44,7 +44,7 @@ export const AIToolbarButton = () => {
 
   return (
     <Components.Generic.Toolbar.Button
-      className={"bn-button"}
+      className={"bn-toolbar-button"}
       label={dict.formatting_toolbar.ai.tooltip}
       mainTooltip={dict.formatting_toolbar.ai.tooltip}
       icon={<RiSparkling2Fill />}

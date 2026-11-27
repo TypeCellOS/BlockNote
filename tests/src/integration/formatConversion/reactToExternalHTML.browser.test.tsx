@@ -11,6 +11,7 @@ const createDisclosure = createReactBlockSpec(
     render: (props) => <div ref={props.contentRef} />,
     toExternalHTML: (props) => (
       <details>
+        {/* eslint-disable-next-line jsx-a11y/control-has-associated-label -- The editor populates the summary through contentRef; this serialization fixture intentionally starts empty. */}
         <summary ref={props.contentRef} />
         <div className="disclosure-children" ref={props.childrenRef} />
       </details>

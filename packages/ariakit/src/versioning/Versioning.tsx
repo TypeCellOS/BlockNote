@@ -113,12 +113,23 @@ export const Snapshot = forwardRef<
           : undefined
       }
       aria-busy={ariaBusy}
-      tabIndex={tabIndex}
-      onClick={onClick}
-      onKeyDown={onKeyDown}
-      onFocus={onFocus}
+      // Observe focus entering the row without making the row itself interactive.
+      onFocusCapture={onFocus}
       ref={ref}
     >
+      <button
+        type="button"
+        className="bn-snapshot-preview"
+        aria-label={ariaLabel}
+        aria-current={
+          state === "selected" || state === "comparison-source"
+            ? "true"
+            : undefined
+        }
+        tabIndex={tabIndex}
+        onClick={onClick}
+        onKeyDown={onKeyDown}
+      />
       {comparingLabel && (
         <div className="bn-snapshot-comparing-to">
           {comparingIcon}
@@ -154,15 +165,7 @@ export const Snapshot = forwardRef<
           </div>
         ) : null}
       </div>
-      {actions && (
-        <div
-          className="bn-snapshot-menu"
-          onClick={(event) => event.stopPropagation()}
-          onKeyDown={(event) => event.stopPropagation()}
-        >
-          {actions}
-        </div>
-      )}
+      {actions && <div className="bn-snapshot-menu">{actions}</div>}
     </AriakitGroup>
   );
 });

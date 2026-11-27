@@ -6,7 +6,7 @@ import {
   Tooltip as MantineTooltip,
 } from "@mantine/core";
 
-import { assertEmpty } from "@blocknote/core";
+import { assertEmpty, mergeCSSClasses } from "@blocknote/core";
 import { ComponentProps, preventFocusOnTap } from "@blocknote/react";
 import { forwardRef, useState } from "react";
 
@@ -56,7 +56,7 @@ export const ToolbarButton = forwardRef<HTMLButtonElement, ToolbarButtonProps>(
     const button = children ? (
       <MantineButton
         aria-label={label}
-        className={className}
+        className={mergeCSSClasses("bn-toolbar-button", className)}
         // How-to-test: without it (here and below), tapping Bold on the mobile toolbar focuses the button and closes the keyboard (covered by skinFocus, android, mantine: "tapping a toggle button never moves focus onto it").
         onMouseDown={preventFocusOnTap}
         onClick={(event) => {
@@ -83,7 +83,7 @@ export const ToolbarButton = forwardRef<HTMLButtonElement, ToolbarButtonProps>(
       </MantineButton>
     ) : (
       <MantineActionIcon
-        className={className}
+        className={mergeCSSClasses("bn-toolbar-button", className)}
         aria-label={label}
         onMouseDown={preventFocusOnTap}
         onClick={(event) => {

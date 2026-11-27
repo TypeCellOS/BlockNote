@@ -1,14 +1,11 @@
 import {
+  Block,
   BlockNoteEditor,
   BlockSchema,
   InlineContentSchema,
   PartialBlock,
   StyleSchema,
 } from "@blocknote/core";
-import {
-  addIdsToBlocks,
-  partialBlocksToBlocksForTesting,
-} from "@shared/formatConversionTestUtil.js";
 import { describe, expect } from "vite-plus/test";
 
 import { testEditorSchema } from "../setupTestEnv.js";
@@ -29,7 +26,6 @@ function normalizeColumnStyles(html: string) {
   return template.innerHTML;
 }
 
-// TODO: code same from @blocknote/core, maybe create separate test util package
 async function convertToHTMLAndCompareSnapshots<
   B extends BlockSchema,
   I extends InlineContentSchema,
@@ -37,10 +33,10 @@ async function convertToHTMLAndCompareSnapshots<
 >(
   editor: BlockNoteEditor<B, I, S>,
   blocks: PartialBlock<B, I, S>[],
+  fullBlocks: Block<B, I, S>[],
   snapshotDirectory: string,
   snapshotName: string,
 ) {
-  addIdsToBlocks(blocks);
   const internalHTML = editor.blocksToFullHTML(blocks);
   const internalHTMLSnapshotPath =
     "./__snapshots__/" +
@@ -53,7 +49,6 @@ async function convertToHTMLAndCompareSnapshots<
   );
 
   // turn the internalHTML back into blocks, and make sure no data was lost
-  const fullBlocks = partialBlocksToBlocksForTesting(editor.schema, blocks);
   const parsed = editor.tryParseHTMLToBlocks(internalHTML);
 
   expect(parsed).toStrictEqual(fullBlocks);
@@ -78,19 +73,29 @@ describe("Test multi-column HTML conversion", () => {
     describe("Case: " + testCase.name, () => {
       for (const document of testCase.documents) {
         // eslint-disable-next-line no-loop-func
-        it("Convert " + document.name + " to HTML", async ({ setupEditor }) => {
-          const { editor } = await setupEditor({
-            mountType: false,
-            schema: testEditorSchema,
-          });
-          const nameSplit = document.name.split("/");
-          await convertToHTMLAndCompareSnapshots(
-            editor,
-            structuredClone(document.blocks),
-            nameSplit[0],
-            nameSplit[1],
-          );
-        });
+        it(
+          "Convert " + document.name + " to HTML",
+          async ({
+            addIdsToBlocks,
+            partialBlocksToBlocksForTesting,
+            setupEditor,
+          }) => {
+            const { editor } = await setupEditor({
+              mountType: false,
+              schema: testEditorSchema,
+            });
+            const nameSplit = document.name.split("/");
+            const blocks = structuredClone(document.blocks);
+            addIdsToBlocks(blocks);
+            await convertToHTMLAndCompareSnapshots(
+              editor,
+              blocks,
+              partialBlocksToBlocksForTesting(editor.schema, blocks),
+              nameSplit[0],
+              nameSplit[1],
+            );
+          },
+        );
       }
     });
   }

@@ -1,4 +1,4 @@
-import { loadFileBuffer } from "@shared/util/fileUtil.js";
+import { loadFileBuffer } from "../fontFile.js";
 
 /**
  * The family name of the bundled emoji font; {@link PDFExporter} declares it
@@ -53,13 +53,25 @@ function cached<T>(load: () => Promise<T>): () => Promise<T> {
  */
 export const loadDefaultBodyFonts: () => Promise<Uint8Array[]> = cached(() =>
   Promise.all([
-    fontBytes(import("@shared/assets/fonts/inter/Inter_18pt-Regular.ttf")),
-    fontBytes(import("@shared/assets/fonts/inter/Inter_18pt-Italic.ttf")),
-    fontBytes(import("@shared/assets/fonts/inter/Inter_18pt-Bold.ttf")),
-    fontBytes(import("@shared/assets/fonts/inter/Inter_18pt-BoldItalic.ttf")),
-    fontBytes(import("@shared/assets/fonts/GeistMono-Regular.ttf")),
-    fontBytes(import("@shared/assets/fonts/newcm/NewCMMath-Regular.otf")),
-    fontBytes(import("@shared/assets/fonts/newcm/NewCMMath-Book.otf")),
+    fontBytes(
+      import("../../../../shared/assets/fonts/inter/Inter_18pt-Regular.ttf"),
+    ),
+    fontBytes(
+      import("../../../../shared/assets/fonts/inter/Inter_18pt-Italic.ttf"),
+    ),
+    fontBytes(
+      import("../../../../shared/assets/fonts/inter/Inter_18pt-Bold.ttf"),
+    ),
+    fontBytes(
+      import("../../../../shared/assets/fonts/inter/Inter_18pt-BoldItalic.ttf"),
+    ),
+    fontBytes(import("../../../../shared/assets/fonts/GeistMono-Regular.ttf")),
+    fontBytes(
+      import("../../../../shared/assets/fonts/newcm/NewCMMath-Regular.otf"),
+    ),
+    fontBytes(
+      import("../../../../shared/assets/fonts/newcm/NewCMMath-Book.otf"),
+    ),
   ]),
 );
 
@@ -71,5 +83,5 @@ export const loadDefaultBodyFonts: () => Promise<Uint8Array[]> = cached(() =>
  * undefined - pass your own (or an explicit `[]` for none) to skip it.
  */
 export const loadDefaultEmojiFont: () => Promise<Uint8Array> = cached(() =>
-  fontBytes(import("@shared/assets/fonts/noto/Noto-COLRv1.ttf")),
+  fontBytes(import("../../../../shared/assets/fonts/noto/Noto-COLRv1.ttf")),
 );

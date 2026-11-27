@@ -1,17 +1,45 @@
 import { describe, expect } from "vite-plus/test";
 
-import type { BlockNoteEditor } from "../../../editor/BlockNoteEditor.js";
+import { dispatchClipboardEvent } from "../../../../../../tests/src/utils/clipboardEvent.js";
+// Clipboard captures from wordpaste:
+// https://github.com/smrifat1411/wordpaste/tree/21b5b0ae2b23fd9b954013605fa0f2840a603ef2/test/fixtures
+import excelMac from "./fixtures/excel16-mac-table.html?raw";
+import googleSheets from "./fixtures/google-sheets-table.html?raw";
+import wordWindowsLists from "./fixtures/word12-win-lists.html?raw";
+import wordWindowsTable from "./fixtures/word12-win-table.html?raw";
+import wordMacLists from "./fixtures/word15-mac-lists.html?raw";
 import { normalizeOfficeHTML } from "./normalizeOfficeHTML.js";
 
-type ParseOfficeHTML = (
-  html: string,
-) => ReturnType<BlockNoteEditor["tryParseHTMLToBlocks"]>;
-
-const it = globalThis.it.extend<{ parseOfficeHTML: ParseOfficeHTML }>({
-  parseOfficeHTML: async ({ setupEditor }, use) => {
-    const { editor } = await setupEditor({ mountType: false });
-    await use((html) => editor.tryParseHTMLToBlocks(normalizeOfficeHTML(html)));
+const it = globalThis.it.extend(
+  "parseOfficeHTML",
+  { scope: "file" },
+  // eslint-disable-next-line no-empty-pattern -- Vitest requires destructured fixture dependencies.
+  async ({}, { onCleanup }) => {
+    const { createSetupEditor } =
+      await import("../../../../../../tests/src/commands/node/setupEditor.js");
+    const { editor } = await createSetupEditor(onCleanup)();
+    return (html: string) =>
+      editor.tryParseHTMLToBlocks(normalizeOfficeHTML(html));
   },
+);
+
+describe("Office HTML paste", () => {
+  globalThis.it(
+    "pastes a Word paragraph as a formatted list item",
+    async ({ setupEditor }) => {
+      const { editor } = await setupEditor({ mountType: "dom" });
+      const data = new DataTransfer();
+      data.setData("text/html", wordItem("<strong>First</strong>"));
+
+      const paste = dispatchClipboardEvent(editor.domElement!, "paste", data);
+
+      expect(paste.defaultPrevented).toBe(true);
+      expect(editor.document[0]).toMatchObject({
+        type: "bulletListItem",
+        content: [{ type: "text", text: "First", styles: { bold: true } }],
+      });
+    },
+  );
 });
 
 function wordItem(text: string, level = 1, marker = "·", list = "l0") {
@@ -19,26 +47,185 @@ function wordItem(text: string, level = 1, marker = "·", list = "l0") {
 }
 
 describe("Office clipboard HTML", () => {
-  it("normalizes a Word paragraph into a list item when pasted as HTML", async ({
-    setupEditor,
+  it("keeps the first decimal number when only part of a Word list is copied", ({
+    parseOfficeHTML,
   }) => {
-    const { editor } = await setupEditor({ mountType: "dom" });
-    const data = new DataTransfer();
-    data.setData("text/html", wordItem("<strong>First</strong>"));
-    const paste = new ClipboardEvent("paste", {
-      bubbles: true,
-      cancelable: true,
-    });
-    // Use the supplied payload even in browsers that sanitize synthetic events.
-    Object.defineProperty(paste, "clipboardData", { value: data });
+    expect(
+      parseOfficeHTML(
+        `${wordItem("Seven", 1, "7.")}${wordItem("Eight", 1, "8.")}`,
+      ),
+    ).toMatchObject([
+      {
+        type: "numberedListItem",
+        props: { start: 7 },
+        content: [{ text: "Seven" }],
+      },
+      { type: "numberedListItem", content: [{ text: "Eight" }] },
+    ]);
+  });
 
-    editor.domElement!.dispatchEvent(paste);
+  it("preserves Excel's class-based marks, alignment, merges, and hard breaks", ({
+    parseOfficeHTML,
+  }) => {
+    expect(parseOfficeHTML(excelMac)).toMatchObject([
+      {
+        type: "table",
+        content: {
+          rows: [
+            {
+              cells: [
+                {
+                  props: { backgroundColor: "yellow" },
+                  content: [{ text: "Item", styles: { bold: true } }],
+                },
+                {},
+                {},
+                {},
+              ],
+            },
+            {
+              cells: [
+                { content: [{ text: "Apple", styles: { italic: true } }] },
+                {
+                  props: { textAlignment: "right", textColor: "red" },
+                  content: [{ text: "3" }],
+                },
+                { content: [{ text: "$1.50" }] },
+                {
+                  content: [{ text: "discontinued", styles: { strike: true } }],
+                },
+              ],
+            },
+            {
+              cells: [
+                { content: [{ text: "Banana", styles: { underline: true } }] },
+                {},
+                {},
+                { content: [{ text: "line one\nline two" }] },
+              ],
+            },
+            { cells: [{ props: { colspan: 4, textAlignment: "center" } }] },
+            {
+              cells: [
+                {},
+                {},
+                {},
+                { content: [{ text: "https://example.com" }] },
+              ],
+            },
+          ],
+        },
+      },
+    ]);
+  });
 
-    expect(paste.defaultPrevented).toBe(true);
-    expect(editor.document[0]).toMatchObject({
-      type: "bulletListItem",
-      content: [{ type: "text", text: "First", styles: { bold: true } }],
+  it("keeps Google Sheets marks, merges, and links nested in cell wrappers", ({
+    parseOfficeHTML,
+  }) => {
+    const [table] = parseOfficeHTML(googleSheets);
+    expect(table).toMatchObject({ type: "table" });
+    if (table.type !== "table") {
+      throw new Error("Expected a table");
+    }
+    const { rows } = table.content;
+    expect(rows[0].cells[0]).toMatchObject({
+      content: [{ text: "Item", styles: { bold: true } }],
     });
+    expect(rows[2].cells[0]).toMatchObject({
+      content: [{ text: "Banana", styles: { underline: true } }],
+    });
+    expect(rows[3].cells[0]).toMatchObject({
+      props: { colspan: 4, textAlignment: "center" },
+    });
+    expect(rows[4].cells[3]).toMatchObject({
+      content: [
+        {
+          type: "link",
+          href: "https://example.com/",
+          content: [{ text: "https://example.com" }],
+        },
+      ],
+    });
+  });
+
+  it.for(["-->", "--!>"])(
+    "keeps inline Excel styles over class defaults with CSS wrapper ending %s",
+    (commentEnd, { parseOfficeHTML }) => {
+      expect(
+        parseOfficeHTML(`<meta name="Generator" content="Microsoft Excel">
+        <style><!--.xl1 { color: red; text-align: right }${commentEnd}</style>
+        <style>.xl2 { text-align: center }
+          .unrelated { background: yellow }</style>
+        <table><tr>
+          <td class="xl1 xl2 unrelated" style="color: blue">First</td>
+          <td class="xl1" align="right" style="text-align: left">Second</td>
+        </tr></table>`),
+      ).toMatchObject([
+        {
+          type: "table",
+          content: {
+            rows: [
+              {
+                cells: [
+                  {
+                    props: {
+                      textColor: "blue",
+                      textAlignment: "center",
+                      backgroundColor: "default",
+                    },
+                  },
+                  { props: { textAlignment: "left" } },
+                ],
+              },
+            ],
+          },
+        },
+      ]);
+    },
+  );
+
+  it("keeps older Word for Windows table cells and readable list text", ({
+    parseOfficeHTML,
+  }) => {
+    expect(parseOfficeHTML(wordWindowsTable)[0]).toMatchObject({
+      type: "table",
+      content: {
+        rows: [
+          {
+            cells: [
+              { content: [{ text: "Cell 1" }] },
+              { content: [{ text: "Cell 2" }] },
+            ],
+          },
+          {
+            cells: [
+              { content: [{ text: "Cell 3" }] },
+              { content: [{ text: "Cell 4" }] },
+            ],
+          },
+        ],
+      },
+    });
+    expect(parseOfficeHTML(wordWindowsLists)).toMatchObject(
+      Array.from({ length: 6 }, (_, index) => ({
+        type: "paragraph",
+        content: [{ text: expect.stringContaining(`Item ${index + 1}`) }],
+      })),
+    );
+  });
+
+  it("keeps Mac Word's decimal and bulleted lists and unrepresentable alpha labels", ({
+    parseOfficeHTML,
+  }) => {
+    const blocks = parseOfficeHTML(wordMacLists);
+    expect(
+      blocks.filter(({ type }) => type === "numberedListItem"),
+    ).toHaveLength(6);
+    expect(blocks.filter(({ type }) => type === "bulletListItem")).toHaveLength(
+      2,
+    );
+    expect(JSON.stringify(blocks)).toContain("a)");
+    expect(JSON.stringify(blocks)).toContain("b)");
   });
 
   // Clipboard samples from CKEditor 5's paste-from-office/tests/_data at
@@ -165,7 +352,7 @@ asdfasdfadf alksd flaksjdf laksjd alksjdf askljd f</span><span lang=EN-US><o:p><
   ])("parses captured clipboard HTML: %s", ([, html], { parseOfficeHTML }) => {
     const blocks = parseOfficeHTML(html);
 
-    function withoutIds(blocks: ReturnType<ParseOfficeHTML>): object[] {
+    function withoutIds(blocks: ReturnType<typeof parseOfficeHTML>): object[] {
       return blocks.map(({ id: _id, children, ...block }) => ({
         ...block,
         children: withoutIds(children),
