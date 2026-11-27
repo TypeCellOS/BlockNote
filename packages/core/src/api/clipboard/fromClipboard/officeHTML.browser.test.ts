@@ -1,6 +1,6 @@
 import { describe, expect } from "vite-plus/test";
 
-import type { BlockNoteEditor } from "../../../editor/BlockNoteEditor.js";
+import { dispatchClipboardEvent } from "../../../../../../tests/src/utils/clipboardEvent.js";
 // Clipboard captures from wordpaste:
 // https://github.com/smrifat1411/wordpaste/tree/21b5b0ae2b23fd9b954013605fa0f2840a603ef2/test/fixtures
 import excelMac from "./fixtures/excel16-mac-table.html?raw";
@@ -10,15 +10,36 @@ import wordWindowsTable from "./fixtures/word12-win-table.html?raw";
 import wordMacLists from "./fixtures/word15-mac-lists.html?raw";
 import { normalizeOfficeHTML } from "./normalizeOfficeHTML.js";
 
-type ParseOfficeHTML = (
-  html: string,
-) => ReturnType<BlockNoteEditor["tryParseHTMLToBlocks"]>;
-
-const it = globalThis.it.extend<{ parseOfficeHTML: ParseOfficeHTML }>({
-  parseOfficeHTML: async ({ setupEditor }, use) => {
-    const { editor } = await setupEditor({ mountType: false });
-    await use((html) => editor.tryParseHTMLToBlocks(normalizeOfficeHTML(html)));
+const it = globalThis.it.extend(
+  "parseOfficeHTML",
+  { scope: "file" },
+  // eslint-disable-next-line no-empty-pattern -- Vitest requires destructured fixture dependencies.
+  async ({}, { onCleanup }) => {
+    const { createSetupEditor } =
+      await import("../../../../../../tests/src/commands/node/setupEditor.js");
+    const { editor } = await createSetupEditor(onCleanup)();
+    return (html: string) =>
+      editor.tryParseHTMLToBlocks(normalizeOfficeHTML(html));
   },
+);
+
+describe("Office HTML paste", () => {
+  globalThis.it(
+    "pastes a Word paragraph as a formatted list item",
+    async ({ setupEditor }) => {
+      const { editor } = await setupEditor({ mountType: "dom" });
+      const data = new DataTransfer();
+      data.setData("text/html", wordItem("<strong>First</strong>"));
+
+      const paste = dispatchClipboardEvent(editor.domElement!, "paste", data);
+
+      expect(paste.defaultPrevented).toBe(true);
+      expect(editor.document[0]).toMatchObject({
+        type: "bulletListItem",
+        content: [{ type: "text", text: "First", styles: { bold: true } }],
+      });
+    },
+  );
 });
 
 function wordItem(text: string, level = 1, marker = "·", list = "l0") {
@@ -207,28 +228,6 @@ describe("Office clipboard HTML", () => {
     expect(JSON.stringify(blocks)).toContain("b)");
   });
 
-  it("normalizes a Word paragraph into a list item when pasted as HTML", async ({
-    setupEditor,
-  }) => {
-    const { editor } = await setupEditor({ mountType: "dom" });
-    const data = new DataTransfer();
-    data.setData("text/html", wordItem("<strong>First</strong>"));
-    const paste = new ClipboardEvent("paste", {
-      bubbles: true,
-      cancelable: true,
-    });
-    // Use the supplied payload even in browsers that sanitize synthetic events.
-    Object.defineProperty(paste, "clipboardData", { value: data });
-
-    editor.domElement!.dispatchEvent(paste);
-
-    expect(paste.defaultPrevented).toBe(true);
-    expect(editor.document[0]).toMatchObject({
-      type: "bulletListItem",
-      content: [{ type: "text", text: "First", styles: { bold: true } }],
-    });
-  });
-
   // Clipboard samples from CKEditor 5's paste-from-office/tests/_data at
   // https://github.com/ckeditor/ckeditor5/tree/e7c72a94f7cc6be9dff5ae0bfb81af3eaa42f62d/packages/ckeditor5-paste-from-office/tests/_data
   // Word captures omit the generated head except for source identification.
@@ -353,7 +352,7 @@ asdfasdfadf alksd flaksjdf laksjd alksjdf askljd f</span><span lang=EN-US><o:p><
   ])("parses captured clipboard HTML: %s", ([, html], { parseOfficeHTML }) => {
     const blocks = parseOfficeHTML(html);
 
-    function withoutIds(blocks: ReturnType<ParseOfficeHTML>): object[] {
+    function withoutIds(blocks: ReturnType<typeof parseOfficeHTML>): object[] {
       return blocks.map(({ id: _id, children, ...block }) => ({
         ...block,
         children: withoutIds(children),
