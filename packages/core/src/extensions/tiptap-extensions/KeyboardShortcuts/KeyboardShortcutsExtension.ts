@@ -3,6 +3,7 @@ import { GapCursor } from "@tiptap/pm/gapcursor";
 import { Fragment, type Node, type ResolvedPos } from "prosemirror-model";
 import {
   NodeSelection,
+  Plugin,
   Selection,
   TextSelection,
   Transaction,
@@ -105,6 +106,48 @@ export const KeyboardShortcutsExtension = Extension.create<{
   selectAllBehavior: "block-first" | "document";
 }>({
   priority: 50,
+
+  addProseMirrorPlugins() {
+    return [
+      new Plugin({
+        props: {
+          handleDOMEvents: {
+            beforeinput(view, event) {
+              const window = view.dom.ownerDocument.defaultView;
+              if (
+                !view.editable ||
+                !event.cancelable ||
+                event.isComposing ||
+                event.inputType !== "insertText" ||
+                event.data !== "\n" ||
+                !window ||
+                !/Android.*Chrome\//i.test(window.navigator.userAgent)
+              ) {
+                return false;
+              }
+
+              // Android IMEs can commit Enter as text without a keydown.
+              // ProseMirror's DOM fallback skips it after a previously
+              // dispatched key, so route this commit through the Enter keymap.
+              const enter = new window.KeyboardEvent("keydown", {
+                key: "Enter",
+                keyCode: 13,
+              });
+              if (
+                !view.someProp("handleKeyDown", (handler) =>
+                  handler(view, enter),
+                )
+              ) {
+                return false;
+              }
+              event.preventDefault();
+              return true;
+            },
+          },
+        },
+      }),
+    ];
+  },
 
   // TODO: The shortcuts need a refactor. Do we want to use a command priority
   //  design as there is now, or clump the logic into a single function?

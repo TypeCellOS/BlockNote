@@ -26,6 +26,7 @@ function dropOnEdge(
   const coords = vi.spyOn(view, "posAtCoords").mockReturnValue({
     pos: column.posBeforeNode,
     inside: column.posBeforeNode,
+    affinity: 0,
   });
   const rect = vi
     .spyOn(

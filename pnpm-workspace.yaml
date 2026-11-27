@@ -24,11 +24,11 @@ overrides:
   "@tiptap/core": "^3.31.4"
   "@tiptap/pm": "^3.31.4"
   # ProseMirror nodes must share one model instance across the editor and Y bindings.
-  "prosemirror-model": "1.25.12"
+  "prosemirror-model": "1.25.13"
   # Mapping has private fields, so separate prosemirror-transform versions are
   # incompatible types. Keep direct imports and prosemirror-state/@tiptap/pm
   # on one resolution (1.12.0 vs 1.12.1 breaks the core build).
-  "prosemirror-transform": "^1.12.1"
+  "prosemirror-transform": "^1.12.7"
   # vite-plus declares @types/node and jsdom as peers, so every distinct version
   # of them in the workspace produces a separate vite-plus (and therefore vitest)
   # instance. `vp run test` starts the runner from the workspace root while each

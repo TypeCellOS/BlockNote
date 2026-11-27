@@ -70,10 +70,10 @@ describe("Enter on Android", () => {
   });
 
   // The IME route: Chromium's commit path delivers a newline as a trusted
-  // `beforeinput: insertText` with `data: "\n"` and no keypress (a keyboard
-  // committing Enter through `commitText("\n")`); its default action is the
-  // paragraph split prosemirror-view reads back. Driven through the real IME
-  // pipeline over CDP.
+  // `beforeinput: insertText` with `data: "\n"` and no keydown (a keyboard
+  // committing Enter through `commitText("\n")`). BlockNote routes this
+  // through its Enter shortcuts. Drive it through the real IME pipeline
+  // over CDP.
   test.skipIf(!/android/i.test(navigator.userAgent))(
     "IME-committed newline (insertText) splits the block",
     async () => {
