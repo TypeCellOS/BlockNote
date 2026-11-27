@@ -891,6 +891,7 @@ NESTED BLOCKS
   background-color: var(--bn-file-placeholder-background, rgb(242, 241, 238));
   border: 0;
   border-radius: 4px;
+  box-sizing: border-box;
   color: var(--bn-file-placeholder-color, #646362);
   display: flex;
   font: inherit;
