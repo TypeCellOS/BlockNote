@@ -12,6 +12,94 @@ describe("markdownToHtml", () => {
     );
   });
 
+  it.each([
+    [
+      '[link](<my file> "some ) title")',
+      '<p><a href="my file" title="some ) title">link</a></p>',
+    ],
+    [
+      '[link](my-file "some ) title")',
+      '<p><a href="my-file" title="some ) title">link</a></p>',
+    ],
+    ["[link](<a<b)c>)", '<p><a href="a&lt;b)c">link</a></p>'],
+    [
+      "![Photo](<photo.png)\nTaken by Alice >)",
+      '<p><img src="photo.png" alt="Photo"><br>Taken by Alice &gt;)</p>',
+    ],
+    [
+      String.raw`![Photo](\\server\share\photo.png)`,
+      String.raw`<p><img src="\\server\share\photo.png" alt="Photo"></p>`,
+    ],
+    [
+      String.raw`![Photo](C:\photos\_old\photo.png)`,
+      String.raw`<p><img src="C:\photos\_old\photo.png" alt="Photo"></p>`,
+    ],
+    [
+      String.raw`![Photo](family\(2026\).png)`,
+      '<p><img src="family(2026).png" alt="Photo"></p>',
+    ],
+    [
+      "*[a](<some` url>)* `b`",
+      '<p><em><a href="some` url">a</a></em> <code>b</code></p>',
+    ],
+    [
+      '*<span title="`">a</span>* `b`',
+      '<p><em><span title="`">a</span></em> <code>b</code></p>',
+    ],
+    [
+      "*<https://e.test/a`b>* `c`",
+      '<p><em><a href="https://e.test/a`b">https://e.test/a`b</a></em> <code>c</code></p>',
+    ],
+    [
+      "> # H\n```x```",
+      "<blockquote><h1>H</h1></blockquote><p><code>x</code></p>",
+    ],
+    ["> A\nB\n> C", "<blockquote><p>A<br>B<br>C</p></blockquote>"],
+    ["> - A\nB", "<blockquote><ul><li><p>A<br>B</p></li></ul></blockquote>"],
+    [
+      "> > - A\nB",
+      "<blockquote><blockquote><ul><li><p>A<br>B</p></li></ul></blockquote></blockquote>",
+    ],
+    [
+      "> - A\n>   # H\nB",
+      "<blockquote><ul><li><p>A</p><h1>H</h1></li></ul></blockquote><p>B</p>",
+    ],
+    [
+      "> - A\n>\nB",
+      "<blockquote><ul><li><p>A</p></li></ul></blockquote><p>B</p>",
+    ],
+    [
+      "> > A\nB\n> > C\nD",
+      "<blockquote><blockquote><p>A<br>B<br>C<br>D</p></blockquote></blockquote>",
+    ],
+    [
+      "> A\nB\n> # H\nOutside",
+      "<blockquote><p>A<br>B</p><h1>H</h1></blockquote><p>Outside</p>",
+    ],
+    [
+      "```x``` is inline\n\n```js\nhello\n```",
+      '<p><code>x</code> is inline</p><pre><code data-language="js">hello</code></pre>',
+    ],
+  ])("keeps the token and container boundaries in %j", (markdown, html) => {
+    expect(markdownToHtml(markdown)).toBe(html);
+  });
+
+  it("recovers a legacy fence with backticks in its info string only if it has a compatible closer", () => {
+    expect(markdownToHtml("````js`meta\nhello\n````")).toBe(
+      '<pre><code data-language="js`meta">hello</code></pre>',
+    );
+    expect(markdownToHtml("````js`meta\nhello\n```")).toBe(
+      "<p>````js`meta<br>hello</p><pre><code></code></pre>",
+    );
+  });
+
+  it.each([
+    ["[link](<my file).pdf>)", "my file).pdf"],
+    ["[link](<my file\\>v.pdf>)", "my file&gt;v.pdf"],
+  ])("reads the full destination in %s", (markdown, href) => {
+    expect(markdownToHtml(markdown)).toBe(`<p><a href="${href}">link</a></p>`);
+  });
+
   // CommonMark: a line ending is "\n", "\r\n" or "\r". A file from Windows
   // has "\r\n".
   it.each([

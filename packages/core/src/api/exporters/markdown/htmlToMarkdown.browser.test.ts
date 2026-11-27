@@ -4,6 +4,16 @@ import { markdownToHtml } from "../../parsers/markdown/markdownToHtml.js";
 import { htmlToMarkdown } from "./htmlToMarkdown.js";
 
 describe("htmlToMarkdown", () => {
+  it.each([
+    String.raw`foo\ bar.png`,
+    String.raw`\\server\share\my photo.png`,
+    "my file).png",
+    "my file&gt;v.png",
+  ])("round-trips an image pointing to %s", (src) => {
+    const image = `<p><img src="${src}" alt="Photo"></p>`;
+    expect(markdownToHtml(htmlToMarkdown(image))).toBe(image);
+  });
+
   it("normalizes line endings inside heading code spans without adding a break", () => {
     const markdown = htmlToMarkdown("<h1><code>a\\\nb</code></h1>");
 
@@ -30,13 +40,20 @@ describe("htmlToMarkdown", () => {
   });
 
   it.each([
-    String.raw`foo\ bar.png`,
-    String.raw`\\server\share\my photo.png`,
-    "my file).png",
-    "my file&gt;v.png",
-  ])("round-trips an image pointing to %s", (src) => {
-    const image = `<p><img src="${src}" alt="Photo"></p>`;
-    expect(markdownToHtml(htmlToMarkdown(image))).toBe(image);
+    "<h1><br>Heading<br></h1>",
+    "<h1><br></h1>",
+    "<ul><li><p><br>Item<br></p></li></ul>",
+    "<ul><li><p><br></p></li></ul>",
+    "<blockquote><p><br>Quote<br></p></blockquote>",
+    "<p>Above</p><p><br></p><p>Below</p>",
+    "<ul><li><p>Item</p><p>First<br># second</p></li></ul>",
+    "<ul><li><p>Item</p><p>First<br>* second</p></li></ul>",
+    "<p>First<br># second</p>",
+    "<table><thead><tr><th>Header</th></tr></thead><tbody><tr><td>a\\<br>b</td></tr></tbody></table>",
+    '<p><a href="https://example.com/my file&gt;v.pdf">link</a></p>',
+    '<pre><code data-language="js`extra">code</code></pre>',
+  ])("round-trips %s", (html) => {
+    expect(markdownToHtml(htmlToMarkdown(html))).toBe(html);
   });
 
   // In the active document, an element of the HTML can load a resource and
