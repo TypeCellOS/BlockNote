@@ -1,4 +1,5 @@
 import { SideMenuExtension } from "@blocknote/core/extensions";
+import { useEffect, useRef } from "react";
 import { MdDragIndicator } from "react-icons/md";
 
 import { useComponentsContext } from "../../../editor/ComponentsContext.js";
@@ -32,6 +33,15 @@ export const DragHandleButton = (
     selector: (state) => state?.block,
   });
 
+  // Unfreeze side menu if editor becomes read-only.
+  const menuOpen = useRef(false);
+  useEffect(() => {
+    if ((!isEditable || block === undefined) && menuOpen.current) {
+      menuOpen.current = false;
+      sideMenu.unfreezeMenu();
+    }
+  }, [isEditable, block, sideMenu]);
+
   if (!isEditable || block === undefined) {
     return null;
   }
@@ -41,6 +51,7 @@ export const DragHandleButton = (
   return (
     <Components.Generic.Menu.Root
       onOpenChange={(open: boolean) => {
+        menuOpen.current = open;
         if (open) {
           sideMenu.freezeMenu();
         } else {
