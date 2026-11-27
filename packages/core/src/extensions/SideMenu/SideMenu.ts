@@ -453,7 +453,7 @@ export const SideMenuExtension = createExtension(
       unfreezeMenu({ restoreFocus = true } = {}) {
         menuFrozen = false;
         hideMenu();
-        if (!restoreFocus) {
+        if (!restoreFocus || !editor.domElement) {
           return;
         }
         // Restore keyboard focus after menu actions, but don't steal it from
