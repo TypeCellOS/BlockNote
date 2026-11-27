@@ -1,5 +1,6 @@
 import { CellSelection } from "@tiptap/pm/tables";
 import { describe, expect } from "vite-plus/test";
+import { FormattingToolbar } from "../FormattingToolbar.js";
 import { TextAlignButton } from "./TextAlignButton.js";
 import { viewProps } from "./defaultButton.test.fixture.js";
 import { TableHandlesExtension } from "@blocknote/core/extensions";
