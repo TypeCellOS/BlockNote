@@ -14,6 +14,7 @@ import { useEditorState } from "../../../hooks/useEditorState.js";
 import { useDictionary } from "../../../i18n/dictionary.js";
 import { ColorIcon } from "../../ColorPicker/ColorIcon.js";
 import { ColorPicker } from "../../ColorPicker/ColorPicker.js";
+import { selectionContainsPlainContent } from "../selectionContainsPlainContent.js";
 
 function checkColorInSchema<Color extends "text" | "background">(
   color: Color,
@@ -63,6 +64,8 @@ export const ColorStyleButton = () => {
       if (
         // The editor is read-only.
         !editor.isEditable ||
+        // Plain content cannot carry formatting marks.
+        selectionContainsPlainContent(editor.prosemirrorState.selection) ||
         // None of the selected blocks have inline content
         !(
           editor.getSelection()?.blocks || [
