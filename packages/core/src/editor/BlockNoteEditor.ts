@@ -1,7 +1,9 @@
 import {
   createDocument,
   EditorOptions,
+  type ExtensionConfig,
   FocusPosition,
+  getExtensionField,
   getSchema,
   Editor as TiptapEditor,
   Extension as TiptapExtension,
@@ -621,6 +623,33 @@ export class BlockNoteEditor<
     }
 
     this.pmSchema.cached.blockNoteEditor = this;
+
+    // Tiptap adds the plugins of the extensions to the state only when it
+    // creates the view (on mount), so an editor without a view runs no
+    // plugins. But the UniqueID plugin keeps a rule of the document: each
+    // block has its own ID. Thus, the state of an editor without a view also
+    // gets this plugin. A block that a transaction adds without an ID (for
+    // example, the block that fills an emptied document) then gets an ID, as
+    // in a mounted editor. The other plugins stay off until mount, as before.
+    // On mount, Tiptap replaces the plugins of the state with the full set.
+    const uniqueID = this._tiptapEditor.extensionManager.extensions.find(
+      (extension) => extension.name === UniqueID.name,
+    );
+    // The `disableExtensions` option can remove the extension.
+    if (uniqueID) {
+      const addProseMirrorPlugins = getExtensionField<
+        ExtensionConfig["addProseMirrorPlugins"]
+      >(uniqueID, "addProseMirrorPlugins", {
+        name: uniqueID.name,
+        options: uniqueID.options,
+        storage: uniqueID.storage,
+        editor: this._tiptapEditor,
+        type: null,
+      });
+      for (const plugin of addProseMirrorPlugins?.() ?? []) {
+        this._tiptapEditor.registerPlugin(plugin);
+      }
+    }
 
     this._tiptapEditor.on("mount", () => {
       this.headless = false;

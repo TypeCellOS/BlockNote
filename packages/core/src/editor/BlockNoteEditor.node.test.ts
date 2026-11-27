@@ -1,4 +1,4 @@
-import { expect, expectTypeOf, vi } from "vite-plus/test";
+import { describe, expect, expectTypeOf, vi } from "vite-plus/test";
 import { createExtension } from "./BlockNoteExtension.js";
 import { BlockNoteEditor } from "./BlockNoteEditor.js";
 import { en } from "../i18n/locales/en.js";
@@ -119,4 +119,44 @@ it("can unsubscribe a destroy listener", () => {
   editor._tiptapEditor.destroy();
   expect(onDestroy).not.toHaveBeenCalled();
   expect(retainedListener).toHaveBeenCalledExactlyOnceWith();
+});
+
+// Tiptap adds the plugins of the extensions only when the editor mounts. The
+// unique ID plugin must also run before that: each block needs its own ID.
+describe("block IDs in an editor without a view", () => {
+  it("gives an ID to the block that fills an emptied document", async ({
+    setupEditor,
+  }) => {
+    const { editor } = await setupEditor({
+      initialContent: [{ id: "a", type: "paragraph", content: "Alpha" }],
+    });
+
+    editor.removeBlocks(editor.document);
+
+    // The ID in `editor.document` must be the ID of the block in the editor:
+    // only then can the other functions of the editor find the block.
+    const [block] = editor.document;
+    expect(editor.getBlock(block.id)).toEqual(block);
+    editor.updateBlock(block.id, { content: "Beta" });
+    expect(editor.document).toMatchObject([
+      { id: block.id, content: [{ text: "Beta" }] },
+    ]);
+  });
+
+  it("gives a new ID to the second block when a transaction splits a block", async ({
+    setupEditor,
+  }) => {
+    const { editor } = await setupEditor({
+      initialContent: [{ id: "a", type: "paragraph", content: "Alpha" }],
+    });
+
+    // Splits the paragraph and its block after "Al". ProseMirror copies the
+    // attributes, so the two blocks have the ID "a" after the split.
+    editor.transact((tr) => tr.split(5, 2));
+
+    expect(editor.document).toMatchObject([
+      { id: "a", content: [{ text: "Al" }] },
+      { id: expect.not.stringMatching(/^a$/), content: [{ text: "pha" }] },
+    ]);
+  });
 });
