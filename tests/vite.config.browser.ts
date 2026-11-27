@@ -73,6 +73,8 @@ const blockNoteSrcAliases = Object.fromEntries(
 const LOCAL_BROWSER_FILES = [
   "src/end-to-end/linktoolbar/linkToolbar.test.tsx",
   "src/integration/formatConversion/exportParseEquality/fileLinks.browser.test.ts",
+  "src/integration/formatConversion/markdown.browser.test.ts",
+  "../packages/core/src/api/exporters/markdown/htmlToMarkdown.browser.test.ts",
   "../packages/core/src/editor/managers/EventManager.browser.test.ts",
   "../packages/core/src/extensions/FormattingToolbar/FormattingToolbar.browser.test.ts",
   "../packages/react/src/components/FormattingToolbar/DefaultButtons/BasicTextStyleButton.browser.test.tsx",

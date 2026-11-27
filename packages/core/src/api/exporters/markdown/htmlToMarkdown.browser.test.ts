@@ -21,4 +21,21 @@ describe("htmlToMarkdown", () => {
       "* a\n\n  b\\\n  c\n",
     );
   });
+
+  it.each([
+    "<h1><br>Heading<br></h1>",
+    "<h1><br></h1>",
+    "<ul><li><p><br>Item<br></p></li></ul>",
+    "<ul><li><p><br></p></li></ul>",
+    "<blockquote><p><br>Quote<br></p></blockquote>",
+    "<p>Above</p><p><br></p><p>Below</p>",
+    "<ul><li><p>Item</p><p>First<br># second</p></li></ul>",
+    "<ul><li><p>Item</p><p>First<br>* second</p></li></ul>",
+    "<p>First<br># second</p>",
+    "<table><thead><tr><th>Header</th></tr></thead><tbody><tr><td>a\\<br>b</td></tr></tbody></table>",
+    '<p><a href="https://example.com/my file&gt;v.pdf">link</a></p>',
+    '<pre><code data-language="js`extra">code</code></pre>',
+  ])("round-trips %s", (html) => {
+    expect(markdownToHtml(htmlToMarkdown(html))).toBe(html);
+  });
 });

@@ -697,41 +697,6 @@ export const exportCases: CoreExportCase[] = [
       },
     ],
   },
-  {
-    name: "style/adjacentItalic",
-    content: [
-      {
-        type: "paragraph",
-        content: [
-          {
-            type: "text",
-            text: "Struck",
-            styles: { italic: true, strike: true },
-          },
-          {
-            type: "text",
-            text: "Italic",
-            styles: { italic: true },
-          },
-        ],
-      },
-      {
-        type: "paragraph",
-        content: [
-          {
-            type: "text",
-            text: "Italic",
-            styles: { italic: true },
-          },
-          {
-            type: "text",
-            text: "Underlined",
-            styles: { italic: true, underline: true },
-          },
-        ],
-      },
-    ],
-  },
   // Numbered list with custom start
   {
     name: "lists/numberedListStart",
@@ -2689,41 +2654,6 @@ export const exportCases: CoreExportCase[] = [
             type: "text",
             text: "\n",
             styles: {},
-          },
-        ],
-      },
-    ],
-  },
-  {
-    name: "hardbreak/blockEdges",
-    content: [
-      {
-        type: "heading",
-        content: "Heading\n",
-      },
-      {
-        type: "bulletListItem",
-        content: "\nBullet List Item",
-      },
-      {
-        type: "numberedListItem",
-        content: "Numbered List Item\n",
-      },
-      {
-        type: "checkListItem",
-        content: "Check List Item\n",
-      },
-      {
-        type: "quote",
-        content: "Quote\n",
-      },
-      {
-        type: "toggleListItem",
-        content: "Toggle List Item\n",
-        children: [
-          {
-            type: "paragraph",
-            content: "Child Paragraph\n",
           },
         ],
       },

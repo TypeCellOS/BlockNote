@@ -115,17 +115,21 @@ function serializeNode(node: Node, ctx: SerializeContext): string {
 // ─── Block Serializers ───────────────────────────────────────────────────────
 
 function serializeParagraph(el: HTMLElement, ctx: SerializeContext): string {
-  const trimmed = serializeBlockText(el);
+  const content = serializeBlockText(el);
   if (ctx.inListItem) {
-    return trimmed;
+    return content;
   }
-  return ctx.indent + trimmed + "\n\n";
+  return ctx.indent + content + "\n\n";
 }
 
 function serializeHeading(el: HTMLElement, ctx: SerializeContext): string {
   const level = parseInt(el.tagName[1], 10);
   const prefix = "#".repeat(level) + " ";
-  const content = toSingleLine(serializeBlockText(el));
+  // A trailing run of hashes after whitespace would close the ATX heading.
+  const content = serializeBlockText(el, "html").replace(
+    /(^|[ \t])(?=#+[ \t]*$)/,
+    "$1\\",
+  );
   return ctx.indent + prefix + content + "\n\n";
 }
 
@@ -173,16 +177,20 @@ function serializeCodeBlock(el: HTMLElement, ctx: SerializeContext): string {
   // Extract code content, handling <br> elements as newlines
   const code = extractCodeContent(codeEl);
 
-  // Use a fence longer than the longest backtick run in the code
-  const longestRun = Math.max(
-    0,
-    ...(code.match(/`+/g) ?? []).map((run) => run.length),
-  );
-  const fence = "`".repeat(Math.max(3, longestRun + 1));
+  // A backtick fence cannot have a backtick in its info string.
+  const fenceCharacter = language.includes("`") ? "~" : "`";
+  const fenceRuns = fenceCharacter === "~" ? /~+/g : /`+/g;
+  let fenceLength = 3;
+  for (const [run] of code.matchAll(fenceRuns)) {
+    fenceLength = Math.max(fenceLength, run.length + 1);
+  }
+  const fence = fenceCharacter.repeat(fenceLength);
+  const opening =
+    fence + (language.startsWith(fenceCharacter) ? " " : "") + language;
 
   // For empty code blocks, don't add a newline between the fences
   if (!code) {
-    return ctx.indent + fence + language + "\n" + ctx.indent + fence + "\n\n";
+    return ctx.indent + opening + "\n" + ctx.indent + fence + "\n\n";
   }
 
   // Every (non-blank) line carries the indent - inside a list item or
@@ -190,7 +198,7 @@ function serializeCodeBlock(el: HTMLElement, ctx: SerializeContext): string {
   // lines stay blank: they don't terminate an indented fence, and indenting
   // them would add trailing whitespace.
   const lines = [
-    fence + language,
+    opening,
     ...(code.endsWith("\n") ? code.slice(0, -1) : code).split("\n"),
     fence,
   ];
@@ -327,17 +335,19 @@ function serializeListItem(
     const summary = details.querySelector("summary");
     const summaryP = summary?.querySelector("p");
     firstContentEl = details;
-    inlineContent = summaryP ? serializeBlockText(summaryP) : "";
+    inlineContent = summaryP ? serializeBlockText(summaryP, "html") : "";
   } else {
     firstContentEl = getFirstContentElement(el, checkbox);
-    inlineContent = firstContentEl ? serializeBlockText(firstContentEl) : "";
+    inlineContent = firstContentEl
+      ? serializeBlockText(firstContentEl, "html")
+      : "";
   }
 
   // The marker line ends with a single `\n` so that consecutive list items
   // produce a "tight" list (no blank line between markers). Continuation
   // content within the item (nested lists, continuation paragraphs, other
   // blocks) injects its own spacing as needed.
-  let result = ctx.indent + marker + toSingleLine(inlineContent) + "\n";
+  let result = ctx.indent + marker + inlineContent + "\n";
 
   // Serialize child content (nested lists, continuation paragraphs, etc.)
   const childIndent = ctx.indent + " ".repeat(markerWidth);
@@ -352,11 +362,7 @@ function serializeListItem(
       }
       const childTag = child.tagName.toLowerCase();
       if (childTag === "p") {
-        const content = serializeBlockText(child);
-        // Continuation paragraph needs a blank line to separate it from the
-        // previous content; CommonMark would otherwise treat it as a soft
-        // wrap of that content.
-        result += "\n" + childIndent + indentLines(content, childIndent) + "\n";
+        result += serializeListContinuation(child, childIndent);
       } else {
         result += serializeNode(child, childCtx);
       }
@@ -380,10 +386,7 @@ function serializeListItem(
       // Nested list flows directly under the parent marker — no blank line.
       result += serializeNode(child, childCtx);
     } else if (childTag === "p") {
-      // Continuation paragraph within list item — requires blank line before
-      // so it isn't read as part of the marker line's text.
-      const content = serializeBlockText(child);
-      result += "\n" + childIndent + indentLines(content, childIndent) + "\n";
+      result += serializeListContinuation(child, childIndent);
     } else {
       // Other block-level children (code blocks, blockquotes, etc.) already
       // emit their own separating newlines; prefix with a blank line so they
@@ -395,13 +398,10 @@ function serializeListItem(
   return result;
 }
 
-/**
- * Puts the indent at the start of each line after the first line. Without
- * this indent, the markdown parser does not read the lines after a hard break
- * as a part of a paragraph in a list item.
- */
-function indentLines(content: string, indent: string): string {
-  return content.split("\n").join("\n" + indent);
+function serializeListContinuation(el: Element, indent: string): string {
+  // Separate the paragraph from the marker line and keep every line in the item.
+  const content = serializeBlockText(el).replaceAll("\n", "\n" + indent);
+  return "\n" + indent + content + "\n";
 }
 
 function getFirstContentElement(
@@ -459,14 +459,9 @@ function serializeTable(el: HTMLElement, ctx: SerializeContext): string {
         hasHeader = true;
       }
 
-      // A table row is one line, so the line end of a hard break would cut
-      // the row. Write each hard break as the HTML `<br>` tag, which the
-      // markdown parser reads as a hard break.
-      const content = escapeTableCell(
-        serializeInlineContent(cell as HTMLElement)
-          .replaceAll(HARD_BREAK, "<br>")
-          .trim(),
-      );
+      const content = serializeBlockText(cell, "table")
+        .trim()
+        .replaceAll("|", "\\|");
       const colspan = parseInt(cell.getAttribute("colspan") || "1", 10);
       const rowspan = parseInt(cell.getAttribute("rowspan") || "1", 10);
 
@@ -538,10 +533,6 @@ function serializeTable(el: HTMLElement, ctx: SerializeContext): string {
   return result;
 }
 
-function escapeTableCell(text: string): string {
-  return text.replace(/\|/g, "\\|");
-}
-
 function formatTableRow(
   cells: string[],
   colWidths: number[],
@@ -565,6 +556,13 @@ function formatSeparatorRow(colWidths: number[], colCount: number): string {
 
 // ─── Media Serializers ───────────────────────────────────────────────────────
 
+function formatImageLink(label: string, src: string): string {
+  // Old bare media destinations wrote backslashes literally. Use the angle
+  // form when escaping a new destination so the importer can distinguish it.
+  const destination = formatLinkDestination(src, /[\\()]/.test(src));
+  return `![${label.replace(/[\\[\]]/g, "\\$&")}](${destination})`;
+}
+
 function serializeImage(el: HTMLElement, ctx: SerializeContext): string {
   const src = el.getAttribute("src") || "";
   const alt = el.getAttribute("alt") || "";
@@ -573,10 +571,7 @@ function serializeImage(el: HTMLElement, ctx: SerializeContext): string {
   if (!src) {
     return "\n\n";
   }
-  return (
-    ctx.indent +
-    `![${alt}](${formatLinkDestination(escapeLinkDestination(src))})\n\n`
-  );
+  return ctx.indent + formatImageLink(alt, src) + "\n\n";
 }
 
 function serializeVideo(el: HTMLElement, ctx: SerializeContext): string {
@@ -585,10 +580,7 @@ function serializeVideo(el: HTMLElement, ctx: SerializeContext): string {
   if (!src) {
     return "\n\n";
   }
-  return (
-    ctx.indent +
-    `![${name}](${formatLinkDestination(escapeLinkDestination(src))})\n\n`
-  );
+  return ctx.indent + formatImageLink(name, src) + "\n\n";
 }
 
 function serializeAudio(el: HTMLElement, ctx: SerializeContext): string {
@@ -609,9 +601,7 @@ function serializeEmbed(el: HTMLElement, ctx: SerializeContext): string {
   if (!src) {
     return "\n\n";
   }
-  return (
-    ctx.indent + `[](${formatLinkDestination(escapeLinkDestination(src))})\n\n`
-  );
+  return ctx.indent + `[](${formatLinkDestination(src)})\n\n`;
 }
 
 function serializeFigure(el: HTMLElement, ctx: SerializeContext): string {
@@ -667,10 +657,7 @@ function serializeMediaFigure(
 
   // No caption + has a markdown shorthand → use it.
   if (!captionText && kind !== "audio") {
-    return (
-      ctx.indent +
-      `![${descriptor}](${formatLinkDestination(escapeLinkDestination(src))})\n\n`
-    );
+    return ctx.indent + formatImageLink(descriptor, src) + "\n\n";
   }
 
   // The descriptor (alt / data-name) is dropped when it duplicates the
@@ -742,15 +729,7 @@ function formatLink(text: string, href: string): string {
       return href;
     }
   }
-  return `[${text}](${formatLinkDestination(escapeLinkDestination(href))})`;
-}
-
-/**
- * Escapes the backslashes and the parentheses in the destination of a link or
- * an image. The markdown parser removes these escapes.
- */
-function escapeLinkDestination(url: string): string {
-  return url.replace(/[\\()]/g, "\\$&");
+  return `[${text}](${formatLinkDestination(href)})`;
 }
 
 function serializeDetails(el: HTMLElement, ctx: SerializeContext): string {
@@ -779,31 +758,15 @@ function serializeDetails(el: HTMLElement, ctx: SerializeContext): string {
 
 // ─── Inline Content Serializer ───────────────────────────────────────────────
 
-/**
- * Puts the text of a block on one line, for a block whose text must be one
- * line in markdown: a heading or a list item. A backslash hard break needs a
- * second line, and the markdown parser does not read that line as text of the
- * block. Thus each hard break becomes the HTML `<br>` tag, which the parser
- * reads as a hard break.
- */
-function toSingleLine(content: string): string {
-  // `serializeInlineContent` writes a hard break as a backslash and a line
-  // end. Backslashes directly before the tag are doubled, so that they do not
-  // escape its `<`.
-  return content.replace(
-    /(\\*)\\\n/g,
-    (_, backslashes: string) => `${backslashes}${backslashes}<br>`,
-  );
-}
-
-function serializeInlineContent(el: Element): string {
+function serializeInlineContent(el: Element, inTable = false): string {
   let result = "";
 
   mergeAdjacentItalicElements(el);
 
   for (const child of Array.from(el.childNodes)) {
     if (child.nodeType === 3 /* Node.TEXT_NODE */) {
-      result += escapeHtmlLikeText(child.textContent || "");
+      const text = child.textContent || "";
+      result += escapeMarkdownText(text, inTable);
     } else if (child.nodeType === 1 /* Node.ELEMENT_NODE */) {
       const childEl = child as HTMLElement;
       const tag = childEl.tagName.toLowerCase();
@@ -811,40 +774,35 @@ function serializeInlineContent(el: Element): string {
       switch (tag) {
         case "strong":
         case "b":
-          result += wrapWithDelimiter(serializeInlineContent(childEl), "**");
+          result += wrapWithDelimiter(
+            serializeInlineContent(childEl, inTable),
+            "**",
+          );
           break;
         case "em":
         case "i":
-          result += wrapWithDelimiter(serializeInlineContent(childEl), "*");
+          result += wrapWithDelimiter(
+            serializeInlineContent(childEl, inTable),
+            "*",
+          );
           break;
         case "s":
         case "del":
-          result += wrapWithDelimiter(serializeInlineContent(childEl), "~~");
-          break;
-        case "code": {
-          const text = childEl.textContent || "";
-          const longestRun = Math.max(
-            0,
-            ...(text.match(/`+/g) ?? []).map((run) => run.length),
+          result += wrapWithDelimiter(
+            serializeInlineContent(childEl, inTable),
+            "~~",
           );
-          const fence = "`".repeat(longestRun + 1);
-          // A markdown parser removes one space from each side of a code span
-          // that starts and ends with a space and has other characters
-          // (CommonMark). Add a space on each side to keep these spaces.
-          const needsPadding =
-            text.startsWith("`") ||
-            text.endsWith("`") ||
-            (text.startsWith(" ") && text.endsWith(" ") && /[^ ]/.test(text));
-          result += fence + (needsPadding ? ` ${text} ` : text) + fence;
           break;
-        }
+        case "code":
+          result += serializeCodeSpan(childEl.textContent ?? "");
+          break;
         case "u":
           // No markdown equivalent — strip the tag, keep content
-          result += serializeInlineContent(childEl);
+          result += serializeInlineContent(childEl, inTable);
           break;
         case "a": {
           const href = childEl.getAttribute("href") || "";
-          const text = serializeInlineContent(childEl);
+          const text = serializeInlineContent(childEl, inTable);
           result += formatLink(text, href);
           break;
         }
@@ -863,12 +821,12 @@ function serializeInlineContent(el: Element): string {
         }
         case "span":
           // Color spans, etc. — strip the tag, keep content
-          result += serializeInlineContent(childEl);
+          result += serializeInlineContent(childEl, inTable);
           break;
         case "img": {
           const src = childEl.getAttribute("src") || "";
           const alt = childEl.getAttribute("alt") || "";
-          result += `![${alt}](${formatLinkDestination(escapeLinkDestination(src))})`;
+          result += formatImageLink(alt, src);
           break;
         }
         case "video": {
@@ -880,18 +838,18 @@ function serializeInlineContent(el: Element): string {
             childEl.getAttribute("data-name") ||
             childEl.getAttribute("title") ||
             "";
-          result += `![${name}](${formatLinkDestination(escapeLinkDestination(src))})`;
+          result += formatImageLink(name, src);
           break;
         }
         case "p":
           // Paragraph inside inline context (e.g., table cell)
-          result += serializeInlineContent(childEl);
+          result += serializeInlineContent(childEl, inTable);
           break;
         case "input":
           // Checkbox in task list — handled at block level
           break;
         default:
-          result += serializeInlineContent(childEl);
+          result += serializeInlineContent(childEl, inTable);
           break;
       }
     }
@@ -900,79 +858,127 @@ function serializeInlineContent(el: Element): string {
   return result;
 }
 
-/**
- * The external HTML exporter writes each run of text with its own elements.
- * Two adjacent italic runs that are different in a second style then give
- * two adjacent italic elements, for example `<em><s>a</s></em><em>b</em>`.
- * If the serializer writes each element, the italic delimiter closes and
- * opens at one position (`*~~a~~**b*`), and the markdown parser reads `**`
- * as text. Thus, move the content of each italic element into the italic
- * element directly before it (`<em><s>a</s>b</em>`). The result has one
- * delimiter pair: `*~~a~~b*`. The elements are in the serializer's own copy
- * of the document (see `htmlToMarkdown`), so the change has no other effect.
- */
+// Merge siblings in the temporary export DOM before serializing their children.
+// This turns `<em><s>a</s></em><em>b</em>` into `*~~a~~b*` instead of the
+// ambiguous `*~~a~~**b*`.
 function mergeAdjacentItalicElements(parent: Element) {
-  let element = parent.firstElementChild;
-  while (element) {
-    const next = element.nextElementSibling;
+  for (const element of Array.from(parent.children)) {
+    const previous = element.previousElementSibling;
     if (
-      next &&
-      // No text is between the two elements.
-      next === element.nextSibling &&
-      isItalicElement(element) &&
-      isItalicElement(next)
+      previous &&
+      previous === element.previousSibling &&
+      isItalicElement(previous) &&
+      isItalicElement(element)
     ) {
-      element.append(...Array.from(next.childNodes));
-      next.remove();
-      continue;
+      previous.append(...Array.from(element.childNodes));
+      element.remove();
     }
-    element = next;
   }
 }
 
 function isItalicElement(element: Element): boolean {
-  const tag = element.tagName.toLowerCase();
-  return tag === "em" || tag === "i";
+  return element.localName === "em" || element.localName === "i";
+}
+
+function serializeCodeSpan(text: string): string {
+  if (!text) {
+    return "";
+  }
+  // Markdown code spans normalize line endings to spaces. Do it here so the
+  // surrounding block serializer can handle only actual Markdown line breaks.
+  const code = text.replace(/\r\n?|\n/g, " ");
+  let delimiterLength = 1;
+  for (const [run] of code.matchAll(/`+/g)) {
+    delimiterLength = Math.max(delimiterLength, run.length + 1);
+  }
+  const delimiter = "`".repeat(delimiterLength);
+  // Separate edge backticks from the delimiter. Also pad both ends when the
+  // parser would otherwise strip an existing space from each end.
+  const needsPadding =
+    code.startsWith("`") ||
+    code.endsWith("`") ||
+    (code.startsWith(" ") && code.endsWith(" ") && /[^ ]/.test(code));
+  return `${delimiter}${needsPadding ? ` ${code} ` : code}${delimiter}`;
 }
 
 /**
- * Escape `<` where the markdown parser would read raw HTML or an autolink, so
- * text like `<details>` loads back as text. A `<` before a space or digit
- * stays as is, as in `1 < 2`. Backslashes right before an escaped `<` are
- * doubled too, so `\<details>` doesn't become an escaped backslash plus HTML.
+ * Escape literal inline punctuation before joining it with syntax generated
+ * by other nodes. Double preceding backslashes so they remain literal.
  */
-function escapeHtmlLikeText(text: string): string {
-  return text.replace(
-    /(\\*)<(?=[A-Za-z/!?])/g,
-    (_, backslashes: string) => `${backslashes}${backslashes}\\<`,
+function escapeMarkdownText(text: string, inTable: boolean): string {
+  const escaped = text.replace(
+    /(?<!\\)(\\*)([`*[\]]|<(?=[A-Za-z/!?]))/g,
+    (_, backslashes: string, punctuation: string) =>
+      `${backslashes}${backslashes}\\${punctuation}`,
   );
+  // The table layer adds one more escape before the pipe. An odd run keeps
+  // the pipe in the cell, leaving the inline parser to read these backslashes.
+  return inTable ? escaped.replace(/\\+(?=\|)/g, "$&$&") : escaped;
 }
 
 /**
- * Escape leading character after emphasis if it could break parsing.
- * For example, "Heading" after "**Bold **" — the 'H' should be escaped
- * if the trailing space was escaped.
+ * Keep backslash-newline in ordinary prose. Use `<br>` in single-line contexts
+ * (headings, list markers, and table cells), at block edges, after a literal
+ * backslash, or before text that could open a new Markdown block.
  */
+function serializeBlockText(
+  el: Element,
+  breakStyle: "native" | "html" | "table" = "native",
+): string {
+  const content = serializeInlineContent(el, breakStyle === "table");
+  if (!content.includes(HARD_BREAK)) {
+    return content;
+  }
 
-/**
- * Serialize the inline content of a block, for use as the text of the block:
- * without hard breaks at its edges. Markdown has no syntax for a hard break
- * at the end of a block (the parser reads the backslash there as a literal
- * character), nor for one at the start of a heading or a list item.
- */
-function serializeBlockText(el: Element): string {
-  return trimHardBreaks(serializeInlineContent(el));
+  const lines = content.split("\n");
+  const last = lines.length - 1;
+  // A suffix of breaks and horizontal whitespace has no following prose.
+  let trailingBreak = last;
+  if (/^[ \t]*$/.test(lines[last])) {
+    while (trailingBreak > 0 && lines[trailingBreak - 1].endsWith("\\")) {
+      trailingBreak--;
+      if (!/^[ \t]*\\+$/.test(lines[trailingBreak])) {
+        break;
+      }
+    }
+    if (trailingBreak < last) {
+      lines[last] = "";
+    }
+  }
+
+  let leading = true;
+  let result = "";
+  for (let i = 0; i < last; i++) {
+    const line = lines[i];
+    leading &&= line === "\\";
+    if (
+      line.endsWith("\\") &&
+      (breakStyle !== "native" ||
+        leading ||
+        i >= trailingBreak ||
+        line.endsWith("\\\\") ||
+        /^[ \t]/.test(lines[i + 1]) ||
+        couldStartMarkdownBlock(lines[i + 1]))
+    ) {
+      // Double any literal backslashes so they do not escape the tag's `<`.
+      result += line.replace(
+        /(?<!\\)\\+$/,
+        (run) => "\\".repeat(2 * (run.length - 1)) + "<br>",
+      );
+    } else {
+      result += line + "\n";
+    }
+  }
+  return result + lines[last];
 }
 
-/**
- * Trim leading/trailing hard breaks from inline content.
- * Matches remark behavior where <br> at start/end of paragraph is dropped.
- */
-function trimHardBreaks(content: string): string {
-  // Remove leading hard breaks
-  let result = content.replace(/^(\\\n)+/, "");
-  // Remove trailing hard breaks produced by `<br>`, also with spaces or tabs
-  // after them: markdown ignores those at the end of a block.
-  result = result.replace(/(\\\n[ \t]*)+$/, "");
-  return result;
+function couldStartMarkdownBlock(line: string): boolean {
+  // Headings (including Setext), quotes, tables, HTML, and code fences.
+  if (/^[ \t]*(?:[#>=|<]|`{3}|~{3})/.test(line)) {
+    return true;
+  }
+  // List markers and possible thematic breaks.
+  return /^[ \t]*(?:(?:[-*+]|\d+[.)])(?:[ \t]|$)|(?:[-*_][ \t]*){3})/.test(
+    line,
+  );
 }

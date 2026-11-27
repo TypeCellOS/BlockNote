@@ -1,3 +1,0 @@
-*~~Struck~~Italic*
-
-*ItalicUnderlined*

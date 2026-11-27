@@ -2,6 +2,59 @@ import { describe, expect } from "vite-plus/test";
 import { markdownToHtml } from "./markdownToHtml.js";
 
 describe("markdownToHtml", () => {
+  it.each([
+    [
+      '[link](<my file> "some ) title")',
+      '<p><a href="my file" title="some ) title">link</a></p>',
+    ],
+    [
+      "![Photo](<photo.png)\nTaken by Alice >)",
+      '<p><img src="photo.png" alt="Photo"><br>Taken by Alice &gt;)</p>',
+    ],
+    [
+      String.raw`![Photo](\\server\share\photo.png)`,
+      String.raw`<p><img src="\\server\share\photo.png" alt="Photo"></p>`,
+    ],
+    [
+      String.raw`![Photo](C:\photos\_old\photo.png)`,
+      String.raw`<p><img src="C:\photos\_old\photo.png" alt="Photo"></p>`,
+    ],
+    [
+      String.raw`![Photo](family\(2026\).png)`,
+      '<p><img src="family(2026).png" alt="Photo"></p>',
+    ],
+    [
+      "*[a](<some` url>)* `b`",
+      '<p><em><a href="some` url">a</a></em> <code>b</code></p>',
+    ],
+    [
+      '*<span title="`">a</span>* `b`',
+      '<p><em><span title="`">a</span></em> <code>b</code></p>',
+    ],
+    [
+      "*<https://e.test/a`b>* `c`",
+      '<p><em><a href="https://e.test/a`b">https://e.test/a`b</a></em> <code>c</code></p>',
+    ],
+    [
+      "> # H\n```x```",
+      "<blockquote><h1>H</h1></blockquote><p><code>x</code></p>",
+    ],
+    ["> A\nB\n> C", "<blockquote><p>A<br>B<br>C</p></blockquote>"],
+    [
+      "```js`meta\nhello\n```",
+      '<pre><code data-language="js`meta">hello</code></pre>',
+    ],
+  ])("keeps the token and container boundaries in %j", (markdown, html) => {
+    expect(markdownToHtml(markdown)).toBe(html);
+  });
+
+  it.each([
+    ["[link](<my file).pdf>)", "my file).pdf"],
+    ["[link](<my file\\>v.pdf>)", "my file&gt;v.pdf"],
+  ])("reads the full destination in %s", (markdown, href) => {
+    expect(markdownToHtml(markdown)).toBe(`<p><a href="${href}">link</a></p>`);
+  });
+
   // CommonMark: a line ending is "\n", "\r\n" or "\r". A file from Windows
   // has "\r\n".
   it.each([

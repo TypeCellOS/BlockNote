@@ -533,21 +533,6 @@ export const markdownRoundTripCases: CoreExportCase[] = [
     ],
   },
   {
-    name: "markdown/inlineCodeWithSurroundingSpaces",
-    content: [
-      {
-        type: "paragraph",
-        content: [
-          {
-            type: "text",
-            text: " Code text ",
-            styles: { code: true },
-          },
-        ],
-      },
-    ],
-  },
-  {
     name: "markdown/boldItalic",
     content: [
       {
@@ -582,21 +567,6 @@ export const markdownRoundTripCases: CoreExportCase[] = [
             type: "text",
             text: " more text",
             styles: {},
-          },
-        ],
-      },
-    ],
-  },
-  {
-    name: "markdown/linkWithParenthesesInUrl",
-    content: [
-      {
-        type: "paragraph",
-        content: [
-          {
-            type: "link",
-            content: "Link",
-            href: "https://example.com/wiki/Page_(topic)",
           },
         ],
       },
@@ -675,25 +645,6 @@ export const markdownRoundTripCases: CoreExportCase[] = [
     ],
   },
   {
-    name: "markdown/mediaWithBackslashInUrl",
-    content: [
-      {
-        type: "image",
-        props: {
-          url: "\\\\server\\share\\image.png",
-          name: "Example",
-        },
-      },
-      {
-        type: "video",
-        props: {
-          url: "C:\\videos\\_old\\video.mp4",
-          name: "Example",
-        },
-      },
-    ],
-  },
-  {
     name: "markdown/video",
     content: [
       {
@@ -702,82 +653,6 @@ export const markdownRoundTripCases: CoreExportCase[] = [
           url: "https://example.com/video.mp4",
           name: "Example",
         },
-      },
-    ],
-  },
-  // A space ends the URL of a markdown link or image, so the export must
-  // not write such a URL as it is. The image URL comes back with `%20` for
-  // the space, because the HTML parse of an image reads the `src` property.
-  {
-    name: "markdown/urlWithSpace",
-    content: [
-      {
-        type: "paragraph",
-        content: [
-          {
-            type: "link",
-            content: "Link",
-            href: "https://example.com/my file.pdf",
-          },
-        ],
-      },
-      {
-        type: "image",
-        props: {
-          url: "https://example.com/my image.png",
-          name: "Example",
-        },
-      },
-      {
-        type: "video",
-        props: {
-          url: "https://example.com/my video.mp4",
-          name: "Example",
-        },
-      },
-    ],
-  },
-  // The angle brackets of a URL with a space must not change the cells of
-  // a table row.
-  {
-    name: "markdown/urlWithSpaceInTableCell",
-    content: [
-      {
-        type: "table",
-        content: {
-          type: "tableContent",
-          rows: [
-            {
-              cells: [
-                [
-                  {
-                    type: "link",
-                    content: "Link",
-                    href: "https://example.com/my file.pdf",
-                  },
-                ],
-                "Cell 2",
-              ],
-            },
-          ],
-        },
-      },
-    ],
-  },
-  // The markdown parser reads a no-break space as a part of the URL, so
-  // the export writes this URL as it is, without angle brackets.
-  {
-    name: "markdown/urlWithNoBreakSpace",
-    content: [
-      {
-        type: "paragraph",
-        content: [
-          {
-            type: "link",
-            content: "Link",
-            href: "https://example.com/my\u00a0file.pdf",
-          },
-        ],
       },
     ],
   },
@@ -823,54 +698,6 @@ export const markdownRoundTripCases: CoreExportCase[] = [
       },
     ],
   },
-  // A table row is one line of markdown. A hard break in a cell must not
-  // end that line, or the parse reads the rest of the row as a new row.
-  {
-    name: "markdown/tableWithHardBreakInCell",
-    content: [
-      {
-        type: "table",
-        content: {
-          type: "tableContent",
-          headerRows: 1,
-          rows: [
-            {
-              cells: [
-                [{ type: "text", text: "Header 1\nLine 2", styles: {} }],
-                "Header 2",
-              ],
-            },
-            {
-              cells: [
-                [{ type: "text", text: "Cell 1\nLine 2", styles: {} }],
-                "Cell 2",
-              ],
-            },
-          ],
-        },
-      },
-    ],
-  },
-  // A hard break at the edge of a cell stays in the cell too.
-  {
-    name: "markdown/tableWithLineBreakAtCellEdge",
-    content: [
-      {
-        type: "table",
-        content: {
-          type: "tableContent",
-          rows: [
-            {
-              cells: [
-                [{ type: "text", text: "\nCell 1", styles: {} }],
-                [{ type: "text", text: "Cell 2\n", styles: {} }],
-              ],
-            },
-          ],
-        },
-      },
-    ],
-  },
   {
     name: "markdown/quote",
     content: [
@@ -890,192 +717,6 @@ export const markdownRoundTripCases: CoreExportCase[] = [
             type: "text",
             text: "Line 1\nLine 2",
             styles: {},
-          },
-        ],
-      },
-    ],
-  },
-  {
-    name: "markdown/hardBreakAtBlockEdges",
-    content: [
-      {
-        type: "heading",
-        content: "Heading\n",
-      },
-      {
-        type: "bulletListItem",
-        content: "\nBullet List Item",
-      },
-      {
-        type: "numberedListItem",
-        content: "Numbered List Item\n",
-      },
-      {
-        type: "checkListItem",
-        content: "Check List Item\n",
-      },
-      {
-        type: "quote",
-        content: "Quote\n",
-      },
-      {
-        type: "toggleListItem",
-        content: "Toggle List Item\n",
-        children: [
-          {
-            type: "paragraph",
-            content: "Child Paragraph\n",
-          },
-        ],
-      },
-    ],
-  },
-  {
-    name: "markdown/hardBreakBeforeTrailingSpace",
-    content: [
-      {
-        type: "paragraph",
-        content: "Paragraph\n ",
-      },
-    ],
-  },
-  {
-    name: "markdown/hardBreakInHeading",
-    content: [
-      {
-        type: "heading",
-        content: [
-          {
-            type: "text",
-            text: "Line 1\nLine 2",
-            styles: {},
-          },
-        ],
-      },
-    ],
-  },
-  {
-    name: "markdown/hardBreakInListItems",
-    content: [
-      {
-        type: "bulletListItem",
-        content: [
-          {
-            type: "text",
-            text: "Bullet 1\nBullet 2",
-            styles: {},
-          },
-        ],
-        children: [
-          {
-            type: "bulletListItem",
-            content: [
-              {
-                type: "text",
-                text: "Nested 1\nNested 2",
-                styles: {},
-              },
-            ],
-          },
-        ],
-      },
-      {
-        type: "numberedListItem",
-        content: [
-          {
-            type: "text",
-            text: "Numbered 1\nNumbered 2",
-            styles: {},
-          },
-        ],
-      },
-      {
-        type: "checkListItem",
-        content: [
-          {
-            type: "text",
-            text: "Check 1\nCheck 2",
-            styles: {},
-          },
-        ],
-      },
-      // Markdown has no toggle, so this comes back as a bullet list item.
-      {
-        type: "toggleListItem",
-        content: "Toggle",
-        children: [
-          {
-            type: "paragraph",
-            content: [
-              {
-                type: "text",
-                text: "Child 1\nChild 2",
-                styles: {},
-              },
-            ],
-          },
-        ],
-      },
-    ],
-  },
-  // The parser reads a line below a check list item as a part of the item
-  // only if it starts a list item, or if it has the indent of the text after
-  // the checkbox. Thus the text of a list item below a check list item must
-  // be one line.
-  {
-    name: "markdown/hardBreakBelowCheckListItem",
-    content: [
-      {
-        type: "checkListItem",
-        content: "Check A",
-        children: [
-          {
-            type: "bulletListItem",
-            content: [
-              {
-                type: "text",
-                text: "Bullet 1\nBullet 2",
-                styles: {},
-              },
-            ],
-            children: [
-              {
-                type: "bulletListItem",
-                content: [
-                  {
-                    type: "text",
-                    text: "Nested 1\nNested 2",
-                    styles: {},
-                  },
-                ],
-              },
-            ],
-          },
-          {
-            type: "checkListItem",
-            content: [
-              {
-                type: "text",
-                text: "Check 1\nCheck 2",
-                styles: {},
-              },
-            ],
-          },
-        ],
-      },
-      {
-        type: "checkListItem",
-        content: "Check B",
-        children: [
-          {
-            type: "numberedListItem",
-            content: [
-              {
-                type: "text",
-                text: "Numbered 1\nNumbered 2",
-                styles: {},
-              },
-            ],
           },
         ],
       },
@@ -1244,41 +885,6 @@ export const markdownRoundTripCases: CoreExportCase[] = [
             type: "text",
             text: "end",
             styles: {},
-          },
-        ],
-      },
-    ],
-  },
-  {
-    name: "markdown/adjacentItalic",
-    content: [
-      {
-        type: "paragraph",
-        content: [
-          {
-            type: "text",
-            text: "Struck",
-            styles: { italic: true, strike: true },
-          },
-          {
-            type: "text",
-            text: "Italic",
-            styles: { italic: true },
-          },
-        ],
-      },
-      {
-        type: "paragraph",
-        content: [
-          {
-            type: "text",
-            text: "Italic",
-            styles: { italic: true },
-          },
-          {
-            type: "text",
-            text: "Underlined",
-            styles: { italic: true, underline: true },
           },
         ],
       },

@@ -4,26 +4,7 @@
     "content": [
       {
         "styles": {},
-        "text": "Literal ",
-        "type": "text",
-      },
-      {
-        "styles": {
-          "italic": true,
-        },
-        "text": "asterisks",
-        "type": "text",
-      },
-      {
-        "styles": {},
-        "text": " and ",
-        "type": "text",
-      },
-      {
-        "styles": {
-          "bold": true,
-        },
-        "text": "double asterisks",
+        "text": "Literal *asterisks* and **double asterisks**",
         "type": "text",
       },
     ],
@@ -40,14 +21,7 @@
     "content": [
       {
         "styles": {},
-        "text": "Backticks ` in plain text and ",
-        "type": "text",
-      },
-      {
-        "styles": {
-          "code": true,
-        },
-        "text": "double",
+        "text": "Backticks ` in plain text and `` double ``",
         "type": "text",
       },
     ],
