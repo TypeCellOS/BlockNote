@@ -19,23 +19,30 @@ const BLOCK_ELEMENTS = [
   "hr, li, noscript, ol, output, p, pre, section, table, tfoot, ul",
   "audio, details, embed, img, video",
 ].join(", ");
+const CUSTOM_INLINE_CONTENT = "[data-inline-content-type]";
+const BLOCK_OUTSIDE_INLINE_CONTENT = `:is(${BLOCK_ELEMENTS}):not(${CUSTOM_INLINE_CONTENT}, ${CUSTOM_INLINE_CONTENT} *)`;
 
 /** True for a block element, and for an element that has a block in it. */
 function isBlock(node: Node) {
   return (
     isElement(node) &&
+    !node.matches(CUSTOM_INLINE_CONTENT) &&
     (node.matches(BLOCK_ELEMENTS) ||
-      node.querySelector(BLOCK_ELEMENTS) !== null)
+      node.querySelector(BLOCK_OUTSIDE_INLINE_CONTENT) !== null)
   );
 }
 
 /**
- * True for text and for an element with text. These nodes give no content in
- * the parse: white space, a comment (node type 8), and an element without text
- * (for example an anchor, or the check box of a check list item).
+ * True for non-whitespace text or custom inline content, which can contain
+ * only an image. Comments and empty elements such as checkboxes do not count.
  */
 function hasContent(node: Node) {
-  return node.nodeType !== 8 && /\S/.test(node.textContent || "");
+  return (
+    (node.nodeType !== 8 && /\S/.test(node.textContent || "")) ||
+    (isElement(node) &&
+      (node.matches(CUSTOM_INLINE_CONTENT) ||
+        node.querySelector(CUSTOM_INLINE_CONTENT) !== null))
+  );
 }
 
 /**

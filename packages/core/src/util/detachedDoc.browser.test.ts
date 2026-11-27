@@ -1,14 +1,20 @@
 import { DOMParser } from "prosemirror-model";
 import { describe, expect, vi } from "vite-plus/test";
 
-import { HTMLToBlocks } from "../api/parsers/html/parseHTML.js";
 import { BlockNoteSchema } from "../blocks/BlockNoteSchema.js";
 import { defaultBlockSpecs } from "../blocks/defaultBlocks.js";
+import { detachedDoc } from "./detachedDoc.js";
 
 // An image without a request: the HTML of this test is in the active document,
 // where an image loads its resource.
 const IMAGE =
   "data:image/gif;base64,R0lGODlhAQABAAAAACH5BAEKAAEALAAAAAABAAEAAAICTAEAOw==";
+
+describe("detachedDoc", () => {
+  it("provides a document without a browsing context", () => {
+    expect(detachedDoc().defaultView).toBeNull();
+  });
+});
 
 describe("the parse rules with HTML that is in the active document", () => {
   // The parse rules do not control the document of the nodes that they get.
@@ -63,23 +69,28 @@ describe("the parse rules with HTML that is in the active document", () => {
 describe("the parse of an HTML string", () => {
   // The string is from outside. In an element of the active document, its
   // images load and its event handlers run before the parse reads them.
-  it("makes no element in the active document", async ({
+  it("passes only detached DOM to the ProseMirror parser", async ({
     setupEditor,
     onTestFinished,
   }) => {
     const { editor } = await setupEditor({ mountType: false });
+    const parse = vi.spyOn(DOMParser.prototype, "parse");
     const createElement = vi.spyOn(document, "createElement");
     onTestFinished(() => {
+      parse.mockRestore();
       createElement.mockRestore();
     });
 
-    const blocks = HTMLToBlocks(
+    const blocks = editor.tryParseHTMLToBlocks(
       `<p>Text <img src="image.png"> more</p>` +
         `<ul><li>Item<ul><li>Nested</li></ul></li></ul>`,
-      editor.pmSchema,
     );
 
     expect(createElement).not.toHaveBeenCalled();
+    expect(parse).toHaveBeenCalled();
+    for (const [root] of parse.mock.calls) {
+      expect(root.ownerDocument?.defaultView).toBeNull();
+    }
     expect(blocks.map((block) => block.type)).toEqual([
       "paragraph",
       "image",
@@ -100,9 +111,8 @@ describe("the parse of an HTML string", () => {
       }),
     });
 
-    const blocks = HTMLToBlocks(
+    const blocks = editor.tryParseHTMLToBlocks(
       `<p>Before <img src="https://example.com/a.png"> after</p>`,
-      editor.pmSchema,
     );
 
     expect(blocks).toHaveLength(1);

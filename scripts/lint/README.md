@@ -55,6 +55,5 @@ A line gives one finding. A correct use has an exception on the line before
 it: `// oxlint-disable-next-line blocknote-dom/no-active-document -- <reason>`.
 
 ```sh
-pnpm exec node --test scripts/lint/detached-doc.test.mjs
 vp run lint packages/core
 ```

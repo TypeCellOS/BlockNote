@@ -33,8 +33,38 @@ function moveNodesBefore(node: ChildNode, to: ParentNode) {
   }
 }
 
+function hasRemainingContent(
+  parent: Element,
+  contentNodes: WeakMap<Element, Node>,
+) {
+  // Splitting moves nodes from the start of the parent. Reuse the first
+  // meaningful node until it moves out, rather than scanning the whole tail
+  // for every image. Trimming cannot remove a non-whitespace text node.
+  const previous = contentNodes.get(parent);
+  if (previous && parent.contains(previous)) {
+    return true;
+  }
+
+  // NodeFilter.SHOW_ELEMENT | NodeFilter.SHOW_TEXT
+  const walker = detachedDoc().createTreeWalker(parent, 1 | 4);
+  for (let node = walker.nextNode(); node; node = walker.nextNode()) {
+    if (
+      node.nodeType === 1
+        ? (node as Element).matches(CUSTOM_INLINE_CONTENT)
+        : /\S/.test(node.nodeValue ?? "")
+    ) {
+      contentNodes.set(parent, node);
+      return true;
+    }
+  }
+  return false;
+}
+
 /** Splits enclosing text blocks and returns the image's new parent if moved. */
-function liftImageOutOfText(image: HTMLImageElement): ParentNode | null {
+function liftImageOutOfText(
+  image: HTMLImageElement,
+  contentNodes: WeakMap<Element, Node>,
+): ParentNode | null {
   let parent = image.parentElement;
   if (!parent?.closest(TEXT_BLOCKS)) {
     return null;
@@ -46,13 +76,14 @@ function liftImageOutOfText(image: HTMLImageElement): ParentNode | null {
     moveNodesBefore(image, before);
     parent.before(before, image);
     // Custom inline content can be meaningful without text.
-    for (const part of [before, parent]) {
-      if (
-        !part.textContent?.trim() &&
-        !part.querySelector(CUSTOM_INLINE_CONTENT)
-      ) {
-        part.replaceWith(...part.childNodes);
-      }
+    if (
+      !before.textContent?.trim() &&
+      !before.querySelector(CUSTOM_INLINE_CONTENT)
+    ) {
+      before.replaceWith(...before.childNodes);
+    }
+    if (!hasRemainingContent(parent, contentNodes)) {
+      parent.replaceWith(...parent.childNodes);
     }
     parent = image.parentElement;
   } while (parent?.closest(TEXT_BLOCKS));
@@ -71,6 +102,7 @@ export function moveImagesOutOfText(root: HTMLElement) {
   // Set aside earlier siblings until the end. This keeps splits near the
   // start of their parent, where insertions are cheaper in jsdom.
   const finishedPrefixes = new Map<ParentNode, DocumentFragment>();
+  const contentNodes = new WeakMap<Element, Node>();
   for (const image of root.querySelectorAll("img")) {
     // BlockNote's own HTML stays as it is: custom inline content can hold an
     // image, and a block of the full HTML has only one content element. The
@@ -95,7 +127,7 @@ export function moveImagesOutOfText(root: HTMLElement) {
       }
       continue;
     }
-    const holder = liftImageOutOfText(image);
+    const holder = liftImageOutOfText(image, contentNodes);
     if (holder) {
       const nodes =
         finishedPrefixes.get(holder) ?? detachedDoc().createDocumentFragment();

@@ -1,4 +1,4 @@
-import { describe, expect, it, vi } from "vite-plus/test";
+import { describe, expect, vi } from "vite-plus/test";
 import { detachedDoc } from "../../../../util/detachedDoc.js";
 import { normalizeNestedLists } from "./nestedLists.js";
 
@@ -170,6 +170,40 @@ describe("Lift nested lists", () => {
  </ol>`;
     await testHTML(html);
   });
+});
+
+describe("custom inline content in a nested list item", () => {
+  const mention =
+    '<span data-inline-content-type="mention"><img src="avatar.png"></span>';
+
+  it("keeps a mention as the only inline content of the list item", () => {
+    const htmlNode = parse(
+      `<ul><li>${mention}<p>Child paragraph</p><ul><li>Nested</li></ul></li></ul>`,
+    );
+
+    expect(htmlNode.querySelector("li")?.innerHTML).toBe(mention);
+    const group = htmlNode.querySelector('[data-node-type="blockGroup"]');
+    expect(
+      Array.from(group?.children ?? [], (child) => child.outerHTML),
+    ).toEqual(["<p>Child paragraph</p>", "<ul><li>Nested</li></ul>"]);
+  });
+
+  it.for([false, true])(
+    "keeps an image-only mention with the list item (wrapped: %s)",
+    (wrapped) => {
+      const inlineContent = wrapped ? `<em>${mention}</em>` : mention;
+      const htmlNode = parse(
+        `<ul><li>Ask ${inlineContent} for help<ul><li>Nested</li></ul></li></ul>`,
+      );
+
+      expect(htmlNode.querySelector("li")?.innerHTML).toBe(
+        `Ask ${inlineContent} for help`,
+      );
+      expect(
+        htmlNode.querySelector('[data-node-type="blockGroup"] li')?.textContent,
+      ).toBe("Nested");
+    },
+  );
 });
 
 describe("content after a nested list", () => {
