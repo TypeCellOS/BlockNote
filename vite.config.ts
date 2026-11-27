@@ -388,6 +388,8 @@ export default defineConfig({
       "**/test-results/**",
       "**/playwright-report/**",
       "**/blob-report/**",
+      // Formatting captured clipboard HTML can change what the parser sees.
+      "packages/core/src/api/clipboard/fromClipboard/fixtures/*.html",
       "**/*.mdx",
       "pnpm-lock.yaml",
     ],
