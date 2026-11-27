@@ -1,3 +1,4 @@
+import { isDOMElement } from "@blocknote/core";
 import { ensureTouchEmulation } from "../utils/ensureTouchEmulation.js";
 
 // The runner's reconciliation barrier must not depend on a test's scoped
@@ -78,7 +79,7 @@ async function withEditorFocus(runTest: () => Promise<void>) {
 
   function onEditorFocus(event: FocusEvent) {
     if (
-      event.target instanceof HTMLElement &&
+      isDOMElement(event.target) &&
       event.target.matches('.bn-editor[contenteditable="true"]')
     ) {
       // The bubbling listener runs after ProseMirror schedules its 20 ms

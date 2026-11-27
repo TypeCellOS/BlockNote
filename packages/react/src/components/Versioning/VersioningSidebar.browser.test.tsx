@@ -1,6 +1,6 @@
 import { StrictMode, act, useEffect, useState, type ReactElement } from "react";
 import { createRoot } from "react-dom/client";
-import type { BlockNoteEditor } from "@blocknote/core";
+import { isDOMElement, type BlockNoteEditor } from "@blocknote/core";
 import type { SetupEditor } from "../../../../../tests/src/commands/browser/setupEditor.js";
 import { acquireTiptapFixtureStyles } from "../../../../../tests/src/commands/browser/tiptapFixtureStyles.js";
 import { de } from "@blocknote/core/locales";
@@ -210,15 +210,7 @@ async function setup(
 }
 
 function rows() {
-  return page
-    .getByRole("listitem")
-    .elements()
-    .map((element) => {
-      if (!(element instanceof HTMLElement)) {
-        throw new Error("Expected version rows to be HTML elements");
-      }
-      return element;
-    });
+  return page.getByRole("listitem").elements();
 }
 
 // The sidebar's loading indicator. Scoped to the sidebar because the editor
@@ -271,7 +263,7 @@ async function setupWithRun({
  * A row's name field. The selected row and comparison baseline have one;
  * other rows show text (see {@link nameText}).
  */
-function nameInput(row: HTMLElement) {
+function nameInput(row: Element) {
   const input = page
     .elementLocator(row)
     .getByRole("textbox", { name: "Version name", exact: true })
@@ -283,7 +275,7 @@ function nameInput(row: HTMLElement) {
 }
 
 /** What a row shows as its name: the field's value, or the text. */
-function nameText(row: HTMLElement) {
+function nameText(row: Element) {
   const input = page
     .elementLocator(row)
     .getByRole("textbox", { name: "Version name", exact: true })
@@ -297,7 +289,7 @@ function nameText(row: HTMLElement) {
   return row.querySelector(".bn-snapshot-name")!.textContent;
 }
 
-function previewButton(row: HTMLElement) {
+function previewButton(row: Element) {
   const button = row.querySelector<HTMLButtonElement>(".bn-snapshot-preview");
   if (!button) {
     throw new Error("Expected a version preview button");
@@ -306,10 +298,7 @@ function previewButton(row: HTMLElement) {
 }
 
 async function click(element: Parameters<typeof userEvent.click>[0]) {
-  if (
-    element instanceof HTMLElement &&
-    element.getAttribute("role") === "listitem"
-  ) {
+  if (isDOMElement(element) && element.getAttribute("role") === "listitem") {
     element = previewButton(element);
   }
   // The fake endpoints settle in microtasks unless the test gates them.
@@ -317,7 +306,7 @@ async function click(element: Parameters<typeof userEvent.click>[0]) {
 }
 
 /** Open the row's "..." menu and wait for the matching item to render. */
-async function openMenuItem(row: HTMLElement, label: RegExp) {
+async function openMenuItem(row: Element, label: RegExp) {
   const trigger = page
     .elementLocator(row)
     .getByRole("button", { name: "More actions", exact: true });
@@ -1384,7 +1373,7 @@ describe("VersioningSidebar", () => {
     const selectedRow = rows()[1]!;
     const restoreItem = await openMenuItem(selectedRow, /^Restore$/);
     const menu = restoreItem?.closest('[role="menu"]');
-    if (!(menu instanceof HTMLElement)) {
+    if (!menu) {
       throw new Error("Expected the snapshot menu to be open");
     }
     expect(
@@ -1404,7 +1393,7 @@ describe("VersioningSidebar", () => {
   // -------------------------------------------------------------------------
 
   describe("naming and renaming", () => {
-    const openRenameItem = (row: HTMLElement) =>
+    const openRenameItem = (row: Element) =>
       openMenuItem(row, /^(Name this version|Rename)$/);
 
     it.each([undefined, "Existing name"])(
@@ -1660,7 +1649,7 @@ describe("VersioningSidebar", () => {
       const item = await vi.waitFor(() => {
         const labelElement = page.getByText(label, { exact: true }).element();
         const menuItem = labelElement.closest('[role^="menuitem"]');
-        if (!(menuItem instanceof HTMLElement)) {
+        if (!menuItem) {
           throw new Error("Missing menu item");
         }
         return menuItem;

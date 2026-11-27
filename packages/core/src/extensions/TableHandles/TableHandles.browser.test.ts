@@ -141,16 +141,13 @@ describe("TableHandlesView mouse handling", () => {
     const cell = queryElement(
       `[data-id="table-0"] tbody tr:nth-child(${rowIndex + 1})`,
     ).children[colIndex];
-    if (!(cell instanceof HTMLElement)) {
+    if (!cell) {
       throw new Error(`No cell at row ${rowIndex}, column ${colIndex}`);
     }
     return cell;
   }
 
-  function dispatchMouseEvent(
-    type: "mousemove" | "mousedown",
-    el: HTMLElement,
-  ) {
+  function dispatchMouseEvent(type: "mousemove" | "mousedown", el: Element) {
     const rect = el.getBoundingClientRect();
     el.dispatchEvent(
       new MouseEvent(type, {
@@ -165,7 +162,7 @@ describe("TableHandlesView mouse handling", () => {
   // listener that throws doesn't propagate the error to `dispatchEvent`'s
   // caller - the browser reports it as an `error` event on `window` instead -
   // so the error has to be picked up from there to be visible to the test.
-  function moveMouseOver(el: HTMLElement) {
+  function moveMouseOver(el: Element) {
     const errors: unknown[] = [];
     const collectError = (event: ErrorEvent) => {
       errors.push(event.error ?? event.message);

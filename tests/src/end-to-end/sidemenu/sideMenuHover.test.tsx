@@ -4,6 +4,7 @@ import {
   createBlockSpec,
   type PartialBlock,
   defaultBlockSpecs,
+  isDOMHTMLElement,
 } from "@blocknote/core";
 import {
   SideMenuExtension,
@@ -536,7 +537,7 @@ describe("side menu hover: pointer input", () => {
     const handle = await waitForDragHandle(
       await waitForSelector('[data-node-type="blockContainer"][data-id="a"]'),
     );
-    if (!(handle instanceof HTMLElement || handle instanceof SVGElement)) {
+    if (!(isDOMHTMLElement(handle) || handle instanceof SVGElement)) {
       throw new Error("Expected an HTML or SVG drag handle");
     }
     await expect.element(handle).toBeVisible();

@@ -1,3 +1,4 @@
+import { isDOMElement } from "@blocknote/core";
 import { useContext, useLayoutEffect, useState } from "react";
 import { FormattingToolbarInputContext } from "./FormattingToolbarInputContext.js";
 
@@ -115,7 +116,7 @@ export function useVirtualKeyboard(): boolean {
     // top with the keyboard closed, where the overscroll must reach the
     // document for the browser's pull-to-refresh to fire (see the rules in
     // `editor/styles.css`).
-    const markPullToRefresh = (container: HTMLElement, keyboardOpen: boolean) =>
+    const markPullToRefresh = (container: Element, keyboardOpen: boolean) =>
       container.toggleAttribute(
         "data-bn-allow-pull-to-refresh",
         !keyboardOpen && container.scrollTop <= 0,
@@ -140,7 +141,7 @@ export function useVirtualKeyboard(): boolean {
     // Scroll events don't bubble; capture them to track the pinned containers.
     const onScroll = (event: Event) => {
       if (
-        event.target instanceof HTMLElement &&
+        isDOMElement(event.target) &&
         event.target.classList.contains("bn-scroll-container")
       ) {
         markPullToRefresh(event.target, isVirtualKeyboardOpen());

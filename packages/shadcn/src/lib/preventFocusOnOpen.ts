@@ -1,3 +1,4 @@
+import { isDOMHTMLElement } from "@blocknote/core";
 import type { FocusEvent } from "react";
 
 /**
@@ -28,7 +29,7 @@ export function preventFocusOnOpenProps(enabled: boolean) {
   return {
     onFocusCapture(event: FocusEvent<HTMLElement>) {
       const from = event.relatedTarget;
-      if (from instanceof HTMLElement && !event.currentTarget.contains(from)) {
+      if (isDOMHTMLElement(from) && !event.currentTarget.contains(from)) {
         from.focus({ preventScroll: true });
       }
     },

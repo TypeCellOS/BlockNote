@@ -8,6 +8,18 @@ export function isDOMNode(value: unknown): value is Node {
   );
 }
 
+/** Identifies elements across realms, including SVG and MathML elements. */
+export function isDOMElement(value: unknown): value is Element {
+  return isDOMNode(value) && value.nodeType === 1;
+}
+
+/** Identifies HTML elements across realms, excluding SVG and MathML elements. */
+export function isDOMHTMLElement(value: unknown): value is HTMLElement {
+  return (
+    isDOMElement(value) && value.namespaceURI === "http://www.w3.org/1999/xhtml"
+  );
+}
+
 export const isAppleOS = () =>
   typeof navigator !== "undefined" &&
   (/Mac/.test(navigator.platform) ||
