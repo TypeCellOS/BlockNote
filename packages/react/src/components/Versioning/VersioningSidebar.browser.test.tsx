@@ -297,7 +297,21 @@ function nameText(row: HTMLElement) {
   return row.querySelector(".bn-snapshot-name")!.textContent;
 }
 
+function previewButton(row: HTMLElement) {
+  const button = row.querySelector<HTMLButtonElement>(".bn-snapshot-preview");
+  if (!button) {
+    throw new Error("Expected a version preview button");
+  }
+  return button;
+}
+
 async function click(element: Parameters<typeof userEvent.click>[0]) {
+  if (
+    element instanceof HTMLElement &&
+    element.getAttribute("role") === "listitem"
+  ) {
+    element = previewButton(element);
+  }
   // The fake endpoints settle in microtasks unless the test gates them.
   await act(async () => userEvent.click(element));
 }
@@ -452,7 +466,7 @@ describe("VersioningSidebar", () => {
       const targetIndex = namedOnly ? 1 : 2;
       const target = namedOnly ? NAMED : AUTOMATIC;
       await act(async () => {
-        await userEvent.click(rows()[targetIndex]!);
+        await userEvent.click(previewButton(rows()[targetIndex]!));
       });
       expect(viewState(mode(editor))).toMatchObject({
         snapshotId: target.id,
@@ -473,7 +487,7 @@ describe("VersioningSidebar", () => {
       });
       expect(viewState(mode(editor))).toMatchObject({ compareToId: undefined });
       await act(async () => {
-        await userEvent.click(rows()[targetIndex]!);
+        await userEvent.click(previewButton(rows()[targetIndex]!));
       });
       expect(viewState(mode(editor))).toMatchObject({
         snapshotId: target.id,
@@ -481,7 +495,7 @@ describe("VersioningSidebar", () => {
       });
       const oldestIndex = namedOnly ? 2 : 3;
       await act(async () => {
-        await userEvent.click(rows()[oldestIndex]!);
+        await userEvent.click(previewButton(rows()[oldestIndex]!));
       });
       expect(viewState(mode(editor))).toMatchObject({
         snapshotId: older.id,
@@ -594,7 +608,7 @@ describe("VersioningSidebar", () => {
       .toMatchTextContent(de.versioning.history_load_failed);
     expect(listSnapshots).toHaveBeenCalledTimes(3);
     await act(async () => {
-      await userEvent.click(rows()[1]!);
+      await userEvent.click(previewButton(rows()[1]!));
     });
     await expect
       .element(page.getByRole("status", { name: "Preview" }))
@@ -606,7 +620,7 @@ describe("VersioningSidebar", () => {
     await expect.element(page.getByRole("alert")).not.toBeInTheDocument();
     await expect.element(loadMore).not.toBeInTheDocument();
     await act(async () => {
-      await userEvent.click(rows()[1]!);
+      await userEvent.click(previewButton(rows()[1]!));
     });
     await expect
       .element(page.getByRole("status", { name: "Preview" }))
@@ -1490,7 +1504,7 @@ describe("VersioningSidebar", () => {
       expect(fake.endpoints.create).not.toHaveBeenCalled();
       // Enter commits by moving focus to the row, keeping keyboard
       // navigation in the list rather than dropping focus to the body.
-      expect(document.activeElement).toBe(rows()[1]);
+      expect(document.activeElement).toBe(previewButton(rows()[1]!));
     });
 
     it.each([
@@ -1812,29 +1826,29 @@ describe("VersioningSidebar", () => {
   it("scrubs previews with arrow keys, Home and End without wrapping", async () => {
     const { editor } = await setup();
 
-    expect(document.activeElement).toBe(rows()[0]);
+    expect(document.activeElement).toBe(previewButton(rows()[0]!));
     await act(async () => userEvent.keyboard("{ArrowDown}"));
-    expect(document.activeElement).toBe(rows()[1]);
+    expect(document.activeElement).toBe(previewButton(rows()[1]!));
     expect(viewState(mode(editor))).toMatchObject({ snapshotId: NAMED.id });
     expect(rows()[1]!.getAttribute("aria-current")).toBe("true");
 
     await act(async () => userEvent.keyboard("{End}"));
-    expect(document.activeElement).toBe(rows()[2]);
+    expect(document.activeElement).toBe(previewButton(rows()[2]!));
     expect(viewState(mode(editor))).toMatchObject({ snapshotId: AUTOMATIC.id });
     await act(async () => userEvent.keyboard("{ArrowDown}"));
-    expect(document.activeElement).toBe(rows()[2]);
+    expect(document.activeElement).toBe(previewButton(rows()[2]!));
     expect(rows()[2]!.getAttribute("aria-current")).toBe("true");
 
     await act(async () => userEvent.keyboard("{Home}"));
-    expect(document.activeElement).toBe(rows()[0]);
+    expect(document.activeElement).toBe(previewButton(rows()[0]!));
     expect(viewState(mode(editor)).mode).toBe("current");
     await act(async () => userEvent.keyboard("{ArrowUp}"));
-    expect(document.activeElement).toBe(rows()[0]);
+    expect(document.activeElement).toBe(previewButton(rows()[0]!));
     expect(rows()[0]!.getAttribute("aria-current")).toBe("true");
 
     await act(async () => userEvent.keyboard("{ArrowDown}"));
     await act(async () => userEvent.keyboard("{ArrowDown}{ArrowUp}"));
-    expect(document.activeElement).toBe(rows()[1]);
+    expect(document.activeElement).toBe(previewButton(rows()[1]!));
     expect(viewState(mode(editor))).toMatchObject({ snapshotId: NAMED.id });
     await act(async () => userEvent.keyboard("{Enter}"));
     await act(async () => userEvent.keyboard(" "));
@@ -1875,9 +1889,9 @@ describe("VersioningSidebar", () => {
       const index = namedOnly ? 1 : 2;
       const selected = namedOnly ? NAMED : AUTOMATIC;
       await click(rows()[index]!);
-      act(() => rows()[index]!.focus());
+      act(() => previewButton(rows()[index]!).focus());
       await act(async () => userEvent.keyboard("{ArrowDown}{ArrowDown}"));
-      expect(document.activeElement).toBe(rows()[index]);
+      expect(document.activeElement).toBe(previewButton(rows()[index]!));
       expect(viewState(mode(editor))).toMatchObject({
         snapshotId: selected.id,
       });
@@ -1904,7 +1918,7 @@ describe("VersioningSidebar", () => {
           { interval: 10 },
         );
       });
-      expect(document.activeElement).toBe(rows()[index + 1]);
+      expect(document.activeElement).toBe(previewButton(rows()[index + 1]!));
       await act(async () => userEvent.keyboard("{ArrowDown}"));
       expect(viewState(mode(editor))).toMatchObject({ snapshotId: start.id });
     },
@@ -1930,10 +1944,10 @@ describe("VersioningSidebar", () => {
     );
     await act(async () => {});
     await click(rows()[2]!);
-    act(() => rows()[2]!.focus());
+    act(() => previewButton(rows()[2]!).focus());
     await act(async () => userEvent.keyboard("{ArrowDown}{ArrowUp}"));
     await act(async () => olderPage.resolve(success({ snapshots: [older] })));
-    expect(document.activeElement).toBe(rows()[1]);
+    expect(document.activeElement).toBe(previewButton(rows()[1]!));
     expect(viewState(mode(editor))).toMatchObject({ snapshotId: NAMED.id });
   });
 
@@ -1945,23 +1959,23 @@ describe("VersioningSidebar", () => {
       { defaultNamedOnly: true, defaultComparisonMode: true },
       fake,
     );
-    act(() => rows()[0]!.focus());
+    act(() => previewButton(rows()[0]!).focus());
     await act(async () => userEvent.keyboard("{ArrowDown}"));
-    expect(document.activeElement).toBe(rows()[1]);
+    expect(document.activeElement).toBe(previewButton(rows()[1]!));
     expect(viewState(mode(editor))).toEqual({
       mode: "snapshot",
       snapshotId: NAMED.id,
       compareToId: older.id,
     });
     await act(async () => userEvent.keyboard("{ArrowDown}"));
-    expect(document.activeElement).toBe(rows()[2]);
+    expect(document.activeElement).toBe(previewButton(rows()[2]!));
     expect(viewState(mode(editor))).toEqual({
       mode: "snapshot",
       snapshotId: older.id,
       compareToId: undefined,
     });
     await act(async () => userEvent.keyboard("{ArrowUp}"));
-    expect(document.activeElement).toBe(rows()[1]);
+    expect(document.activeElement).toBe(previewButton(rows()[1]!));
     expect(viewState(mode(editor))).toMatchObject({
       snapshotId: NAMED.id,
       compareToId: older.id,
@@ -1972,7 +1986,7 @@ describe("VersioningSidebar", () => {
     const { editor, fake } = await setup({ defaultComparisonMode: true });
     const slow = deferred<VersionResult<unknown[]>>();
     fake.endpoints.getContent.mockReturnValueOnce(slow.promise);
-    act(() => rows()[0]!.focus());
+    act(() => previewButton(rows()[0]!).focus());
     await act(async () => userEvent.keyboard("{ArrowDown}"));
 
     expect(rows()[1]!.getAttribute("aria-current")).toBe("true");
@@ -1992,18 +2006,18 @@ describe("VersioningSidebar", () => {
     const { editor, fake } = await setup();
     const slow = deferred<VersionResult<unknown[]>>();
     fake.endpoints.getContent.mockReturnValueOnce(slow.promise);
-    act(() => rows()[0]!.focus());
+    act(() => previewButton(rows()[0]!).focus());
     await act(async () => userEvent.keyboard("{ArrowDown}"));
-    expect(document.activeElement).toBe(rows()[1]);
+    expect(document.activeElement).toBe(previewButton(rows()[1]!));
     expect(fake.endpoints.getContent).toHaveBeenCalledWith(
       NAMED.id,
       expect.any(AbortSignal),
     );
     await act(async () => userEvent.keyboard("{ArrowDown}"));
-    expect(document.activeElement).toBe(rows()[2]);
+    expect(document.activeElement).toBe(previewButton(rows()[2]!));
     expect(viewState(mode(editor))).toMatchObject({ snapshotId: AUTOMATIC.id });
     await act(async () => slow.resolve(success([])));
-    expect(document.activeElement).toBe(rows()[2]);
+    expect(document.activeElement).toBe(previewButton(rows()[2]!));
     expect(rows()[2]!.getAttribute("aria-current")).toBe("true");
     expect(viewState(mode(editor))).toMatchObject({ snapshotId: AUTOMATIC.id });
   });
@@ -2033,11 +2047,9 @@ describe("VersioningSidebar", () => {
   it("keeps a single tab stop for the whole list", async () => {
     await setup();
 
-    expect(rows().map((row) => row.getAttribute("tabindex"))).toEqual([
-      "0",
-      "-1",
-      "-1",
-    ]);
+    expect(
+      rows().map((row) => previewButton(row).getAttribute("tabindex")),
+    ).toEqual(["0", "-1", "-1"]);
   });
 
   // -------------------------------------------------------------------------
@@ -2224,8 +2236,8 @@ describe("VersioningSidebar", () => {
         await act(async () => {});
 
         expect(rows()).toHaveLength(2);
-        expect(document.activeElement).toBe(nextRow);
-        expect(nextRow.tabIndex).toBe(0);
+        expect(document.activeElement).toBe(previewButton(nextRow));
+        expect(previewButton(nextRow).tabIndex).toBe(0);
       },
     );
 
@@ -2251,12 +2263,12 @@ describe("VersioningSidebar", () => {
       const { editor } = await setup();
       const current = rows()[0]!;
       await act(async () => {
-        current.focus();
+        previewButton(current).focus();
         await mode(editor).remove(NAMED.id);
         await mode(editor).loadMore();
       });
 
-      expect(document.activeElement).toBe(current);
+      expect(document.activeElement).toBe(previewButton(current));
     });
 
     it.each([
@@ -2638,12 +2650,12 @@ describe("VersioningSidebar", () => {
 
   it("focuses a remaining row when the focused version is removed", async () => {
     const { editor } = await setup();
-    act(() => rows()[1]!.focus());
+    act(() => previewButton(rows()[1]!).focus());
     await act(async () => {
       await mode(editor).remove(NAMED.id);
       await mode(editor).loadMore();
     });
-    expect(document.activeElement).toBe(rows()[1]);
+    expect(document.activeElement).toBe(previewButton(rows()[1]!));
   });
 
   it("does not steal focus after a removed version has been left", async () => {
@@ -2652,7 +2664,7 @@ describe("VersioningSidebar", () => {
       .getByRole("button", { name: "Show changes", exact: true })
       .element();
     act(() => {
-      rows()[1]!.focus();
+      previewButton(rows()[1]!).focus();
       control.focus();
     });
     await act(async () => {

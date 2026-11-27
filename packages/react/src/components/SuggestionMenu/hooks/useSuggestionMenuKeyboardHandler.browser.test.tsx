@@ -27,6 +27,7 @@ function Harness({
     }
   }, [eventSource, handler]);
   return (
+    // eslint-disable-next-line jsx-a11y/no-static-element-interactions -- The test observes bubbling from the nested button; this wrapper is not an interactive control.
     <div onKeyDown={onBubble}>
       <button
         type="button"

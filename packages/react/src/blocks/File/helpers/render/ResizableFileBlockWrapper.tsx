@@ -178,7 +178,9 @@ export const ResizableFileBlockWrapper = (
         ref={ref}
       >
         {props.children}
+        {/* Pointer-only handles; accessible resizing needs a separate control. */}
         <div
+          aria-hidden="true"
           className={"bn-resize-handle"}
           style={{
             left: "4px",
@@ -188,6 +190,7 @@ export const ResizableFileBlockWrapper = (
           onTouchStart={leftResizeHandleMouseDownHandler}
         />
         <div
+          aria-hidden="true"
           className={"bn-resize-handle"}
           style={{
             right: "4px",

@@ -35,19 +35,21 @@ export const AddFileButton = (
   }, [editor.isEditable, filePanel, props.block.id, props.editor]);
 
   return (
-    <div
+    <button
+      type="button"
+      disabled={!editor.isEditable}
       className={"bn-add-file-button"}
       onMouseDown={addFileButtonMouseDownHandler}
       onClick={addFileButtonClickHandler}
     >
-      <div className={"bn-add-file-button-icon"}>
+      <span className={"bn-add-file-button-icon"}>
         {props.buttonIcon || <RiFile2Line size={24} />}
-      </div>
-      <div className={"bn-add-file-button-text"}>
+      </span>
+      <span className={"bn-add-file-button-text"}>
         {props.block.type in dict.file_blocks.add_button_text
           ? dict.file_blocks.add_button_text[props.block.type]
           : dict.file_blocks.add_button_text["file"]}
-      </div>
-    </div>
+      </span>
+    </button>
   );
 };

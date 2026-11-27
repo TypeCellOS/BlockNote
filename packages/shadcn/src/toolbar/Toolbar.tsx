@@ -31,6 +31,7 @@ export const Toolbar = forwardRef<HTMLDivElement, ToolbarProps>(
 
     return (
       <ShadCNComponents.Tooltip.TooltipProvider delay={0}>
+        {/* eslint-disable-next-line jsx-a11y/interactive-supports-focus -- Toolbar buttons own focus; the container only observes pointer entry/exit to keep the toolbar open. */}
         <div
           className={cn(
             className,

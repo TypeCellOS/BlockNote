@@ -227,6 +227,14 @@ async function waitForRows(root: ParentNode) {
   });
 }
 
+function previewButton(row: HTMLElement) {
+  const button = row.querySelector<HTMLButtonElement>(".bn-snapshot-preview");
+  if (!button) {
+    throw new Error("Expected a version preview button");
+  }
+  return button;
+}
+
 async function clickElement(element: Element) {
   const { x, y, width, height } = getRect(element);
   await clickAt(x + width / 2, y + height / 2);
@@ -310,7 +318,7 @@ test.each(["mantine", "ariakit", "shadcn"] as const)(
     )!;
     const rows = await waitForRows(region);
 
-    rows[0]!.focus();
+    previewButton(rows[0]!).focus();
     await userEvent.keyboard("{ArrowDown}{Enter}");
     await vi.waitFor(() =>
       expect(rows[1].getAttribute("aria-current")).toBe("true"),
@@ -433,7 +441,7 @@ test.each(["mantine", "ariakit", "shadcn"] as const)(
     await vi.waitFor(() => {
       expect(baselineName.value).toBe("Renamed baseline");
       expect(rows[2]!.getAttribute("aria-label")).toContain("Renamed baseline");
-      expect(document.activeElement).toBe(rows[2]);
+      expect(document.activeElement).toBe(previewButton(rows[2]!));
       expect(rows[0].getAttribute("aria-current")).toBe("true");
       expect(rows[2].getAttribute("aria-current")).not.toBe("true");
       expect(rows[2].classList.contains("comparing")).toBe(true);

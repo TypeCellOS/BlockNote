@@ -858,12 +858,12 @@ we just don't display it in CSS instead. */
   background-color: var(--mantine-color-default-hover);
 }
 
-.bn-mantine .bn-snapshot:focus-visible {
+.bn-mantine .bn-snapshot:has(> .bn-snapshot-preview:focus-visible) {
   outline: 2px solid var(--mantine-primary-color-filled);
   outline-offset: 2px;
 }
 
-.bn-mantine .bn-snapshot.selected:focus-visible {
+.bn-mantine .bn-snapshot.selected:has(> .bn-snapshot-preview:focus-visible) {
   outline-color: var(--mantine-color-white);
   outline-offset: -4px;
 }
@@ -1007,7 +1007,9 @@ we just don't display it in CSS instead. */
 }
 
 .bn-mantine .bn-snapshot:hover .bn-snapshot-menu,
-.bn-mantine .bn-snapshot:focus-visible .bn-snapshot-menu,
+.bn-mantine
+  .bn-snapshot:has(> .bn-snapshot-preview:focus-visible)
+  .bn-snapshot-menu,
 .bn-mantine .bn-snapshot:focus-within .bn-snapshot-menu {
   opacity: 1;
 }
@@ -1071,4 +1073,27 @@ we just don't display it in CSS instead. */
 
 .bn-mantine[data-mantine-color-scheme="dark"] .bn-snapshot-comparing-to {
   color: var(--mantine-primary-color-3);
+}
+
+/* The preview button fills the row; editable names and actions sit above it.
+   Keeping these controls as siblings avoids interactive content inside a button. */
+.bn-mantine .bn-snapshot-preview {
+  position: absolute;
+  inset: 0;
+  padding: 0;
+  border: 0;
+  border-radius: inherit;
+  background: transparent;
+  color: inherit;
+  cursor: inherit;
+  outline: none;
+}
+
+.bn-mantine .bn-snapshot-name-sizer {
+  position: relative;
+  z-index: 1;
+}
+
+.bn-mantine .bn-snapshot-menu {
+  z-index: 1;
 }
