@@ -218,6 +218,55 @@ describe("DragHandleButton", () => {
       expect(extension.store.state?.show).toBe(false);
     });
 
+    it.for(["read-only", "missing block", "unmount"] as const)(
+      "releases an open menu's freeze on %s and follows hover afterward",
+      async (transition, { setupEditor, page }) => {
+        const { editor, rerender } = await setupEditor({
+          initialContent: [
+            { id: "first", type: "paragraph", content: "First" },
+            { id: "second", type: "paragraph", content: "Second" },
+          ],
+          props: { sideMenu: false },
+          children: <DragHandleButton />,
+        });
+        const extension = editor.getExtension(SideMenuExtension);
+        assert(extension);
+        extension.store.setState({
+          show: true,
+          block: editor.document[0],
+          referencePos: new DOMRect(),
+        });
+        await page
+          .getByRole("button", {
+            name: editor.dictionary.side_menu.drag_handle_label,
+            exact: true,
+          })
+          .click();
+        await expect.element(page.getByRole("menu")).toBeVisible();
+        expect(extension.menuFrozen).toBe(true);
+        const before = editor.document;
+
+        switch (transition) {
+          case "read-only":
+            rerender({ editable: false });
+            break;
+          case "missing block":
+            extension.store.setState(undefined);
+            break;
+          case "unmount":
+            rerender({ children: null });
+            break;
+        }
+        await expect.element(page.getByRole("menu")).not.toBeInTheDocument();
+        await expect.poll(() => extension.menuFrozen).toBe(false);
+
+        rerender({ editable: true, children: <DragHandleButton /> });
+        await page.getByText("Second", { exact: true }).hover();
+        await expect.poll(() => extension.store.state?.block.id).toBe("second");
+        expect(editor.document).toEqual(before);
+      },
+    );
+
     it.for([
       { target: "first", selected: false, remaining: ["second", "third"] },
       { target: "first", selected: true, remaining: ["third"] },
