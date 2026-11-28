@@ -6,6 +6,11 @@ import { JSX } from "react";
  * UI components such as `MantineSuggestionMenu` expect a shape that conforms to DefaultSuggestionItem
  */
 export type DefaultReactSuggestionItem = Omit<DefaultSuggestionItem, "key"> & {
+  /**
+   * Tells apart items that share a title, so each keeps its row when the list
+   * changes. Should be unique among items with the same title.
+   */
+  key?: string | number;
   icon?: JSX.Element;
   size?: "default" | "small";
 };

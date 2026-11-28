@@ -1,6 +1,7 @@
 import "@blocknote/core/fonts/inter.css";
 import {
   DefaultReactSuggestionItem,
+  getSuggestionMenuItemKeys,
   SuggestionMenuController,
   SuggestionMenuProps,
   useCreateBlockNote,
@@ -14,11 +15,15 @@ import "./styles.css";
 function CustomSlashMenu(
   props: SuggestionMenuProps<DefaultReactSuggestionItem>,
 ) {
+  // Titles don't have to be unique, so this helper builds a distinct key for
+  // each item.
+  const keys = getSuggestionMenuItemKeys(props.items);
+
   return (
     <div className={"slash-menu"}>
       {props.items.map((item, index) => (
         <div
-          key={item.title}
+          key={keys[index]}
           className={`slash-menu-item ${
             props.selectedIndex === index ? "selected" : ""
           }`}
