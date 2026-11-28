@@ -1,0 +1,34 @@
+/* The editor scrolls in its own container, the outline stays beside it. */
+.layout {
+  display: flex;
+  height: calc(100vh - 20px);
+}
+
+.layout > .bn-container {
+  flex: 1;
+  min-width: 0;
+  overflow: auto;
+}
+
+.toc-sidebar {
+  flex-shrink: 0;
+  width: 240px;
+}
+
+/* The outline scrolls on its own when it's longer than the sidebar. */
+.table-of-contents {
+  background-color: var(--mantine-color-body);
+  color: var(--mantine-color-text);
+  font-family: var(--mantine-font-family);
+  height: 100%;
+  overflow: auto;
+  padding: 16px 8px;
+}
+
+/* Mantine's global reset is intentionally not installed by this example. */
+.table-of-contents,
+.table-of-contents *,
+.table-of-contents *::before,
+.table-of-contents *::after {
+  box-sizing: border-box;
+}
